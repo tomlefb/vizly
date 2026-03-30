@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/shared/Logo'
+import { createClient } from '@/lib/supabase/client'
 
 const navLinks = [
   { label: 'Fonctionnalites', href: '/#features' },
@@ -15,6 +16,14 @@ const navLinks = [
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user)
+    })
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -43,18 +52,29 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-5">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
-          >
-            Se connecter
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
-          >
-            Creer mon portfolio
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+            >
+              Mon dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
+              >
+                Se connecter
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+              >
+                Creer mon portfolio
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -95,20 +115,32 @@ export function Header() {
           </ul>
 
           <div className="border-t border-border pt-4 space-y-3">
-            <Link
-              href="/login"
-              className="block text-center rounded-[var(--radius-md)] border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm"
-              onClick={() => setMobileOpen(false)}
-            >
-              Se connecter
-            </Link>
-            <Link
-              href="/register"
-              className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
-              onClick={() => setMobileOpen(false)}
-            >
-              Creer mon portfolio
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
+                onClick={() => setMobileOpen(false)}
+              >
+                Mon dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="block text-center rounded-[var(--radius-md)] border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Se connecter
+                </Link>
+                <Link
+                  href="/register"
+                  className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Creer mon portfolio
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
