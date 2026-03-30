@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { templateMap } from '@/components/templates'
+import { TrackView } from '@/components/analytics/TrackView'
 import type { TemplateProps } from '@/types'
 
 export const revalidate = 60

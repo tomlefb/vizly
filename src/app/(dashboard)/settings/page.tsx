@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS } from '@/lib/constants'
 import { SettingsForm } from './settings-form'
-import { CustomDomainForm } from './custom-domain-form'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -22,19 +21,6 @@ export default async function SettingsPage() {
 
   const plan = (profile?.plan ?? 'free') as keyof typeof PLANS
   const planLabel = PLANS[plan].name
-  const isPro = plan === 'pro'
-
-  // Fetch portfolio for custom domain (Pro only)
-  let customDomain = ''
-  if (isPro) {
-    const { data: portfolio } = await supabase
-      .from('portfolios')
-      .select('custom_domain')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle()
-    customDomain = portfolio?.custom_domain ?? ''
-  }
 
   return (
     <div className="space-y-2">
@@ -109,16 +95,6 @@ export default async function SettingsPage() {
             </a>
           </div>
         </section>
-
-        {/* Custom domain (Pro only) */}
-        {isPro && (
-          <section className="rounded-[var(--radius-lg)] border border-border bg-surface p-6">
-            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-4">
-              Domaine personnalise
-            </h2>
-            <CustomDomainForm initialDomain={customDomain} />
-          </section>
-        )}
 
         {/* Danger zone */}
         <section className="rounded-[var(--radius-lg)] border border-red-200 bg-red-50/50 p-6">

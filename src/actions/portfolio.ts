@@ -266,6 +266,7 @@ export async function unpublishPortfolio(): Promise<{
 }
 
 export async function updateCustomDomain(
+  portfolioId: string,
   domain: string
 ): Promise<{ error: string | null }> {
   try {
@@ -289,6 +290,18 @@ export async function updateCustomDomain(
       return { error: 'Le domaine personnalisé est réservé au plan Pro' }
     }
 
+    // Verify portfolio belongs to the authenticated user
+    const { data: portfolio } = await supabase
+      .from('portfolios')
+      .select('id')
+      .eq('id', portfolioId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!portfolio) {
+      return { error: 'Portfolio introuvable' }
+    }
+
     const trimmed = domain.trim().toLowerCase()
 
     // Allow empty to remove custom domain
@@ -299,7 +312,7 @@ export async function updateCustomDomain(
     const { error } = await supabase
       .from('portfolios')
       .update({ custom_domain: trimmed || null })
-      .eq('user_id', user.id)
+      .eq('id', portfolio.id)
 
     if (error) {
       return { error: error.message }
@@ -308,5 +321,43 @@ export async function updateCustomDomain(
     return { error: null }
   } catch {
     return { error: 'Erreur lors de la mise à jour du domaine' }
+  }
+}
+
+export interface PortfolioWithDomain {
+  id: string
+  title: string
+  slug: string | null
+  custom_domain: string | null
+  published: boolean
+}
+
+export async function getPortfoliosWithDomains(): Promise<{
+  data: PortfolioWithDomain[]
+  error: string | null
+}> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return { data: [], error: 'Non authentifié' }
+    }
+
+    const { data, error } = await supabase
+      .from('portfolios')
+      .select('id, title, slug, custom_domain, published')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      return { data: [], error: error.message }
+    }
+
+    return { data: data ?? [], error: null }
+  } catch {
+    return { data: [], error: 'Erreur lors de la récupération des portfolios' }
   }
 }
