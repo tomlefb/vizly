@@ -40,6 +40,7 @@ export default function RegisterPage() {
           data: {
             full_name: parsed.data.name,
           },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 

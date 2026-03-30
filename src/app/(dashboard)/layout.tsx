@@ -60,7 +60,7 @@ export default async function DashboardLayout({
       {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-border bg-surface">
         <div className="flex h-16 items-center px-6">
-          <Link href="/" aria-label="Retour à l'accueil">
+          <Link href="/dashboard" aria-label="Retour au dashboard">
             <Logo size="md" />
           </Link>
         </div>
