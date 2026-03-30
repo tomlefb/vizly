@@ -32,7 +32,7 @@ const planFeatures: PlanFeature[] = [
     label: 'Badge "Fait avec Vizly"',
     free: false,
     starter: true,
-    pro: false,
+    pro: true,
   },
   {
     label: 'Projets illimites',
