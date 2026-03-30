@@ -75,9 +75,6 @@ export function Footer() {
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} Vizly. Tous droits reserves.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Fait avec <span aria-label="amour">&#10084;&#65039;</span> en France
-          </p>
         </div>
       </div>
     </footer>
