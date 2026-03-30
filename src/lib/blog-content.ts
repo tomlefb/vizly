@@ -1,0 +1,108 @@
+interface ContentBlock {
+  type: 'p' | 'h2' | 'cta'
+  text: string
+}
+
+const ARTICLES: Record<string, ContentBlock[]> = {
+  'creer-portfolio-en-ligne-5-minutes': [
+    { type: 'p', text: "Avoir un portfolio en ligne est devenu indispensable en 2026. Que tu sois developpeur, designer, photographe ou etudiant, c'est ta vitrine professionnelle. Le probleme ? La plupart des outils sont soit trop complexes (WordPress), soit trop chers (Squarespace), soit pas adaptes (Canva exporte un PDF, pas un site). Vizly change ca." },
+    { type: 'h2', text: "Etape 1 : Cree ton compte" },
+    { type: 'p', text: "Inscris-toi gratuitement avec ton email ou ton compte Google. Pas de carte bancaire demandee. Tu arrives directement dans l'editeur." },
+    { type: 'h2', text: "Etape 2 : Remplis tes informations" },
+    { type: 'p', text: "L'editeur te guide etape par etape. Commence par ton nom, ton metier, ta bio et ta photo de profil. Ajoute tes liens (LinkedIn, GitHub, Dribbble...). Un apercu en temps reel s'affiche a cote pour voir le resultat au fur et a mesure." },
+    { type: 'h2', text: "Etape 3 : Ajoute tes projets" },
+    { type: 'p', text: "Pour chaque projet, ajoute un titre, une description, des images (jusqu'a 5) et des tags de competences. Tu peux reorganiser l'ordre par glisser-deposer. C'est la partie la plus importante de ton portfolio : montre ton meilleur travail." },
+    { type: 'h2', text: "Etape 4 : Choisis ton style" },
+    { type: 'p', text: "Vizly propose 8 templates uniques, chacun avec sa propre personnalite. Du minimal au brutalist, de l'elegant au bento. Choisis celui qui correspond a ton metier et a ta personnalite. Personnalise les couleurs et la typographie pour le rendre unique." },
+    { type: 'h2', text: "Etape 5 : Publie ton portfolio" },
+    { type: 'p', text: "Choisis ton pseudo (pseudo.vizly.fr) et publie. Ton site est en ligne instantanement. Tu peux revenir le modifier a tout moment. Le plan gratuit te permet de creer et previsualiser. Pour la mise en ligne, le plan Starter demarre a 4,99 EUR/mois." },
+    { type: 'cta', text: "Pret a creer ton portfolio en 5 minutes ?" },
+    { type: 'h2', text: "Pourquoi Vizly plutot qu'un autre outil ?" },
+    { type: 'p', text: "Vizly est specialise portfolio. Pas un builder de sites generique. L'experience est optimisee pour un seul objectif : mettre ton travail en valeur rapidement. Pas de drag-and-drop complexe, pas de centaines d'options. Tu remplis, tu personnalises, tu publies. C'est tout." },
+    { type: 'p', text: "Chaque template est responsive mobile-first, accessible, et optimise pour la performance. Ton portfolio charge vite et s'affiche parfaitement sur tous les appareils. Et avec un domaine en .vizly.fr, ton URL est propre et professionnelle." },
+  ],
+
+  'portfolio-developpeur-erreurs': [
+    { type: 'p', text: "Ton portfolio de developpeur est ta meilleure carte de visite. Mais beaucoup de devs font des erreurs qui plombent leur impact. Voici les 10 erreurs les plus courantes et comment les eviter." },
+    { type: 'h2', text: "1. Ne pas avoir de portfolio du tout" },
+    { type: 'p', text: "L'erreur numero 1, c'est de se contenter d'un CV et d'un profil LinkedIn. Un portfolio montre ce que tu sais FAIRE, pas juste ce que tu pretends savoir. Les recruteurs et les clients veulent voir du concret." },
+    { type: 'h2', text: "2. Lister des technologies sans projets" },
+    { type: 'p', text: "\"Je maitrise React, Node.js, Python, Docker...\" Cool, mais montre-moi. Chaque technologie devrait etre illustree par un projet reel. Un projet bien documente vaut mieux que 20 logos de technos." },
+    { type: 'h2', text: "3. Des projets sans contexte" },
+    { type: 'p', text: "Pour chaque projet, explique le probleme que tu as resolu, ton role, les technologies utilisees, et le resultat. Un screenshot sans explication ne dit rien. Raconte une histoire." },
+    { type: 'h2', text: "4. Un design negligee" },
+    { type: 'p', text: "\"Je suis dev, pas designer.\" Ce n'est pas une excuse. Un portfolio mal presente donne l'impression que tu bacles ton travail. Utilise un template professionnel plutot que de coder un site moche de zero." },
+    { type: 'cta', text: "Besoin d'un portfolio dev propre en 5 minutes ?" },
+    { type: 'h2', text: "5. Trop de projets mediocres" },
+    { type: 'p', text: "Qualite > quantite. 3-5 projets bien presentes valent mieux que 15 projets baclees. Choisis tes meilleurs travaux et mets-les en valeur." },
+    { type: 'h2', text: "6. Pas de lien vers le code source" },
+    { type: 'p', text: "En tant que dev, ton code est ton portfolio. Ajoute un lien GitHub vers chaque projet. Les recruteurs techniques vont regarder ton code." },
+    { type: 'h2', text: "7. Un site qui ne charge pas vite" },
+    { type: 'p', text: "Ironie supreme : un dev dont le portfolio met 5 secondes a charger. Optimise tes images, utilise du lazy loading, et choisis un hebergement performant." },
+    { type: 'h2', text: "8. Pas de version mobile" },
+    { type: 'p', text: "Plus de 50% du trafic web est mobile. Si ton portfolio n'est pas responsive, tu perds la moitie de tes visiteurs. Teste sur telephone." },
+    { type: 'h2', text: "9. Des informations de contact cachees" },
+    { type: 'p', text: "Si quelqu'un veut te contacter, ne lui fais pas chercher ton email pendant 3 minutes. Un lien de contact visible, un email clair, des liens LinkedIn/GitHub en evidence." },
+    { type: 'h2', text: "10. Ne jamais mettre a jour" },
+    { type: 'p', text: "Un portfolio avec des projets de 2022 en 2026, ca fait mauvais effet. Mets a jour regulierement avec tes derniers projets. Avec Vizly, modifier ton portfolio prend 2 minutes." },
+  ],
+
+  'quel-template-choisir': [
+    { type: 'p', text: "Vizly propose 8 templates de portfolio, chacun avec sa propre personnalite. Mais lequel est fait pour toi ? Ce guide t'aide a choisir en fonction de ton metier et de ce que tu veux communiquer." },
+    { type: 'h2', text: "Tu es developpeur ? → Minimal ou Dark" },
+    { type: 'p', text: "Le template Minimal est parfait pour les devs : fond blanc, typo clean, projets en grille. Ca laisse parler ton travail sans distraction. Si tu preferes un style plus tech avec un fond sombre et des accents neon, le template Dark est pour toi." },
+    { type: 'h2', text: "Tu es etudiant ou junior ? → Classique" },
+    { type: 'p', text: "Le template Classique a une structure type CV avec sidebar et liste de projets. C'est rassurant pour les recruteurs qui cherchent un format familier. Ideal pour les candidatures de stage et d'alternance." },
+    { type: 'h2', text: "Tu es community manager ou marketeur ? → Colore" },
+    { type: 'p', text: "Le template Colore respire la creativite et l'energie. Couleurs vives, layout dynamique, ambiance fun. Parfait pour montrer que tu sais creer du contenu engageant." },
+    { type: 'cta', text: "Teste les 4 templates gratuits maintenant" },
+    { type: 'h2', text: "Tu es designer ou DA ? → Creatif (Premium)" },
+    { type: 'p', text: "Layout asymetrique, grandes images plein ecran, animations au scroll. Le template Creatif met ton travail visuel au premier plan. C'est le template le plus impactant pour les portfolios de design." },
+    { type: 'h2', text: "Tu es artiste ou designer avant-gardiste ? → Brutalist (Premium)" },
+    { type: 'p', text: "Typo bold oversized, layout casse, grille deconstructee. Le template Brutalist fait une declaration. C'est pas pour tout le monde, et c'est exactement ce qui le rend memorable." },
+    { type: 'h2', text: "Tu es photographe ou architecte ? → Elegant (Premium)" },
+    { type: 'p', text: "Typo serif, espaces genereux, transitions douces. Le template Elegant respire le luxe et le raffinement. Tes images sont mises en valeur comme dans une galerie." },
+    { type: 'h2', text: "Tu es product designer ou UI/UX ? → Bento (Premium)" },
+    { type: 'p', text: "Le template Bento utilise une grille de blocs de tailles variees, tendance Apple 2026. Mix de texte, images et stats dans une composition moderne. Parfait pour les profils polyvalents qui veulent montrer differentes facettes de leur travail." },
+  ],
+
+  'portfolio-etudiant-stage-alternance': [
+    { type: 'p', text: "Tu cherches un stage ou une alternance ? Ton CV ne suffit plus. En 2026, les recruteurs veulent voir ce que tu sais faire, pas juste lire ce que tu pretends savoir. Un portfolio en ligne, c'est ton avantage competitif." },
+    { type: 'h2', text: "Pourquoi un portfolio est indispensable" },
+    { type: 'p', text: "Sur une pile de 200 CV identiques, comment te demarquer ? Un lien vers ton portfolio dans ton CV change la donne. Le recruteur clique, voit tes projets, comprend ton niveau, et te met dans la pile \"a rappeler\". C'est aussi simple que ca." },
+    { type: 'h2', text: "Quoi mettre quand on n'a pas d'experience" },
+    { type: 'p', text: "Projets personnels, projets d'ecole, contributions open source, redesigns conceptuels, challenges de code... Tout compte. L'important c'est de montrer ta demarche, pas d'avoir travaille chez Google. Un projet scolaire bien presente vaut mieux que pas de projet du tout." },
+    { type: 'h2', text: "Les 5 elements cles d'un bon portfolio etudiant" },
+    { type: 'p', text: "1. Une bio courte et claire qui dit qui tu es et ce que tu cherches. 2. 3 a 5 projets bien documentes avec contexte, techno et resultat. 3. Des visuels (screenshots, mockups, demos). 4. Tes liens (LinkedIn, GitHub). 5. Un moyen de te contacter facilement." },
+    { type: 'cta', text: "Cree ton portfolio etudiant gratuitement" },
+    { type: 'h2', text: "L'URL qui fait pro" },
+    { type: 'p', text: "Avec Vizly, ton portfolio est accessible sur prenom.vizly.fr. C'est propre, facile a retenir, et ca se met dans un CV ou une signature email. Beaucoup plus pro qu'un lien Google Drive ou un PDF envoye par WeTransfer." },
+    { type: 'h2', text: "Combien ca coute" },
+    { type: 'p', text: "Creer et previsualiser ton portfolio est 100% gratuit. La mise en ligne coute 4,99 EUR/mois avec le plan Starter. C'est le prix d'un cafe par mois pour une vitrine professionnelle accessible 24/7. Et tu peux annuler a tout moment." },
+    { type: 'h2', text: "Le bon template pour un etudiant" },
+    { type: 'p', text: "On recommande le template Classique : structure type CV, sidebar avec tes infos, projets a droite. Les recruteurs retrouvent un format familier et naviguent facilement. Si tu veux quelque chose de plus moderne, le template Minimal est aussi un excellent choix." },
+  ],
+
+  'comparatif-outils-portfolio-2026': [
+    { type: 'p', text: "Tu veux creer un portfolio en ligne mais tu ne sais pas quel outil utiliser ? Voici un comparatif honnete des principales solutions en 2026, avec leurs forces et leurs faiblesses." },
+    { type: 'h2', text: "WordPress : puissant mais trop complexe" },
+    { type: 'p', text: "WordPress peut tout faire, mais c'est justement le probleme. Pour un simple portfolio, tu vas passer des heures a configurer un theme, installer des plugins, gerer les mises a jour de securite. C'est l'equivalent de prendre un semi-remorque pour aller chercher du pain." },
+    { type: 'h2', text: "Wix / Squarespace : beau mais cher" },
+    { type: 'p', text: "Ces plateformes sont bien concues, mais elles ne sont pas specialisees portfolio. Tu paies 12-20 EUR/mois pour un builder de sites generique dont tu utiliseras 10% des fonctionnalites. Et les templates portfolio sont souvent generiques." },
+    { type: 'h2', text: "Canva : facile mais pas un site web" },
+    { type: 'p', text: "Canva est genial pour creer des visuels, mais un \"portfolio Canva\" c'est un PDF ou une image. Pas un site web avec une URL, pas indexe par Google, pas interactif. Ce n'est pas la bonne solution." },
+    { type: 'h2', text: "Coder soi-meme : controle total mais chronophage" },
+    { type: 'p', text: "Si tu es dev, tu peux coder ton portfolio from scratch. Mais ca prend du temps : design, responsive, deploiement, maintenance. Du temps que tu pourrais passer a travailler sur de vrais projets. Et 90% des gens ne savent pas coder." },
+    { type: 'cta', text: "Essaie Vizly : le juste milieu" },
+    { type: 'h2', text: "Carrd : simple mais limite" },
+    { type: 'p', text: "Carrd est minimaliste et abordable, mais les portfolios sont limites a une seule page sans vraie gestion de projets. Pas de galerie, pas de templates specialises. C'est bien pour une landing page, pas pour un portfolio complet." },
+    { type: 'h2', text: "Vizly : specialise, simple, abordable" },
+    { type: 'p', text: "Vizly est ne d'un constat : il n'existe rien de simple, beau et specialise portfolio en France. L'experience est optimisee pour un seul objectif : mettre ton travail en valeur. Formulaire guide en 5 etapes, 8 templates uniques, publication instantanee sur pseudo.vizly.fr. Le plan gratuit permet de creer et previsualiser, la mise en ligne demarre a 4,99 EUR/mois." },
+    { type: 'h2', text: "Tableau comparatif" },
+    { type: 'p', text: "WordPress : 0-30 EUR/mois, complexe, personnalisation totale. Wix/Squarespace : 12-20 EUR/mois, facile, pas specialise. Canva : gratuit, pas un site web. Code from scratch : gratuit, tres chronophage. Carrd : 5 EUR/an, limite. Vizly : 0-9,99 EUR/mois, specialise portfolio, templates uniques, publication instantanee." },
+  ],
+}
+
+export function getArticleContent(slug: string): ContentBlock[] {
+  return ARTICLES[slug] ?? []
+}

@@ -1,136 +1,87 @@
 # MEMOIRE DU PROJET
 
-> Ce fichier est la memoire persistante du projet. Il est lu au debut de chaque session et mis a jour a la fin.
-> **Derniere mise a jour** : 2026-03-30 11:00
-> **Derniere session par** : Lead Orchestrator
+> Etat actuel, decisions actives, configuration. Lu au debut de chaque session.
+> Pour l'historique complet des sessions : voir `MEMORY-LOG.md`
+> **Derniere mise a jour** : 2026-03-30 20:00
 
 ---
 
-## Etat actuel du projet
+## Etat actuel
 
-- **Phase en cours** : Phase 0 -- Configuration initiale
-- **Progression globale** : 5% (configuration multi-agent terminee, aucun code applicatif)
-- **Build status** : N/A (projet pas encore initialise avec npm)
-- **Tests status** : N/A (Playwright pas encore configure)
-- **Derniere action** : Configuration complete du systeme multi-agent
-- **Prochain objectif** : Phase 1 -- Fondations (setup Next.js, Supabase, Auth, Landing, Playwright)
+- **Phase** : Post-MVP — features complementaires ajoutees
+- **URL prod** : https://vizly.fr (alias *.vizly.fr)
+- **Build** : `next build` OK (30 routes, 0 erreurs)
+- **Tests** : 129 Playwright (8 fichiers)
+- **Derniere action** : 6 blocs post-MVP (legal, templates showcase, blog SEO, SEO technique, FAQ/contact/404, UX onboarding)
 
----
+## Prochaines etapes
 
-## Historique des sessions
-
-### Session 0 -- 2026-03-30
-- **Duree** : ~30min
-- **Agent(s)** : Lead Orchestrator (configuration initiale)
-- **Objectif** : Configurer l'infrastructure multi-agent du projet
-- **Realise** :
-  - Installation de 7 skills design (frontend-design, theme-factory, brand-guidelines, canvas-design, web-design-guidelines, shadcn-ui, ui-ux-pro-max)
-  - Creation de AGENTS.md (482 lignes) -- roles des 6 agents, workflow par phase, regles globales
-  - Creation de 6 slash commands (orchestrate, design-review, new-template, qa, status, sprint)
-  - Creation de .claude/settings.json avec permissions auto-approve
-  - Creation de .env.example (138 lignes) -- toutes les variables documentees
-  - Enrichissement de CLAUDE.md (411 -> 1050 lignes) avec structure projet, conventions, design system, performance, commandes
-  - Creation des 4 fichiers de status (.claude/status/)
-  - Creation du systeme de memoire persistante (MEMORY.md + slash command memory)
-- **Problemes rencontres** : Skill communautaire web-accessibility (supercent-io) echouee -- repo inexistant. Sans impact, les 4 skills Anthropic couvrent le besoin.
-- **Decisions prises** :
-  - D1 : Direction artistique "Refined Modern" pour l'app elle-meme
-  - D2 : Chaque template a une paire de fonts unique (pas de doublon)
-  - D3 : Anti-patterns AI slop formellement definis et interdits
-  - D4 : Workflow en 5 phases avec dependances documentees
-- **Fichiers crees/modifies** :
-  - `CLAUDE.md` -- Enrichi avec 5 nouvelles sections (structure, conventions, design system, performance, commandes)
-  - `AGENTS.md` -- Nouveau fichier, architecture multi-agent complete
-  - `MEMORY.md` -- Nouveau fichier, memoire persistante
-  - `.claude/settings.json` -- Permissions agents
-  - `.claude/commands/orchestrate.md` -- Slash command orchestrateur
-  - `.claude/commands/design-review.md` -- Slash command review design
-  - `.claude/commands/new-template.md` -- Slash command creation template
-  - `.claude/commands/qa.md` -- Slash command audit QA
-  - `.claude/commands/status.md` -- Slash command status projet
-  - `.claude/commands/sprint.md` -- Slash command sprint autonome
-  - `.claude/commands/memory.md` -- Slash command gestion memoire
-  - `.claude/status/current-sprint.md` -- Taches en cours
-  - `.claude/status/blockers.md` -- Blocages
-  - `.claude/status/completed.md` -- Historique taches
-  - `.claude/status/design-decisions.md` -- Decisions design
-  - `.env.example` -- Variables d'environnement
-- **A faire ensuite** :
-  - Lancer `/sprint 1` pour demarrer la Phase 1 (Fondations)
-  - DevOps : setup Next.js 15, Supabase, Vercel, GitHub Actions
-  - Senior Dev : schema DB, migrations, RLS, auth flow
-  - Designer : landing page, design system, choix des fonts
-  - QA : setup Playwright, premiers tests auth
-
----
-
-## Registre des decisions
-
-| # | Date | Decision | Contexte | Impact |
-|---|------|----------|----------|--------|
-| D1 | 2026-03-30 | Direction artistique "Refined Modern" pour l'app | Differentiation vs SaaS generiques | Toutes les pages de l'app (hors templates portfolio) |
-| D2 | 2026-03-30 | Chaque template a une paire de fonts unique | Eviter l'uniformite entre templates | Designer doit verifier design-decisions.md avant chaque template |
-| D3 | 2026-03-30 | Anti-patterns AI slop formellement interdits | Qualite visuelle = priorite #1 du projet | Review design obligatoire, rejection si AI slop detecte |
-| D4 | 2026-03-30 | Workflow en 5 phases avec dependances | Organisation multi-agent autonome | Chaque sprint suit le plan de phase defini dans AGENTS.md |
-| D5 | 2026-03-30 | 7 skills design installees pour les agents | Garantir la qualite du design | Agents Designer ont acces aux guidelines frontend-design, shadcn-ui, etc. |
-| D6 | 2026-03-30 | Nom de l'app : Vizly, domaine : vizly.fr | Choix du nom definitif et du domaine principal | Toutes les references a tonapp/TonApp remplacees par vizly/Vizly dans tout le projet |
-
----
+- [ ] Redeploy prod avec tous les changements
+- [ ] Configurer Google OAuth (Supabase Dashboard + Google Cloud Console)
+- [ ] Premier utilisateur beta
+- [ ] Monitoring prod (erreurs, logs)
 
 ## Bugs connus
 
-| # | Severite | Description | Fichier | Status |
-|---|----------|-------------|---------|--------|
-| -- | -- | Aucun bug connu | -- | -- |
+| # | Sev | Description | Status |
+|---|-----|-------------|--------|
+| B1 | Moy | lucide-react: pas d'icones de marque (Github, Linkedin...) | Resolu — icones generiques |
+| B2 | Haut | Images projets disparaissent a la sauvegarde | Resolu — upload immediat dans ProjectForm |
+| B3 | Moy | LivePreview ne reagit pas aux changements customisation | Resolu — Google Fonts dynamique + secondary_color |
+| B4 | Moy | Emails contiennent URLs localhost:3000 | Resolu — fallback https://vizly.fr |
+| B5 | Bas | Trop d'espace entre sections landing page | Resolu — paddings reduits |
+| B6 | Bas | Sidebar visible sous les overlays editeur | Resolu — z-index editor 40 > sidebar 30 |
+| B7 | Bas | Pas de preview portfolio dans dashboard | Resolu — mini browser chrome card ajoutee |
 
----
+Aucun bug actif.
 
-## Dependances installees
+## Decisions actives
 
-| Package | Version | Pourquoi |
-|---------|---------|----------|
-| -- | -- | Aucune dependance npm installee (projet pas encore initialise) |
+| # | Decision | Impact |
+|---|----------|--------|
+| D1 | Direction "Refined Modern", accent #E8553D, fond #FAFAF8 | Toutes les pages app |
+| D2 | Chaque template = paire de fonts unique | 8 paires distinctes |
+| D7 | Accent par defaut portfolio = #E8553D | Valeur default DB |
+| D8 | Template par defaut = minimal, font = DM Sans | Valeur default DB |
+| D9 | ISR revalidate = 60s portfolios publics | portfolio/[slug] |
+| D11 | State management : hooks custom (pas Zustand/SWR) | EditorClient.tsx |
+| D12 | Sync projets en batch (au depart de step 2) | Pas de sync temps reel |
+| D14 | Social icons generiques (Code2, Link2, etc.) | Tous templates + LivePreview |
+| D17 | Google Fonts via `<link>` preconnect (Server Components) | Tous templates |
 
-Note : les skills sont installees dans `.agents/skills/` mais ne sont pas des dependances npm.
+## Dependances principales
 
----
+next 15.5.14, react 19.2.4, @supabase/supabase-js 2.100.1, @supabase/ssr 0.9.0,
+stripe 21.0.1, resend 6.9.4, zod 4.3.6 (.issues pas .errors), framer-motion 12.38.0,
+lucide-react 1.7.0, tailwindcss 4.2.2, typescript 5.9.3
 
-## Variables d'environnement configurees
+## Env vars (17 sur Vercel)
 
-| Variable | Configuree | Notes |
-|----------|-----------|-------|
-| NEXT_PUBLIC_APP_URL | Non | A configurer au setup |
-| NEXT_PUBLIC_ROOT_DOMAIN | Non | vizly.fr |
-| NEXT_PUBLIC_SUPABASE_URL | Non | Creer le projet Supabase d'abord |
-| NEXT_PUBLIC_SUPABASE_ANON_KEY | Non | Disponible apres creation projet |
-| SUPABASE_SERVICE_ROLE_KEY | Non | Disponible apres creation projet |
-| SUPABASE_DB_URL | Non | Disponible apres creation projet |
-| GOOGLE_CLIENT_ID | Non | Configurer dans Google Cloud Console |
-| GOOGLE_CLIENT_SECRET | Non | Configurer dans Google Cloud Console |
-| NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY | Non | Creer le compte Stripe d'abord |
-| STRIPE_SECRET_KEY | Non | Creer le compte Stripe d'abord |
-| STRIPE_WEBHOOK_SECRET | Non | Genere apres creation du webhook |
-| STRIPE_PRICE_STARTER_MONTHLY | Non | Creer les produits Stripe |
-| STRIPE_PRICE_PRO_MONTHLY | Non | Creer les produits Stripe |
-| STRIPE_PRICE_TEMPLATE_CREATIVE | Non | Creer les produits Stripe |
-| STRIPE_PRICE_TEMPLATE_BRUTALIST | Non | Creer les produits Stripe |
-| STRIPE_PRICE_TEMPLATE_ELEGANT | Non | Creer les produits Stripe |
-| STRIPE_PRICE_TEMPLATE_BENTO | Non | Creer les produits Stripe |
-| RESEND_API_KEY | Non | Creer le compte Resend |
-| RESEND_FROM_EMAIL | Non | Verifier le domaine dans Resend |
-| VERCEL_API_TOKEN | Non | Pour les domaines custom (Phase 4) |
-| VERCEL_PROJECT_ID | Non | Disponible apres deploy Vercel |
+| Variable | Status |
+|----------|--------|
+| NEXT_PUBLIC_SUPABASE_URL / ANON_KEY | OK |
+| SUPABASE_SERVICE_ROLE_KEY | OK |
+| STRIPE_SECRET_KEY / PUBLIC_KEY | OK |
+| STRIPE_WEBHOOK_SECRET | OK (whsec_DajmK0a...) |
+| STRIPE_PRICE_* (6 prix) | OK |
+| RESEND_API_KEY / FROM_EMAIL | OK |
+| NEXT_PUBLIC_APP_URL / DOMAIN / NAME | OK |
+| GOOGLE_CLIENT_ID / SECRET | Non configure |
 
----
+## Architecture (resume)
 
-## Structure des skills installees
+- 8 templates portfolio (4 gratuits + 4 premium)
+- Editeur 5 etapes avec LivePreview + auto-save debounce
+- Stripe : subscriptions Starter/Pro + one-shot templates premium + webhook handler
+- Resend : 4 types d'emails (welcome, contact, expiration, offline)
+- Auth Supabase : email/password + Google OAuth (a configurer)
+- Pages : /, /login, /register, /dashboard, /editor, /billing, /settings, /portfolio/[slug], /templates, /blog, /blog/[slug], /legal/cgu, /legal/confidentialite, /legal/mentions, /legal/faq, /legal/contact
+- API : /api/upload, /api/check-slug, /api/contact, /api/contact-page, /api/stripe-webhook
+- SEO : sitemap.xml, robots.txt, JSON-LD SoftwareApplication, OG/Twitter Cards
 
-| Skill | Source | Usage principal |
-|-------|--------|----------------|
-| frontend-design | Anthropic | Design Thinking Process, anti-AI-slop, production-grade UI |
-| theme-factory | Anthropic | 10 themes pre-configures avec palettes et font pairings |
-| brand-guidelines | Anthropic | Couleurs et typo de marque (reference, pas applique directement) |
-| canvas-design | Anthropic | Creation d'art visuel et compositions (pour assets marketing) |
-| web-design-guidelines | Vercel Labs | Review UI contre les Web Interface Guidelines |
-| shadcn-ui | giuseppe-trisciuoglio | Guide complet shadcn/ui : install, config, composants, patterns |
-| ui-ux-pro-max | nextlevelbuilder | 50+ styles, 161 palettes, 57 font pairings, 99 regles UX |
+## Vercel
+
+- Project ID : prj_bGro8ZRIoZVNFpFtB7yDUGPBpJWX
+- Team ID : team_KXAtotuumofy2mSNScxhnLJq
+- Framework : nextjs
+- Domaines : vizly.fr (redirect www), www.vizly.fr, *.vizly.fr
