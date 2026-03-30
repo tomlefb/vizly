@@ -63,7 +63,7 @@ export function TemplateShowcase() {
           return (
             <Link
               key={template.name}
-              href="/register"
+              href={`/templates/${template.name}`}
               className="group relative rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
             >
               {/* Premium badge */}
@@ -111,7 +111,7 @@ export function TemplateShowcase() {
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors duration-300 flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[var(--radius-md)] bg-accent px-5 py-2 text-sm font-semibold text-white shadow-lg">
-                    Essayer ce template
+                    Voir ce template
                   </span>
                 </div>
               </div>
