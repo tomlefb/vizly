@@ -22,15 +22,40 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
+  const isPro = profile?.plan === 'pro'
+
+  // Fetch project count for Pro users
+  let projectCount = 0
+  if (portfolio) {
+    const { count } = await supabase
+      .from('projects')
+      .select('id', { count: 'exact', head: true })
+      .eq('portfolio_id', portfolio.id)
+    projectCount = count ?? 0
+  }
+
   return (
     <>
-      <div className="mb-8">
-        <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight">
-          Mon Portfolio
-        </h1>
-        <p className="mt-1 text-muted">
-          {profile?.name ? `Bienvenue, ${profile.name}` : 'Bienvenue sur Vizly'}
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight">
+            Mon Portfolio
+          </h1>
+          <p className="mt-1 text-muted">
+            {profile?.name ? `Bienvenue, ${profile.name}` : 'Bienvenue sur Vizly'}
+          </p>
+        </div>
+        {isPro && portfolio && (
+          <Link
+            href="/editor?new-project=1"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Nouveau projet
+          </Link>
+        )}
       </div>
 
       {portfolio ? (
@@ -213,21 +238,69 @@ export default async function DashboardPage() {
 
       {/* Plan info */}
       <div className="mt-8 rounded-[var(--radius-lg)] border border-border bg-surface p-6">
-        <h3 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold">
-          Mon plan
-        </h3>
-        <p className="mt-1 text-sm text-muted">
-          Plan actuel :{' '}
-          <span className="font-medium capitalize text-foreground">
+        <div className="flex items-center justify-between">
+          <h3 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold">
+            Mon plan
+          </h3>
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
+              isPro
+                ? 'bg-amber-100 text-amber-800'
+                : profile?.plan === 'starter'
+                  ? 'bg-accent/10 text-accent'
+                  : 'bg-muted/50 text-muted-foreground'
+            }`}
+          >
             {profile?.plan ?? 'free'}
           </span>
-        </p>
+        </div>
+
+        {isPro && portfolio && (
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="rounded-[var(--radius-md)] border border-border bg-surface-warm/50 p-3">
+              <p className="text-2xl font-bold text-foreground">{projectCount}</p>
+              <p className="text-xs text-muted">Projets</p>
+            </div>
+            <div className="rounded-[var(--radius-md)] border border-border bg-surface-warm/50 p-3">
+              <p className="text-2xl font-bold text-foreground">{portfolio.custom_domain ? '1' : '0'}</p>
+              <p className="text-xs text-muted">Domaine custom</p>
+            </div>
+            <div className="rounded-[var(--radius-md)] border border-border bg-surface-warm/50 p-3">
+              <p className="text-2xl font-bold text-foreground">{portfolio.published ? 'Actif' : 'Inactif'}</p>
+              <p className="text-xs text-muted">Statut</p>
+            </div>
+          </div>
+        )}
+
         {profile?.plan === 'free' && (
           <Link
             href="/billing"
             className="mt-4 inline-flex items-center text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
           >
             Passer au plan Starter pour publier ton portfolio
+            <svg
+              className="ml-1 h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+              />
+            </svg>
+          </Link>
+        )}
+
+        {profile?.plan === 'starter' && (
+          <Link
+            href="/billing"
+            className="mt-4 inline-flex items-center text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
+          >
+            Passer au Pro pour les projets illimites, domaine custom et analytics
             <svg
               className="ml-1 h-4 w-4"
               fill="none"

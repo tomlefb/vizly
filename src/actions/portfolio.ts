@@ -230,3 +230,49 @@ export async function unpublishPortfolio(): Promise<{
     return { error: 'Erreur lors de la dépublication du portfolio' }
   }
 }
+
+export async function updateCustomDomain(
+  domain: string
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return { error: 'Non authentifié' }
+    }
+
+    // Check user is Pro
+    const { data: profile } = await supabase
+      .from('users')
+      .select('plan')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.plan !== 'pro') {
+      return { error: 'Le domaine personnalisé est réservé au plan Pro' }
+    }
+
+    const trimmed = domain.trim().toLowerCase()
+
+    // Allow empty to remove custom domain
+    if (trimmed && !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(trimmed)) {
+      return { error: 'Nom de domaine invalide (ex: monsite.com)' }
+    }
+
+    const { error } = await supabase
+      .from('portfolios')
+      .update({ custom_domain: trimmed || null })
+      .eq('user_id', user.id)
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { error: null }
+  } catch {
+    return { error: 'Erreur lors de la mise à jour du domaine' }
+  }
+}
