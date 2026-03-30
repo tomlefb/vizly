@@ -11,7 +11,7 @@ interface PlanFeature {
 
 const planFeatures: PlanFeature[] = [
   {
-    label: 'Creation + preview du portfolio',
+    label: 'Projets illimites',
     free: true,
     starter: true,
     pro: true,
@@ -23,21 +23,21 @@ const planFeatures: PlanFeature[] = [
     pro: true,
   },
   {
-    label: 'Mise en ligne (pseudo.vizly.fr)',
-    free: false,
+    label: 'Preview complete',
+    free: true,
     starter: true,
     pro: true,
+  },
+  {
+    label: 'Mise en ligne (pseudo.vizly.fr)',
+    free: false,
+    starter: '1 projet',
+    pro: 'Illimite',
   },
   {
     label: 'Badge "Fait avec Vizly"',
     free: false,
     starter: true,
-    pro: true,
-  },
-  {
-    label: 'Projets illimites',
-    free: false,
-    starter: false,
     pro: true,
   },
   {

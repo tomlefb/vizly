@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { portfolioSchema, slugSchema } from '@/lib/validations'
+import { PLANS, type PlanType } from '@/lib/constants'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { Portfolio } from '@/types'
 
@@ -153,10 +154,31 @@ export async function publishPortfolio(
 
     const validSlug = parsed.data
 
+    // Check plan publish limit
+    const { data: profile } = await supabase
+      .from('users')
+      .select('plan')
+      .eq('id', user.id)
+      .single()
+
+    const plan = (profile?.plan ?? 'free') as PlanType
+    const limit = PLANS[plan].publishLimit
+
+    if (limit === 0) {
+      return { data: null, error: 'Passe au plan Starter pour mettre ton portfolio en ligne' }
+    }
+
+    // Count currently published portfolios (excluding the one being published)
+    const { count: publishedCount } = await supabase
+      .from('portfolios')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('published', true)
+
     // Check user has a portfolio
     const { data: portfolio, error: fetchError } = await supabase
       .from('portfolios')
-      .select('id, slug')
+      .select('id, slug, published')
       .eq('user_id', user.id)
       .limit(1)
       .maybeSingle()
@@ -180,6 +202,18 @@ export async function publishPortfolio(
 
     if (existing) {
       return { data: null, error: 'Ce pseudo est déjà pris' }
+    }
+
+    // Enforce publish limit (don't count this portfolio if already published)
+    const alreadyPublished = portfolio.published ? 1 : 0
+    const otherPublished = (publishedCount ?? 0) - alreadyPublished
+    if (otherPublished >= limit) {
+      return {
+        data: null,
+        error: plan === 'starter'
+          ? 'Tu as déjà 1 projet en ligne. Passe au Pro pour en publier plus.'
+          : 'Limite de publication atteinte pour ton plan.',
+      }
     }
 
     // Publish: set slug + published = true
