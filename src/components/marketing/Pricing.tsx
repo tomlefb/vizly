@@ -17,12 +17,6 @@ const planFeatures: PlanFeature[] = [
     pro: true,
   },
   {
-    label: 'Projets illimites',
-    free: true,
-    starter: true,
-    pro: true,
-  },
-  {
     label: '4 templates gratuits',
     free: true,
     starter: true,
@@ -35,16 +29,16 @@ const planFeatures: PlanFeature[] = [
     pro: true,
   },
   {
-    label: 'Templates premium',
-    free: false,
-    starter: '2,99\u20AC/unite',
-    pro: '2,99\u20AC/unite',
-  },
-  {
     label: 'Badge "Fait avec Vizly"',
     free: false,
-    starter: 'Affiche',
-    pro: 'Retire',
+    starter: true,
+    pro: false,
+  },
+  {
+    label: 'Projets illimites',
+    free: false,
+    starter: false,
+    pro: true,
   },
   {
     label: 'Domaine personnalise',
