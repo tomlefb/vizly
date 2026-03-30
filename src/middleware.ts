@@ -23,8 +23,7 @@ export async function middleware(request: NextRequest) {
   // Rewrite subdomain to /portfolio/[slug]
   const url = request.nextUrl.clone()
   url.pathname = `/portfolio/${subdomain}${url.pathname === '/' ? '' : url.pathname}`
-  const response = NextResponse.rewrite(url)
-  return response
+  return NextResponse.rewrite(url)
 }
 
 async function updateSession(request: NextRequest) {

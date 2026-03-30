@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { z } from 'zod'
@@ -12,7 +11,7 @@ const loginSchema = z.object({
 })
 
 export default function LoginPage() {
-  const router = useRouter()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -46,8 +45,8 @@ export default function LoginPage() {
         return
       }
 
-      router.push('/dashboard')
-      router.refresh()
+      // Hard redirect to ensure cookies are propagated to the server
+      window.location.href = '/dashboard'
     } catch {
       setError('Une erreur inattendue est survenue')
     } finally {
@@ -130,6 +129,15 @@ export default function LoginPage() {
             placeholder="Ton mot de passe"
             className="block w-full rounded-[var(--radius-md)] border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 hover:border-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           />
+        </div>
+
+        <div className="flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-muted hover:text-accent transition-colors duration-150"
+          >
+            Mot de passe oublie ?
+          </Link>
         </div>
 
         <button
