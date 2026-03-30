@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils'
 import { Logo } from '@/components/shared/Logo'
 
 const navLinks = [
-  { label: 'Fonctionnalites', href: '#features' },
-  { label: 'Templates', href: '#templates' },
-  { label: 'Tarifs', href: '#pricing' },
+  { label: 'Fonctionnalites', href: '/#features' },
+  { label: 'Templates', href: '/templates' },
+  { label: 'Tarifs', href: '/#pricing' },
   { label: 'Blog', href: '/blog' },
 ] as const
 

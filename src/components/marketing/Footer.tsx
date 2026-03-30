@@ -5,9 +5,9 @@ const footerNav = {
   produit: {
     title: 'Produit',
     links: [
-      { label: 'Fonctionnalites', href: '#features' },
+      { label: 'Fonctionnalites', href: '/#features' },
       { label: 'Templates', href: '/templates' },
-      { label: 'Tarifs', href: '#pricing' },
+      { label: 'Tarifs', href: '/#pricing' },
       { label: 'Changelog', href: '/changelog' },
     ],
   },

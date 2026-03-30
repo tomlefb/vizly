@@ -36,7 +36,7 @@ export function CTA() {
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Link>
               <Link
-                href="#pricing"
+                href="/#pricing"
                 className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-background/20 px-7 py-3.5 text-sm font-semibold text-background/80 transition-colors duration-200 hover:bg-background/5 hover:text-background"
               >
                 Voir les tarifs
