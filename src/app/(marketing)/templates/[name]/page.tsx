@@ -5,8 +5,9 @@ import { Star, ArrowLeft, Check } from 'lucide-react'
 import { Header } from '@/components/marketing/Header'
 import { Footer } from '@/components/marketing/Footer'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
-import { templateMap } from '@/components/templates'
 import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
+import { TemplatePreview } from '@/components/shared/TemplatePreview'
+import { FullTemplatePreview } from '@/components/shared/FullTemplatePreview'
 
 interface PageProps {
   params: Promise<{ name: string }>
@@ -31,11 +32,6 @@ export default async function TemplateDetailPage({ params }: PageProps) {
   const template = TEMPLATE_CONFIGS.find((t) => t.name === name)
 
   if (!template) {
-    notFound()
-  }
-
-  const TemplateComponent = templateMap[template.name]
-  if (!TemplateComponent) {
     notFound()
   }
 
@@ -145,18 +141,12 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
-              <div className="relative h-[500px] overflow-hidden">
-                <div
-                  className="absolute top-0 left-0 origin-top-left"
-                  style={{
-                    width: '1280px',
-                    transform: 'scale(0.44)',
-                    transformOrigin: 'top left',
-                  }}
-                >
-                  <TemplateComponent {...demoProps} />
-                </div>
-              </div>
+              <TemplatePreview
+                templateName={template.name}
+                templateProps={demoProps}
+                scale={0.44}
+                height="500px"
+              />
             </div>
           </div>
         </section>
@@ -189,7 +179,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
               </div>
               {/* Live template render */}
               <div className="max-h-[800px] overflow-y-auto">
-                <TemplateComponent {...demoProps} />
+                <FullTemplatePreview templateName={template.name} templateProps={demoProps} />
               </div>
             </div>
           </div>
