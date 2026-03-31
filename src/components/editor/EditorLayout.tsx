@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Eye, X, Maximize2, Check, Loader2 } from 'lucide-react'
+import { Eye, X, Maximize2, Check, Loader2, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
@@ -52,6 +52,8 @@ interface EditorLayoutProps {
 export function EditorLayout({
   currentStep,
   onStepChange,
+  onNext,
+  canGoNext = true,
   portfolioData,
   projects,
   saveStatus = 'idle',
@@ -64,8 +66,10 @@ export function EditorLayout({
   useGoogleFont(portfolioData.font)
 
   const isPublishStep = currentStep === 5
+  const isLastBeforePublish = currentStep === 3
   const TemplateComponent = templateMap[portfolioData.template as TemplateName]
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep)
+  const nextStep = STEPS[currentStepIndex + 1]
 
   const templateProps = {
     portfolio: {
@@ -95,7 +99,7 @@ export function EditorLayout({
       <div className="flex flex-col h-full min-h-0">
         {/* Step bar */}
         <div className="shrink-0 border-b border-border bg-background px-4 sm:px-6 py-3">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <nav className="flex items-center gap-1 flex-1" aria-label="Etapes editeur">
               {STEPS.map((step, index) => {
                 const stepIndex = STEPS.findIndex((s) => s.id === step.id)
@@ -144,31 +148,34 @@ export function EditorLayout({
               })}
             </nav>
 
-            {/* Save status + Preview buttons */}
-            <div className="flex items-center gap-3 ml-4 shrink-0">
-              {/* Save indicator */}
-              {saveStatus === 'saving' && (
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  <span className="hidden sm:inline">Sauvegarde...</span>
-                </span>
-              )}
-              {saveStatus === 'saved' && (
-                <span className="flex items-center gap-1.5 text-xs text-success">
-                  <Check className="h-3 w-3" />
-                  <span className="hidden sm:inline">Sauvegarde</span>
-                </span>
-              )}
-              {saveStatus === 'error' && (
-                <span className="flex items-center gap-1.5 text-xs text-destructive max-w-[150px] truncate">
-                  {saveError ?? 'Erreur'}
-                </span>
-              )}
+            {/* Right side: fixed-width zone for save + buttons */}
+            <div className="flex items-center gap-2 ml-4 shrink-0">
+              {/* Save indicator — fixed width to prevent layout shift */}
+              <div className="w-24 flex justify-end">
+                {saveStatus === 'saving' && (
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span className="hidden sm:inline">Sauvegarde...</span>
+                  </span>
+                )}
+                {saveStatus === 'saved' && (
+                  <span className="flex items-center gap-1.5 text-xs text-success">
+                    <Check className="h-3 w-3" />
+                    <span className="hidden sm:inline">Sauvegarde</span>
+                  </span>
+                )}
+                {saveStatus === 'error' && (
+                  <span className="text-xs text-destructive truncate">
+                    {saveError ?? 'Erreur'}
+                  </span>
+                )}
+              </div>
+
               {!isPublishStep && (
                 <button
                   type="button"
                   onClick={() => setMobileShowPreview(!mobileShowPreview)}
-                  className="lg:hidden inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm"
+                  className="lg:hidden inline-flex items-center justify-center rounded-[var(--radius-md)] border border-border w-8 h-8 text-muted transition-colors hover:bg-surface-warm"
                 >
                   <Eye className="h-3.5 w-3.5" />
                 </button>
@@ -177,10 +184,10 @@ export function EditorLayout({
                 <button
                   type="button"
                   onClick={() => setFullPreview(true)}
-                  className="hidden lg:inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
+                  className="hidden lg:inline-flex items-center justify-center rounded-[var(--radius-md)] border border-border w-8 h-8 text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
+                  title="Plein ecran"
                 >
                   <Maximize2 className="h-3.5 w-3.5" />
-                  <span className="hidden xl:inline">Plein ecran</span>
                 </button>
               )}
             </div>
@@ -197,15 +204,38 @@ export function EditorLayout({
             {/* Form panel */}
             <div
               className={cn(
-                'flex-1 overflow-y-auto px-4 sm:px-6 py-6',
+                'flex-1 flex flex-col overflow-hidden',
                 'lg:max-w-[50%] lg:border-r lg:border-border',
-                mobileShowPreview ? 'hidden lg:block' : 'block'
+                mobileShowPreview ? 'hidden lg:flex' : 'flex'
               )}
             >
-              {children}
+              {/* Scrollable form */}
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+                {children}
+              </div>
+
+              {/* Bottom bar with "Suivant" */}
+              {nextStep && (
+                <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={onNext}
+                    disabled={!canGoNext}
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
+                      canGoNext
+                        ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
+                        : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
+                    )}
+                  >
+                    {isLastBeforePublish ? 'Publier' : 'Suivant'}
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Live preview panel — real template */}
+            {/* Live preview panel */}
             <div
               className={cn(
                 'overflow-hidden',
@@ -231,11 +261,10 @@ export function EditorLayout({
                   </span>
                 </div>
 
-                {/* Scaled template render */}
-                <div className="flex-1 overflow-hidden bg-white relative">
+                {/* Scaled template render — neutral bg fills empty space */}
+                <div className="flex-1 overflow-hidden bg-neutral-100 relative">
                   {TemplateComponent ? (
                     <div className="absolute inset-0 overflow-y-auto">
-                      {/* Font override style */}
                       {portfolioData.font && (
                         <style>{`
                           .editor-preview-font * {
@@ -270,7 +299,6 @@ export function EditorLayout({
       {fullPreview && (
         <div className="fixed inset-0 z-50 bg-background">
           <div className="flex flex-col h-full">
-            {/* Modal header */}
             <div className="shrink-0 flex items-center justify-between border-b border-border px-6 py-3">
               <div className="flex items-center gap-3">
                 <div className="flex gap-1.5">
@@ -291,8 +319,6 @@ export function EditorLayout({
                 Fermer
               </button>
             </div>
-
-            {/* Full template render */}
             <div className="flex-1 overflow-y-auto">
               {portfolioData.font && (
                 <style>{`
