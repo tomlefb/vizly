@@ -269,6 +269,53 @@ export async function unpublishPortfolio(): Promise<{
   }
 }
 
+export async function deletePortfolio(
+  portfolioId: string
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return { error: 'Non authentifié' }
+    }
+
+    // Verify ownership
+    const { data: portfolio } = await supabase
+      .from('portfolios')
+      .select('id')
+      .eq('id', portfolioId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!portfolio) {
+      return { error: 'Portfolio introuvable' }
+    }
+
+    // Delete projects first (cascade may handle this but explicit is safer)
+    await supabase
+      .from('projects')
+      .delete()
+      .eq('portfolio_id', portfolioId)
+
+    // Delete portfolio
+    const { error } = await supabase
+      .from('portfolios')
+      .delete()
+      .eq('id', portfolioId)
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { error: null }
+  } catch {
+    return { error: 'Erreur lors de la suppression du portfolio' }
+  }
+}
+
 export async function updateCustomDomain(
   portfolioId: string,
   domain: string

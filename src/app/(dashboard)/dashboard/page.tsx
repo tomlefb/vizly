@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PLANS, type PlanType } from '@/lib/constants'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { PublishToggle } from './publish-toggle'
+import { DeletePortfolio } from './delete-portfolio'
 import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
 
 export default async function DashboardPage() {
@@ -212,6 +213,14 @@ export default async function DashboardPage() {
                           Voir le site
                         </a>
                       )}
+
+                      {/* Spacer to push delete to the right */}
+                      <div className="flex-1" />
+
+                      <DeletePortfolio
+                        portfolioId={portfolio.id}
+                        portfolioTitle={portfolio.title || 'Sans titre'}
+                      />
                     </div>
                   </div>
                 </div>
