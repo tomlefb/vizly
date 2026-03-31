@@ -96,8 +96,8 @@ export function TemplateShowcase() {
                 <TemplatePreview
                   templateName={template.name}
                   templateProps={demoProps}
-                  scale={0.42}
-                  height="220px"
+                  scale={0.52}
+                  height="240px"
                 />
 
                 {/* Hover overlay */}
