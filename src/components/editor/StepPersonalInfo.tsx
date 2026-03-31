@@ -12,6 +12,8 @@ import {
   Image,
   AtSign,
   Hash,
+  X,
+  Sparkles,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { MAX_BIO_LENGTH, SOCIAL_PLATFORMS } from '@/lib/constants'
@@ -316,6 +318,104 @@ export function StepPersonalInfo({
           })}
         </div>
       </section>
+
+      {/* ── Skills ── */}
+      <SkillsInput
+        skills={data.skills ?? []}
+        onChange={(skills) => onChange('skills', skills)}
+      />
     </div>
+  )
+}
+
+// ------------------------------------------------------------------
+// Skills input sub-component
+// ------------------------------------------------------------------
+
+function SkillsInput({
+  skills,
+  onChange,
+}: {
+  skills: string[]
+  onChange: (skills: string[]) => void
+}) {
+  const [input, setInput] = useState('')
+
+  const addSkill = useCallback(
+    (raw: string) => {
+      const skill = raw.trim()
+      if (skill && !skills.includes(skill) && skills.length < 30) {
+        onChange([...skills, skill])
+      }
+      setInput('')
+    },
+    [skills, onChange]
+  )
+
+  const removeSkill = useCallback(
+    (toRemove: string) => {
+      onChange(skills.filter((s) => s !== toRemove))
+    },
+    [skills, onChange]
+  )
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+          <Sparkles className="h-4 w-4 text-accent" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            Competences
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Ajoute tes technologies, outils et savoir-faire
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] border border-border bg-surface px-3 py-2 min-h-[42px] transition-colors duration-150 focus-within:border-accent">
+        {skills.map((skill) => (
+          <span
+            key={skill}
+            className="inline-flex items-center gap-1 rounded-[var(--radius-sm)] bg-accent/10 text-accent px-2 py-0.5 text-xs font-medium"
+          >
+            {skill}
+            <button
+              type="button"
+              onClick={() => removeSkill(skill)}
+              className="flex h-3.5 w-3.5 items-center justify-center rounded-full hover:bg-accent/20 transition-colors"
+              aria-label={`Supprimer ${skill}`}
+            >
+              <X className="h-2.5 w-2.5" />
+            </button>
+          </span>
+        ))}
+        {skills.length < 30 && (
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                addSkill(input)
+              }
+              if (e.key === 'Backspace' && input === '' && skills.length > 0) {
+                const last = skills[skills.length - 1]
+                if (last) removeSkill(last)
+              }
+            }}
+            placeholder={skills.length === 0 ? 'React, Figma, TypeScript...' : 'Ajouter...'}
+            className="flex-1 min-w-[120px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
+          />
+        )}
+      </div>
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>Appuie sur Entree pour ajouter</span>
+        <span>{skills.length}/30</span>
+      </div>
+    </section>
   )
 }

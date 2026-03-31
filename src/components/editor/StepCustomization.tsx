@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils'
 import { TemplateSelector } from './TemplateSelector'
 import { ColorPicker } from './ColorPicker'
 import { FontSelector } from './FontSelector'
+import { SectionOrganizer } from './SectionOrganizer'
+import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
@@ -126,6 +128,12 @@ export function StepCustomization({
 
         <FontSelector value={data.font} onChange={handleFontChange} />
       </section>
+
+      {/* Section: Layout */}
+      <SectionOrganizer
+        sections={(data.sections as SectionBlock[]) ?? DEFAULT_SECTIONS}
+        onChange={(sections) => onChange('sections', sections)}
+      />
     </div>
   )
 }

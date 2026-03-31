@@ -86,6 +86,8 @@ export async function upsertPortfolio(
           font: validData.font,
           social_links: validData.social_links ?? null,
           contact_email: validData.contact_email || null,
+          skills: validData.skills ?? [],
+          sections: validData.sections ?? null,
         })
         .eq('id', existing.id)
         .select()
@@ -112,6 +114,8 @@ export async function upsertPortfolio(
         font: validData.font,
         social_links: validData.social_links ?? null,
         contact_email: validData.contact_email || null,
+        skills: validData.skills ?? [],
+        sections: validData.sections ?? null,
       })
       .select()
       .single()
