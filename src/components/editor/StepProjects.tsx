@@ -309,6 +309,7 @@ export function StepProjects({
               {/* Dialog body */}
               <div className="px-6 py-5 max-h-[60vh] overflow-y-auto">
                 <ProjectForm
+                  key={editingIndex !== null ? `edit-${editingIndex}` : `new-${projects.length}`}
                   project={editingProject}
                   onChange={setEditingProject}
                 />
