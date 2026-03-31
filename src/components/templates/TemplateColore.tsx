@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
+import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -43,7 +44,7 @@ function lightenColor(hex: string, amount: number): string {
   return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`
 }
 
-export function TemplateColore({ portfolio, projects, isPremium }: TemplateProps) {
+export function TemplateColore({ portfolio, projects, skills, sections, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -55,6 +56,9 @@ export function TemplateColore({ portfolio, projects, isPremium }: TemplateProps
   } = portfolio
 
   const sortedProjects = [...projects].sort((a, b) => a.display_order - b.display_order)
+  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order)
 
   const bgColor = lightenColor(primary_color, 0.93)
   const cardBg = lightenColor(primary_color, 0.96)
@@ -65,76 +69,11 @@ export function TemplateColore({ portfolio, projects, isPremium }: TemplateProps
     lightenColor(secondary_color, 0.3),
   ]
 
-  return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossOrigin="anonymous"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-      />
-
-      <div
-        style={{
-          fontFamily: "'Nunito', sans-serif",
-          backgroundColor: bgColor,
-          color: '#3D3D3D',
-          minHeight: '100vh',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Decorative blobs */}
-        <div
-          style={{
-            position: 'fixed',
-            top: -120,
-            right: -80,
-            width: 320,
-            height: 320,
-            borderRadius: '50%',
-            backgroundColor: `${primary_color}12`,
-            filter: 'blur(60px)',
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
-        <div
-          style={{
-            position: 'fixed',
-            bottom: -100,
-            left: -60,
-            width: 260,
-            height: 260,
-            borderRadius: '50%',
-            backgroundColor: `${secondary_color}15`,
-            filter: 'blur(50px)',
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
-        <div
-          style={{
-            position: 'fixed',
-            top: '40%',
-            left: '60%',
-            width: 180,
-            height: 180,
-            borderRadius: '50%',
-            backgroundColor: `${primary_color}08`,
-            filter: 'blur(40px)',
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
-
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Header */}
-          <header className="px-6 pt-14 pb-8 md:px-10 md:pt-24 md:pb-12">
+  function renderSection(section: SectionBlock) {
+    switch (section.id) {
+      case 'hero':
+        return (
+          <header key="hero" className="px-6 pt-14 pb-8 md:px-10 md:pt-24 md:pb-12">
             <div className="mx-auto max-w-4xl text-center">
               {/* Photo with accent background */}
               {photo_url ? (
@@ -195,58 +134,69 @@ export function TemplateColore({ portfolio, projects, isPremium }: TemplateProps
                   style={{ color: primary_color, flexShrink: 0 }}
                 />
               </div>
+            </div>
+          </header>
+        )
 
-              {bio ? (
-                <p
-                  className="mx-auto mt-4 max-w-md"
-                  style={{
-                    fontSize: '1.05rem',
-                    lineHeight: 1.65,
-                    color: '#6B6B6B',
-                    fontWeight: 500,
-                  }}
-                >
-                  {bio}
-                </p>
-              ) : null}
+      case 'bio':
+        if (!bio) return null
+        return (
+          <section key="bio" className="px-6 md:px-10">
+            <div className="mx-auto max-w-4xl text-center">
+              <p
+                className="mx-auto max-w-md"
+                style={{
+                  fontSize: '1.05rem',
+                  lineHeight: 1.65,
+                  color: '#6B6B6B',
+                  fontWeight: 500,
+                }}
+              >
+                {bio}
+              </p>
+            </div>
+          </section>
+        )
 
-              {/* Social pills */}
-              <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
-                {social_links
-                  ? Object.entries(social_links).map(([platform, url]) => {
-                      if (!url) return null
-                      const config = SOCIAL_ICONS[platform]
-                      if (!config) return null
-                      const IconComponent = config.icon
-                      return (
-                        <a
-                          key={platform}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Profil ${config.label}`}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            padding: '7px 14px',
-                            borderRadius: 50,
-                            backgroundColor: '#FFFFFF',
-                            border: `2px solid ${primary_color}25`,
-                            color: '#4A4A4A',
-                            fontWeight: 600,
-                            fontSize: '0.82rem',
-                            textDecoration: 'none',
-                            transition: 'transform 200ms ease, box-shadow 200ms ease',
-                            boxShadow: `0 2px 8px ${primary_color}10`,
-                          }}
-                        >
-                          <IconComponent size={15} style={{ color: primary_color }} />
-                          <span>{config.label}</span>
-                        </a>
-                      )
-                    })
-                  : null}
+      case 'socials': {
+        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        if (socialEntries.length === 0 && !contact_email) return null
+        return (
+          <section key="socials" className="px-6 py-7 md:px-10">
+            <div className="mx-auto max-w-4xl">
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                {socialEntries.map(([platform, url]) => {
+                  const config = SOCIAL_ICONS[platform]
+                  if (!config || !url) return null
+                  const IconComponent = config.icon
+                  return (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Profil ${config.label}`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '7px 14px',
+                        borderRadius: 50,
+                        backgroundColor: '#FFFFFF',
+                        border: `2px solid ${primary_color}25`,
+                        color: '#4A4A4A',
+                        fontWeight: 600,
+                        fontSize: '0.82rem',
+                        textDecoration: 'none',
+                        transition: 'transform 200ms ease, box-shadow 200ms ease',
+                        boxShadow: `0 2px 8px ${primary_color}10`,
+                      }}
+                    >
+                      <IconComponent size={15} style={{ color: primary_color }} />
+                      <span>{config.label}</span>
+                    </a>
+                  )
+                })}
                 {contact_email ? (
                   <a
                     href={`mailto:${contact_email}`}
@@ -272,10 +222,13 @@ export function TemplateColore({ portfolio, projects, isPremium }: TemplateProps
                 ) : null}
               </div>
             </div>
-          </header>
+          </section>
+        )
+      }
 
-          {/* Projects */}
-          <main className="px-6 py-10 md:px-10 md:py-14">
+      case 'projects':
+        return (
+          <section key="projects" className="px-6 py-10 md:px-10 md:py-14">
             <div className="mx-auto max-w-5xl">
               <h2
                 style={{
@@ -465,7 +418,187 @@ export function TemplateColore({ portfolio, projects, isPremium }: TemplateProps
                 </p>
               )}
             </div>
-          </main>
+          </section>
+        )
+
+      case 'skills':
+        if (skills.length === 0) return null
+        return (
+          <section key="skills" className="px-6 py-10 md:px-10">
+            <div className="mx-auto max-w-5xl text-center">
+              <h2
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontWeight: 600,
+                  fontSize: '1.4rem',
+                  color: '#2A2A2A',
+                  marginBottom: 24,
+                }}
+              >
+                Competences{' '}
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: secondary_color,
+                    marginLeft: 4,
+                    verticalAlign: 'middle',
+                  }}
+                />
+              </h2>
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                {skills.map((skill, i) => {
+                  const variantColor = tagVariants[i % tagVariants.length] ?? primary_color
+                  return (
+                    <span
+                      key={skill}
+                      style={{
+                        fontFamily: "'Fredoka', sans-serif",
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        color: variantColor,
+                        backgroundColor: `${variantColor}12`,
+                        padding: '7px 16px',
+                        borderRadius: 50,
+                        letterSpacing: '0.01em',
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
+        )
+
+      case 'contact':
+        if (!contact_email) return null
+        return (
+          <section key="contact" className="px-6 py-12 md:px-10">
+            <div className="mx-auto max-w-4xl text-center">
+              <h2
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontWeight: 600,
+                  fontSize: '1.4rem',
+                  color: '#2A2A2A',
+                }}
+                className="mb-3"
+              >
+                Me contacter
+              </h2>
+              <p
+                style={{
+                  color: '#777777',
+                  fontSize: '0.95rem',
+                  fontWeight: 500,
+                }}
+                className="mb-6"
+              >
+                Interesse par mon profil ? N&apos;hesite pas a me contacter.
+              </p>
+              <a
+                href={`mailto:${contact_email}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  backgroundColor: primary_color,
+                  color: '#FFFFFF',
+                  padding: '12px 28px',
+                  borderRadius: 50,
+                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  fontFamily: "'Fredoka', sans-serif",
+                  textDecoration: 'none',
+                  boxShadow: `0 4px 16px ${primary_color}30`,
+                  transition: 'transform 200ms ease, box-shadow 200ms ease',
+                }}
+              >
+                <Mail size={18} />
+                {contact_email}
+              </a>
+            </div>
+          </section>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+
+      <div
+        style={{
+          fontFamily: "'Nunito', sans-serif",
+          backgroundColor: bgColor,
+          color: '#3D3D3D',
+          minHeight: '100vh',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Decorative blobs */}
+        <div
+          style={{
+            position: 'fixed',
+            top: -120,
+            right: -80,
+            width: 320,
+            height: 320,
+            borderRadius: '50%',
+            backgroundColor: `${primary_color}12`,
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+        <div
+          style={{
+            position: 'fixed',
+            bottom: -100,
+            left: -60,
+            width: 260,
+            height: 260,
+            borderRadius: '50%',
+            backgroundColor: `${secondary_color}15`,
+            filter: 'blur(50px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+        <div
+          style={{
+            position: 'fixed',
+            top: '40%',
+            left: '60%',
+            width: 180,
+            height: 180,
+            borderRadius: '50%',
+            backgroundColor: `${primary_color}08`,
+            filter: 'blur(40px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {visibleSections.map(renderSection)}
 
           {/* Footer */}
           <footer className="px-6 py-8">

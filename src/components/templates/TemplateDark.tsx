@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
+import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -25,7 +26,7 @@ const SOCIAL_ICONS: Record<
   website: { icon: Globe, label: 'Website' },
 }
 
-export function TemplateDark({ portfolio, projects, isPremium }: TemplateProps) {
+export function TemplateDark({ portfolio, projects, skills, sections, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -37,51 +38,20 @@ export function TemplateDark({ portfolio, projects, isPremium }: TemplateProps) 
   } = portfolio
 
   const sortedProjects = [...projects].sort((a, b) => a.display_order - b.display_order)
+  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order)
 
   // Glow shadow from primary color
   const glowSm = `0 0 12px ${primary_color}40`
   const glowMd = `0 0 20px ${primary_color}50, 0 0 40px ${primary_color}20`
   const glowBorder = `0 0 0 1px ${primary_color}30`
 
-  return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossOrigin="anonymous"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-      />
-
-      <div
-        style={{
-          fontFamily: "'IBM Plex Sans', sans-serif",
-          backgroundColor: '#0A0A0F',
-          color: '#C8C8D0',
-          minHeight: '100vh',
-        }}
-      >
-        {/* Subtle grid background pattern */}
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundImage: `
-              linear-gradient(${primary_color}06 1px, transparent 1px),
-              linear-gradient(90deg, ${primary_color}06 1px, transparent 1px)
-            `,
-            backgroundSize: '64px 64px',
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
-
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Header */}
-          <header className="px-6 pt-16 pb-10 md:px-10 md:pt-28 md:pb-14">
+  function renderSection(section: SectionBlock) {
+    switch (section.id) {
+      case 'hero':
+        return (
+          <header key="hero" className="px-6 pt-16 pb-10 md:px-10 md:pt-28 md:pb-14">
             <div className="mx-auto max-w-4xl">
               <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-12">
                 {/* Photo with glow */}
@@ -146,98 +116,111 @@ export function TemplateDark({ portfolio, projects, isPremium }: TemplateProps) 
                   >
                     {title}
                   </h1>
-
-                  {bio ? (
-                    <p
-                      className="mt-4 max-w-lg"
-                      style={{
-                        fontSize: '1rem',
-                        lineHeight: 1.7,
-                        color: '#8888A0',
-                      }}
-                    >
-                      {bio}
-                    </p>
-                  ) : null}
-
-                  {/* Social links in terminal style */}
-                  <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                    {social_links
-                      ? Object.entries(social_links).map(([platform, url]) => {
-                          if (!url) return null
-                          const config = SOCIAL_ICONS[platform]
-                          if (!config) return null
-                          const IconComponent = config.icon
-                          return (
-                            <a
-                              key={platform}
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={`Profil ${config.label}`}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                padding: '6px 12px',
-                                borderRadius: 6,
-                                backgroundColor: `${primary_color}10`,
-                                border: `1px solid ${primary_color}20`,
-                                color: primary_color,
-                                fontFamily: "'JetBrains Mono', monospace",
-                                fontSize: '0.75rem',
-                                textDecoration: 'none',
-                                transition: 'all 200ms ease-out',
-                              }}
-                            >
-                              <IconComponent size={14} />
-                              <span>{config.label}</span>
-                            </a>
-                          )
-                        })
-                      : null}
-                    {contact_email ? (
-                      <a
-                        href={`mailto:${contact_email}`}
-                        aria-label="Envoyer un email"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          padding: '6px 12px',
-                          borderRadius: 6,
-                          backgroundColor: `${primary_color}10`,
-                          border: `1px solid ${primary_color}20`,
-                          color: primary_color,
-                          fontFamily: "'JetBrains Mono', monospace",
-                          fontSize: '0.75rem',
-                          textDecoration: 'none',
-                          transition: 'all 200ms ease-out',
-                        }}
-                      >
-                        <Mail size={14} />
-                        <span>Email</span>
-                      </a>
-                    ) : null}
-                  </div>
                 </div>
               </div>
             </div>
           </header>
+        )
 
-          {/* Separator */}
-          <div className="mx-auto max-w-4xl px-6 md:px-10">
-            <div
-              style={{
-                height: 1,
-                background: `linear-gradient(90deg, transparent, ${primary_color}30, transparent)`,
-              }}
-            />
-          </div>
-
-          {/* Projects */}
-          <main className="px-6 py-12 md:px-10 md:py-16">
+      case 'bio':
+        if (!bio) return null
+        return (
+          <section key="bio" className="px-6 md:px-10">
             <div className="mx-auto max-w-4xl">
+              <p
+                className="max-w-lg"
+                style={{
+                  fontSize: '1rem',
+                  lineHeight: 1.7,
+                  color: '#8888A0',
+                }}
+              >
+                {bio}
+              </p>
+            </div>
+          </section>
+        )
+
+      case 'socials': {
+        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        if (socialEntries.length === 0 && !contact_email) return null
+        return (
+          <section key="socials" className="px-6 py-6 md:px-10">
+            <div className="mx-auto max-w-4xl">
+              <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
+                {socialEntries.map(([platform, url]) => {
+                  const config = SOCIAL_ICONS[platform]
+                  if (!config || !url) return null
+                  const IconComponent = config.icon
+                  return (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Profil ${config.label}`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        backgroundColor: `${primary_color}10`,
+                        border: `1px solid ${primary_color}20`,
+                        color: primary_color,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: '0.75rem',
+                        textDecoration: 'none',
+                        transition: 'all 200ms ease-out',
+                      }}
+                    >
+                      <IconComponent size={14} />
+                      <span>{config.label}</span>
+                    </a>
+                  )
+                })}
+                {contact_email ? (
+                  <a
+                    href={`mailto:${contact_email}`}
+                    aria-label="Envoyer un email"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      backgroundColor: `${primary_color}10`,
+                      border: `1px solid ${primary_color}20`,
+                      color: primary_color,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '0.75rem',
+                      textDecoration: 'none',
+                      transition: 'all 200ms ease-out',
+                    }}
+                  >
+                    <Mail size={14} />
+                    <span>Email</span>
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      case 'projects':
+        return (
+          <section key="projects" className="px-6 py-12 md:px-10 md:py-16">
+            <div className="mx-auto max-w-4xl">
+              {/* Separator */}
+              <div
+                style={{
+                  height: 1,
+                  background: `linear-gradient(90deg, transparent, ${primary_color}30, transparent)`,
+                  marginBottom: 40,
+                }}
+              />
+
               <h2
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
@@ -421,7 +404,163 @@ export function TemplateDark({ portfolio, projects, isPremium }: TemplateProps) 
                 </p>
               )}
             </div>
-          </main>
+          </section>
+        )
+
+      case 'skills':
+        if (skills.length === 0) return null
+        return (
+          <section key="skills" className="px-6 py-12 md:px-10">
+            <div className="mx-auto max-w-4xl">
+              <div
+                style={{
+                  height: 1,
+                  background: `linear-gradient(90deg, transparent, ${primary_color}20, transparent)`,
+                  marginBottom: 32,
+                }}
+              />
+              <h2
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                  color: primary_color,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+                className="mb-6"
+              >
+                <span style={{ opacity: 0.4 }}>{'> '}</span>
+                competences
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill) => (
+                  <span
+                    key={skill}
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      color: '#C8C8D0',
+                      backgroundColor: '#16161F',
+                      padding: '6px 14px',
+                      borderRadius: 6,
+                      border: `1px solid ${primary_color}20`,
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+
+      case 'contact':
+        if (!contact_email) return null
+        return (
+          <section key="contact" className="px-6 py-12 md:px-10">
+            <div className="mx-auto max-w-4xl">
+              <div
+                style={{
+                  height: 1,
+                  background: `linear-gradient(90deg, transparent, ${primary_color}20, transparent)`,
+                  marginBottom: 32,
+                }}
+              />
+              <div className="text-center">
+                <h2
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: 600,
+                    fontSize: '1.1rem',
+                    color: '#F0F0F5',
+                    letterSpacing: '-0.01em',
+                  }}
+                  className="mb-3"
+                >
+                  Me contacter
+                </h2>
+                <p
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '0.82rem',
+                    color: '#555568',
+                  }}
+                  className="mb-6"
+                >
+                  <span style={{ color: primary_color }}>{'> '}</span>
+                  Interesse par mon profil ? Ecrivez-moi.
+                </p>
+                <a
+                  href={`mailto:${contact_email}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '12px 28px',
+                    borderRadius: 8,
+                    backgroundColor: primary_color,
+                    color: '#0A0A0F',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    boxShadow: glowSm,
+                  }}
+                >
+                  <Mail size={16} />
+                  {contact_email}
+                </a>
+              </div>
+            </div>
+          </section>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+
+      <div
+        style={{
+          fontFamily: "'IBM Plex Sans', sans-serif",
+          backgroundColor: '#0A0A0F',
+          color: '#C8C8D0',
+          minHeight: '100vh',
+        }}
+      >
+        {/* Subtle grid background pattern */}
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(${primary_color}06 1px, transparent 1px),
+              linear-gradient(90deg, ${primary_color}06 1px, transparent 1px)
+            `,
+            backgroundSize: '64px 64px',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {visibleSections.map(renderSection)}
 
           {/* Footer */}
           <footer className="px-6 py-8 md:px-10">
