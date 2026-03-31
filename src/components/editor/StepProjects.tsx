@@ -266,7 +266,7 @@ export function StepProjects({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/30 backdrop-blur-sm p-4 pt-[10vh]"
-            onClick={(e) => {
+            onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
                 setIsDialogOpen(false)
               }

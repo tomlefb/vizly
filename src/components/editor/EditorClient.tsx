@@ -479,6 +479,13 @@ export function EditorClient({
       setSaveError(null)
 
       try {
+        // Save portfolio + projects BEFORE redirecting to Stripe
+        const saveResult = await upsertPortfolio(portfolioData)
+        if (saveResult.data) {
+          setPortfolioId(saveResult.data.id)
+          await syncProjectsWithId(saveResult.data.id)
+        }
+
         const result = await createTemplateCheckoutAction(templateId)
 
         if (result.error) {
@@ -495,7 +502,7 @@ export function EditorClient({
         setCheckoutLoading(false)
       }
     },
-    []
+    [portfolioData, syncProjectsWithId]
   )
 
   // ---- Check if selected template needs purchase ----------------

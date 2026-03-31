@@ -82,6 +82,7 @@ export function ProjectForm({
       setIsUploadingImages(true)
       void (async () => {
         const uploadedUrls: string[] = []
+        const uploadedFiles: File[] = []
         for (const file of newFiles) {
           try {
             const body = new FormData()
@@ -90,12 +91,15 @@ export function ProjectForm({
             const result = (await res.json()) as { url?: string }
             if (result.url) {
               uploadedUrls.push(result.url)
+              uploadedFiles.push(file)
             }
           } catch {
             // Skip failed upload
           }
-          // Remove file from local preview (it's now either uploaded or failed)
-          setLocalFiles((prev) => prev.filter((f) => f !== file))
+        }
+        // Remove uploaded files from local preview (they're now in existingUrls)
+        if (uploadedFiles.length > 0) {
+          setLocalFiles((prev) => prev.filter((f) => !uploadedFiles.includes(f)))
         }
         if (uploadedUrls.length > 0) {
           const latest = projectRef.current
@@ -186,6 +190,7 @@ export function ProjectForm({
         <ImageUploader
           images={localFiles}
           existingUrls={project.images}
+          isUploading={isUploadingImages}
           onImagesChange={handleImagesChange}
           onImageRemove={handleImageRemove}
         />

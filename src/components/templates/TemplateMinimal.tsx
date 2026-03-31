@@ -73,23 +73,29 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, isPremi
       case 'socials': {
         const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
         if (socialEntries.length === 0 && !contact_email) return null
+        const SOCIAL_NAMES: Record<string, string> = {
+          github: 'GitHub', linkedin: 'LinkedIn', instagram: 'Instagram',
+          twitter: 'Twitter', dribbble: 'Dribbble', website: 'Site web',
+        }
         return (
           <section key="socials" className="px-6 py-6">
-            <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-3">
+            <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-2">
               {socialEntries.map(([platform, url]) => {
                 const IconComponent = SOCIAL_ICONS[platform]
                 if (!IconComponent || !url) return null
                 return (
-                  <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Profil ${platform}`}
-                    style={{ color: '#8A8A8A', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF' }}>
-                    <IconComponent size={17} />
+                  <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Profil ${SOCIAL_NAMES[platform] ?? platform}`}
+                    style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
+                    <IconComponent size={15} />
+                    <span>{SOCIAL_NAMES[platform] ?? platform}</span>
                   </a>
                 )
               })}
               {contact_email ? (
                 <a href={`mailto:${contact_email}`} aria-label="Envoyer un email"
-                  style={{ color: '#8A8A8A', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF' }}>
-                  <Mail size={17} />
+                  style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
+                  <Mail size={15} />
+                  <span>Email</span>
                 </a>
               ) : null}
             </div>

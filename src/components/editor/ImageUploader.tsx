@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useCallback, useRef, useId } from 'react'
-import { Upload, X, ImageIcon, GripVertical } from 'lucide-react'
+import { Upload, X, ImageIcon, GripVertical, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { MAX_IMAGES_PER_PROJECT } from '@/lib/constants'
 
 interface ImageUploaderProps {
   images: File[]
   existingUrls?: string[]
+  isUploading?: boolean
   onImagesChange: (files: File[]) => void
   onImageRemove: (index: number) => void
   className?: string
@@ -18,6 +19,7 @@ const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 export function ImageUploader({
   images,
   existingUrls = [],
+  isUploading = false,
   onImagesChange,
   onImageRemove,
   className,
@@ -230,6 +232,12 @@ export function ImageUploader({
                   className="h-full w-full object-cover"
                   onLoad={() => URL.revokeObjectURL(previewUrl)}
                 />
+                {/* Upload overlay */}
+                {isUploading && (
+                  <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center">
+                    <Loader2 className="h-5 w-5 text-white animate-spin" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-150" />
                 <button
                   type="button"
