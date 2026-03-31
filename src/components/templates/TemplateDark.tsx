@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,8 +11,6 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
-  ChevronRight,
 } from 'lucide-react'
 
 const SOCIAL_ICONS: Record<
@@ -237,82 +236,87 @@ export function TemplateDark({ portfolio, projects, skills, sections, isPremium 
               </h2>
 
               {sortedProjects.length > 0 ? (
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className={`grid grid-cols-1 gap-5 ${sortedProjects.length === 1 ? 'max-w-2xl' : 'md:grid-cols-2'}`}>
                   {sortedProjects.map((project, index) => (
-                    <article
-                      key={project.id}
-                      className="group overflow-hidden transition-all duration-300"
-                      style={{
-                        backgroundColor: '#12121A',
-                        borderRadius: 10,
-                        border: `1px solid ${primary_color}15`,
-                        boxShadow: glowBorder,
-                        transition: 'box-shadow 300ms ease-out, border-color 300ms ease-out',
-                      }}
-                    >
-                      {/* Project image */}
-                      {project.images[0] ? (
-                        <div
-                          className="relative overflow-hidden"
-                          style={{ aspectRatio: '16/9' }}
-                        >
-                          <Image
-                            src={project.images[0]}
-                            alt={project.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                          />
-                          {/* Overlay gradient */}
+                    <ClickableProject key={project.id} project={project} primaryColor={primary_color} dark>
+                      <article
+                        className="group overflow-hidden transition-all duration-300 h-full hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                        style={{
+                          backgroundColor: '#12121A',
+                          borderRadius: 10,
+                          border: `1px solid ${primary_color}15`,
+                          boxShadow: glowBorder,
+                          transition: 'box-shadow 300ms ease-out, border-color 300ms ease-out',
+                        }}
+                      >
+                        {/* Project image */}
+                        {project.images[0] ? (
+                          <div
+                            className="relative overflow-hidden"
+                            style={{ aspectRatio: '16/9' }}
+                          >
+                            <Image
+                              src={project.images[0]}
+                              alt={project.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                            {/* Overlay gradient */}
+                            <div
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                background: `linear-gradient(to top, #12121A, transparent 60%)`,
+                              }}
+                            />
+                            {/* Index number */}
+                            <span
+                              style={{
+                                position: 'absolute',
+                                top: 12,
+                                right: project.images.length > 1 ? 'auto' : 14,
+                                left: project.images.length > 1 ? 14 : 'auto',
+                                fontFamily: "'JetBrains Mono', monospace",
+                                fontSize: '0.7rem',
+                                color: `${primary_color}80`,
+                                letterSpacing: '0.05em',
+                              }}
+                            >
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            {project.images.length > 1 && (
+                              <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                                +{project.images.length - 1}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
                           <div
                             style={{
-                              position: 'absolute',
-                              inset: 0,
-                              background: `linear-gradient(to top, #12121A, transparent 60%)`,
-                            }}
-                          />
-                          {/* Index number */}
-                          <span
-                            style={{
-                              position: 'absolute',
-                              top: 12,
-                              right: 14,
-                              fontFamily: "'JetBrains Mono', monospace",
-                              fontSize: '0.7rem',
-                              color: `${primary_color}80`,
-                              letterSpacing: '0.05em',
+                              aspectRatio: '16/9',
+                              backgroundColor: '#16161F',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'relative',
                             }}
                           >
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                        </div>
-                      ) : (
-                        <div
-                          style={{
-                            aspectRatio: '16/9',
-                            backgroundColor: '#16161F',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            position: 'relative',
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontFamily: "'JetBrains Mono', monospace",
-                              fontSize: '3rem',
-                              fontWeight: 700,
-                              color: `${primary_color}15`,
-                            }}
-                          >
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                        </div>
-                      )}
+                            <span
+                              style={{
+                                fontFamily: "'JetBrains Mono', monospace",
+                                fontSize: '3rem',
+                                fontWeight: 700,
+                                color: `${primary_color}15`,
+                              }}
+                            >
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                          </div>
+                        )}
 
-                      {/* Content */}
-                      <div className="p-5">
-                        <div className="flex items-start justify-between gap-3">
+                        {/* Content */}
+                        <div className="p-5">
                           <h3
                             style={{
                               fontFamily: "'JetBrains Mono', monospace",
@@ -324,71 +328,57 @@ export function TemplateDark({ portfolio, projects, skills, sections, isPremium 
                           >
                             {project.title}
                           </h3>
-                          {project.external_link ? (
-                            <a
-                              href={project.external_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={`Voir le projet ${project.title}`}
+
+                          {project.description ? (
+                            <p
+                              className="mt-2.5"
                               style={{
-                                color: primary_color,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 2,
-                                fontSize: '0.75rem',
-                                fontFamily: "'JetBrains Mono', monospace",
-                                textDecoration: 'none',
-                                flexShrink: 0,
+                                fontSize: '0.88rem',
+                                lineHeight: 1.6,
+                                color: '#6E6E85',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
                               }}
                             >
-                              <span>voir</span>
-                              <ChevronRight size={14} />
-                            </a>
+                              {project.description}
+                            </p>
                           ) : null}
-                        </div>
 
-                        {project.description ? (
-                          <p
-                            className="mt-2.5"
-                            style={{
-                              fontSize: '0.88rem',
-                              lineHeight: 1.6,
-                              color: '#6E6E85',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 3,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            {project.description}
+                          {/* Tags */}
+                          {project.tags.length > 0 ? (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {project.tags.slice(0, 5).map((tag) => (
+                                <span
+                                  key={tag}
+                                  style={{
+                                    fontFamily: "'JetBrains Mono', monospace",
+                                    fontSize: '0.7rem',
+                                    fontWeight: 500,
+                                    color: primary_color,
+                                    backgroundColor: `${primary_color}10`,
+                                    padding: '3px 9px',
+                                    borderRadius: 4,
+                                    border: `1px solid ${primary_color}15`,
+                                    letterSpacing: '0.02em',
+                                  }}
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                              {project.tags.length > 5 && (
+                                <span style={{ fontSize: '0.7rem', color: '#555568' }}>+{project.tags.length - 5}</span>
+                              )}
+                            </div>
+                          ) : null}
+
+                          <p style={{ marginTop: 12, fontSize: '0.75rem', color: primary_color, fontWeight: 500, fontFamily: "'JetBrains Mono', monospace" }}>
+                            Voir le detail &rarr;
                           </p>
-                        ) : null}
-
-                        {/* Tags */}
-                        {project.tags.length > 0 ? (
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {project.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                style={{
-                                  fontFamily: "'JetBrains Mono', monospace",
-                                  fontSize: '0.7rem',
-                                  fontWeight: 500,
-                                  color: primary_color,
-                                  backgroundColor: `${primary_color}10`,
-                                  padding: '3px 9px',
-                                  borderRadius: 4,
-                                  border: `1px solid ${primary_color}15`,
-                                  letterSpacing: '0.02em',
-                                }}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    </article>
+                        </div>
+                      </article>
+                    </ClickableProject>
                   ))}
                 </div>
               ) : (

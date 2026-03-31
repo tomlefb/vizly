@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,7 +11,6 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
 } from 'lucide-react'
 
 const SOCIAL_ICONS: Record<string, LucideIcon> = {
@@ -111,42 +111,48 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, isPremi
                 Projets
               </h2>
               {sortedProjects.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className={`grid grid-cols-1 gap-6 ${sortedProjects.length === 1 ? 'sm:grid-cols-1 max-w-2xl' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
                   {sortedProjects.map((project) => (
-                    <article key={project.id} className="group overflow-hidden transition-shadow duration-250" style={{ backgroundColor: '#FFFFFF', borderRadius: 12, border: '1px solid #EBEBEB' }}>
-                      {project.images[0] ? (
-                        <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
-                          <Image src={project.images[0]} alt={project.title} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
-                          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: primary_color, opacity: 0, transition: 'opacity 300ms ease-out' }} className="group-hover:opacity-100" />
-                        </div>
-                      ) : (
-                        <div style={{ aspectRatio: '16/10', backgroundColor: `${primary_color}08`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '2rem', fontWeight: 600, color: `${primary_color}30` }}>{project.title.charAt(0)}</span>
-                        </div>
-                      )}
-                      <div className="p-5">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.05rem', color: '#1A1A1A' }}>{project.title}</h3>
-                          {project.external_link ? (
-                            <a href={project.external_link} target="_blank" rel="noopener noreferrer" aria-label={`Voir le projet ${project.title}`} style={{ color: primary_color }} className="shrink-0">
-                              <ExternalLink size={16} />
-                            </a>
-                          ) : null}
-                        </div>
-                        {project.description ? (
-                          <p className="mt-2" style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#6B6B6B', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {project.description}
-                          </p>
-                        ) : null}
-                        {project.tags.length > 0 ? (
-                          <div className="mt-4 flex flex-wrap gap-1.5">
-                            {project.tags.map((tag) => (
-                              <span key={tag} style={{ fontSize: '0.75rem', fontWeight: 500, color: primary_color, backgroundColor: `${primary_color}0C`, padding: '3px 10px', borderRadius: 6 }}>{tag}</span>
-                            ))}
+                    <ClickableProject key={project.id} project={project} primaryColor={primary_color}>
+                      <article className="group overflow-hidden transition-all duration-250 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] h-full" style={{ backgroundColor: '#FFFFFF', borderRadius: 12, border: '1px solid #EBEBEB' }}>
+                        {project.images[0] ? (
+                          <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
+                            <Image src={project.images[0]} alt={project.title} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: primary_color, opacity: 0, transition: 'opacity 300ms ease-out' }} className="group-hover:opacity-100" />
+                            {project.images.length > 1 && (
+                              <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                                +{project.images.length - 1}
+                              </span>
+                            )}
                           </div>
-                        ) : null}
-                      </div>
-                    </article>
+                        ) : (
+                          <div style={{ aspectRatio: '16/10', backgroundColor: `${primary_color}08`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '2rem', fontWeight: 600, color: `${primary_color}30` }}>{project.title.charAt(0)}</span>
+                          </div>
+                        )}
+                        <div className="p-5">
+                          <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.05rem', color: '#1A1A1A' }}>{project.title}</h3>
+                          {project.description ? (
+                            <p className="mt-2" style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#6B6B6B', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                              {project.description}
+                            </p>
+                          ) : null}
+                          {project.tags.length > 0 ? (
+                            <div className="mt-4 flex flex-wrap gap-1.5">
+                              {project.tags.slice(0, 5).map((tag) => (
+                                <span key={tag} style={{ fontSize: '0.75rem', fontWeight: 500, color: primary_color, backgroundColor: `${primary_color}0C`, padding: '3px 10px', borderRadius: 6 }}>{tag}</span>
+                              ))}
+                              {project.tags.length > 5 && (
+                                <span style={{ fontSize: '0.75rem', color: '#8A8A8A' }}>+{project.tags.length - 5}</span>
+                              )}
+                            </div>
+                          ) : null}
+                          <p style={{ marginTop: 12, fontSize: '0.78rem', color: primary_color, fontWeight: 500 }}>
+                            Voir le detail &rarr;
+                          </p>
+                        </div>
+                      </article>
+                    </ClickableProject>
                   ))}
                 </div>
               ) : (

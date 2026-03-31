@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,7 +11,6 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
 } from 'lucide-react'
 
 const SOCIAL_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
@@ -221,40 +221,43 @@ export function TemplateElegant({
             </div>
 
             {sortedProjects.length > 0 ? (
-              <div className="flex flex-col">
+              <div className={`flex flex-col ${sortedProjects.length === 1 ? 'max-w-2xl mx-auto' : ''}`}>
                 {sortedProjects.map((project) => (
-                  <article
-                    key={project.id}
-                    className="px-6 md:px-16 lg:px-24"
-                    style={{
-                      paddingTop: 48,
-                      paddingBottom: 60,
-                    }}
-                  >
-                    <div className="mx-auto max-w-4xl">
-                      {/* Project image -- large, clean */}
-                      {project.images[0] ? (
-                        <div
-                          style={{
-                            position: 'relative',
-                            aspectRatio: '3/2',
-                            overflow: 'hidden',
-                            borderRadius: 2,
-                            marginBottom: 32,
-                          }}
-                        >
-                          <Image
-                            src={project.images[0]}
-                            alt={project.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 800px"
-                          />
-                        </div>
-                      ) : null}
+                  <ClickableProject key={project.id} project={project} primaryColor={primary_color}>
+                    <article
+                      className="group px-6 md:px-16 lg:px-24"
+                      style={{
+                        paddingTop: 48,
+                        paddingBottom: 60,
+                      }}
+                    >
+                      <div className="mx-auto max-w-4xl">
+                        {/* Project image -- large, clean */}
+                        {project.images[0] ? (
+                          <div
+                            className="relative overflow-hidden"
+                            style={{
+                              aspectRatio: '3/2',
+                              borderRadius: 2,
+                              marginBottom: 32,
+                            }}
+                          >
+                            <Image
+                              src={project.images[0]}
+                              alt={project.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                              sizes="(max-width: 768px) 100vw, 800px"
+                            />
+                            {project.images.length > 1 && (
+                              <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                                +{project.images.length - 1}
+                              </span>
+                            )}
+                          </div>
+                        ) : null}
 
-                      {/* Title row */}
-                      <div className="flex items-baseline justify-between gap-4">
+                        {/* Title */}
                         <h3
                           style={{
                             fontFamily: "'Cormorant Garamond', serif",
@@ -268,78 +271,64 @@ export function TemplateElegant({
                         >
                           {project.title}
                         </h3>
-                        {project.external_link ? (
-                          <a
-                            href={project.external_link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Voir le projet ${project.title}`}
+
+                        {project.description ? (
+                          <p
+                            className="mt-4 max-w-2xl"
                             style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 4,
-                              color: primary_color,
-                              fontStyle: 'italic',
-                              fontFamily: "'Cormorant Garamond', serif",
-                              fontSize: '0.9rem',
-                              textDecoration: 'none',
-                              flexShrink: 0,
-                              borderBottom: `1px solid ${primary_color}40`,
-                              paddingBottom: 2,
-                              transition: 'border-color 250ms ease-out',
+                              fontSize: '0.88rem',
+                              lineHeight: 1.85,
+                              color: '#7A7A7A',
+                              fontWeight: 300,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
                             }}
                           >
-                            <span>Voir</span>
-                            <ExternalLink size={14} />
-                          </a>
+                            {project.description}
+                          </p>
                         ) : null}
-                      </div>
 
-                      {project.description ? (
-                        <p
-                          className="mt-4 max-w-2xl"
-                          style={{
-                            fontSize: '0.88rem',
-                            lineHeight: 1.85,
-                            color: '#7A7A7A',
-                            fontWeight: 300,
-                          }}
-                        >
-                          {project.description}
+                        {/* Tags -- minimal, uppercase, almost invisible */}
+                        {project.tags.length > 0 ? (
+                          <div className="mt-5 flex flex-wrap gap-4">
+                            {project.tags.slice(0, 5).map((tag) => (
+                              <span
+                                key={tag}
+                                style={{
+                                  fontSize: '0.62rem',
+                                  fontWeight: 500,
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.2em',
+                                  color: '#C0C0C0',
+                                }}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                            {project.tags.length > 5 && (
+                              <span style={{ fontSize: '0.62rem', color: '#C0C0C0', letterSpacing: '0.1em' }}>+{project.tags.length - 5}</span>
+                            )}
+                          </div>
+                        ) : null}
+
+                        <p style={{ marginTop: 20, fontSize: '0.78rem', color: primary_color, fontWeight: 400, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.02em' }}>
+                          Voir le detail &rarr;
                         </p>
-                      ) : null}
 
-                      {/* Tags -- minimal, uppercase, almost invisible */}
-                      {project.tags.length > 0 ? (
-                        <div className="mt-5 flex flex-wrap gap-4">
-                          {project.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              style={{
-                                fontSize: '0.62rem',
-                                fontWeight: 500,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.2em',
-                                color: '#C0C0C0',
-                              }}
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-
-                      {/* Thin separator */}
-                      <div
-                        style={{
-                          width: 40,
-                          height: 1,
-                          backgroundColor: `${primary_color}30`,
-                          marginTop: 48,
-                        }}
-                      />
-                    </div>
-                  </article>
+                        {/* Thin separator */}
+                        <div
+                          style={{
+                            width: 40,
+                            height: 1,
+                            backgroundColor: `${primary_color}30`,
+                            marginTop: 48,
+                          }}
+                        />
+                      </div>
+                    </article>
+                  </ClickableProject>
                 ))}
               </div>
             ) : (

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,7 +11,6 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
   Layers,
   Hash,
 } from 'lucide-react'
@@ -380,120 +380,127 @@ export function TemplateBento({
         return [
           ...sortedProjects.map((project, index) => {
             // Vary widget sizes: first project gets 4 cols, rest get 2
-            const isHero = index === 0
+            const isHero = index === 0 && sortedProjects.length > 1
             const showLargeImage = isHero
 
             return (
-              <article
+              <ClickableProject
                 key={`project-${project.id}`}
+                project={project}
+                primaryColor={primary_color}
                 className={
-                  isHero ? 'col-span-4 md:col-span-4' : 'col-span-4 md:col-span-2'
+                  isHero ? 'col-span-4 md:col-span-4' : sortedProjects.length === 1 ? 'col-span-4 md:col-span-4 max-w-2xl' : 'col-span-4 md:col-span-2'
                 }
-                style={{
-                  backgroundColor: cardBg,
-                  borderRadius: 20,
-                  border: `1px solid ${borderLight}`,
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
               >
-                {/* Project image */}
-                {project.images[0] ? (
-                  <div
-                    style={{
-                      position: 'relative',
-                      aspectRatio: showLargeImage ? '2.2/1' : '16/10',
-                      overflow: 'hidden',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Image
-                      src={project.images[0]}
-                      alt={project.title}
-                      fill
-                      className="object-cover"
-                      sizes={
-                        isHero
-                          ? '(max-width: 768px) 100vw, 90vw'
-                          : '(max-width: 768px) 100vw, 50vw'
-                      }
-                    />
-                    {/* Overlay gradient */}
+                <article
+                  className="group h-full overflow-hidden transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+                  style={{
+                    backgroundColor: cardBg,
+                    borderRadius: 20,
+                    border: `1px solid ${borderLight}`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  {/* Project image */}
+                  {project.images[0] ? (
                     <div
+                      className="relative overflow-hidden"
                       style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: '40%',
-                        background:
-                          'linear-gradient(to top, rgba(0,0,0,0.4), transparent)',
-                        pointerEvents: 'none',
+                        aspectRatio: showLargeImage ? '2.2/1' : '16/10',
+                        flexShrink: 0,
                       }}
-                    />
-                    {/* Title overlay on hero */}
-                    {showLargeImage ? (
+                    >
+                      <Image
+                        src={project.images[0]}
+                        alt={project.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        sizes={
+                          isHero
+                            ? '(max-width: 768px) 100vw, 90vw'
+                            : '(max-width: 768px) 100vw, 50vw'
+                        }
+                      />
+                      {/* Overlay gradient */}
                       <div
                         style={{
                           position: 'absolute',
                           bottom: 0,
                           left: 0,
                           right: 0,
-                          padding: 'clamp(16px, 3vw, 28px)',
+                          height: '40%',
+                          background:
+                            'linear-gradient(to top, rgba(0,0,0,0.4), transparent)',
+                          pointerEvents: 'none',
                         }}
-                      >
-                        <h3
+                      />
+                      {/* Title overlay on hero */}
+                      {showLargeImage ? (
+                        <div
                           style={{
-                            fontFamily: "'Inter Tight', sans-serif",
-                            fontWeight: 700,
-                            fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)',
-                            color: '#FFFFFF',
-                            lineHeight: 1.2,
-                            letterSpacing: '-0.01em',
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            padding: 'clamp(16px, 3vw, 28px)',
                           }}
                         >
-                          {project.title}
-                        </h3>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      aspectRatio: showLargeImage ? '2.2/1' : '16/10',
-                      backgroundColor: accentLight,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <span
+                          <h3
+                            style={{
+                              fontFamily: "'Inter Tight', sans-serif",
+                              fontWeight: 700,
+                              fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)',
+                              color: '#FFFFFF',
+                              lineHeight: 1.2,
+                              letterSpacing: '-0.01em',
+                            }}
+                          >
+                            {project.title}
+                          </h3>
+                        </div>
+                      ) : null}
+                      {project.images.length > 1 && (
+                        <span style={{ position: 'absolute', bottom: showLargeImage ? 48 : 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                          +{project.images.length - 1}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div
                       style={{
-                        fontFamily: "'Inter Tight', sans-serif",
-                        fontSize: showLargeImage ? '4rem' : '2.5rem',
-                        fontWeight: 800,
-                        color: `${primary_color}20`,
+                        aspectRatio: showLargeImage ? '2.2/1' : '16/10',
+                        backgroundColor: accentLight,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
                       }}
                     >
-                      {project.title.charAt(0)}
-                    </span>
-                  </div>
-                )}
+                      <span
+                        style={{
+                          fontFamily: "'Inter Tight', sans-serif",
+                          fontSize: showLargeImage ? '4rem' : '2.5rem',
+                          fontWeight: 800,
+                          color: `${primary_color}20`,
+                        }}
+                      >
+                        {project.title.charAt(0)}
+                      </span>
+                    </div>
+                  )}
 
-                {/* Content */}
-                <div
-                  style={{
-                    padding: 'clamp(14px, 2.5vw, 22px)',
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
-                  {/* Title (for non-hero cards) */}
-                  {!showLargeImage ? (
-                    <div className="flex items-start justify-between gap-2">
+                  {/* Content */}
+                  <div
+                    style={{
+                      padding: 'clamp(14px, 2.5vw, 22px)',
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    {/* Title (for non-hero cards) */}
+                    {!showLargeImage ? (
                       <h3
                         style={{
                           fontFamily: "'Inter Tight', sans-serif",
@@ -506,109 +513,71 @@ export function TemplateBento({
                       >
                         {project.title}
                       </h3>
-                      {project.external_link ? (
-                        <a
-                          href={project.external_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Voir le projet ${project.title}`}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 30,
-                            height: 30,
-                            borderRadius: 8,
-                            backgroundColor: `${primary_color}10`,
-                            color: primary_color,
-                            flexShrink: 0,
-                          }}
-                        >
-                          <ExternalLink size={14} />
-                        </a>
-                      ) : null}
-                    </div>
-                  ) : (
-                    // Hero card: just the link
-                    project.external_link ? (
-                      <div className="flex items-center justify-between gap-2">
-                        <span
-                          style={{
-                            fontFamily: "'Inter Tight', sans-serif",
-                            fontWeight: 600,
-                            fontSize: '0.8rem',
-                            color: '#999999',
-                          }}
-                        >
-                          Featured
-                        </span>
-                        <a
-                          href={project.external_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Voir le projet ${project.title}`}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 30,
-                            height: 30,
-                            borderRadius: 8,
-                            backgroundColor: `${primary_color}10`,
-                            color: primary_color,
-                            flexShrink: 0,
-                          }}
-                        >
-                          <ExternalLink size={14} />
-                        </a>
+                    ) : (
+                      <span
+                        style={{
+                          fontFamily: "'Inter Tight', sans-serif",
+                          fontWeight: 600,
+                          fontSize: '0.8rem',
+                          color: '#999999',
+                        }}
+                      >
+                        Featured
+                      </span>
+                    )}
+
+                    {project.description ? (
+                      <p
+                        className="mt-2"
+                        style={{
+                          fontSize: '0.82rem',
+                          lineHeight: 1.55,
+                          color: '#888888',
+                          fontWeight: 400,
+                          display: '-webkit-box',
+                          WebkitLineClamp: showLargeImage ? 3 : 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {project.description}
+                      </p>
+                    ) : null}
+
+                    {/* Tags */}
+                    {project.tags.length > 0 ? (
+                      <div
+                        className="flex flex-wrap gap-1.5"
+                        style={{ paddingTop: 10 }}
+                      >
+                        {project.tags.slice(0, 5).map((tag) => (
+                          <span
+                            key={tag}
+                            style={{
+                              fontFamily: "'Inter Tight', sans-serif",
+                              fontSize: '0.68rem',
+                              fontWeight: 600,
+                              color: '#AAAAAA',
+                              backgroundColor: bgSurface,
+                              padding: '3px 10px',
+                              borderRadius: 6,
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {project.tags.length > 5 && (
+                          <span style={{ fontSize: '0.68rem', color: '#CCCCCC' }}>+{project.tags.length - 5}</span>
+                        )}
                       </div>
-                    ) : null
-                  )}
+                    ) : null}
 
-                  {project.description ? (
-                    <p
-                      className="mt-2"
-                      style={{
-                        fontSize: '0.82rem',
-                        lineHeight: 1.55,
-                        color: '#888888',
-                        fontWeight: 400,
-                        display: '-webkit-box',
-                        WebkitLineClamp: showLargeImage ? 3 : 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {project.description}
+                    <p style={{ marginTop: 'auto', paddingTop: 10, fontSize: '0.75rem', color: primary_color, fontWeight: 600, fontFamily: "'Inter Tight', sans-serif" }}>
+                      Voir le detail &rarr;
                     </p>
-                  ) : null}
-
-                  {/* Tags */}
-                  {project.tags.length > 0 ? (
-                    <div
-                      className="mt-auto flex flex-wrap gap-1.5"
-                      style={{ paddingTop: 10 }}
-                    >
-                      {project.tags.slice(0, 4).map((tag) => (
-                        <span
-                          key={tag}
-                          style={{
-                            fontFamily: "'Inter Tight', sans-serif",
-                            fontSize: '0.68rem',
-                            fontWeight: 600,
-                            color: '#AAAAAA',
-                            backgroundColor: bgSurface,
-                            padding: '3px 10px',
-                            borderRadius: 6,
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </article>
+                  </div>
+                </article>
+              </ClickableProject>
             )
           }),
           ...(sortedProjects.length === 0

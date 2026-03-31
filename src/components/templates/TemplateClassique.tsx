@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,7 +11,6 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
 } from 'lucide-react'
 
 const SOCIAL_ICONS: Record<
@@ -512,38 +512,43 @@ export function TemplateClassique({ portfolio, projects, skills, sections, isPre
                 {sortedProjects.length > 0 ? (
                   <div className="flex flex-col gap-10">
                     {sortedProjects.map((project, index) => (
-                      <article
-                        key={project.id}
-                        style={{
-                          paddingBottom: index < sortedProjects.length - 1 ? 40 : 0,
-                          borderBottom:
-                            index < sortedProjects.length - 1
-                              ? '1px solid #E8E8E3'
-                              : 'none',
-                        }}
-                      >
-                        {/* Project image (wide) */}
-                        {project.images[0] ? (
-                          <div
-                            className="relative mb-5 overflow-hidden"
-                            style={{
-                              aspectRatio: '16/8',
-                              borderRadius: 4,
-                              border: '1px solid #E8E8E3',
-                            }}
-                          >
-                            <Image
-                              src={project.images[0]}
-                              alt={project.title}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 1024px) 100vw, 700px"
-                            />
-                          </div>
-                        ) : null}
+                      <ClickableProject key={project.id} project={project} primaryColor={primary_color}>
+                        <article
+                          className="group"
+                          style={{
+                            paddingBottom: index < sortedProjects.length - 1 ? 40 : 0,
+                            borderBottom:
+                              index < sortedProjects.length - 1
+                                ? '1px solid #E8E8E3'
+                                : 'none',
+                          }}
+                        >
+                          {/* Project image (wide) */}
+                          {project.images[0] ? (
+                            <div
+                              className="relative mb-5 overflow-hidden"
+                              style={{
+                                aspectRatio: '16/8',
+                                borderRadius: 4,
+                                border: '1px solid #E8E8E3',
+                              }}
+                            >
+                              <Image
+                                src={project.images[0]}
+                                alt={project.title}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                                sizes="(max-width: 1024px) 100vw, 700px"
+                              />
+                              {project.images.length > 1 && (
+                                <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                                  +{project.images.length - 1}
+                                </span>
+                              )}
+                            </div>
+                          ) : null}
 
-                        {/* Title row */}
-                        <div className="flex items-start justify-between gap-4">
+                          {/* Title row */}
                           <h3
                             style={{
                               fontFamily: "'Merriweather', serif",
@@ -555,68 +560,57 @@ export function TemplateClassique({ portfolio, projects, skills, sections, isPre
                           >
                             {project.title}
                           </h3>
-                          {project.external_link ? (
-                            <a
-                              href={project.external_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={`Voir le projet ${project.title}`}
+
+                          {/* Description */}
+                          {project.description ? (
+                            <p
+                              className="mt-3"
                               style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 4,
-                                fontSize: '0.8rem',
-                                color: primary_color,
-                                textDecoration: 'none',
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0,
-                                fontWeight: 700,
+                                fontSize: '0.92rem',
+                                lineHeight: 1.7,
+                                color: '#555555',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
                               }}
                             >
-                              <span>Voir</span>
-                              <ExternalLink size={13} />
-                            </a>
+                              {project.description}
+                            </p>
                           ) : null}
-                        </div>
 
-                        {/* Description */}
-                        {project.description ? (
-                          <p
-                            className="mt-3"
-                            style={{
-                              fontSize: '0.92rem',
-                              lineHeight: 1.7,
-                              color: '#555555',
-                            }}
-                          >
-                            {project.description}
+                          {/* Tags */}
+                          {project.tags.length > 0 ? (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {project.tags.slice(0, 5).map((tag) => (
+                                <span
+                                  key={tag}
+                                  style={{
+                                    fontSize: '0.73rem',
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em',
+                                    color: primary_color,
+                                    backgroundColor: `${primary_color}0A`,
+                                    padding: '4px 10px',
+                                    borderRadius: 3,
+                                    border: `1px solid ${primary_color}18`,
+                                  }}
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                              {project.tags.length > 5 && (
+                                <span style={{ fontSize: '0.73rem', color: '#999999' }}>+{project.tags.length - 5}</span>
+                              )}
+                            </div>
+                          ) : null}
+
+                          <p style={{ marginTop: 12, fontSize: '0.78rem', color: primary_color, fontWeight: 600 }}>
+                            Voir le detail &rarr;
                           </p>
-                        ) : null}
-
-                        {/* Tags */}
-                        {project.tags.length > 0 ? (
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {project.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                style={{
-                                  fontSize: '0.73rem',
-                                  fontWeight: 700,
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.05em',
-                                  color: primary_color,
-                                  backgroundColor: `${primary_color}0A`,
-                                  padding: '4px 10px',
-                                  borderRadius: 3,
-                                  border: `1px solid ${primary_color}18`,
-                                }}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        ) : null}
-                      </article>
+                        </article>
+                      </ClickableProject>
                     ))}
                   </div>
                 ) : (

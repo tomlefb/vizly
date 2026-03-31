@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,7 +11,6 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
 } from 'lucide-react'
 
 const SOCIAL_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
@@ -213,7 +213,7 @@ export function TemplateBrutalist({
 
             {/* Projects */}
             <div className="px-5 py-12 md:px-10 md:py-16">
-              <div className="mx-auto max-w-5xl">
+              <div className={`mx-auto ${sortedProjects.length === 1 ? 'max-w-2xl' : 'max-w-5xl'}`}>
                 <h2
                   style={{
                     fontFamily: "'Bebas Neue', sans-serif",
@@ -231,34 +231,34 @@ export function TemplateBrutalist({
                 {sortedProjects.length > 0 ? (
                   <div className="flex flex-col">
                     {sortedProjects.map((project, index) => (
-                      <article
-                        key={project.id}
-                        style={{
-                          borderTop: `2px solid ${borderColor}`,
-                          paddingTop: 28,
-                          paddingBottom: 28,
-                        }}
-                      >
-                        {/* Project header: number + title + link */}
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-start md:gap-6">
-                          {/* Number -- oversized */}
-                          <div className="md:col-span-2">
-                            <span
-                              style={{
-                                fontFamily: "'Bebas Neue', sans-serif",
-                                fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                                lineHeight: 0.9,
-                                color: primary_color,
-                                letterSpacing: '0.02em',
-                              }}
-                            >
-                              {String(index + 1).padStart(2, '0')}.
-                            </span>
-                          </div>
+                      <ClickableProject key={project.id} project={project} primaryColor={primary_color} dark={isDark}>
+                        <article
+                          className="group"
+                          style={{
+                            borderTop: `2px solid ${borderColor}`,
+                            paddingTop: 28,
+                            paddingBottom: 28,
+                          }}
+                        >
+                          {/* Project header: number + title + link */}
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-start md:gap-6">
+                            {/* Number -- oversized */}
+                            <div className="md:col-span-2">
+                              <span
+                                style={{
+                                  fontFamily: "'Bebas Neue', sans-serif",
+                                  fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                                  lineHeight: 0.9,
+                                  color: primary_color,
+                                  letterSpacing: '0.02em',
+                                }}
+                              >
+                                {String(index + 1).padStart(2, '0')}.
+                              </span>
+                            </div>
 
-                          {/* Content */}
-                          <div className="md:col-span-6">
-                            <div className="flex items-start gap-3">
+                            {/* Content */}
+                            <div className="md:col-span-6">
                               <h3
                                 style={{
                                   fontFamily: "'Bebas Neue', sans-serif",
@@ -271,101 +271,101 @@ export function TemplateBrutalist({
                               >
                                 {project.title}
                               </h3>
-                              {project.external_link ? (
-                                <a
-                                  href={project.external_link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  aria-label={`Voir le projet ${project.title}`}
+
+                              {project.description ? (
+                                <p
+                                  className="mt-3"
                                   style={{
-                                    color: primary_color,
-                                    flexShrink: 0,
-                                    marginTop: 4,
+                                    fontSize: '0.8rem',
+                                    lineHeight: 1.65,
+                                    color: mutedColor,
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
                                   }}
                                 >
-                                  <ExternalLink size={18} />
-                                </a>
+                                  {project.description}
+                                </p>
                               ) : null}
+
+                              {/* Tags -- bracket style */}
+                              {project.tags.length > 0 ? (
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                  {project.tags.slice(0, 5).map((tag) => (
+                                    <span
+                                      key={tag}
+                                      style={{
+                                        fontSize: '0.7rem',
+                                        fontWeight: 600,
+                                        color: primary_color,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.04em',
+                                      }}
+                                    >
+                                      [{tag}]
+                                    </span>
+                                  ))}
+                                  {project.tags.length > 5 && (
+                                    <span style={{ fontSize: '0.7rem', color: mutedColor }}>+{project.tags.length - 5}</span>
+                                  )}
+                                </div>
+                              ) : null}
+
+                              <p style={{ marginTop: 12, fontSize: '0.72rem', color: primary_color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                Voir le detail &rarr;
+                              </p>
                             </div>
 
-                            {project.description ? (
-                              <p
-                                className="mt-3"
-                                style={{
-                                  fontSize: '0.8rem',
-                                  lineHeight: 1.65,
-                                  color: mutedColor,
-                                }}
-                              >
-                                {project.description}
-                              </p>
-                            ) : null}
-
-                            {/* Tags -- bracket style */}
-                            {project.tags.length > 0 ? (
-                              <div className="mt-4 flex flex-wrap gap-2">
-                                {project.tags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    style={{
-                                      fontSize: '0.7rem',
-                                      fontWeight: 600,
-                                      color: primary_color,
-                                      textTransform: 'uppercase',
-                                      letterSpacing: '0.04em',
-                                    }}
-                                  >
-                                    [{tag}]
-                                  </span>
-                                ))}
-                              </div>
-                            ) : null}
-                          </div>
-
-                          {/* Image */}
-                          <div className="md:col-span-4">
-                            {project.images[0] ? (
-                              <div
-                                style={{
-                                  position: 'relative',
-                                  aspectRatio: '4/3',
-                                  overflow: 'hidden',
-                                  border: `2px solid ${borderColor}`,
-                                }}
-                              >
-                                <Image
-                                  src={project.images[0]}
-                                  alt={project.title}
-                                  fill
-                                  className="object-cover"
-                                  sizes="(max-width: 768px) 100vw, 33vw"
-                                />
-                              </div>
-                            ) : (
-                              <div
-                                style={{
-                                  aspectRatio: '4/3',
-                                  backgroundColor: surfaceColor,
-                                  border: `2px solid ${borderColor}`,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                <span
+                            {/* Image */}
+                            <div className="md:col-span-4">
+                              {project.images[0] ? (
+                                <div
+                                  className="relative overflow-hidden"
                                   style={{
-                                    fontFamily: "'Bebas Neue', sans-serif",
-                                    fontSize: '4rem',
-                                    color: `${primary_color}30`,
+                                    aspectRatio: '4/3',
+                                    border: `2px solid ${borderColor}`,
                                   }}
                                 >
-                                  {String(index + 1).padStart(2, '0')}
-                                </span>
-                              </div>
-                            )}
+                                  <Image
+                                    src={project.images[0]}
+                                    alt={project.title}
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                  />
+                                  {project.images.length > 1 && (
+                                    <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                                      +{project.images.length - 1}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <div
+                                  style={{
+                                    aspectRatio: '4/3',
+                                    backgroundColor: surfaceColor,
+                                    border: `2px solid ${borderColor}`,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontFamily: "'Bebas Neue', sans-serif",
+                                      fontSize: '4rem',
+                                      color: `${primary_color}30`,
+                                    }}
+                                  >
+                                    {String(index + 1).padStart(2, '0')}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </article>
+                        </article>
+                      </ClickableProject>
                     ))}
 
                     {/* Bottom border */}

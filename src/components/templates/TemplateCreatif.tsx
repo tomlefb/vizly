@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,7 +11,6 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
 } from 'lucide-react'
 
 const SOCIAL_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
@@ -241,25 +241,25 @@ export function TemplateCreatif({
                 </h2>
 
                 {sortedProjects.length > 0 ? (
-                  <div className="flex flex-col gap-20 md:gap-28">
+                  <div className={`flex flex-col gap-20 md:gap-28 ${sortedProjects.length === 1 ? 'max-w-2xl' : ''}`}>
                     {sortedProjects.map((project, index) => {
                       const isEven = index % 2 === 0
                       return (
-                        <article key={project.id}>
-                          {/* Project number + title row */}
-                          <div className="mb-6 flex items-baseline gap-4">
-                            <span
-                              style={{
-                                fontFamily: "'Syne', sans-serif",
-                                fontWeight: 800,
-                                fontSize: '0.8rem',
-                                color: primary_color,
-                                letterSpacing: '0.05em',
-                              }}
-                            >
-                              {String(index + 1).padStart(2, '0')}
-                            </span>
-                            <div className="flex flex-1 items-baseline gap-4">
+                        <ClickableProject key={project.id} project={project} primaryColor={primary_color}>
+                          <article className="group">
+                            {/* Project number + title row */}
+                            <div className="mb-6 flex items-baseline gap-4">
+                              <span
+                                style={{
+                                  fontFamily: "'Syne', sans-serif",
+                                  fontWeight: 800,
+                                  fontSize: '0.8rem',
+                                  color: primary_color,
+                                  letterSpacing: '0.05em',
+                                }}
+                              >
+                                {String(index + 1).padStart(2, '0')}
+                              </span>
                               <h3
                                 style={{
                                   fontFamily: "'Syne', sans-serif",
@@ -272,133 +272,132 @@ export function TemplateCreatif({
                               >
                                 {project.title}
                               </h3>
-                              {project.external_link ? (
-                                <a
-                                  href={project.external_link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  aria-label={`Voir le projet ${project.title}`}
-                                  style={{
-                                    color: primary_color,
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  <ExternalLink size={18} />
-                                </a>
-                              ) : null}
                             </div>
-                          </div>
 
-                          {/* Tags as slashes */}
-                          {project.tags.length > 0 ? (
-                            <p
-                              className="mb-6"
-                              style={{
-                                fontFamily: "'Syne', sans-serif",
-                                fontSize: '0.82rem',
-                                fontWeight: 500,
-                                color: '#999999',
-                                letterSpacing: '0.02em',
-                              }}
-                            >
-                              {project.tags.join(' / ')}
-                            </p>
-                          ) : null}
+                            {/* Tags as slashes */}
+                            {project.tags.length > 0 ? (
+                              <p
+                                className="mb-6"
+                                style={{
+                                  fontFamily: "'Syne', sans-serif",
+                                  fontSize: '0.82rem',
+                                  fontWeight: 500,
+                                  color: '#999999',
+                                  letterSpacing: '0.02em',
+                                }}
+                              >
+                                {project.tags.slice(0, 5).join(' / ')}
+                                {project.tags.length > 5 ? ` +${project.tags.length - 5}` : ''}
+                              </p>
+                            ) : null}
 
-                          {/* Image -- alternating layout */}
-                          <div
-                            className={`grid grid-cols-1 items-start gap-8 ${
-                              project.description
-                                ? 'md:grid-cols-12'
-                                : 'md:grid-cols-1'
-                            }`}
-                          >
-                            {/* Image section */}
+                            {/* Image -- alternating layout */}
                             <div
-                              className={
+                              className={`grid grid-cols-1 items-start gap-8 ${
                                 project.description
-                                  ? isEven
-                                    ? 'md:col-span-8'
-                                    : 'md:col-span-8 md:order-2'
-                                  : 'md:col-span-1'
-                              }
+                                  ? 'md:grid-cols-12'
+                                  : 'md:grid-cols-1'
+                              }`}
                             >
-                              {project.images[0] ? (
-                                <div
-                                  style={{
-                                    position: 'relative',
-                                    aspectRatio: index === 0 ? '16/9' : '3/2',
-                                    overflow: 'hidden',
-                                    borderRadius: 6,
-                                  }}
-                                >
-                                  <Image
-                                    src={project.images[0]}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 768px) 100vw, 66vw"
-                                  />
-                                  {/* Subtle color overlay on bottom */}
-                                  <div
-                                    style={{
-                                      position: 'absolute',
-                                      bottom: 0,
-                                      left: 0,
-                                      right: 0,
-                                      height: '30%',
-                                      background: `linear-gradient(to top, ${primary_color}10, transparent)`,
-                                      pointerEvents: 'none',
-                                    }}
-                                  />
-                                </div>
-                              ) : (
-                                <div
-                                  style={{
-                                    aspectRatio: '3/2',
-                                    backgroundColor: `${primary_color}08`,
-                                    borderRadius: 6,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                  }}
-                                >
-                                  <span
-                                    style={{
-                                      fontFamily: "'Syne', sans-serif",
-                                      fontSize: '4rem',
-                                      fontWeight: 800,
-                                      color: `${primary_color}15`,
-                                    }}
-                                  >
-                                    {project.title.charAt(0)}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Description */}
-                            {project.description ? (
+                              {/* Image section */}
                               <div
                                 className={
-                                  isEven
-                                    ? 'md:col-span-4'
-                                    : 'md:col-span-4 md:order-1'
+                                  project.description
+                                    ? isEven
+                                      ? 'md:col-span-8'
+                                      : 'md:col-span-8 md:order-2'
+                                    : 'md:col-span-1'
                                 }
                               >
-                                <p
-                                  style={{
-                                    fontSize: '0.95rem',
-                                    lineHeight: 1.75,
-                                    color: '#5A5A5A',
-                                  }}
-                                >
-                                  {project.description}
-                                </p>
+                                {project.images[0] ? (
+                                  <div
+                                    className="relative overflow-hidden"
+                                    style={{
+                                      aspectRatio: index === 0 ? '16/9' : '3/2',
+                                      borderRadius: 6,
+                                    }}
+                                  >
+                                    <Image
+                                      src={project.images[0]}
+                                      alt={project.title}
+                                      fill
+                                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                                      sizes="(max-width: 768px) 100vw, 66vw"
+                                    />
+                                    {/* Subtle color overlay on bottom */}
+                                    <div
+                                      style={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        height: '30%',
+                                        background: `linear-gradient(to top, ${primary_color}10, transparent)`,
+                                        pointerEvents: 'none',
+                                      }}
+                                    />
+                                    {project.images.length > 1 && (
+                                      <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                                        +{project.images.length - 1}
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div
+                                    style={{
+                                      aspectRatio: '3/2',
+                                      backgroundColor: `${primary_color}08`,
+                                      borderRadius: 6,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontFamily: "'Syne', sans-serif",
+                                        fontSize: '4rem',
+                                        fontWeight: 800,
+                                        color: `${primary_color}15`,
+                                      }}
+                                    >
+                                      {project.title.charAt(0)}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
-                            ) : null}
-                          </div>
-                        </article>
+
+                              {/* Description */}
+                              {project.description ? (
+                                <div
+                                  className={
+                                    isEven
+                                      ? 'md:col-span-4'
+                                      : 'md:col-span-4 md:order-1'
+                                  }
+                                >
+                                  <p
+                                    style={{
+                                      fontSize: '0.95rem',
+                                      lineHeight: 1.75,
+                                      color: '#5A5A5A',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 6,
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden',
+                                    }}
+                                  >
+                                    {project.description}
+                                  </p>
+                                </div>
+                              ) : null}
+                            </div>
+
+                            <p style={{ marginTop: 16, fontSize: '0.78rem', color: primary_color, fontWeight: 600, fontFamily: "'Syne', sans-serif", letterSpacing: '0.02em' }}>
+                              Voir le detail &rarr;
+                            </p>
+                          </article>
+                        </ClickableProject>
                       )
                     })}
                   </div>

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { ClickableProject } from './ClickableProject'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -10,9 +11,7 @@ import {
   Globe,
   Pen,
   Mail,
-  ExternalLink,
   Sparkles,
-  ArrowUpRight,
 } from 'lucide-react'
 
 const SOCIAL_ICONS: Record<
@@ -255,72 +254,79 @@ export function TemplateColore({ portfolio, projects, skills, sections, isPremiu
               </h2>
 
               {sortedProjects.length > 0 ? (
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className={`grid grid-cols-1 gap-5 ${sortedProjects.length === 1 ? 'max-w-2xl mx-auto' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
                   {sortedProjects.map((project, index) => {
                     // Vary card sizes: first and every 4th card spans 2 cols on large screens
-                    const isFeature = index === 0 || index % 5 === 0
+                    const isFeature = sortedProjects.length > 1 && (index === 0 || index % 5 === 0)
                     return (
-                      <article
+                      <ClickableProject
                         key={project.id}
-                        className={`group overflow-hidden transition-all duration-300 ${
-                          isFeature ? 'sm:col-span-2 lg:col-span-2' : ''
-                        }`}
-                        style={{
-                          backgroundColor: '#FFFFFF',
-                          borderRadius: 20,
-                          border: `2px solid ${primary_color}15`,
-                          boxShadow: `0 4px 20px ${primary_color}08`,
-                          transition: 'transform 200ms ease, box-shadow 200ms ease',
-                        }}
+                        project={project}
+                        primaryColor={primary_color}
+                        className={isFeature ? 'sm:col-span-2 lg:col-span-2' : ''}
                       >
-                        {/* Project image */}
-                        {project.images[0] ? (
-                          <div
-                            className="relative overflow-hidden"
-                            style={{
-                              aspectRatio: isFeature ? '2/1' : '4/3',
-                              borderRadius: '18px 18px 0 0',
-                            }}
-                          >
-                            <Image
-                              src={project.images[0]}
-                              alt={project.title}
-                              fill
-                              className="object-cover transition-transform duration-500"
-                              sizes={
-                                isFeature
-                                  ? '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw'
-                                  : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
-                              }
-                            />
-                          </div>
-                        ) : (
-                          <div
-                            style={{
-                              aspectRatio: isFeature ? '2/1' : '4/3',
-                              backgroundColor: `${primary_color}10`,
-                              borderRadius: '18px 18px 0 0',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <span
+                        <article
+                          className="group overflow-hidden transition-all duration-300 h-full hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
+                          style={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 20,
+                            border: `2px solid ${primary_color}15`,
+                            boxShadow: `0 4px 20px ${primary_color}08`,
+                            transition: 'transform 200ms ease, box-shadow 200ms ease',
+                          }}
+                        >
+                          {/* Project image */}
+                          {project.images[0] ? (
+                            <div
+                              className="relative overflow-hidden"
                               style={{
-                                fontFamily: "'Fredoka', sans-serif",
-                                fontSize: '3rem',
-                                fontWeight: 700,
-                                color: `${primary_color}25`,
+                                aspectRatio: isFeature ? '2/1' : '4/3',
+                                borderRadius: '18px 18px 0 0',
                               }}
                             >
-                              {project.title.charAt(0)}
-                            </span>
-                          </div>
-                        )}
+                              <Image
+                                src={project.images[0]}
+                                alt={project.title}
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                sizes={
+                                  isFeature
+                                    ? '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw'
+                                    : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                                }
+                              />
+                              {project.images.length > 1 && (
+                                <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
+                                  +{project.images.length - 1}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                aspectRatio: isFeature ? '2/1' : '4/3',
+                                backgroundColor: `${primary_color}10`,
+                                borderRadius: '18px 18px 0 0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontFamily: "'Fredoka', sans-serif",
+                                  fontSize: '3rem',
+                                  fontWeight: 700,
+                                  color: `${primary_color}25`,
+                                }}
+                              >
+                                {project.title.charAt(0)}
+                              </span>
+                            </div>
+                          )}
 
-                        {/* Content */}
-                        <div className="p-5 md:p-6">
-                          <div className="flex items-start justify-between gap-3">
+                          {/* Content */}
+                          <div className="p-5 md:p-6">
                             <h3
                               style={{
                                 fontFamily: "'Fredoka', sans-serif",
@@ -332,76 +338,61 @@ export function TemplateColore({ portfolio, projects, skills, sections, isPremiu
                             >
                               {project.title}
                             </h3>
-                            {project.external_link ? (
-                              <a
-                                href={project.external_link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={`Voir le projet ${project.title}`}
+
+                            {project.description ? (
+                              <p
+                                className="mt-2.5"
                                 style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  width: 32,
-                                  height: 32,
-                                  borderRadius: 10,
-                                  backgroundColor: `${primary_color}12`,
-                                  color: primary_color,
-                                  flexShrink: 0,
-                                  transition: 'background-color 200ms ease',
+                                  fontSize: '0.88rem',
+                                  lineHeight: 1.6,
+                                  color: '#777777',
+                                  fontWeight: 500,
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: isFeature ? 4 : 3,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden',
                                 }}
                               >
-                                <ArrowUpRight size={16} />
-                              </a>
+                                {project.description}
+                              </p>
                             ) : null}
-                          </div>
 
-                          {project.description ? (
-                            <p
-                              className="mt-2.5"
-                              style={{
-                                fontSize: '0.88rem',
-                                lineHeight: 1.6,
-                                color: '#777777',
-                                fontWeight: 500,
-                                display: '-webkit-box',
-                                WebkitLineClamp: isFeature ? 4 : 3,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                              }}
-                            >
-                              {project.description}
+                            {/* Tags with color variants */}
+                            {project.tags.length > 0 ? (
+                              <div className="mt-4 flex flex-wrap gap-2">
+                                {project.tags.slice(0, 5).map((tag, tagIndex) => {
+                                  const variantColor =
+                                    tagVariants[tagIndex % tagVariants.length] ?? primary_color
+                                  return (
+                                    <span
+                                      key={tag}
+                                      style={{
+                                        fontFamily: "'Fredoka', sans-serif",
+                                        fontSize: '0.74rem',
+                                        fontWeight: 600,
+                                        color: variantColor,
+                                        backgroundColor: `${variantColor}12`,
+                                        padding: '4px 12px',
+                                        borderRadius: 50,
+                                        letterSpacing: '0.01em',
+                                      }}
+                                    >
+                                      {tag}
+                                    </span>
+                                  )
+                                })}
+                                {project.tags.length > 5 && (
+                                  <span style={{ fontSize: '0.74rem', color: '#AAAAAA', fontFamily: "'Fredoka', sans-serif", fontWeight: 500 }}>+{project.tags.length - 5}</span>
+                                )}
+                              </div>
+                            ) : null}
+
+                            <p style={{ marginTop: 12, fontSize: '0.78rem', color: primary_color, fontWeight: 600, fontFamily: "'Fredoka', sans-serif" }}>
+                              Voir le detail &rarr;
                             </p>
-                          ) : null}
-
-                          {/* Tags with color variants */}
-                          {project.tags.length > 0 ? (
-                            <div className="mt-4 flex flex-wrap gap-2">
-                              {project.tags.map((tag, tagIndex) => {
-                                const variantColor =
-                                  tagVariants[tagIndex % tagVariants.length] ?? primary_color
-                                return (
-                                  <span
-                                    key={tag}
-                                    style={{
-                                      fontFamily: "'Fredoka', sans-serif",
-                                      fontSize: '0.74rem',
-                                      fontWeight: 600,
-                                      color: variantColor,
-                                      backgroundColor: `${variantColor}12`,
-                                      padding: '4px 12px',
-                                      borderRadius: 50,
-                                      letterSpacing: '0.01em',
-                                    }}
-                                  >
-                                    {tag}
-                                  </span>
-                                )
-                              })}
-                            </div>
-                          ) : null}
-                        </div>
-                      </article>
+                          </div>
+                        </article>
+                      </ClickableProject>
                     )
                   })}
                 </div>
