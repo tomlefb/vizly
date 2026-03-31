@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS, type PlanType } from '@/lib/constants'
-import { templateMap } from '@/components/templates'
+import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { PublishToggle } from './publish-toggle'
-import type { TemplateName } from '@/types/templates'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -97,7 +96,6 @@ export default async function DashboardPage() {
       {allPortfolios.length > 0 ? (
         <div className="space-y-5">
           {allPortfolios.map((portfolio) => {
-            const TemplateComponent = templateMap[portfolio.template as TemplateName]
             const templateProps = {
               portfolio: {
                 title: portfolio.title || 'Mon portfolio',
@@ -135,24 +133,12 @@ export default async function DashboardPage() {
                       </div>
                     </div>
                     {/* Scaled template */}
-                    <div className="relative h-[180px] overflow-hidden">
-                      {TemplateComponent ? (
-                        <div
-                          className="absolute top-0 left-0 origin-top-left"
-                          style={{
-                            width: '1280px',
-                            transform: 'scale(0.265)',
-                            transformOrigin: 'top left',
-                          }}
-                        >
-                          <TemplateComponent {...templateProps} />
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center h-full bg-surface-warm/50">
-                          <p className="text-xs text-muted">Aucun template</p>
-                        </div>
-                      )}
-                    </div>
+                    <TemplatePreview
+                      templateName={portfolio.template}
+                      templateProps={templateProps}
+                      scale={0.265}
+                      height="180px"
+                    />
                   </div>
 
                   {/* Info + actions */}
