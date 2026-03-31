@@ -1,18 +1,37 @@
 'use client'
 
-import { useState } from 'react'
-import { Eye, X, Maximize2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Eye, X, Maximize2, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
-const TABS = [
+const STEPS = [
   { id: 1, label: 'Infos' },
   { id: 2, label: 'Projets' },
   { id: 3, label: 'Style' },
   { id: 5, label: 'Publier' },
 ] as const
+
+/** Load a Google Font dynamically */
+function useGoogleFont(fontName: string) {
+  useEffect(() => {
+    if (!fontName) return
+    const family = fontName.replace(/ /g, '+')
+    const id = `gfont-editor-${family}`
+    if (document.getElementById(id)) return
+    const link = document.createElement('link')
+    link.id = id
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?family=${family}:wght@300;400;500;600;700&display=swap`
+    document.head.appendChild(link)
+    return () => {
+      const el = document.getElementById(id)
+      if (el) el.remove()
+    }
+  }, [fontName])
+}
 
 interface EditorLayoutProps {
   currentStep: number
@@ -36,8 +55,11 @@ export function EditorLayout({
   const [fullPreview, setFullPreview] = useState(false)
   const [mobileShowPreview, setMobileShowPreview] = useState(false)
 
+  useGoogleFont(portfolioData.font)
+
   const isPublishStep = currentStep === 5
   const TemplateComponent = templateMap[portfolioData.template as TemplateName]
+  const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep)
 
   const templateProps = {
     portfolio: {
@@ -65,54 +87,79 @@ export function EditorLayout({
   return (
     <>
       <div className="flex flex-col h-full min-h-0">
-        {/* Tab bar */}
-        <div className="shrink-0 border-b border-border bg-background px-4 sm:px-6 flex items-center justify-between">
-          <nav className="flex items-center gap-0" aria-label="Onglets editeur">
-            {TABS.map((tab) => {
-              const isActive = currentStep === tab.id
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => onStepChange(tab.id)}
-                  className={cn(
-                    'relative px-4 py-3.5 text-sm font-medium transition-colors duration-150',
-                    isActive
-                      ? 'text-accent'
-                      : 'text-muted hover:text-foreground'
-                  )}
-                >
-                  {tab.label}
-                  {isActive && (
-                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-accent rounded-t-full" />
-                  )}
-                </button>
-              )
-            })}
-          </nav>
+        {/* Step bar */}
+        <div className="shrink-0 border-b border-border bg-background px-4 sm:px-6 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <nav className="flex items-center gap-1 flex-1" aria-label="Etapes editeur">
+              {STEPS.map((step, index) => {
+                const stepIndex = STEPS.findIndex((s) => s.id === step.id)
+                const isActive = currentStep === step.id
+                const isPast = stepIndex < currentStepIndex
+                return (
+                  <div key={step.id} className="flex items-center flex-1">
+                    <button
+                      type="button"
+                      onClick={() => onStepChange(step.id)}
+                      className="flex items-center gap-2 group"
+                    >
+                      <div
+                        className={cn(
+                          'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-200 shrink-0',
+                          isActive
+                            ? 'bg-accent text-white shadow-[0_2px_8px_rgba(232,85,61,0.25)]'
+                            : isPast
+                              ? 'bg-accent/10 text-accent'
+                              : 'bg-surface-warm text-muted-foreground group-hover:bg-border-light'
+                        )}
+                      >
+                        {isPast ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : index + 1}
+                      </div>
+                      <span className={cn(
+                        'text-xs font-medium hidden sm:inline transition-colors',
+                        isActive ? 'text-foreground' : 'text-muted group-hover:text-foreground'
+                      )}>
+                        {step.label}
+                      </span>
+                    </button>
+                    {index < STEPS.length - 1 && (
+                      <div className="flex-1 mx-2">
+                        <div className="h-0.5 rounded-full bg-border-light overflow-hidden">
+                          <div
+                            className={cn(
+                              'h-full rounded-full transition-all duration-300',
+                              isPast ? 'bg-accent w-full' : isActive ? 'bg-accent w-1/2' : 'w-0'
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </nav>
 
-          {/* Preview toggle (mobile) + fullscreen button */}
-          <div className="flex items-center gap-2">
-            {!isPublishStep && (
-              <button
-                type="button"
-                onClick={() => setMobileShowPreview(!mobileShowPreview)}
-                className="lg:hidden inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
-              >
-                <Eye className="h-3.5 w-3.5" />
-                {mobileShowPreview ? 'Formulaire' : 'Apercu'}
-              </button>
-            )}
-            {!isPublishStep && (
-              <button
-                type="button"
-                onClick={() => setFullPreview(true)}
-                className="hidden lg:inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
-              >
-                <Maximize2 className="h-3.5 w-3.5" />
-                Plein ecran
-              </button>
-            )}
+            {/* Preview buttons */}
+            <div className="flex items-center gap-2 ml-4 shrink-0">
+              {!isPublishStep && (
+                <button
+                  type="button"
+                  onClick={() => setMobileShowPreview(!mobileShowPreview)}
+                  className="lg:hidden inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                </button>
+              )}
+              {!isPublishStep && (
+                <button
+                  type="button"
+                  onClick={() => setFullPreview(true)}
+                  className="hidden lg:inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline">Plein ecran</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -164,8 +211,16 @@ export function EditorLayout({
                 <div className="flex-1 overflow-hidden bg-white relative">
                   {TemplateComponent ? (
                     <div className="absolute inset-0 overflow-y-auto">
+                      {/* Font override style */}
+                      {portfolioData.font && (
+                        <style>{`
+                          .editor-preview-font * {
+                            font-family: "${portfolioData.font}", system-ui, sans-serif !important;
+                          }
+                        `}</style>
+                      )}
                       <div
-                        className="origin-top-left"
+                        className="origin-top-left editor-preview-font"
                         style={{
                           width: '1280px',
                           transform: 'scale(0.5)',
@@ -215,7 +270,16 @@ export function EditorLayout({
 
             {/* Full template render */}
             <div className="flex-1 overflow-y-auto">
-              {TemplateComponent && <TemplateComponent {...templateProps} />}
+              {portfolioData.font && (
+                <style>{`
+                  .editor-fullpreview-font * {
+                    font-family: "${portfolioData.font}", system-ui, sans-serif !important;
+                  }
+                `}</style>
+              )}
+              <div className="editor-fullpreview-font">
+                {TemplateComponent && <TemplateComponent {...templateProps} />}
+              </div>
             </div>
           </div>
         </div>
