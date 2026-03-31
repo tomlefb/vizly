@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { TEMPLATE_CONFIGS, type TemplateName } from '@/types/templates'
+import { TEMPLATE_CONFIGS } from '@/types/templates'
+import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
+import { TemplatePreview } from '@/components/shared/TemplatePreview'
 
 type Filter = 'all' | 'free' | 'premium'
 
@@ -13,18 +15,6 @@ const FILTER_OPTIONS: { value: Filter; label: string }[] = [
   { value: 'free', label: 'Gratuits' },
   { value: 'premium', label: 'Premium' },
 ]
-
-/** Color accents per template for the visual preview cards */
-const TEMPLATE_ACCENTS: Record<TemplateName, string> = {
-  minimal: '#1A1A1A',
-  dark: '#00D4FF',
-  classique: '#2D5A3D',
-  colore: '#FF6B6B',
-  creatif: '#8B6914',
-  brutalist: '#E8553D',
-  elegant: '#8F6B4A',
-  bento: '#4A3D8F',
-}
 
 export function TemplateShowcase() {
   const [filter, setFilter] = useState<Filter>('all')
@@ -59,7 +49,17 @@ export function TemplateShowcase() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filtered.map((template) => {
-          const accent = TEMPLATE_ACCENTS[template.name]
+          const colors = DEMO_COLORS[template.name] ?? { primary: '#E8553D', secondary: '#1A1A1A' }
+          const demoProps = {
+            ...DEMO_PORTFOLIO,
+            portfolio: {
+              ...DEMO_PORTFOLIO.portfolio,
+              primary_color: colors.primary,
+              secondary_color: colors.secondary,
+            },
+            isPremium: template.isPremium,
+          }
+
           return (
             <Link
               key={template.name}
@@ -76,40 +76,32 @@ export function TemplateShowcase() {
                 </div>
               )}
 
-              {/* Visual preview area */}
-              <div
-                className="relative h-48 sm:h-56"
-                style={{ backgroundColor: `${accent}08` }}
-              >
-                {/* Mock layout blocks */}
-                <div className="absolute inset-4 flex gap-3">
-                  <div className="flex-1 flex flex-col gap-2">
-                    <div
-                      className="h-4 w-2/3 rounded-sm"
-                      style={{ backgroundColor: `${accent}20` }}
-                    />
-                    <div
-                      className="h-3 w-1/2 rounded-sm"
-                      style={{ backgroundColor: `${accent}12` }}
-                    />
-                    <div className="flex-1 mt-2 rounded-[var(--radius-md)]"
-                      style={{ backgroundColor: `${accent}10` }}
-                    />
+              {/* Real template preview */}
+              <div className="relative border-b border-border bg-white overflow-hidden">
+                {/* Browser chrome */}
+                <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-1.5">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF6259]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#FFBF2F]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#29CE42]" />
                   </div>
-                  <div className="w-1/3 flex flex-col gap-2">
-                    <div
-                      className="flex-1 rounded-[var(--radius-md)]"
-                      style={{ backgroundColor: `${accent}14` }}
-                    />
-                    <div
-                      className="h-1/3 rounded-[var(--radius-md)]"
-                      style={{ backgroundColor: `${accent}08` }}
-                    />
+                  <div className="flex-1 flex justify-center">
+                    <div className="rounded-[2px] bg-background border border-border-light px-2 py-px text-[9px] text-muted font-mono">
+                      pseudo.vizly.fr
+                    </div>
                   </div>
                 </div>
 
+                {/* Scaled template render */}
+                <TemplatePreview
+                  templateName={template.name}
+                  templateProps={demoProps}
+                  scale={0.42}
+                  height="220px"
+                />
+
                 {/* Hover overlay */}
-                <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 top-[26px] bg-accent/0 group-hover:bg-accent/5 transition-colors duration-300 flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[var(--radius-md)] bg-accent px-5 py-2 text-sm font-semibold text-white shadow-lg">
                     Voir ce template
                   </span>
