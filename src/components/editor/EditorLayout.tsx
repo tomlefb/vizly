@@ -273,8 +273,16 @@ export function EditorLayout({
                   </span>
                 </div>
 
-                {/* Scaled template render — neutral bg fills empty space */}
-                <div className="flex-1 overflow-hidden bg-neutral-100 relative">
+                {/* Scaled template render — bg matches template theme */}
+                <div
+                  className="flex-1 overflow-hidden relative"
+                  style={{
+                    backgroundColor: portfolioData.template === 'dark' ? '#0A0A0A'
+                      : portfolioData.template === 'brutalist' ? '#FFFFFF'
+                      : portfolioData.template === 'colore' ? '#FFF5E6'
+                      : '#FAFAF8',
+                  }}
+                >
                   {TemplateComponent ? (
                     <div className="absolute inset-0 overflow-y-auto">
                       {portfolioData.font && (

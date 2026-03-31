@@ -442,7 +442,13 @@ export function EditorClient({
       await syncProjects()
     }
 
-    setCurrentStep((prev) => Math.min(prev + 1, 5))
+    // Navigate to next step in the STEPS sequence (1 → 2 → 3 → 5)
+    const stepOrder = [1, 2, 3, 5]
+    const currentIndex = stepOrder.indexOf(currentStep)
+    const nextStepId = stepOrder[currentIndex + 1]
+    if (nextStepId !== undefined) {
+      setCurrentStep(nextStepId)
+    }
   }, [currentStep, validateStep, syncProjects])
 
   const handlePrevious = useCallback(() => {
