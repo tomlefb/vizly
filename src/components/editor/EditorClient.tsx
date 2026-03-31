@@ -23,7 +23,6 @@ import { EditorLayout } from './EditorLayout'
 import { StepPersonalInfo } from './StepPersonalInfo'
 import { StepProjects } from './StepProjects'
 import { StepCustomization } from './StepCustomization'
-import { StepPreview } from './StepPreview'
 import { StepPublish } from './StepPublish'
 import type { Portfolio, Project } from '@/types'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
@@ -329,8 +328,7 @@ export function EditorClient({
     if (currentStep === 1) return portfolioData.title.trim() !== ''
     if (currentStep === 2) return true
     if (currentStep === 3) return portfolioData.template.trim() !== ''
-    if (currentStep === 4) return true
-    return false // Step 5 is handled by StepPublish
+    return false // Step 5 (Publish) is handled by StepPublish
   }, [currentStep, portfolioData.title, portfolioData.template])
 
   // ---- Project sync on leaving step 2 ----------------------------
@@ -452,13 +450,14 @@ export function EditorClient({
   }, [])
 
   const handleStepChange = useCallback(
-    (step: number) => {
-      // Allow navigation to any completed step or previous steps
-      if (step <= currentStep || completedSteps.includes(step)) {
-        setCurrentStep(step)
+    async (step: number) => {
+      // Sync projects when leaving step 2
+      if (currentStep === 2 && step !== 2) {
+        await syncProjects()
       }
+      setCurrentStep(step)
     },
-    [currentStep, completedSteps]
+    [currentStep, syncProjects]
   )
 
   // ---- Template purchase ------------------------------------------
@@ -705,14 +704,6 @@ export function EditorClient({
               </motion.div>
             )}
           </div>
-        )}
-        {currentStep === 4 && (
-          <StepPreview
-            data={portfolioData}
-            projects={projectsForUI}
-            onBack={handlePrevious}
-            onContinue={handleNext}
-          />
         )}
         {currentStep === 5 && (
           <StepPublish
