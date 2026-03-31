@@ -214,9 +214,21 @@ export function EditorLayout({
                 {children}
               </div>
 
-              {/* Bottom bar with "Suivant" */}
-              {nextStep && (
-                <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 flex items-center justify-end">
+              {/* Bottom bar with Précédent / Suivant */}
+              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 flex items-center justify-between">
+                {currentStepIndex > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+                  >
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                    Precedent
+                  </button>
+                ) : (
+                  <span />
+                )}
+                {nextStep && (
                   <button
                     type="button"
                     onClick={onNext}
@@ -231,8 +243,8 @@ export function EditorLayout({
                     {isLastBeforePublish ? 'Publier' : 'Suivant'}
                     <ChevronRight className="h-4 w-4" />
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Live preview panel */}
@@ -276,6 +288,7 @@ export function EditorLayout({
                         className="origin-top-left editor-preview-font"
                         style={{
                           width: '1280px',
+                          minHeight: '200vh',
                           transform: 'scale(0.5)',
                           transformOrigin: 'top left',
                         }}
