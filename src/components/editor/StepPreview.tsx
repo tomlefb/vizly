@@ -48,6 +48,8 @@ export function StepPreview({
         tags: p.tags,
         display_order: p.display_order,
       })),
+      skills: data.skills ?? [],
+      sections: data.sections ?? [],
       isPremium: false,
     }),
     [data, projects]

@@ -21,6 +21,12 @@ export const socialLinksSchema = z
   .record(z.enum(SOCIAL_PLATFORMS), z.string().url().or(z.literal('')))
   .optional()
 
+const sectionBlockSchema = z.object({
+  id: z.enum(['hero', 'bio', 'socials', 'projects', 'skills', 'contact']),
+  visible: z.boolean(),
+  order: z.number().int().min(0),
+})
+
 export const portfolioSchema = z.object({
   title: z.string().min(1, 'Le titre est requis').max(100),
   bio: z.string().max(MAX_BIO_LENGTH).optional(),
@@ -37,6 +43,8 @@ export const portfolioSchema = z.object({
   font: z.string().default('DM Sans'),
   social_links: socialLinksSchema,
   contact_email: z.string().email().optional().or(z.literal('')),
+  skills: z.array(z.string().max(50)).max(30).default([]),
+  sections: z.array(sectionBlockSchema).optional(),
 })
 
 export const projectSchema = z.object({

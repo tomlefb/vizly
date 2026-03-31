@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { templateMap } from '@/components/templates'
+import { parseSections, parseSkills } from '@/types/sections'
 import { TrackView } from '@/components/analytics/TrackView'
 import type { TemplateProps } from '@/types'
 
@@ -114,6 +115,8 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
       tags: Array.isArray(p.tags) ? (p.tags as string[]) : [],
       display_order: p.display_order,
     })),
+    skills: parseSkills(portfolio.skills),
+    sections: parseSections(portfolio.sections),
     isPremium,
   }
 

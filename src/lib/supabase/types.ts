@@ -54,6 +54,8 @@ export interface Database {
           contact_email: string | null
           published: boolean
           custom_domain: string | null
+          sections: Json | null
+          skills: Json | null
           created_at: string
           updated_at: string
         }
@@ -72,6 +74,8 @@ export interface Database {
           contact_email?: string | null
           published?: boolean
           custom_domain?: string | null
+          sections?: Json | null
+          skills?: Json | null
           created_at?: string
           updated_at?: string
         }
@@ -90,6 +94,8 @@ export interface Database {
           contact_email?: string | null
           published?: boolean
           custom_domain?: string | null
+          sections?: Json | null
+          skills?: Json | null
           created_at?: string
           updated_at?: string
         }

@@ -1,4 +1,5 @@
 import type { TemplateProps } from '@/types'
+import { DEFAULT_SECTIONS } from '@/types/sections'
 
 /** Realistic demo portfolio used for template previews */
 export const DEMO_PORTFOLIO: TemplateProps = {
@@ -55,6 +56,19 @@ export const DEMO_PORTFOLIO: TemplateProps = {
       display_order: 3,
     },
   ],
+  skills: [
+    'Figma',
+    'React',
+    'TypeScript',
+    'Tailwind CSS',
+    'Next.js',
+    'UI/UX Design',
+    'Prototypage',
+    'Design System',
+    'User Research',
+    'Adobe Creative Suite',
+  ],
+  sections: DEFAULT_SECTIONS,
   isPremium: false,
 }
 

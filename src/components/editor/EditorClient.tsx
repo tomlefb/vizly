@@ -24,6 +24,7 @@ import { StepPersonalInfo } from './StepPersonalInfo'
 import { StepProjects } from './StepProjects'
 import { StepCustomization } from './StepCustomization'
 import { StepPublish } from './StepPublish'
+import { parseSections, parseSkills } from '@/types/sections'
 import type { Portfolio, Project } from '@/types'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
@@ -57,6 +58,8 @@ function portfolioToFormData(p: Portfolio): PortfolioFormData {
     font: p.font,
     social_links: (p.social_links as Record<string, string> | null) ?? undefined,
     contact_email: p.contact_email ?? '',
+    skills: parseSkills(p.skills),
+    sections: parseSections(p.sections),
   }
 }
 
@@ -82,6 +85,8 @@ const DEFAULT_PORTFOLIO: PortfolioFormData = {
   font: 'DM Sans',
   social_links: undefined,
   contact_email: '',
+  skills: [],
+  sections: undefined,
 }
 
 // ------------------------------------------------------------------

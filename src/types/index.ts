@@ -13,6 +13,8 @@ export type PortfolioUpdate =
 export type ProjectInsert = Database['public']['Tables']['projects']['Insert']
 export type ProjectUpdate = Database['public']['Tables']['projects']['Update']
 
+import type { SectionBlock } from './sections'
+
 export interface TemplateProps {
   portfolio: {
     title: string
@@ -33,5 +35,7 @@ export interface TemplateProps {
     tags: string[]
     display_order: number
   }>
+  skills: string[]
+  sections: SectionBlock[]
   isPremium: boolean
 }

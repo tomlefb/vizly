@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PLANS, type PlanType } from '@/lib/constants'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { PublishToggle } from './publish-toggle'
+import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -108,6 +109,8 @@ export default async function DashboardPage() {
                 contact_email: portfolio.contact_email ?? null,
               },
               projects: [],
+              skills: parseSkills(portfolio.skills),
+              sections: parseSections(portfolio.sections),
               isPremium: false,
             }
 
