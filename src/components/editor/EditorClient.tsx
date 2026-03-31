@@ -574,53 +574,9 @@ export function EditorClient({
 
   return (
     <div className="fixed inset-0 left-0 lg:left-64 bg-background z-40">
-      {/* Save status indicator */}
-      <div className="absolute top-3 right-4 z-20">
-        <AnimatePresence mode="wait">
-          {saveStatus === 'saving' && (
-            <motion.div
-              key="saving"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground"
-            >
-              <Loader2 className="h-3 w-3 animate-spin" />
-              <span>Sauvegarde...</span>
-            </motion.div>
-          )}
-          {saveStatus === 'saved' && (
-            <motion.div
-              key="saved"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
-              className="flex items-center gap-1.5 text-xs text-success"
-            >
-              <Check className="h-3 w-3" />
-              <span>Sauvegarde</span>
-            </motion.div>
-          )}
-          {saveStatus === 'error' && (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
-              className={cn(
-                'flex items-center gap-1.5 text-xs text-destructive max-w-[200px]',
-              )}
-            >
-              <span className="truncate">{saveError ?? 'Erreur de sauvegarde'}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
       <EditorLayout
+        saveStatus={saveStatus}
+        saveError={saveError}
         currentStep={currentStep}
         completedSteps={completedSteps}
         onStepChange={handleStepChange}

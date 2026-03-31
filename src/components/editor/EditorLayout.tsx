@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Eye, X, Maximize2, Check } from 'lucide-react'
+import { Eye, X, Maximize2, Check, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
@@ -33,6 +33,8 @@ function useGoogleFont(fontName: string) {
   }, [fontName])
 }
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+
 interface EditorLayoutProps {
   currentStep: number
   completedSteps: number[]
@@ -42,6 +44,8 @@ interface EditorLayoutProps {
   canGoNext?: boolean
   portfolioData: PortfolioFormData
   projects: ProjectFormData[]
+  saveStatus?: SaveStatus
+  saveError?: string | null
   children: React.ReactNode
 }
 
@@ -50,6 +54,8 @@ export function EditorLayout({
   onStepChange,
   portfolioData,
   projects,
+  saveStatus = 'idle',
+  saveError,
   children,
 }: EditorLayoutProps) {
   const [fullPreview, setFullPreview] = useState(false)
@@ -138,8 +144,26 @@ export function EditorLayout({
               })}
             </nav>
 
-            {/* Preview buttons */}
-            <div className="flex items-center gap-2 ml-4 shrink-0">
+            {/* Save status + Preview buttons */}
+            <div className="flex items-center gap-3 ml-4 shrink-0">
+              {/* Save indicator */}
+              {saveStatus === 'saving' && (
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span className="hidden sm:inline">Sauvegarde...</span>
+                </span>
+              )}
+              {saveStatus === 'saved' && (
+                <span className="flex items-center gap-1.5 text-xs text-success">
+                  <Check className="h-3 w-3" />
+                  <span className="hidden sm:inline">Sauvegarde</span>
+                </span>
+              )}
+              {saveStatus === 'error' && (
+                <span className="flex items-center gap-1.5 text-xs text-destructive max-w-[150px] truncate">
+                  {saveError ?? 'Erreur'}
+                </span>
+              )}
               {!isPublishStep && (
                 <button
                   type="button"
