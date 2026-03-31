@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS, type PlanType } from '@/lib/constants'
+import { templateMap } from '@/components/templates'
+import { PublishToggle } from './publish-toggle'
+import type { TemplateName } from '@/types/templates'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -10,7 +13,6 @@ export default async function DashboardPage() {
     return null
   }
 
-  // Fetch ALL portfolios for the user
   const { data: portfolios } = await supabase
     .from('portfolios')
     .select('*')
@@ -28,6 +30,15 @@ export default async function DashboardPage() {
   const allPortfolios = portfolios ?? []
   const publishedCount = allPortfolios.filter((p) => p.published).length
   const publishLimit = planInfo.publishLimit
+
+  // Can the user publish one more?
+  const canPublishMore = publishedCount < publishLimit
+  const planMessage =
+    publishLimit === 0
+      ? 'Passe au Starter pour publier'
+      : publishLimit === 1 && publishedCount >= 1
+        ? 'Limite atteinte — passe au Pro'
+        : undefined
 
   const planBadgeStyle =
     plan === 'pro'
@@ -73,7 +84,7 @@ export default async function DashboardPage() {
               <>{publishedCount}/1 projet en ligne &mdash; <Link href="/billing" className="text-accent font-medium hover:text-accent-hover">Passe au Pro</Link> pour plus</>
             )}
             {publishLimit === Infinity && (
-              <>{publishedCount} projet{publishedCount !== 1 ? 's' : ''} en ligne &mdash; illimite</>
+              <>{publishedCount} projet{publishedCount !== 1 ? 's' : ''} en ligne</>
             )}
           </span>
         </div>
@@ -82,94 +93,158 @@ export default async function DashboardPage() {
         </span>
       </div>
 
-      {/* Portfolio grid */}
+      {/* Portfolio list */}
       {allPortfolios.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {allPortfolios.map((portfolio) => (
-            <div
-              key={portfolio.id}
-              className="rounded-[var(--radius-lg)] border border-border bg-surface overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:border-border"
-            >
-              {/* Mini preview header */}
-              <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-2">
-                <div className="flex gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#FF6259]" />
-                  <span className="w-2 h-2 rounded-full bg-[#FFBF2F]" />
-                  <span className="w-2 h-2 rounded-full bg-[#29CE42]" />
-                </div>
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="rounded-[3px] bg-background border border-border-light px-2.5 py-0.5 text-[10px] text-muted font-mono truncate max-w-[140px]">
-                    {portfolio.slug ? `${portfolio.slug}.vizly.fr` : 'non publié'}
+        <div className="space-y-5">
+          {allPortfolios.map((portfolio) => {
+            const TemplateComponent = templateMap[portfolio.template as TemplateName]
+            const templateProps = {
+              portfolio: {
+                title: portfolio.title || 'Mon portfolio',
+                bio: portfolio.bio ?? null,
+                photo_url: portfolio.photo_url ?? null,
+                primary_color: portfolio.primary_color || '#E8553D',
+                secondary_color: portfolio.secondary_color || '#1A1A1A',
+                font: portfolio.font || 'DM Sans',
+                social_links: (portfolio.social_links as Record<string, string> | null) ?? null,
+                contact_email: portfolio.contact_email ?? null,
+              },
+              projects: [],
+              isPremium: false,
+            }
+
+            return (
+              <div
+                key={portfolio.id}
+                className="rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)]"
+              >
+                <div className="flex flex-col lg:flex-row">
+                  {/* Template preview */}
+                  <div className="lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-white overflow-hidden">
+                    {/* Browser chrome */}
+                    <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-1.5">
+                      <div className="flex gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6259]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FFBF2F]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#29CE42]" />
+                      </div>
+                      <div className="flex-1 flex justify-center">
+                        <div className="rounded-[2px] bg-background border border-border-light px-2 py-px text-[9px] text-muted font-mono truncate max-w-[140px]">
+                          {portfolio.slug ? `${portfolio.slug}.vizly.fr` : 'non publie'}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Scaled template */}
+                    <div className="relative h-[180px] overflow-hidden">
+                      {TemplateComponent ? (
+                        <div
+                          className="absolute top-0 left-0 origin-top-left"
+                          style={{
+                            width: '1280px',
+                            transform: 'scale(0.265)',
+                            transformOrigin: 'top left',
+                          }}
+                        >
+                          <TemplateComponent {...templateProps} />
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full bg-surface-warm/50">
+                          <p className="text-xs text-muted">Aucun template</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Info + actions */}
+                  <div className="flex-1 p-5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground truncate">
+                            {portfolio.title || 'Sans titre'}
+                          </h3>
+                          <p className="text-sm text-muted mt-0.5">
+                            Template <span className="capitalize font-medium text-foreground">{portfolio.template}</span>
+                          </p>
+                        </div>
+                        <span
+                          className={`shrink-0 ml-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                            portfolio.published
+                              ? 'bg-success/10 text-success'
+                              : 'bg-surface-warm text-muted'
+                          }`}
+                        >
+                          {portfolio.published ? 'En ligne' : 'Brouillon'}
+                        </span>
+                      </div>
+
+                      {portfolio.slug && (
+                        <p className="text-xs text-muted mb-1">
+                          URL : <span className="font-mono text-foreground">{portfolio.slug}.vizly.fr</span>
+                        </p>
+                      )}
+                      {portfolio.bio && (
+                        <p className="text-xs text-muted line-clamp-2 mt-1">
+                          {portfolio.bio}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border-light">
+                      <Link
+                        href={`/editor?id=${portfolio.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-accent px-4 py-2 text-xs font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+                      >
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                        </svg>
+                        Modifier
+                      </Link>
+
+                      <PublishToggle
+                        portfolioId={portfolio.id}
+                        slug={portfolio.slug}
+                        published={portfolio.published}
+                        canPublish={portfolio.published || canPublishMore}
+                        planMessage={planMessage}
+                      />
+
+                      {portfolio.published && portfolio.slug && (
+                        <a
+                          href={`https://${portfolio.slug}.vizly.fr`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-2 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                          </svg>
+                          Voir le site
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* Card body */}
-              <div className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground truncate">
-                      {portfolio.title || 'Sans titre'}
-                    </h3>
-                    <p className="text-xs text-muted mt-0.5 capitalize">
-                      Template : {portfolio.template}
-                    </p>
-                  </div>
-                  <span
-                    className={`shrink-0 ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                      portfolio.published
-                        ? 'bg-success/10 text-success'
-                        : 'bg-surface-warm text-muted'
-                    }`}
-                  >
-                    {portfolio.published ? 'En ligne' : 'Brouillon'}
-                  </span>
-                </div>
-
-                {/* Mini color preview */}
-                <div className="grid grid-cols-2 gap-1.5 mb-4">
-                  <div className="h-8 rounded-[var(--radius-sm)]" style={{ backgroundColor: `${portfolio.primary_color || '#E8553D'}15` }} />
-                  <div className="h-8 rounded-[var(--radius-sm)]" style={{ backgroundColor: `${portfolio.primary_color || '#E8553D'}08` }} />
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <Link
-                    href={`/editor?id=${portfolio.id}`}
-                    className="flex-1 inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-3 py-2 text-xs font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
-                  >
-                    Modifier
-                  </Link>
-                  {portfolio.published && portfolio.slug && (
-                    <a
-                      href={`https://${portfolio.slug}.vizly.fr`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-[var(--radius-md)] border border-border px-3 py-2 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
-                    >
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                      </svg>
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+            )
+          })}
 
           {/* Add new project card */}
           <Link
             href="/editor"
-            className="rounded-[var(--radius-lg)] border-2 border-dashed border-border bg-surface-warm/30 p-5 flex flex-col items-center justify-center text-center min-h-[200px] transition-colors duration-200 hover:border-accent/40 hover:bg-accent/[0.02] group"
+            className="block rounded-[var(--radius-xl)] border-2 border-dashed border-border bg-surface-warm/20 p-8 text-center transition-colors duration-200 hover:border-accent/40 hover:bg-accent/[0.02] group"
           >
-            <div className="w-10 h-10 rounded-full bg-surface-warm border border-border flex items-center justify-center mb-3 transition-colors group-hover:border-accent/30 group-hover:bg-accent/10">
-              <svg className="h-5 w-5 text-muted transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-surface-warm border border-border flex items-center justify-center transition-colors group-hover:border-accent/30 group-hover:bg-accent/10">
+                <svg className="h-5 w-5 text-muted transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium text-muted transition-colors group-hover:text-foreground">
+                Creer un nouveau projet
+              </span>
             </div>
-            <p className="text-sm font-medium text-muted transition-colors group-hover:text-foreground">
-              Nouveau projet
-            </p>
           </Link>
         </div>
       ) : (
