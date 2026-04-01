@@ -4,13 +4,15 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { cn } from '@/lib/utils'
 
 interface UserMenuProps {
   name: string
   email: string
+  collapsed?: boolean
 }
 
-export function UserMenu({ name, email }: UserMenuProps) {
+export function UserMenu({ name, email, collapsed = false }: UserMenuProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -43,19 +45,27 @@ export function UserMenu({ name, email }: UserMenuProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 transition-colors duration-150 hover:bg-surface-warm"
+        className={cn(
+          'flex items-center rounded-[var(--radius-md)] transition-colors duration-150 hover:bg-surface-warm',
+          collapsed ? 'w-full justify-center p-1.5' : 'w-full gap-3 px-3 py-2'
+        )}
       >
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-light text-accent text-[13px] font-semibold">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-light text-accent text-[12px] font-semibold">
           {initials}
         </div>
-        <div className="flex-1 min-w-0 text-left">
-          <p className="text-[13px] font-medium text-foreground truncate">{name || 'Utilisateur'}</p>
-          <p className="text-[11px] text-muted-foreground truncate">{email}</p>
-        </div>
+        {!collapsed && (
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-[12px] font-medium text-foreground truncate">{name || 'Utilisateur'}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{email}</p>
+          </div>
+        )}
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-0 right-0 mb-1 rounded-[var(--radius-md)] border border-border bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] py-1 z-50">
+        <div className={cn(
+          'absolute rounded-[var(--radius-md)] border border-border bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] py-1 z-50',
+          collapsed ? 'bottom-0 left-full ml-2 min-w-[180px]' : 'bottom-full left-0 right-0 mb-1'
+        )}>
           <Link
             href="/settings"
             onClick={() => setOpen(false)}

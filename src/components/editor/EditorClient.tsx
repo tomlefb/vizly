@@ -33,6 +33,7 @@ import { KpiEditor } from './KpiEditor'
 import type { Portfolio, Project } from '@/types'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
+import { useSidebar } from '@/app/(dashboard)/sidebar-context'
 
 // ------------------------------------------------------------------
 // Types
@@ -112,6 +113,7 @@ export function EditorClient({
 }: EditorClientProps) {
   const router = useRouter()
   const { uploadImage } = useImageUpload()
+  const { sidebarWidth } = useSidebar()
 
   // ---- Core state ------------------------------------------------
 
@@ -699,7 +701,9 @@ export function EditorClient({
   // ---- Render ----------------------------------------------------
 
   return (
-    <div className="fixed inset-0 left-0 lg:left-64 bg-background z-40">
+    <>
+    <style>{`.vizly-editor{left:0}@media(min-width:1024px){.vizly-editor{left:${sidebarWidth}px;transition:left 200ms ease-out}}`}</style>
+    <div className="vizly-editor fixed inset-y-0 right-0 z-40 bg-surface-warm">
       <EditorLayout
         saveStatus={saveStatus}
         saveError={saveError}
@@ -758,17 +762,14 @@ export function EditorClient({
         )}
         {/* Step 3: Contenu (skills, blocs texte, KPIs, colonnes) */}
         {currentStep === 3 && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Page title */}
             <div>
-              <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
+              <h1 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
                 Contenu enrichi
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-[13px] text-muted mt-1">
                 Personnalise ton portfolio avec des blocs supplementaires
-              </p>
-              <p className="text-sm text-muted-foreground italic mt-2">
-                Cette etape est optionnelle — tu pourras toujours y revenir plus tard.
               </p>
             </div>
             <CustomBlockEditor
@@ -809,5 +810,6 @@ export function EditorClient({
         )}
       </EditorLayout>
     </div>
+    </>
   )
 }

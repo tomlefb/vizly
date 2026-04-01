@@ -18,7 +18,7 @@ const COLOR_PALETTES = [
   { name: 'Crepuscule', primary: '#7C3AED', secondary: '#F5F3FF', accent: '#1E1B3A' },
   { name: 'Minuit', primary: '#1E293B', secondary: '#F8FAFC', accent: '#D4634E' },
   { name: 'Aurore', primary: '#E07A48', secondary: '#FFFBEB', accent: '#292524' },
-] as const
+]
 
 interface StepCustomizationProps {
   data: PortfolioFormData
@@ -72,20 +72,20 @@ export function StepCustomization({
 
   return (
     <div
-      className={cn('space-y-6', className)}
+      className={cn('space-y-5', className)}
       data-testid="step-customization"
     >
       {/* Section: Template */}
-      <section className="space-y-5 border-b border-border/50 pb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-            <LayoutGrid className="h-4 w-4 text-accent" />
+      <section className="space-y-4 border-b border-border/30 pb-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-violet-50">
+            <LayoutGrid className="h-3.5 w-3.5 text-violet-600" />
           </div>
           <div>
-            <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Template
             </h2>
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               Choisis le style de ton portfolio
             </p>
           </div>
@@ -98,48 +98,24 @@ export function StepCustomization({
         />
       </section>
 
-      {/* Section: Typography — ABOVE colors for visual hierarchy */}
-      <section className="space-y-5 border-b border-border/50 pb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-            <Type className="h-4 w-4 text-accent" />
+      {/* Section: Colors — dots style */}
+      <section className="space-y-4 border-b border-border/30 pb-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-pink-50">
+            <Palette className="h-3.5 w-3.5 text-pink-600" />
           </div>
           <div>
-            <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
-              Typographie
-            </h2>
-            <p className="text-[13px] text-muted-foreground">
-              Choisis la police de ton portfolio
-            </p>
-          </div>
-        </div>
-
-        <FontSelector
-          value={data.font}
-          valueBody={data.font_body ?? data.font}
-          onChange={handleFontChange}
-          onChangeBody={handleFontBodyChange}
-        />
-      </section>
-
-      {/* Section: Colors — with palette bands */}
-      <section className="space-y-5 border-b border-border/50 pb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-            <Palette className="h-4 w-4 text-accent" />
-          </div>
-          <div>
-            <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Couleurs
             </h2>
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               Personnalise les couleurs de ton portfolio
             </p>
           </div>
         </div>
 
-        {/* Color palette bands */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {/* Color palette dots */}
+        <div className="grid grid-cols-3 gap-3">
           {COLOR_PALETTES.map((palette) => {
             const isActive = data.primary_color.toLowerCase() === palette.primary.toLowerCase() &&
               data.secondary_color.toLowerCase() === palette.secondary.toLowerCase()
@@ -152,22 +128,20 @@ export function StepCustomization({
                   handleSecondaryColorChange(palette.secondary)
                 }}
                 className={cn(
-                  'relative flex flex-col gap-2 rounded-[var(--radius-md)] border-2 p-2.5 transition-all duration-200',
+                  'relative flex items-center gap-2.5 rounded-[var(--radius-md)] border-2 px-3 py-2.5 transition-all duration-200',
                   isActive
                     ? 'border-accent shadow-[0_0_0_2px_rgba(212,99,78,0.15)]'
-                    : 'border-border hover:border-border'
+                    : 'border-border hover:border-border-light'
                 )}
               >
-                {/* Color band strip */}
-                <div className="flex h-10 w-full overflow-hidden rounded-lg">
-                  <div className="w-1/2" style={{ backgroundColor: palette.primary }} />
-                  <div className="w-[30%]" style={{ backgroundColor: palette.secondary }} />
-                  <div className="w-[20%]" style={{ backgroundColor: palette.accent }} />
+                {/* Color dots */}
+                <div className="flex items-center -space-x-1">
+                  <span className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.primary }} />
+                  <span className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.secondary }} />
+                  <span className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.accent }} />
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-foreground">{palette.name}</span>
-                  {isActive && <Check className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />}
-                </div>
+                <span className="text-[11px] font-medium text-foreground">{palette.name}</span>
+                {isActive && <Check className="h-3 w-3 text-accent ml-auto" strokeWidth={2.5} />}
               </button>
             )
           })}
@@ -177,14 +151,14 @@ export function StepCustomization({
         <button
           type="button"
           onClick={() => setShowCustomColors((v) => !v)}
-          className="inline-flex items-center gap-1 text-[13px] text-muted hover:text-accent transition-colors"
+          className="inline-flex items-center gap-1 text-[11px] text-muted hover:text-accent transition-colors"
         >
           Couleurs personnalisees
-          <ChevronRight className={cn('h-3.5 w-3.5 transition-transform', showCustomColors && 'rotate-90')} />
+          <ChevronRight className={cn('h-3 w-3 transition-transform', showCustomColors && 'rotate-90')} />
         </button>
 
         {showCustomColors && (
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <ColorPicker
               value={data.primary_color}
               onChange={handlePrimaryColorChange}
@@ -197,6 +171,30 @@ export function StepCustomization({
             />
           </div>
         )}
+      </section>
+
+      {/* Section: Typography */}
+      <section className="space-y-4 border-b border-border/30 pb-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-teal-50">
+            <Type className="h-3.5 w-3.5 text-teal-600" />
+          </div>
+          <div>
+            <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
+              Typographie
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              Choisis les polices de ton portfolio
+            </p>
+          </div>
+        </div>
+
+        <FontSelector
+          value={data.font}
+          valueBody={data.font_body ?? data.font}
+          onChange={handleFontChange}
+          onChangeBody={handleFontBodyChange}
+        />
       </section>
 
       {/* Section: Layout */}

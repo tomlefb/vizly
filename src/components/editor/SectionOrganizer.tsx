@@ -58,16 +58,16 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
   )
 
   return (
-    <section className="space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-          <LayoutList className="h-4 w-4 text-accent" />
+    <section className="space-y-4">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-slate-100">
+          <LayoutList className="h-3.5 w-3.5 text-slate-600" />
         </div>
         <div>
-          <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
+          <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
             Sections
           </h2>
-          <p className="text-[13px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground">
             Organise et choisis les sections de ton portfolio
           </p>
         </div>
@@ -83,7 +83,7 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
             <div
               key={section.id}
               className={cn(
-                'flex items-center gap-2.5 bg-surface-warm border border-border rounded-[var(--radius-md)] px-4 py-3 transition-colors duration-200 hover:bg-white',
+                'flex items-center gap-2 bg-white border border-border/60 rounded-[var(--radius-sm)] px-3 py-2.5 transition-colors duration-200 hover:bg-surface-warm',
                 !section.visible && 'opacity-50'
               )}
             >

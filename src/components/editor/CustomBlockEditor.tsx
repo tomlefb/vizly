@@ -61,16 +61,16 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
   }, [blocks, onChange])
 
   return (
-    <section className="bg-surface-warm border border-border rounded-[var(--radius-lg)] p-6 space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-          <FileText className="h-4 w-4 text-accent" />
+    <section className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-sky-50">
+          <FileText className="h-3.5 w-3.5 text-sky-600" />
         </div>
         <div>
-          <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
+          <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
             Blocs de texte
           </h2>
-          <p className="text-[13px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground">
             Ajoute des sections de texte personnalisees
           </p>
         </div>
@@ -124,7 +124,7 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
       <button
         type="button"
         onClick={openNew}
-        className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-accent/30 rounded-[var(--radius-lg)] py-3 text-[13px] font-medium text-accent transition-all duration-200 hover:border-accent hover:bg-accent-light"
+        className="flex items-center justify-center gap-1.5 w-full border border-dashed border-accent/30 rounded-[var(--radius-md)] py-2.5 text-[12px] font-medium text-accent transition-all duration-200 hover:border-accent hover:bg-accent-light/50"
       >
         <Plus className="h-4 w-4" />
         Ajouter un bloc texte
