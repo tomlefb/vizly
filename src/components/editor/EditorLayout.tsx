@@ -183,15 +183,15 @@ export function EditorLayout({
                 )}
               </div>
 
-              {/* "Voir l'aperçu" button for steps 1-3 */}
-              {!isDesignStep && !isPublishStep && (
+              {/* "Plein écran" button — only on design step */}
+              {isDesignStep && (
                 <button
                   type="button"
                   onClick={() => setPreviewOpen(true)}
                   className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
                 >
                   <Eye className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Apercu</span>
+                  <span className="hidden sm:inline">Plein ecran</span>
                 </button>
               )}
             </div>
@@ -309,7 +309,7 @@ export function EditorLayout({
             {/* Bottom bar: Précédent / Suivant */}
             {nextStep && (
               <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
-                <div className="max-w-2xl mx-auto flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   {currentStepIndex > 0 ? (
                     <button type="button"
                       onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
