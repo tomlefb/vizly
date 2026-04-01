@@ -16,7 +16,7 @@ const fadeUp = {
 }
 
 const mockProjects = [
-  { title: 'Brand Identity', color: '#E8553D', height: 'h-32' },
+  { title: 'Brand Identity', color: '#D4634E', height: 'h-32' },
   { title: 'App Design', color: '#2D5A3D', height: 'h-44' },
   { title: 'Photography', color: '#8B6914', height: 'h-36' },
   { title: 'Web Dev', color: '#4A3D8F', height: 'h-28' },

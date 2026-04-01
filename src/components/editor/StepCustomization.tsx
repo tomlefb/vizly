@@ -12,7 +12,7 @@ import type { PortfolioFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
 const COLOR_PALETTES = [
-  { name: 'Corail', primary: '#E8553D', secondary: '#FFEEE8' },
+  { name: 'Terracotta', primary: '#D4634E', secondary: '#FDF2EF' },
   { name: 'Ocean', primary: '#0891B2', secondary: '#E0F7FA' },
   { name: 'Foret', primary: '#059669', secondary: '#ECFDF5' },
   { name: 'Crepuscule', primary: '#7C3AED', secondary: '#F3E8FF' },
@@ -76,16 +76,16 @@ export function StepCustomization({
       data-testid="step-customization"
     >
       {/* Section: Template */}
-      <section className="space-y-5 border-b border-gray-100 pb-6">
+      <section className="space-y-5 border-b border-border/50 pb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
             <LayoutGrid className="h-4 w-4 text-accent" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Template
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               Choisis le style de ton portfolio
             </p>
           </div>
@@ -99,16 +99,16 @@ export function StepCustomization({
       </section>
 
       {/* Section: Colors */}
-      <section className="space-y-5 border-b border-gray-100 pb-6">
+      <section className="space-y-5 border-b border-border/50 pb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
             <Palette className="h-4 w-4 text-accent" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Couleurs
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               Personnalise les couleurs de ton portfolio
             </p>
           </div>
@@ -169,16 +169,16 @@ export function StepCustomization({
       </section>
 
       {/* Section: Font */}
-      <section className="space-y-5 border-b border-gray-100 pb-6">
+      <section className="space-y-5 border-b border-border/50 pb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
             <Type className="h-4 w-4 text-accent" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Typographie
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               Choisis la police de ton portfolio
             </p>
           </div>

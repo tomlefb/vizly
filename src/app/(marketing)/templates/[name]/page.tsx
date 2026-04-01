@@ -35,7 +35,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const colors = DEMO_COLORS[template.name] ?? { primary: '#E8553D', secondary: '#1A1A1A' }
+  const colors = DEMO_COLORS[template.name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
 
   const demoProps = {
     ...DEMO_PORTFOLIO,

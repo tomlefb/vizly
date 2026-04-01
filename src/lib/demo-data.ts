@@ -7,7 +7,7 @@ export const DEMO_PORTFOLIO: TemplateProps = {
     title: 'Marie Dupont',
     bio: 'Designer UI/UX passionnée par les interfaces élégantes et les expériences utilisateur intuitives. 5 ans d\'expérience en design produit, freelance basée à Lyon.',
     photo_url: null,
-    primary_color: '#E8553D',
+    primary_color: '#D4634E',
     secondary_color: '#1A1A1A',
     font: 'default',
     font_body: 'default',
@@ -83,7 +83,7 @@ export const DEMO_COLORS: Record<string, { primary: string; secondary: string }>
   classique: { primary: '#2D5A3D', secondary: '#FAFAF8' },
   colore: { primary: '#FF6B6B', secondary: '#FFF5E6' },
   creatif: { primary: '#8B6914', secondary: '#FFFDF5' },
-  brutalist: { primary: '#E8553D', secondary: '#FFFFFF' },
+  brutalist: { primary: '#D4634E', secondary: '#FFFFFF' },
   elegant: { primary: '#8F6B4A', secondary: '#FDFBF7' },
   bento: { primary: '#4A3D8F', secondary: '#F8F7FF' },
 }

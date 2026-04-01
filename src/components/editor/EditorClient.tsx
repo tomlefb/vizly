@@ -89,7 +89,7 @@ const DEFAULT_PORTFOLIO: PortfolioFormData = {
   bio: '',
   photo_url: '',
   template: 'minimal',
-  primary_color: '#E8553D',
+  primary_color: '#D4634E',
   secondary_color: '#1A1A1A',
   font: 'DM Sans',
   font_body: 'DM Sans',
@@ -725,7 +725,7 @@ export function EditorClient({
                   'inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-semibold transition-all duration-200',
                   checkoutLoading
                     ? 'bg-accent/40 text-white/60 cursor-not-allowed'
-                    : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
+                    : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
                 )}
               >
                 {checkoutLoading ? (

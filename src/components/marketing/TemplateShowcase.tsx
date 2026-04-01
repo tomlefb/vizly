@@ -49,7 +49,7 @@ export function TemplateShowcase() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filtered.map((template) => {
-          const colors = DEMO_COLORS[template.name] ?? { primary: '#E8553D', secondary: '#1A1A1A' }
+          const colors = DEMO_COLORS[template.name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
           const demoProps = {
             ...DEMO_PORTFOLIO,
             portfolio: {

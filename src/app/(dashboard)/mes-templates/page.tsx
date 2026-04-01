@@ -41,7 +41,7 @@ export default async function MesTemplatesPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {freeTemplates.map((template) => {
-            const colors = DEMO_COLORS[template.name] ?? { primary: '#E8553D', secondary: '#1A1A1A' }
+            const colors = DEMO_COLORS[template.name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
             const demoProps = {
               ...DEMO_PORTFOLIO,
               portfolio: { ...DEMO_PORTFOLIO.portfolio, primary_color: colors.primary, secondary_color: colors.secondary },
@@ -95,7 +95,7 @@ export default async function MesTemplatesPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {premiumTemplates.map((template) => {
-            const colors = DEMO_COLORS[template.name] ?? { primary: '#E8553D', secondary: '#1A1A1A' }
+            const colors = DEMO_COLORS[template.name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
             const owned = purchasedNames.has(template.name)
             const demoProps = {
               ...DEMO_PORTFOLIO,

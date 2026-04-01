@@ -15,7 +15,7 @@ export const BLOG_POSTS: BlogPost[] = [
       'Guide pas a pas pour creer ton portfolio professionnel avec Vizly. Du formulaire a la mise en ligne.',
     date: '2026-03-28',
     readingTime: '5 min',
-    coverColor: '#E8553D',
+    coverColor: '#D4634E',
   },
   {
     slug: 'portfolio-developpeur-erreurs',

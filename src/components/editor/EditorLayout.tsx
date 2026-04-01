@@ -153,7 +153,7 @@ export function EditorLayout({
                       className={cn(
                         'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-200 shrink-0',
                         isActive
-                          ? 'bg-accent text-white shadow-[0_2px_8px_rgba(232,85,61,0.25)]'
+                          ? 'bg-accent text-white shadow-[0_2px_8px_rgba(212,99,78,0.25)]'
                           : isPast
                             ? 'bg-accent/10 text-accent'
                             : 'border border-gray-300 text-gray-400 bg-transparent group-hover:bg-gray-50'
@@ -279,7 +279,7 @@ export function EditorLayout({
                       className={cn(
                         'group inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold transition-all duration-200',
                         canGoNext
-                          ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
+                          ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
                           : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
                       )}>
                       Suivant
@@ -293,10 +293,8 @@ export function EditorLayout({
         ) : (
           /* Steps 1, 2, 3: Full width form */
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-              <div className="max-w-2xl mx-auto">
-                {children}
-              </div>
+            <div className="flex-1 overflow-y-auto px-5 py-6">
+              {children}
             </div>
             {/* Bottom bar: Précédent / Suivant */}
             {nextStep && (
@@ -315,7 +313,7 @@ export function EditorLayout({
                     className={cn(
                       'group inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold transition-all duration-200',
                       canGoNext
-                        ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
+                        ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
                         : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
                     )}>
                     Suivant

@@ -116,7 +116,7 @@ export function ImageUploader({
 
   return (
     <div className={cn('space-y-3', className)} data-testid="image-uploader">
-      {/* Drop zone */}
+      {/* Drop zone — compact */}
       {canAddMore && (
         <div
           data-testid="image-drop-zone"
@@ -135,23 +135,23 @@ export function ImageUploader({
           tabIndex={0}
           aria-label={`Ajouter des images. ${remaining} emplacement${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
           className={cn(
-            'relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed min-h-[160px] px-6 py-8 cursor-pointer transition-all duration-200',
+            'relative flex items-center justify-center gap-3 rounded-[var(--radius-lg)] border-2 border-dashed h-[100px] px-6 cursor-pointer transition-all duration-200',
             isDragging
-              ? 'border-accent bg-accent/5 scale-[1.01]'
-              : 'border-gray-300 bg-gray-50 hover:border-accent hover:bg-accent/5'
+              ? 'border-accent bg-accent-light scale-[1.01]'
+              : 'border-accent/30 bg-accent-light/50 hover:border-accent hover:bg-accent-light'
           )}
         >
           <Upload
             className={cn(
-              'h-10 w-10 transition-colors duration-200',
-              isDragging ? 'text-accent' : 'text-gray-400'
+              'h-7 w-7 shrink-0 transition-colors duration-200',
+              isDragging ? 'text-accent' : 'text-accent/50'
             )}
           />
-          <div className="text-center">
-            <p className="text-sm font-medium text-foreground">
-              {isDragging ? 'Depose tes images ici' : 'Glisse tes images ou clique pour parcourir'}
+          <div>
+            <p className="text-[13px] font-medium text-foreground">
+              {isDragging ? 'Depose tes images ici' : 'Glisse ou clique pour ajouter'}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground">
               JPG, PNG, WebP ou GIF — max 5 images
             </p>
           </div>
@@ -169,10 +169,20 @@ export function ImageUploader({
         </div>
       )}
 
-      {/* Counter */}
-      <p className="text-xs text-muted-foreground text-right">
-        {totalImages}/{MAX_IMAGES_PER_PROJECT} images
-      </p>
+      {/* Image counter dots */}
+      <div className="flex items-center justify-center gap-2">
+        {Array.from({ length: MAX_IMAGES_PER_PROJECT }).map((_, i) => (
+          <div
+            key={i}
+            className={cn(
+              'h-2 w-2 rounded-full transition-colors duration-200',
+              i < totalImages ? 'bg-accent' : 'bg-border'
+            )}
+            aria-hidden="true"
+          />
+        ))}
+        <span className="text-xs text-muted-foreground ml-1">{totalImages}/{MAX_IMAGES_PER_PROJECT}</span>
+      </div>
 
       {/* Image previews */}
       {totalImages > 0 && (

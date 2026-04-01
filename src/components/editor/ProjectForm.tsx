@@ -139,7 +139,7 @@ export function ProjectForm({
       <div className="space-y-1.5">
         <label
           htmlFor={`${id}-title`}
-          className="block text-sm font-medium text-foreground"
+          className="block text-[13px] font-medium text-muted"
         >
           Titre du projet <span className="text-destructive">*</span>
         </label>
@@ -151,15 +151,18 @@ export function ProjectForm({
           onChange={(e) => handleFieldChange('title', e.target.value)}
           placeholder="Mon super projet"
           maxLength={100}
-          className="w-full rounded-lg border border-gray-200 bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+          className="w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent"
         />
+        {!project.title.trim() && (
+          <p className="text-xs text-muted-foreground">Ex: Refonte du site de mon asso</p>
+        )}
       </div>
 
       {/* Description */}
       <div className="space-y-1.5">
         <label
           htmlFor={`${id}-description`}
-          className="block text-sm font-medium text-foreground"
+          className="block text-[13px] font-medium text-muted"
         >
           Description
         </label>
@@ -170,8 +173,8 @@ export function ProjectForm({
           onChange={(e) => handleFieldChange('description', e.target.value)}
           placeholder="Decris ton projet en quelques lignes..."
           maxLength={MAX_PROJECT_DESCRIPTION_LENGTH}
-          rows={4}
-          className="w-full rounded-lg border border-gray-200 bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 resize-y min-h-[100px] focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+          rows={3}
+          className="w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent"
         />
         <p className="text-xs text-muted-foreground text-right">
           {descriptionLength}/{MAX_PROJECT_DESCRIPTION_LENGTH}

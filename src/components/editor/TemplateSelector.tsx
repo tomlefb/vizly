@@ -17,7 +17,7 @@ interface TemplateSelectorProps {
 
 function useDemoProps(name: TemplateName) {
   return useMemo(() => {
-    const colors = DEMO_COLORS[name] ?? { primary: '#E8553D', secondary: '#1A1A1A' }
+    const colors = DEMO_COLORS[name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
     return {
       ...DEMO_PORTFOLIO,
       portfolio: {

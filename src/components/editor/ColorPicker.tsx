@@ -4,9 +4,9 @@ import { useState, useCallback, useId } from 'react'
 import { cn } from '@/lib/utils'
 
 const PRESET_COLORS = [
-  '#E8553D', '#D97706', '#059669', '#0891B2',
+  '#D4634E', '#D97706', '#059669', '#0891B2',
   '#6366F1', '#A855F7', '#EC4899', '#1A1A1A',
-  '#6B7280', '#F5F4F0',
+  '#6B7280', '#FAF8F6',
 ] as const
 
 interface ColorPickerProps {
@@ -70,7 +70,7 @@ export function ColorPicker({
             value={hexInput.replace(/^#/, '')}
             onChange={(e) => handleHexChange(e.target.value)}
             maxLength={6}
-            placeholder="E8553D"
+            placeholder="D4634E"
             className="w-full rounded-[var(--radius-sm)] border border-border bg-surface px-3 pl-7 py-2 text-sm font-mono text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 focus:border-accent focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
             aria-label={`Code hexadecimal pour ${label}`}
           />

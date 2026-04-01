@@ -106,7 +106,7 @@ export default async function DashboardPage() {
                 title: portfolio.title || 'Mon portfolio',
                 bio: portfolio.bio ?? null,
                 photo_url: portfolio.photo_url ?? null,
-                primary_color: portfolio.primary_color || '#E8553D',
+                primary_color: portfolio.primary_color || '#D4634E',
                 secondary_color: portfolio.secondary_color || '#1A1A1A',
                 font: portfolio.font || 'DM Sans',
                 font_body: portfolio.font_body ?? portfolio.font ?? 'DM Sans',

@@ -5,7 +5,7 @@ import { APP_URL } from '@/lib/constants'
 // Shared HTML helpers
 // ---------------------------------------------------------------------------
 
-const ACCENT_COLOR = '#E8553D'
+const ACCENT_COLOR = '#D4634E'
 
 function emailWrapper(content: string): string {
   return `<!DOCTYPE html>

@@ -65,7 +65,7 @@ export function StepNavigation({
                     className={cn(
                       'flex h-8 items-center gap-1.5 rounded-[var(--radius-full)] px-3 text-xs font-semibold transition-all duration-200',
                       isCurrent
-                        ? 'bg-accent text-white shadow-[0_2px_8px_rgba(232,85,61,0.25)]'
+                        ? 'bg-accent text-white shadow-[0_2px_8px_rgba(212,99,78,0.25)]'
                         : isCompleted || isPast
                           ? 'bg-accent/10 text-accent group-hover:bg-accent/15'
                           : 'bg-surface-warm text-muted-foreground group-hover:bg-border-light group-hover:text-foreground'
@@ -138,7 +138,7 @@ export function StepNavigation({
             'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
             isLast || !canGoNext
               ? 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
-              : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
+              : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
           )}
           aria-label={isLast ? 'Derniere etape' : 'Etape suivante'}
         >

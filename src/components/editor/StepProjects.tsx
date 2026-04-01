@@ -7,7 +7,6 @@ import {
   Pencil,
   Trash2,
   X,
-  FolderOpen,
   ImageIcon,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -61,12 +60,10 @@ export function StepProjects({
 
   const handleSave = useCallback(() => {
     if (editingIndex !== null) {
-      // Update
       const updated = [...projects]
       updated[editingIndex] = editingProject
       onProjectsChange(updated)
     } else {
-      // Create
       onProjectsChange([...projects, editingProject])
     }
     setIsDialogOpen(false)
@@ -76,7 +73,6 @@ export function StepProjects({
   const handleDelete = useCallback(
     (index: number) => {
       const updated = projects.filter((_, i) => i !== index)
-      // Reorder display_order
       const reordered = updated.map((p, i) => ({ ...p, display_order: i }))
       onProjectsChange(reordered)
     },
@@ -121,13 +117,13 @@ export function StepProjects({
   }, [])
 
   return (
-    <div className={cn('space-y-6', className)} data-testid="step-projects">
+    <div className={cn('space-y-8', className)} data-testid="step-projects">
       {/* Page title */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
+        <h1 className="text-[32px] font-semibold leading-tight text-foreground font-[family-name:var(--font-satoshi)]">
           Tes projets
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-[15px] text-muted mt-2">
           Le coeur de ton portfolio
         </p>
       </div>
@@ -138,31 +134,36 @@ export function StepProjects({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] }}
-          className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/50 px-8 py-16 text-center"
+          className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-surface-warm px-8 py-20 text-center"
         >
-          <FolderOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-500">
-            Aucun projet pour le moment
+          {/* SVG illustration — rounded rect with + */}
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" className="mb-6" aria-hidden="true">
+            <rect x="8" y="8" width="64" height="64" rx="16" stroke="var(--color-accent)" strokeWidth="2" strokeDasharray="4 3" opacity="0.4" />
+            <rect x="16" y="16" width="48" height="48" rx="12" fill="var(--color-accent-light)" />
+            <path d="M40 28v24M28 40h24" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+          <h3 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
+            Montre ce que tu sais faire
           </h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-[280px]">
-            Ajoute ton premier projet pour commencer
+          <p className="text-[15px] text-muted mt-2 max-w-[340px]">
+            Projet perso, mission freelance, memoire, site pour un ami — tout compte.
           </p>
           <button
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-hover active:scale-[0.98] shadow-sm"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-accent px-10 py-4 text-[15px] font-semibold text-white transition-all duration-200 hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-5 w-5" />
             Ajouter un projet
           </button>
         </motion.div>
       )}
 
-      {/* Project list */}
+      {/* Project grid */}
       {projects.length > 0 && (
         <>
-          <div className="space-y-2" data-testid="project-list" role="list">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" data-testid="project-list" role="list">
             <AnimatePresence mode="popLayout">
               {projects.map((project, index) => (
                 <motion.div
@@ -179,19 +180,19 @@ export function StepProjects({
                   onDrop={() => handleDrop(index)}
                   onDragEnd={handleDragEnd}
                   className={cn(
-                    'group flex items-center gap-3 rounded-xl border bg-white px-4 py-3 cursor-grab active:cursor-grabbing transition-all duration-200',
+                    'group relative flex gap-3 rounded-2xl border bg-surface-warm p-4 cursor-grab active:cursor-grabbing transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]',
                     dragOverIndex === index
                       ? 'border-accent ring-1 ring-accent/20'
-                      : 'border-gray-200 hover:border-gray-300 shadow-sm'
+                      : 'border-border hover:border-border'
                   )}
                 >
                   {/* Drag handle */}
-                  <div className="shrink-0 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors duration-150">
-                    <GripVertical className="h-4 w-4" />
+                  <div className="shrink-0 pt-1 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors duration-150">
+                    <GripVertical className="h-5 w-5" />
                   </div>
 
                   {/* Thumbnail */}
-                  <div className="shrink-0 h-20 w-20 rounded-lg bg-surface-warm border border-border-light overflow-hidden flex items-center justify-center">
+                  <div className="shrink-0 h-20 w-20 rounded-[var(--radius-md)] bg-white border border-border overflow-hidden flex items-center justify-center">
                     {project.images.length > 0 ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
@@ -200,32 +201,32 @@ export function StepProjects({
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <ImageIcon className="h-4 w-4 text-muted-foreground/30" />
+                      <ImageIcon className="h-5 w-5 text-muted-foreground/20" />
                     )}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
+                    <p className="text-[15px] font-semibold text-foreground truncate">
                       {project.title || 'Sans titre'}
                     </p>
                     {project.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                      <p className="text-[13px] text-muted line-clamp-2 mt-0.5">
                         {project.description}
                       </p>
                     )}
                     {project.tags.length > 0 && (
-                      <div className="flex gap-1 mt-0.5 overflow-hidden">
+                      <div className="flex gap-1 mt-1.5 overflow-hidden">
                         {project.tags.slice(0, 3).map((tag) => (
                           <span
                             key={tag}
-                            className="inline-block rounded-[3px] bg-surface-warm px-1.5 py-0 text-[10px] text-muted-foreground"
+                            className="inline-block rounded-full bg-white border border-border px-2 py-0.5 text-[11px] text-muted font-medium"
                           >
                             {tag}
                           </span>
                         ))}
                         {project.tags.length > 3 && (
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-[11px] text-muted-foreground">
                             +{project.tags.length - 3}
                           </span>
                         )}
@@ -233,12 +234,12 @@ export function StepProjects({
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  {/* Actions — hover only, top right */}
+                  <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                     <button
                       type="button"
                       onClick={() => openEditProject(index)}
-                      className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-foreground hover:bg-surface-warm transition-colors duration-150"
+                      className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] bg-white border border-border text-muted hover:text-foreground hover:border-foreground/20 transition-colors duration-150 shadow-sm"
                       aria-label={`Modifier le projet ${project.title}`}
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -246,7 +247,7 @@ export function StepProjects({
                     <button
                       type="button"
                       onClick={() => handleDelete(index)}
-                      className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors duration-150"
+                      className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] bg-white border border-border text-muted hover:text-destructive hover:border-destructive/20 transition-colors duration-150 shadow-sm"
                       aria-label={`Supprimer le projet ${project.title}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -262,9 +263,9 @@ export function StepProjects({
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-medium text-gray-500 transition-all duration-200 hover:border-accent hover:text-accent hover:bg-accent/5"
+            className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-accent/30 rounded-2xl py-4 text-[15px] font-medium text-accent transition-all duration-200 hover:border-accent hover:bg-accent-light"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-5 w-5" />
             Ajouter un projet
           </button>
         </>
@@ -300,11 +301,11 @@ export function StepProjects({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
-              className="w-full max-w-xl rounded-[var(--radius-xl)] border border-border bg-background shadow-[0_16px_48px_rgba(0,0,0,0.12)] overflow-hidden"
+              className="w-full max-w-xl rounded-[20px] border border-border bg-background shadow-[0_16px_48px_rgba(0,0,0,0.12)] overflow-hidden"
             >
               {/* Dialog header */}
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <h3 className="text-xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+              <div className="flex items-center justify-between border-b border-border px-6 py-4">
+                <h3 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
                   {editingIndex !== null
                     ? 'Modifier le projet'
                     : 'Nouveau projet'}
@@ -333,7 +334,7 @@ export function StepProjects({
                 <button
                   type="button"
                   onClick={() => setIsDialogOpen(false)}
-                  className="rounded-[var(--radius-md)] px-4 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground hover:bg-surface-warm"
+                  className="rounded-[var(--radius-md)] px-4 py-2.5 text-[13px] font-medium text-muted transition-colors duration-150 hover:text-foreground hover:bg-surface-warm"
                 >
                   Annuler
                 </button>
@@ -342,10 +343,10 @@ export function StepProjects({
                   onClick={handleSave}
                   disabled={!editingProject.title.trim()}
                   className={cn(
-                    'rounded-[var(--radius-md)] px-5 py-2 text-sm font-semibold transition-all duration-200',
+                    'rounded-[var(--radius-md)] px-6 py-2.5 text-[13px] font-semibold transition-all duration-200',
                     editingProject.title.trim()
                       ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98]'
-                      : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
+                      : 'bg-accent/50 text-white/60 cursor-not-allowed'
                   )}
                 >
                   {editingIndex !== null ? 'Enregistrer' : 'Ajouter'}

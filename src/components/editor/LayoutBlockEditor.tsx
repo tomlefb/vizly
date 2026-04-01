@@ -91,16 +91,16 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
   }, [editingBlock])
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+    <section className="bg-surface-warm border border-border rounded-[var(--radius-lg)] p-6 space-y-5">
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
           <Columns3 className="h-4 w-4 text-accent" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
             Sections en colonnes
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[13px] text-muted-foreground">
             Cree des sections avec 1, 2 ou 3 colonnes
           </p>
         </div>
@@ -110,10 +110,10 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
       {blocks.length > 0 && (
         <div className="space-y-2">
           {blocks.map((block, index) => (
-            <div key={block.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 group">
+            <div key={block.id} className="flex items-center gap-3 bg-white rounded-[var(--radius-md)] border border-border px-4 py-3 group">
               <Columns3 className="h-4 w-4 text-muted-foreground/40 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-[13px] font-medium text-foreground">
                   {block.columnCount} colonne{block.columnCount > 1 ? 's' : ''} — {block.columns.filter((c) => c.type !== 'empty').length} contenu{block.columns.filter((c) => c.type !== 'empty').length > 1 ? 's' : ''}
                 </p>
                 <p className="text-xs text-muted truncate">
@@ -133,7 +133,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
         </div>
       )}
 
-      <button type="button" onClick={openNew} className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-medium text-gray-500 transition-all duration-200 hover:border-accent hover:text-accent hover:bg-accent/5">
+      <button type="button" onClick={openNew} className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-accent/30 rounded-[var(--radius-lg)] py-3 text-[13px] font-medium text-accent transition-all duration-200 hover:border-accent hover:bg-accent-light">
         <Plus className="h-4 w-4" />
         Ajouter une section colonnes
       </button>
@@ -158,23 +158,36 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
               </div>
 
               <div className="px-6 py-5 space-y-6 max-h-[75vh] overflow-y-auto">
-                {/* Column count picker */}
+                {/* Column count picker — visual mini-schemas */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">Nombre de colonnes</label>
-                  <div className="flex gap-2">
-                    {([1, 2, 3] as const).map((n) => (
-                      <button key={n} type="button" onClick={() => setColumnCount(n)}
-                        className={cn(
-                          'flex-1 flex items-center justify-center gap-2 rounded-[var(--radius-md)] border py-3 text-sm font-medium transition-all',
-                          editingBlock.columnCount === n ? 'border-accent bg-accent/5 text-accent' : 'border-border text-muted-foreground hover:border-accent/30'
-                        )}>
-                        {Array.from({ length: n }).map((_, i) => (
-                          <div key={i} className={cn('rounded-sm', editingBlock.columnCount === n ? 'bg-accent/30' : 'bg-border')}
-                            style={{ width: `${60 / n}px`, height: 24 }} />
-                        ))}
-                        <span className="ml-1">{n}</span>
-                      </button>
-                    ))}
+                  <label className="block text-[13px] font-medium text-muted">Nombre de colonnes</label>
+                  <div className="flex gap-3">
+                    {([1, 2, 3] as const).map((n) => {
+                      const isActive = editingBlock.columnCount === n
+                      return (
+                        <button key={n} type="button" onClick={() => setColumnCount(n)}
+                          className={cn(
+                            'flex flex-col items-center gap-1.5 rounded-[var(--radius-md)] border-2 p-2.5 transition-all w-[72px]',
+                            isActive
+                              ? 'border-accent bg-accent-light'
+                              : 'border-border hover:border-accent/30'
+                          )}>
+                          {/* Mini-schema */}
+                          <div className="flex gap-1 w-[48px] h-[32px]">
+                            {Array.from({ length: n }).map((_, i) => (
+                              <div key={i} className={cn(
+                                'flex-1 rounded-sm transition-colors',
+                                isActive ? 'bg-accent/40' : 'bg-border'
+                              )} />
+                            ))}
+                          </div>
+                          <span className={cn(
+                            'text-[11px] font-medium',
+                            isActive ? 'text-accent' : 'text-muted-foreground'
+                          )}>{n} col{n > 1 ? 's' : ''}</span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 

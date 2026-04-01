@@ -138,7 +138,7 @@ export function Pricing() {
               className={cn(
                 'relative rounded-[var(--radius-xl)] border p-7 lg:p-8 flex flex-col transition-shadow duration-300',
                 plan.popular
-                  ? 'border-accent bg-surface shadow-[0_4px_24px_rgba(232,85,61,0.08)] md:-translate-y-2'
+                  ? 'border-accent bg-surface shadow-[0_4px_24px_rgba(212,99,78,0.08)] md:-translate-y-2'
                   : 'border-border-light bg-surface hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
               )}
             >

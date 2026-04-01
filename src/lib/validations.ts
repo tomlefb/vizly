@@ -35,7 +35,7 @@ export const portfolioSchema = z.object({
   primary_color: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide')
-    .default('#E8553D'),
+    .default('#D4634E'),
   secondary_color: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide')
