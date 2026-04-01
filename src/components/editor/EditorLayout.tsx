@@ -136,7 +136,7 @@ export function EditorLayout({
       <div className="flex flex-col h-full min-h-0">
         {/* Step bar — steps only, full width */}
         <div className="shrink-0 border-b border-border bg-background px-4 sm:px-6 py-3">
-          <nav className="flex items-center gap-1" aria-label="Etapes editeur">
+          <nav className="flex items-center gap-1 w-full" aria-label="Etapes editeur">
             {STEPS.map((step, index) => {
               const stepIndex = STEPS.findIndex((s) => s.id === step.id)
               const isActive = currentStep === step.id
@@ -193,8 +193,8 @@ export function EditorLayout({
               </div>
             </div>
             {/* Bottom bar: Précédent + save */}
-            <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
-              <div className="flex items-center justify-between">
+            <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 min-h-[52px] flex items-center">
+              <div className="flex items-center justify-between w-full">
                 <button type="button"
                   onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
@@ -265,8 +265,8 @@ export function EditorLayout({
             </div>
             {/* Full-width bottom bar */}
             {nextStep && (
-              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
-                <div className="flex items-center justify-between">
+              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 min-h-[52px] flex items-center">
+                <div className="flex items-center justify-between w-full">
                   <button type="button"
                     onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
                     className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
@@ -301,8 +301,8 @@ export function EditorLayout({
             </div>
             {/* Bottom bar: Précédent / Suivant */}
             {nextStep && (
-              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
-                <div className="flex items-center justify-between">
+              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 min-h-[52px] flex items-center">
+                <div className="flex items-center justify-between w-full">
                   {currentStepIndex > 0 ? (
                     <button type="button"
                       onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
