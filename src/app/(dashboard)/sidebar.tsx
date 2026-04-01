@@ -128,7 +128,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       </div>
 
       {/* User avatar + name */}
-      <div className="shrink-0 border-t border-border py-2 flex items-center mx-1">
+      <div className="shrink-0 border-t border-border h-16 flex items-center mx-1">
         <span className={cn(ICON_W, 'shrink-0 flex items-center justify-center')}>
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-light text-accent text-[12px] font-semibold">
             {initials}
