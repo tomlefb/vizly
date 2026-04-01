@@ -415,12 +415,27 @@ export function EditorClient({
   )
 
   const canGoNext = useMemo(() => {
-    if (currentStep === 1) return portfolioData.title.trim() !== ''
+    if (currentStep === 1) {
+      if (!portfolioData.title.trim()) return false
+      // Check social links are valid URLs (if filled)
+      const links = portfolioData.social_links ?? {}
+      for (const val of Object.values(links)) {
+        const url = typeof val === 'string' ? val : ''
+        if (url.trim()) {
+          try { new URL(url) } catch { return false }
+        }
+      }
+      // Check email is valid (if filled)
+      if (portfolioData.contact_email && portfolioData.contact_email.trim()) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(portfolioData.contact_email)) return false
+      }
+      return true
+    }
     if (currentStep === 2) return true
-    if (currentStep === 3) return true // Contenu is optional
+    if (currentStep === 3) return true
     if (currentStep === 4) return portfolioData.template.trim() !== ''
-    return false // Step 5 (Publish) is handled by StepPublish
-  }, [currentStep, portfolioData.title, portfolioData.template])
+    return false
+  }, [currentStep, portfolioData.title, portfolioData.template, portfolioData.social_links, portfolioData.contact_email])
 
   // ---- Project sync on leaving step 2 ----------------------------
 

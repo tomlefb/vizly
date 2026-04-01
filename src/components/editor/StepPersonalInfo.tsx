@@ -46,6 +46,16 @@ const SOCIAL_PLACEHOLDERS: Record<string, string> = {
   website: 'https://...',
 } as const
 
+function isValidUrl(str: string): boolean {
+  if (!str) return true // empty is ok
+  try { new URL(str); return true } catch { return false }
+}
+
+function isValidEmail(str: string): boolean {
+  if (!str) return true // empty is ok
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)
+}
+
 interface StepPersonalInfoProps {
   data: PortfolioFormData
   onChange: (field: string, value: unknown) => void
@@ -64,6 +74,32 @@ export function StepPersonalInfo({
   const [photoPreview, setPhotoPreview] = useState<string | null>(
     data.photo_url ?? null
   )
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  const setFieldError = useCallback((field: string, error: string | null) => {
+    setFieldErrors((prev) => {
+      if (error) return { ...prev, [field]: error }
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }, [])
+
+  const validateUrlOnBlur = useCallback((field: string, value: string) => {
+    if (value && !isValidUrl(value)) {
+      setFieldError(field, 'URL invalide (doit commencer par https://)')
+    } else {
+      setFieldError(field, null)
+    }
+  }, [setFieldError])
+
+  const validateEmailOnBlur = useCallback((value: string) => {
+    if (value && !isValidEmail(value)) {
+      setFieldError('contact_email', 'Email invalide')
+    } else {
+      setFieldError('contact_email', null)
+    }
+  }, [setFieldError])
 
   const handlePhotoChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,21 +289,25 @@ export function StepPersonalInfo({
               data-testid="input-contact-email"
               type="email"
               value={data.contact_email ?? ''}
-              onChange={(e) => onChange('contact_email', e.target.value)}
+              onChange={(e) => {
+                onChange('contact_email', e.target.value)
+                if (fieldErrors['contact_email']) setFieldError('contact_email', null)
+              }}
+              onBlur={() => validateEmailOnBlur(data.contact_email ?? '')}
               placeholder="contact@example.com"
               className={cn(
                 'w-full rounded-[var(--radius-md)] border bg-surface pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2',
-                errors['contact_email']
+                (errors['contact_email'] || fieldErrors['contact_email'])
                   ? 'border-destructive focus:border-destructive'
                   : 'border-border focus:border-accent'
               )}
-              aria-invalid={!!errors['contact_email']}
-              aria-describedby={errors['contact_email'] ? `${id}-email-error` : undefined}
+              aria-invalid={!!(errors['contact_email'] || fieldErrors['contact_email'])}
+              aria-describedby={(errors['contact_email'] || fieldErrors['contact_email']) ? `${id}-email-error` : undefined}
             />
           </div>
-          {errors['contact_email'] && (
+          {(errors['contact_email'] || fieldErrors['contact_email']) && (
             <p id={`${id}-email-error`} className="text-xs text-destructive" role="alert">
-              {errors['contact_email']}
+              {errors['contact_email'] || fieldErrors['contact_email']}
             </p>
           )}
         </div>
@@ -291,6 +331,9 @@ export function StepPersonalInfo({
             const placeholder = SOCIAL_PLACEHOLDERS[platform] ?? 'https://...'
             const currentValue = data.social_links?.[platform] ?? ''
 
+            const fieldKey = `social_${platform}`
+            const error = fieldErrors[fieldKey]
+
             return (
               <div key={platform} className="space-y-1.5">
                 <label
@@ -306,13 +349,23 @@ export function StepPersonalInfo({
                     data-testid={`input-social-${platform}`}
                     type="url"
                     value={currentValue}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       handleSocialChange(platform, e.target.value)
-                    }
+                      if (error) setFieldError(fieldKey, null)
+                    }}
+                    onBlur={() => validateUrlOnBlur(fieldKey, currentValue)}
                     placeholder={placeholder}
-                    className="w-full rounded-[var(--radius-sm)] border border-border bg-surface pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 transition-colors duration-150 focus:border-accent focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+                    className={cn(
+                      'w-full rounded-[var(--radius-sm)] border bg-surface pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 transition-colors duration-150 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2',
+                      error
+                        ? 'border-destructive focus:border-destructive focus-visible:outline-destructive'
+                        : 'border-border focus:border-accent focus-visible:outline-accent'
+                    )}
                   />
                 </div>
+                {error && (
+                  <p className="text-[11px] text-destructive">{error}</p>
+                )}
               </div>
             )
           })}
