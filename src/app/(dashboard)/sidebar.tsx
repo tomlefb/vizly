@@ -12,7 +12,6 @@ import {
   ArrowLeft,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Logo } from '@/components/shared/Logo'
 import { UserMenu } from './user-menu'
 
 interface SidebarProps {
@@ -32,40 +31,40 @@ const NAV_PRO = [
   { href: '/domaines', icon: Globe, label: 'Domaines' },
 ] as const
 
+// Icon container width = sidebar collapsed (60px) - margins (2*4px) = 52px
+// This ensures icons stay at the exact same position in both states
+const ICON_W = 'w-[52px]'
+
 export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
   const pathname = usePathname()
   const [expanded, setExpanded] = useState(false)
-  const currentWidth = expanded ? 220 : 60
 
   return (
     <aside
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      className="fixed inset-y-0 left-0 z-30 hidden lg:flex flex-col border-r border-border bg-white transition-[width] duration-200 ease-out overflow-hidden"
-      style={{ width: currentWidth }}
+      className="fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-border bg-white transition-[width] duration-200 ease-out overflow-hidden"
+      style={{ width: expanded ? 220 : 60 }}
     >
       {/* Logo */}
-      <div className={cn(
-        'flex h-14 items-center shrink-0',
-        expanded ? 'px-5' : 'justify-center'
-      )}>
-        <Link href="/dashboard" aria-label="Retour au dashboard">
-          {expanded ? (
-            <Logo size="sm" />
-          ) : (
+      <div className="flex h-14 items-center shrink-0">
+        <Link href="/dashboard" aria-label="Dashboard" className="flex items-center mx-1">
+          <span className={cn(ICON_W, 'shrink-0 flex items-center justify-center')}>
             <span className="font-[family-name:var(--font-satoshi)] font-bold text-xl select-none">
               V
               <span className="inline-block w-[0.22em] h-[0.22em] rounded-full bg-accent ml-[0.02em] -translate-y-[0.08em]" />
+            </span>
+          </span>
+          {expanded && (
+            <span className="font-[family-name:var(--font-satoshi)] font-bold text-[17px] select-none whitespace-nowrap -ml-2.5">
+              izly
             </span>
           )}
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav
-        className={cn('flex-1 py-3 overflow-y-auto overflow-x-hidden', expanded ? 'px-2' : 'px-1.5')}
-        aria-label="Navigation principale"
-      >
+      <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden" aria-label="Navigation principale">
         <div className="space-y-0.5">
           {NAV_MAIN.map(({ href, icon: Icon, label }) => (
             <NavItem
@@ -78,7 +77,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
             />
           ))}
         </div>
-        <div className="space-y-0.5 mt-3 pt-3 border-t border-border/40">
+        <div className="space-y-0.5 mt-3 pt-3 border-t border-border/40 mx-2">
           {NAV_PRO.map(({ href, icon: Icon, label }) => (
             <NavItem
               key={href}
@@ -94,16 +93,15 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       </nav>
 
       {/* Accueil — retour au site */}
-      <div className={cn('shrink-0 border-t border-border/40', expanded ? 'px-2 py-2' : 'px-1.5 py-2')}>
+      <div className="shrink-0 border-t border-border/40 py-1.5">
         <Link
           href="/"
           title={expanded ? undefined : 'Accueil'}
-          className={cn(
-            'group relative flex items-center rounded-[var(--radius-md)] text-muted hover:bg-surface-warm hover:text-foreground transition-colors duration-150',
-            expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5'
-          )}
+          className="group relative flex items-center mx-1 rounded-[var(--radius-md)] text-muted hover:bg-surface-warm hover:text-foreground transition-colors duration-150"
         >
-          <ArrowLeft className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
+          <span className={cn(ICON_W, 'h-9 shrink-0 flex items-center justify-center')}>
+            <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={1.5} />
+          </span>
           {expanded && <span className="text-[13px] whitespace-nowrap">Accueil</span>}
           {!expanded && (
             <span className="absolute left-full ml-2 z-50 rounded-md bg-foreground/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
@@ -114,7 +112,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       </div>
 
       {/* User block */}
-      <div className={cn('shrink-0 border-t border-border', expanded ? 'p-2' : 'p-1.5')}>
+      <div className="shrink-0 border-t border-border py-1.5">
         <UserMenu name={userName} email={userEmail} collapsed={!expanded} />
       </div>
     </aside>
@@ -141,19 +139,20 @@ function NavItem({
       href={href}
       title={expanded ? undefined : label}
       className={cn(
-        'group relative flex items-center rounded-[var(--radius-md)] transition-colors duration-150',
-        expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
+        'group relative flex items-center mx-1 rounded-[var(--radius-md)] transition-colors duration-150',
         active
           ? 'bg-accent-light text-accent'
           : 'text-muted hover:bg-surface-warm hover:text-foreground'
       )}
     >
-      <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
+      <span className={cn(ICON_W, 'h-9 shrink-0 flex items-center justify-center')}>
+        <Icon className="h-[18px] w-[18px]" strokeWidth={1.5} />
+      </span>
       {expanded && (
         <>
           <span className={cn('text-[13px] whitespace-nowrap', active && 'font-medium')}>{label}</span>
           {proBadge && (
-            <span className="ml-auto rounded-full bg-accent-light px-1.5 py-px text-[9px] font-semibold text-accent leading-tight">
+            <span className="ml-auto mr-3 rounded-full bg-accent-light px-1.5 py-px text-[9px] font-semibold text-accent leading-tight">
               Pro
             </span>
           )}

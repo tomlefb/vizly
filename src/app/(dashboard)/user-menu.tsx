@@ -45,16 +45,15 @@ export function UserMenu({ name, email, collapsed = false }: UserMenuProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={cn(
-          'flex items-center rounded-[var(--radius-md)] transition-colors duration-150 hover:bg-surface-warm',
-          collapsed ? 'w-full justify-center p-1.5' : 'w-full gap-3 px-3 py-2'
-        )}
+        className="flex items-center w-full mx-1 rounded-[var(--radius-md)] transition-colors duration-150 hover:bg-surface-warm"
       >
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-light text-accent text-[12px] font-semibold">
-          {initials}
-        </div>
+        <span className="w-[52px] h-9 shrink-0 flex items-center justify-center">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-light text-accent text-[12px] font-semibold">
+            {initials}
+          </span>
+        </span>
         {!collapsed && (
-          <div className="flex-1 min-w-0 text-left">
+          <div className="flex-1 min-w-0 text-left pr-2">
             <p className="text-[12px] font-medium text-foreground truncate">{name || 'Utilisateur'}</p>
             <p className="text-[10px] text-muted-foreground truncate">{email}</p>
           </div>
