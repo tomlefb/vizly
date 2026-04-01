@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { Check, Lock, Sparkles } from 'lucide-react'
+import { Check, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { TemplateName } from '@/types/templates'
@@ -39,22 +39,23 @@ function FreeTemplateCard({ name, label, idealFor, isSelected, onSelect }: {
       data-testid={`template-card-${name}`}
       onClick={() => onSelect(name)}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
+        'group relative flex flex-col overflow-hidden rounded-2xl border text-left transition-all duration-200',
         isSelected
-          ? 'border-accent ring-2 ring-accent ring-offset-2'
-          : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
+          ? 'border-accent border-[3px] shadow-[0_4px_16px_rgba(212,99,78,0.15)]'
+          : 'border-border hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]'
       )}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden" style={{ minHeight: '280px' }}>
         <TemplatePreview templateName={name} templateProps={demoProps} scale={0.22} height="100%" />
         {isSelected && (
-          <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent shadow-sm">
-            <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 shadow-sm">
+            <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+            <span className="text-[11px] font-semibold text-white">Selectionne</span>
           </div>
         )}
       </div>
-      <div className="p-3 bg-surface">
-        <p className="text-sm font-semibold text-foreground">{label}</p>
+      <div className="p-3.5 bg-surface">
+        <p className="text-[13px] font-semibold text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{idealFor}</p>
       </div>
     </button>
@@ -71,31 +72,30 @@ function PremiumTemplateCard({ name, label, idealFor, isSelected, isLocked, onSe
       data-testid={`template-card-${name}`}
       onClick={() => onSelect(name)}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
+        'group relative flex flex-col overflow-hidden rounded-2xl border text-left transition-all duration-200',
         isSelected
-          ? 'border-accent ring-2 ring-accent ring-offset-2'
-          : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
+          ? 'border-accent border-[3px] shadow-[0_4px_16px_rgba(212,99,78,0.15)]'
+          : 'border-border hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]'
       )}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden" style={{ minHeight: '280px' }}>
         <TemplatePreview templateName={name} templateProps={demoProps} scale={0.22} height="100%" />
-        {isLocked && (
-          <div className="absolute inset-0 flex items-center justify-center bg-foreground/5 backdrop-blur-[1px]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm border border-border">
-              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-            </div>
-          </div>
-        )}
+        {/* Premium badge — top left */}
+        <div className="absolute top-2.5 left-2.5 flex items-center gap-1 rounded-full bg-foreground/80 px-2.5 py-1 backdrop-blur-sm">
+          <Sparkles className="h-3 w-3 text-white" />
+          <span className="text-[11px] font-semibold text-white">Premium</span>
+        </div>
         {isSelected && (
-          <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent shadow-sm">
-            <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 shadow-sm">
+            <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+            <span className="text-[11px] font-semibold text-white">Selectionne</span>
           </div>
         )}
       </div>
-      <div className="p-3 bg-surface">
-        <div className="flex items-center gap-1.5">
-          <p className="text-sm font-semibold text-foreground">{label}</p>
-          <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded-full">2.99€</span>
+      <div className="p-3.5 bg-surface">
+        <div className="flex items-center gap-2">
+          <p className="text-[13px] font-semibold text-foreground">{label}</p>
+          <span className="rounded-full bg-accent-light px-2 py-0.5 text-[11px] font-semibold text-accent">2.99€</span>
         </div>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{idealFor}</p>
       </div>
@@ -123,10 +123,10 @@ export function TemplateSelector({
     <div className={cn('space-y-6', className)} data-testid="template-selector">
       {/* Free templates */}
       <div>
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+        <h3 className="text-[13px] font-semibold text-muted uppercase tracking-wide mb-3">
           Templates gratuits
         </h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {freeTemplates.map((template) => (
             <FreeTemplateCard
               key={template.name}
@@ -142,14 +142,10 @@ export function TemplateSelector({
 
       {/* Premium templates */}
       <div>
-        <div className="mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Templates premium
-          </h3>
-        </div>
-
-        {/* 2x2 grid but with varied sizing for visual interest */}
-        <div className="grid grid-cols-2 gap-3">
+        <h3 className="text-[13px] font-semibold text-muted uppercase tracking-wide mb-3">
+          Templates premium
+        </h3>
+        <div className="grid grid-cols-2 gap-4">
           {premiumTemplates.map((template) => (
             <PremiumTemplateCard
               key={template.name}

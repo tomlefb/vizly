@@ -42,7 +42,7 @@ function FontDropdown({ label, value, onChange }: FontDropdownProps) {
 
   return (
     <div ref={containerRef} className="space-y-1.5">
-      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+      <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
         {label}
       </label>
       <div className="relative">
@@ -125,21 +125,35 @@ export function FontSelector({
   onChangeBody,
   className,
 }: FontSelectorProps) {
+  const titleFont = AVAILABLE_FONTS.find((f) => f.name === value)
+  const bodyFont = AVAILABLE_FONTS.find((f) => f.name === valueBody)
+
   return (
     <div
-      className={cn('grid gap-4', className)}
+      className={cn('space-y-4', className)}
       data-testid="font-selector"
     >
-      <FontDropdown
-        label="Police de titre"
-        value={value}
-        onChange={onChange}
-      />
-      <FontDropdown
-        label="Police de texte"
-        value={valueBody}
-        onChange={onChangeBody}
-      />
+      <div className="space-y-2">
+        <FontDropdown
+          label="Police de titre"
+          value={value}
+          onChange={onChange}
+        />
+        {/* Mini preview */}
+        <p className="text-[15px] text-muted pl-1" style={{ fontFamily: titleFont?.family ?? 'inherit' }}>
+          Aa Bb Cc 123
+        </p>
+      </div>
+      <div className="space-y-2">
+        <FontDropdown
+          label="Police de texte"
+          value={valueBody}
+          onChange={onChangeBody}
+        />
+        <p className="text-[13px] text-muted pl-1" style={{ fontFamily: bodyFont?.family ?? 'inherit' }}>
+          Aa Bb Cc 123
+        </p>
+      </div>
     </div>
   )
 }

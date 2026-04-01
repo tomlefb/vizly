@@ -60,6 +60,12 @@ body {
   color: var(--color-foreground);
 }
 
+/* Float animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

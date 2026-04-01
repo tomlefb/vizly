@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Maximize2, X, Check, Loader2, ChevronRight, Monitor, Smartphone } from 'lucide-react'
+import { Maximize2, X, Check, Loader2, ChevronRight, Monitor, Smartphone, Tablet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import { DEFAULT_SECTIONS, parseSections } from '@/types/sections'
@@ -67,7 +67,7 @@ export function EditorLayout({
   children,
 }: EditorLayoutProps) {
   const [previewOpen, setPreviewOpen] = useState(false)
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop')
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
 
   useGoogleFont(portfolioData.font)
   useGoogleFont(portfolioData.font_body ?? portfolioData.font)
@@ -214,35 +214,54 @@ export function EditorLayout({
               <div className="w-[35%] overflow-y-auto border-r border-gray-200 bg-white px-4 sm:px-6 py-6">
                 {children}
               </div>
-              {/* Right panel: preview */}
-              <div className="flex-1 flex flex-col overflow-hidden">
-                {/* URL bar + device toggle */}
-                <div className="shrink-0 flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2">
-                  <div className="text-sm text-gray-500 font-mono">
-                    pseudo.vizly.fr
+              {/* Right panel: preview with browser chrome */}
+              <div className="flex-1 flex flex-col overflow-hidden bg-surface-warm">
+                {/* Browser chrome */}
+                <div className="shrink-0 flex items-center border-b border-border bg-white px-4 py-2.5">
+                  {/* macOS dots */}
+                  <div className="flex gap-1.5 mr-4">
+                    <span className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
+                    <span className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
+                    <span className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
                   </div>
-                  <div className="flex items-center gap-1">
+                  {/* URL bar */}
+                  <div className="flex-1 flex justify-center">
+                    <div className="rounded-[var(--radius-sm)] bg-surface-warm border border-border px-4 py-1 text-xs text-muted font-mono">
+                      pseudo.vizly.fr
+                    </div>
+                  </div>
+                  {/* Device toggle + fullscreen */}
+                  <div className="flex items-center gap-1 ml-4">
                     <button type="button" onClick={() => setPreviewDevice('desktop')}
-                      className={cn('flex h-8 w-8 items-center justify-center rounded-md transition-colors', previewDevice === 'desktop' ? 'bg-gray-200 text-gray-900' : 'text-gray-400 hover:text-gray-600')}
+                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'desktop' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
                       title="Desktop" aria-label="Vue desktop">
                       <Monitor className="h-4 w-4" />
                     </button>
+                    <button type="button" onClick={() => setPreviewDevice('tablet')}
+                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'tablet' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
+                      title="Tablet" aria-label="Vue tablette">
+                      <Tablet className="h-4 w-4" />
+                    </button>
                     <button type="button" onClick={() => setPreviewDevice('mobile')}
-                      className={cn('flex h-8 w-8 items-center justify-center rounded-md transition-colors', previewDevice === 'mobile' ? 'bg-gray-200 text-gray-900' : 'text-gray-400 hover:text-gray-600')}
+                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'mobile' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
                       title="Mobile" aria-label="Vue mobile">
                       <Smartphone className="h-4 w-4" />
                     </button>
+                    <div className="w-px h-4 bg-border mx-1" />
                     <button type="button" onClick={() => setPreviewOpen(true)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 transition-colors"
+                      className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-foreground transition-colors"
                       title="Plein ecran" aria-label="Plein ecran">
                       <Maximize2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-                {/* Scaled template */}
-                <div className="flex-1 overflow-hidden relative flex justify-center" style={{ backgroundColor: previewBg }}>
+                {/* Preview area with device sizing */}
+                <div className="flex-1 overflow-hidden relative flex justify-center p-4" style={{ backgroundColor: previewBg }}>
                   {TemplateComponent ? (
-                    <div className={cn('overflow-y-auto h-full', previewDevice === 'mobile' ? 'w-[375px] border-x border-gray-200 shadow-sm' : 'absolute inset-0')}>
+                    <div className={cn(
+                      'overflow-y-auto rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-border/50 transition-all duration-300',
+                      previewDevice === 'mobile' ? 'w-[375px] h-full' : previewDevice === 'tablet' ? 'w-[768px] h-full' : 'absolute inset-4 rounded-xl'
+                    )}>
                       {portfolioData.font && (
                         <style>{`
                           .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
@@ -250,7 +269,12 @@ export function EditorLayout({
                         `}</style>
                       )}
                       <div className="origin-top-left editor-preview-font"
-                        style={{ width: previewDevice === 'mobile' ? '375px' : '1280px', minHeight: '200vh', transform: previewDevice === 'mobile' ? 'none' : 'scale(0.55)', transformOrigin: 'top left' }}>
+                        style={{
+                          width: previewDevice === 'mobile' ? '375px' : previewDevice === 'tablet' ? '768px' : '1280px',
+                          minHeight: '200vh',
+                          transform: previewDevice === 'mobile' ? 'none' : previewDevice === 'tablet' ? 'scale(0.75)' : 'scale(0.55)',
+                          transformOrigin: 'top left',
+                        }}>
                         <TemplateComponent {...templateProps} />
                       </div>
                     </div>

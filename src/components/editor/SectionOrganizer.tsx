@@ -13,7 +13,6 @@ interface SectionOrganizerProps {
 }
 
 export function SectionOrganizer({ sections, customBlocks = [], onChange }: SectionOrganizerProps) {
-  // Build a map of custom block titles for labels
   const customTitleMap = new Map(customBlocks.map((b) => [`custom-${b.id}`, b.title]))
   const sorted = [...sections].sort((a, b) => a.order - b.order)
 
@@ -21,7 +20,6 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
     (id: SectionId) => {
       const idx = sorted.findIndex((s) => s.id === id)
       if (idx <= 0) return
-      // Don't allow moving above hero if hero is at position 0
       const swapWith = sorted[idx - 1]
       if (!swapWith) return
       const updated = sorted.map((s, i) => {
@@ -50,7 +48,6 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
 
   const toggleVisibility = useCallback(
     (id: SectionId) => {
-      // Hero is always visible
       if (id === 'hero') return
       const updated = sorted.map((s) =>
         s.id === id ? { ...s, visible: !s.visible } : s
@@ -61,22 +58,22 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
   )
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
           <LayoutList className="h-4 w-4 text-accent" />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          <h2 className="text-[20px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
             Sections
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[13px] text-muted-foreground">
             Organise et choisis les sections de ton portfolio
           </p>
         </div>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {sorted.map((section, index) => {
           const isHero = section.id === 'hero'
           const isFirst = index === 0
@@ -86,17 +83,17 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
             <div
               key={section.id}
               className={cn(
-                'flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-3 transition-colors duration-200 hover:bg-gray-50',
+                'flex items-center gap-2.5 bg-surface-warm border border-border rounded-[var(--radius-md)] px-4 py-3 transition-colors duration-200 hover:bg-white',
                 !section.visible && 'opacity-50'
               )}
             >
-              {/* Grip */}
-              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab shrink-0" />
+              {/* Grip — more visible */}
+              <GripVertical className="h-5 w-5 text-muted-foreground/40 hover:text-muted cursor-grab shrink-0 transition-colors" />
 
               {/* Label */}
               <span
                 className={cn(
-                  'flex-1 text-sm font-medium',
+                  'flex-1 text-[13px] font-medium',
                   section.visible ? 'text-foreground' : 'text-muted-foreground line-through'
                 )}
               >
@@ -109,7 +106,7 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
                   type="button"
                   onClick={() => moveUp(section.id)}
                   disabled={isFirst}
-                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
+                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-white hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
                   aria-label="Monter"
                 >
                   <ChevronUp className="h-4 w-4" />
@@ -118,14 +115,14 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
                   type="button"
                   onClick={() => moveDown(section.id)}
                   disabled={isLast}
-                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
+                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-white hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
                   aria-label="Descendre"
                 >
                   <ChevronDown className="h-4 w-4" />
                 </button>
               </div>
 
-              {/* Toggle visibility */}
+              {/* Toggle visibility — terracotta when visible */}
               <button
                 type="button"
                 onClick={() => toggleVisibility(section.id)}
@@ -135,7 +132,7 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
                   isHero
                     ? 'text-muted-foreground/20 cursor-not-allowed'
                     : section.visible
-                      ? 'text-success hover:bg-success/10'
+                      ? 'text-accent hover:bg-accent/10'
                       : 'text-muted-foreground/40 hover:bg-surface-warm hover:text-foreground'
                 )}
                 aria-label={section.visible ? 'Masquer' : 'Afficher'}
