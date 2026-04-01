@@ -623,7 +623,13 @@ export function TemplateBrutalist({
         </div>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
-          {visibleSections.map(renderSection)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', columnGap: '1.5rem' }}>
+            {visibleSections.map(section => {
+              const el = renderSection(section)
+              if (!el) return null
+              return <div key={section.id} style={{ gridColumn: `span ${section.width ?? 12}` }}>{el}</div>
+            })}
+          </div>
 
           {/* Footer */}
           <footer className="px-5 py-8 md:px-10">

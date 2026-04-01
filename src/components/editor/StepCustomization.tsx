@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { TemplateSelector } from './TemplateSelector'
 import { ColorPicker } from './ColorPicker'
 import { FontSelector } from './FontSelector'
-import { SectionOrganizer } from './SectionOrganizer'
+import { SectionResizer } from './SectionResizer'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
@@ -198,7 +198,7 @@ export function StepCustomization({
       </section>
 
       {/* Section: Layout */}
-      <SectionOrganizer
+      <SectionResizer
         sections={(data.sections as SectionBlock[]) ?? DEFAULT_SECTIONS}
         customBlocks={data.custom_blocks ?? []}
         onChange={(sections) => onChange('sections', sections)}

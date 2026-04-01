@@ -1,11 +1,12 @@
 /** Available section block IDs — custom blocks use 'custom-{blockId}' format */
 export type SectionId = 'hero' | 'bio' | 'socials' | 'projects' | 'skills' | 'kpis' | 'contact' | `custom-${string}` | `layout-${string}`
 
-/** A section block with visibility and order */
+/** A section block with visibility, order, and optional width (1-12 grid columns) */
 export interface SectionBlock {
   id: SectionId
   visible: boolean
   order: number
+  width?: number
 }
 
 /** Labels for builtin sections shown in the UI */
@@ -59,6 +60,7 @@ export function parseSections(raw: unknown): SectionBlock[] {
         id: item.id as SectionId,
         visible: typeof item.visible === 'boolean' ? item.visible : true,
         order: typeof item.order === 'number' ? item.order : parsed.length,
+        width: 'width' in item && typeof item.width === 'number' ? item.width : undefined,
       })
     }
   }
