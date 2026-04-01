@@ -67,7 +67,7 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
           <LayoutList className="h-4 w-4 text-accent" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
             Sections
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -86,20 +86,18 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
             <div
               key={section.id}
               className={cn(
-                'flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2.5 transition-colors duration-150',
-                section.visible
-                  ? 'border-border bg-surface'
-                  : 'border-border-light bg-surface-warm/50'
+                'flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-3 transition-colors duration-200 hover:bg-gray-50',
+                !section.visible && 'opacity-50'
               )}
             >
               {/* Grip */}
-              <GripVertical className="h-4 w-4 text-muted-foreground/30 shrink-0" />
+              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab shrink-0" />
 
               {/* Label */}
               <span
                 className={cn(
                   'flex-1 text-sm font-medium',
-                  section.visible ? 'text-foreground' : 'text-muted-foreground/50'
+                  section.visible ? 'text-foreground' : 'text-muted-foreground line-through'
                 )}
               >
                 {getSectionLabel(section.id, customTitleMap.get(section.id))}

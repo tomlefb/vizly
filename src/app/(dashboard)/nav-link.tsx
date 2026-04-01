@@ -18,10 +18,10 @@ export function NavLink({ href, children, className }: NavLinkProps) {
     <Link
       href={href}
       className={cn(
-        'flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150',
         isActive
-          ? 'bg-surface-warm text-foreground'
-          : 'text-muted hover:bg-surface-warm hover:text-foreground',
+          ? 'bg-gray-100 text-gray-900'
+          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
         className
       )}
     >

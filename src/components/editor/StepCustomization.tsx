@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Palette, Type, LayoutGrid } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TemplateSelector } from './TemplateSelector'
@@ -10,6 +10,15 @@ import { SectionOrganizer } from './SectionOrganizer'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
+
+const COLOR_PALETTES = [
+  { name: 'Corail', primary: '#E8553D', secondary: '#FFEEE8' },
+  { name: 'Ocean', primary: '#0891B2', secondary: '#E0F7FA' },
+  { name: 'Foret', primary: '#059669', secondary: '#ECFDF5' },
+  { name: 'Crepuscule', primary: '#7C3AED', secondary: '#F3E8FF' },
+  { name: 'Soleil', primary: '#D97706', secondary: '#FEF3C7' },
+  { name: 'Monochrome', primary: '#1A1A1A', secondary: '#F5F5F5' },
+] as const
 
 interface StepCustomizationProps {
   data: PortfolioFormData
@@ -30,6 +39,8 @@ export function StepCustomization({
     },
     [onChange]
   )
+
+  const [showCustomColors, setShowCustomColors] = useState(false)
 
   const handlePrimaryColorChange = useCallback(
     (color: string) => {
@@ -61,17 +72,17 @@ export function StepCustomization({
 
   return (
     <div
-      className={cn('space-y-10', className)}
+      className={cn('space-y-6', className)}
       data-testid="step-customization"
     >
       {/* Section: Template */}
-      <section className="space-y-5">
+      <section className="space-y-5 border-b border-gray-100 pb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
             <LayoutGrid className="h-4 w-4 text-accent" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
               Template
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -88,13 +99,13 @@ export function StepCustomization({
       </section>
 
       {/* Section: Colors */}
-      <section className="space-y-5">
+      <section className="space-y-5 border-b border-gray-100 pb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
             <Palette className="h-4 w-4 text-accent" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
               Couleurs
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -103,28 +114,68 @@ export function StepCustomization({
           </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <ColorPicker
-            value={data.primary_color}
-            onChange={handlePrimaryColorChange}
-            label="Couleur principale"
-          />
-          <ColorPicker
-            value={data.secondary_color}
-            onChange={handleSecondaryColorChange}
-            label="Couleur secondaire"
-          />
+        {/* Color palettes */}
+        <div className="grid grid-cols-3 gap-3">
+          {COLOR_PALETTES.map((palette) => {
+            const isActive = data.primary_color.toLowerCase() === palette.primary.toLowerCase() &&
+              data.secondary_color.toLowerCase() === palette.secondary.toLowerCase()
+            return (
+              <button
+                key={palette.name}
+                type="button"
+                onClick={() => {
+                  handlePrimaryColorChange(palette.primary)
+                  handleSecondaryColorChange(palette.secondary)
+                }}
+                className={cn(
+                  'flex flex-col items-center gap-2 rounded-lg border p-3 transition-all duration-200',
+                  isActive
+                    ? 'border-accent ring-2 ring-accent ring-offset-2'
+                    : 'border-gray-200 hover:border-gray-300'
+                )}
+              >
+                <div className="flex gap-1">
+                  <div className="h-8 w-8 rounded-full border border-gray-200" style={{ backgroundColor: palette.primary }} />
+                  <div className="h-8 w-8 rounded-full border border-gray-200" style={{ backgroundColor: palette.secondary }} />
+                </div>
+                <span className="text-xs font-medium text-foreground">{palette.name}</span>
+              </button>
+            )
+          })}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setShowCustomColors((v) => !v)}
+          className="text-sm text-accent hover:underline cursor-pointer"
+        >
+          {showCustomColors ? 'Masquer la personnalisation' : 'Personnaliser les couleurs'}
+        </button>
+
+        {showCustomColors && (
+          <div className="grid gap-6 sm:grid-cols-2">
+            <ColorPicker
+              value={data.primary_color}
+              onChange={handlePrimaryColorChange}
+              label="Couleur principale"
+            />
+            <ColorPicker
+              value={data.secondary_color}
+              onChange={handleSecondaryColorChange}
+              label="Couleur secondaire"
+            />
+          </div>
+        )}
       </section>
 
       {/* Section: Font */}
-      <section className="space-y-5">
+      <section className="space-y-5 border-b border-gray-100 pb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
             <Type className="h-4 w-4 text-accent" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            <h2 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
               Typographie
             </h2>
             <p className="text-sm text-muted-foreground">

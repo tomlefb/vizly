@@ -67,7 +67,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-dvh">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-border bg-surface">
+      <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-gray-200 bg-white">
         <div className="flex h-16 items-center px-6">
           <Link href="/dashboard" aria-label="Retour au dashboard">
             <Logo size="md" />
@@ -92,24 +92,32 @@ export default async function DashboardLayout({
           </div>
 
           {/* Pro features */}
-          {isPro && (
-            <div className="space-y-1">
-              <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">
-                Pro
-              </p>
-              <NavLink href="/statistiques">
-                <NavIcon icon="chart-bar" />
-                Statistiques
-              </NavLink>
-              <NavLink href="/domaines">
-                <NavIcon icon="globe" />
-                Domaines
-              </NavLink>
-            </div>
-          )}
+          <div className="space-y-1 border-t border-gray-100 pt-4">
+            <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-2">
+              Pro
+            </p>
+            <NavLink href="/statistiques">
+              <NavIcon icon="chart-bar" />
+              Statistiques
+              {!isPro && (
+                <span className="ml-auto bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  PRO
+                </span>
+              )}
+            </NavLink>
+            <NavLink href="/domaines">
+              <NavIcon icon="globe" />
+              Domaines
+              {!isPro && (
+                <span className="ml-auto bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  PRO
+                </span>
+              )}
+            </NavLink>
+          </div>
         </nav>
 
-        <div className="border-t border-border p-3 space-y-1">
+        <div className="border-t border-gray-100 p-3 space-y-1">
           <NavLink href="/">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819" />

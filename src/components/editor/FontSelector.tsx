@@ -5,18 +5,18 @@ import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const AVAILABLE_FONTS = [
-  { name: 'DM Sans', family: '"DM Sans", sans-serif', style: 'Moderne, lisible' },
-  { name: 'Inter', family: '"Inter", sans-serif', style: 'Neutre, polyvalent' },
-  { name: 'Poppins', family: '"Poppins", sans-serif', style: 'Geometrique, friendly' },
-  { name: 'Playfair Display', family: '"Playfair Display", serif', style: 'Elegant, editorial' },
-  { name: 'Merriweather', family: '"Merriweather", serif', style: 'Classique, serieux' },
-  { name: 'Space Grotesk', family: '"Space Grotesk", sans-serif', style: 'Tech, creatif' },
-  { name: 'Outfit', family: '"Outfit", sans-serif', style: 'Clean, corporate' },
-  { name: 'Manrope', family: '"Manrope", sans-serif', style: 'Epure, minimal' },
-  { name: 'Lora', family: '"Lora", serif', style: 'Raffine, litteraire' },
-  { name: 'Nunito', family: '"Nunito", sans-serif', style: 'Arrondi, chaleureux' },
-  { name: 'Raleway', family: '"Raleway", sans-serif', style: 'Leger, aerien' },
-  { name: 'JetBrains Mono', family: '"JetBrains Mono", monospace', style: 'Code, dev' },
+  { name: 'DM Sans', family: '"DM Sans", sans-serif', style: 'Sans-serif' },
+  { name: 'Inter', family: '"Inter", sans-serif', style: 'Sans-serif' },
+  { name: 'Poppins', family: '"Poppins", sans-serif', style: 'Sans-serif' },
+  { name: 'Playfair Display', family: '"Playfair Display", serif', style: 'Serif' },
+  { name: 'Merriweather', family: '"Merriweather", serif', style: 'Serif' },
+  { name: 'Space Grotesk', family: '"Space Grotesk", sans-serif', style: 'Sans-serif' },
+  { name: 'Outfit', family: '"Outfit", sans-serif', style: 'Sans-serif' },
+  { name: 'Manrope', family: '"Manrope", sans-serif', style: 'Sans-serif' },
+  { name: 'Lora', family: '"Lora", serif', style: 'Serif' },
+  { name: 'Nunito', family: '"Nunito", sans-serif', style: 'Sans-serif' },
+  { name: 'Raleway', family: '"Raleway", sans-serif', style: 'Sans-serif' },
+  { name: 'JetBrains Mono', family: '"JetBrains Mono", monospace', style: 'Monospace' },
 ] as const
 
 interface FontDropdownProps {

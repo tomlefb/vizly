@@ -126,7 +126,7 @@ export function TemplateSelector({
     <div className={cn('space-y-6', className)} data-testid="template-selector">
       {/* Free templates */}
       <div>
-        <h3 className="text-sm font-semibold text-foreground font-[family-name:var(--font-satoshi)] mb-3">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           Templates gratuits
         </h3>
         <div className="grid grid-cols-2 gap-3">
@@ -141,8 +141,8 @@ export function TemplateSelector({
                 className={cn(
                   'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
                   isSelected
-                    ? 'border-accent ring-2 ring-accent/20 shadow-[0_4px_16px_rgba(232,85,61,0.12)]'
-                    : 'border-border hover:border-border hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+                    ? 'border-accent ring-2 ring-accent ring-offset-2'
+                    : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
                 )}
               >
                 {/* Preview */}
@@ -172,14 +172,10 @@ export function TemplateSelector({
 
       {/* Premium templates */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+        <div className="mb-3">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
             Templates premium
           </h3>
-          <span className="inline-flex items-center gap-1 rounded-[var(--radius-full)] bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent uppercase tracking-wide">
-            <Sparkles className="h-3 w-3" />
-            2.99 EUR
-          </span>
         </div>
 
         {/* 2x2 grid but with varied sizing for visual interest */}
@@ -198,8 +194,8 @@ export function TemplateSelector({
                 className={cn(
                   'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
                   isSelected
-                    ? 'border-accent ring-2 ring-accent/20 shadow-[0_4px_16px_rgba(232,85,61,0.12)]'
-                    : 'border-border hover:border-border hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+                    ? 'border-accent ring-2 ring-accent ring-offset-2'
+                    : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
                 )}
               >
                 {/* Preview */}
@@ -228,11 +224,9 @@ export function TemplateSelector({
                     <p className="text-sm font-semibold text-foreground">
                       {template.label}
                     </p>
-                    {isLocked && (
-                      <span className="inline-flex items-center rounded-[var(--radius-sm)] bg-accent/10 px-1.5 py-0.5 text-[9px] font-bold text-accent uppercase tracking-wider">
-                        Premium
-                      </span>
-                    )}
+                    <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                      2.99€
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                     {template.idealFor}

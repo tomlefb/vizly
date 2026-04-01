@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Maximize2, X, Check, Loader2, ChevronRight } from 'lucide-react'
+import { Maximize2, X, Check, Loader2, ChevronRight, Monitor, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import { DEFAULT_SECTIONS, parseSections } from '@/types/sections'
@@ -67,6 +67,7 @@ export function EditorLayout({
   children,
 }: EditorLayoutProps) {
   const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop')
 
   useGoogleFont(portfolioData.font)
   useGoogleFont(portfolioData.font_body ?? portfolioData.font)
@@ -210,31 +211,38 @@ export function EditorLayout({
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 flex min-h-0">
               {/* Left panel: form */}
-              <div className="w-[35%] overflow-y-auto border-r border-border px-4 sm:px-6 py-6">
+              <div className="w-[35%] overflow-y-auto border-r border-gray-200 bg-white px-4 sm:px-6 py-6">
                 {children}
               </div>
               {/* Right panel: preview */}
               <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Browser chrome */}
-                <div className="shrink-0 flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-2">
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#FF6259]" />
-                    <span className="w-2 h-2 rounded-full bg-[#FFBF2F]" />
-                    <span className="w-2 h-2 rounded-full bg-[#29CE42]" />
+                {/* URL bar + device toggle */}
+                <div className="shrink-0 flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2">
+                  <div className="text-sm text-gray-500 font-mono">
+                    pseudo.vizly.fr
                   </div>
-                  <div className="flex-1 flex justify-center">
-                    <div className="rounded-[3px] bg-background border border-border-light px-2.5 py-0.5 text-[10px] text-muted font-mono">
-                      pseudo.vizly.fr
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => setPreviewDevice('desktop')}
+                      className={cn('flex h-8 w-8 items-center justify-center rounded-md transition-colors', previewDevice === 'desktop' ? 'bg-gray-200 text-gray-900' : 'text-gray-400 hover:text-gray-600')}
+                      title="Desktop" aria-label="Vue desktop">
+                      <Monitor className="h-4 w-4" />
+                    </button>
+                    <button type="button" onClick={() => setPreviewDevice('mobile')}
+                      className={cn('flex h-8 w-8 items-center justify-center rounded-md transition-colors', previewDevice === 'mobile' ? 'bg-gray-200 text-gray-900' : 'text-gray-400 hover:text-gray-600')}
+                      title="Mobile" aria-label="Vue mobile">
+                      <Smartphone className="h-4 w-4" />
+                    </button>
+                    <button type="button" onClick={() => setPreviewOpen(true)}
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Plein ecran" aria-label="Plein ecran">
+                      <Maximize2 className="h-4 w-4" />
+                    </button>
                   </div>
-                  <span className="text-[9px] text-muted-foreground/60 font-medium capitalize">
-                    {portfolioData.template}
-                  </span>
                 </div>
                 {/* Scaled template */}
-                <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: previewBg }}>
+                <div className="flex-1 overflow-hidden relative flex justify-center" style={{ backgroundColor: previewBg }}>
                   {TemplateComponent ? (
-                    <div className="absolute inset-0 overflow-y-auto">
+                    <div className={cn('overflow-y-auto h-full', previewDevice === 'mobile' ? 'w-[375px] border-x border-gray-200 shadow-sm' : 'absolute inset-0')}>
                       {portfolioData.font && (
                         <style>{`
                           .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
@@ -242,7 +250,7 @@ export function EditorLayout({
                         `}</style>
                       )}
                       <div className="origin-top-left editor-preview-font"
-                        style={{ width: '1280px', minHeight: '200vh', transform: 'scale(0.55)', transformOrigin: 'top left' }}>
+                        style={{ width: previewDevice === 'mobile' ? '375px' : '1280px', minHeight: '200vh', transform: previewDevice === 'mobile' ? 'none' : 'scale(0.55)', transformOrigin: 'top left' }}>
                         <TemplateComponent {...templateProps} />
                       </div>
                     </div>
@@ -251,15 +259,6 @@ export function EditorLayout({
                       <p className="text-sm text-muted">Aucun template selectionne</p>
                     </div>
                   )}
-                  {/* Fullscreen button overlay */}
-                  <button
-                    type="button"
-                    onClick={() => setPreviewOpen(true)}
-                    className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] bg-background/80 border border-border backdrop-blur-sm text-muted-foreground transition-colors hover:bg-background hover:text-foreground shadow-sm"
-                    title="Plein ecran"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </button>
                 </div>
               </div>
             </div>
