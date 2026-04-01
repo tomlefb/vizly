@@ -43,7 +43,7 @@ function lightenColor(hex: string, amount: number): string {
   return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`
 }
 
-export function TemplateColore({ portfolio, projects, skills, sections, isPremium }: TemplateProps) {
+export function TemplateColore({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -516,8 +516,56 @@ export function TemplateColore({ portfolio, projects, skills, sections, isPremiu
           </section>
         )
 
-      default:
+      default: {
+        // Custom blocks
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-10 md:px-10">
+              <div className="mx-auto max-w-5xl">
+                {block.title && (
+                  <h2
+                    style={{
+                      fontFamily: "'Fredoka', sans-serif",
+                      fontWeight: 600,
+                      fontSize: '1.4rem',
+                      color: '#2A2A2A',
+                      textAlign: 'center',
+                      marginBottom: 8,
+                    }}
+                  >
+                    {block.title}{' '}
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: secondary_color,
+                        marginLeft: 4,
+                        verticalAlign: 'middle',
+                      }}
+                    />
+                  </h2>
+                )}
+                {block.subtitle && (
+                  <p style={{ fontSize: '0.95rem', color: '#AAAAAA', fontWeight: 500, textAlign: 'center', marginBottom: 16 }}>{block.subtitle}</p>
+                )}
+                {block.content && (
+                  <div
+                    style={{ fontSize: '0.95rem', lineHeight: 1.7, color: '#5A5A5A', fontWeight: 500 }}
+                    className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                )}
+              </div>
+            </section>
+          )
+        }
         return null
+      }
     }
   }
 

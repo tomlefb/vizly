@@ -27,6 +27,7 @@ export function TemplateBrutalist({
   projects,
   skills,
   sections,
+  customBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -485,8 +486,47 @@ export function TemplateBrutalist({
           </section>
         )
 
-      default:
+      default: {
+        // Custom blocks
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-5 py-12 md:px-10">
+              <div className="mx-auto max-w-5xl">
+                <div style={{ height: 4, backgroundColor: borderColor, marginBottom: 32 }} />
+                {block.title && (
+                  <h2
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase',
+                      color: textColor,
+                      marginBottom: 8,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {block.title}
+                  </h2>
+                )}
+                {block.subtitle && (
+                  <p style={{ fontSize: '0.82rem', color: mutedColor, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 16 }}>{block.subtitle}</p>
+                )}
+                {block.content && (
+                  <div
+                    style={{ fontSize: '0.82rem', lineHeight: 1.7, color: mutedColor }}
+                    className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:uppercase [&_h2]:tracking-wider [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:uppercase [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                )}
+              </div>
+            </section>
+          )
+        }
         return null
+      }
     }
   }
 

@@ -25,7 +25,7 @@ const SOCIAL_ICONS: Record<
   website: { icon: Globe, label: 'Website' },
 }
 
-export function TemplateDark({ portfolio, projects, skills, sections, isPremium }: TemplateProps) {
+export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -508,8 +508,54 @@ export function TemplateDark({ portfolio, projects, skills, sections, isPremium 
           </section>
         )
 
-      default:
+      default: {
+        // Custom blocks
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-12 md:px-10">
+              <div className="mx-auto max-w-4xl">
+                <div
+                  style={{
+                    height: 1,
+                    background: `linear-gradient(90deg, transparent, ${primary_color}20, transparent)`,
+                    marginBottom: 32,
+                  }}
+                />
+                {block.title && (
+                  <h2
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontWeight: 600,
+                      fontSize: '1.1rem',
+                      color: primary_color,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                    }}
+                    className="mb-2"
+                  >
+                    <span style={{ opacity: 0.4 }}>{'> '}</span>
+                    {block.title}
+                  </h2>
+                )}
+                {block.subtitle && (
+                  <p style={{ fontSize: '0.85rem', color: '#555568', fontFamily: "'JetBrains Mono', monospace", marginBottom: 16 }}>{block.subtitle}</p>
+                )}
+                {block.content && (
+                  <div
+                    style={{ fontSize: '0.92rem', lineHeight: 1.7, color: '#8888A0' }}
+                    className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-[#E8E8F0] [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-[#C8C8D0] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                )}
+              </div>
+            </section>
+          )
+        }
         return null
+      }
     }
   }
 

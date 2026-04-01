@@ -27,6 +27,7 @@ export function TemplateElegant({
   projects,
   skills,
   sections,
+  customBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -452,8 +453,63 @@ export function TemplateElegant({
           </section>
         )
 
-      default:
+      default: {
+        // Custom blocks
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-12 md:px-16 lg:px-24" style={{ textAlign: 'center' }}>
+              <div className="mx-auto max-w-3xl">
+                {block.title && (
+                  <h2
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontWeight: 300,
+                      fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: '#1A1A1A',
+                      marginBottom: 8,
+                    }}
+                  >
+                    {block.title}
+                  </h2>
+                )}
+                {block.subtitle && (
+                  <p style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontStyle: 'italic',
+                    fontSize: '1rem',
+                    color: '#AAAAAA',
+                    letterSpacing: '0.02em',
+                    marginBottom: 20,
+                  }}>
+                    {block.subtitle}
+                  </p>
+                )}
+                {block.content && (
+                  <div
+                    style={{ fontSize: '0.92rem', lineHeight: 1.85, color: '#7A7A7A', fontWeight: 300, textAlign: 'left' }}
+                    className="mx-auto max-w-lg [&_h2]:text-xl [&_h2]:font-normal [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:tracking-wider [&_h2]:uppercase [&_h3]:text-lg [&_h3]:font-normal [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:italic [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-medium [&_i]:italic"
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                )}
+                <div
+                  style={{
+                    width: 40,
+                    height: 1,
+                    backgroundColor: `${primary_color}30`,
+                    margin: '32px auto 0',
+                  }}
+                />
+              </div>
+            </section>
+          )
+        }
         return null
+      }
     }
   }
 

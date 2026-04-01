@@ -25,7 +25,7 @@ const SOCIAL_ICONS: Record<
   website: { icon: Globe, label: 'Site web' },
 }
 
-export function TemplateClassique({ portfolio, projects, skills, sections, isPremium }: TemplateProps) {
+export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -253,8 +253,44 @@ export function TemplateClassique({ portfolio, projects, skills, sections, isPre
         // Projects are rendered in the main column, not sidebar
         return null
 
-      default:
+      default: {
+        // Custom blocks in sidebar
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <div key={section.id} style={{ marginTop: 24 }}>
+              {block.title && (
+                <h2
+                  style={{
+                    fontFamily: "'Merriweather', serif",
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#999999',
+                    marginBottom: 12,
+                  }}
+                >
+                  {block.title}
+                </h2>
+              )}
+              {block.subtitle && (
+                <p style={{ fontSize: '0.82rem', color: '#999999', marginBottom: 8 }}>{block.subtitle}</p>
+              )}
+              {block.content && (
+                <div
+                  style={{ fontSize: '0.84rem', lineHeight: 1.65, color: '#555555' }}
+                  className="[&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                  dangerouslySetInnerHTML={{ __html: block.content }}
+                />
+              )}
+            </div>
+          )
+        }
         return null
+      }
     }
   }
 
@@ -406,8 +442,43 @@ export function TemplateClassique({ portfolio, projects, skills, sections, isPre
       case 'projects':
         return null
 
-      default:
+      default: {
+        // Custom blocks in mobile view
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <div key={section.id} className="mt-5">
+              {block.title && (
+                <h2
+                  style={{
+                    fontFamily: "'Merriweather', serif",
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    color: '#1A1A1A',
+                    textAlign: 'center',
+                    marginBottom: 8,
+                  }}
+                >
+                  {block.title}
+                </h2>
+              )}
+              {block.subtitle && (
+                <p style={{ fontSize: '0.88rem', color: '#999999', textAlign: 'center', marginBottom: 8 }}>{block.subtitle}</p>
+              )}
+              {block.content && (
+                <div
+                  style={{ fontSize: '0.88rem', lineHeight: 1.65, color: '#555555', maxWidth: 420, margin: '0 auto', textAlign: 'center' }}
+                  className="[&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ul]:text-left [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                  dangerouslySetInnerHTML={{ __html: block.content }}
+                />
+              )}
+            </div>
+          )
+        }
         return null
+      }
     }
   }
 

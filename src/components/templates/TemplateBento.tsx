@@ -45,6 +45,7 @@ export function TemplateBento({
   projects,
   skills,
   sections,
+  customBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -665,8 +666,52 @@ export function TemplateBento({
           </div>
         )
 
-      default:
+      default: {
+        // Custom blocks
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <div
+              key={section.id}
+              className="col-span-4"
+              style={{
+                backgroundColor: cardBg,
+                borderRadius: 20,
+                border: `1px solid ${borderLight}`,
+                padding: 'clamp(16px, 3vw, 24px)',
+              }}
+            >
+              {block.title && (
+                <h2
+                  style={{
+                    fontFamily: "'Inter Tight', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    color: '#1A1A1A',
+                    letterSpacing: '-0.01em',
+                    marginBottom: 4,
+                  }}
+                >
+                  {block.title}
+                </h2>
+              )}
+              {block.subtitle && (
+                <p style={{ fontSize: '0.82rem', color: '#999999', fontWeight: 400, marginBottom: 12 }}>{block.subtitle}</p>
+              )}
+              {block.content && (
+                <div
+                  style={{ fontSize: '0.88rem', lineHeight: 1.65, color: '#7A7A7A', fontWeight: 400 }}
+                  className="[&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                  dangerouslySetInnerHTML={{ __html: block.content }}
+                />
+              )}
+            </div>
+          )
+        }
         return null
+      }
     }
   }
 

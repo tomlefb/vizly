@@ -27,6 +27,7 @@ export function TemplateCreatif({
   projects,
   skills,
   sections,
+  customBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -519,8 +520,46 @@ export function TemplateCreatif({
           </section>
         )
 
-      default:
+      default: {
+        // Custom blocks
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-5 py-12 md:px-12 lg:px-20">
+              <div className="mx-auto max-w-6xl">
+                {block.title && (
+                  <h2
+                    style={{
+                      fontFamily: "'Syne', sans-serif",
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.15em',
+                      color: '#AAAAAA',
+                      marginBottom: 16,
+                    }}
+                  >
+                    {block.title}
+                  </h2>
+                )}
+                {block.subtitle && (
+                  <p style={{ fontSize: '0.95rem', color: '#999999', fontWeight: 500, marginBottom: 16, letterSpacing: '0.02em' }}>{block.subtitle}</p>
+                )}
+                {block.content && (
+                  <div
+                    style={{ fontSize: '0.95rem', lineHeight: 1.75, color: '#5A5A5A' }}
+                    className="max-w-3xl [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                )}
+              </div>
+            </section>
+          )
+        }
         return null
+      }
     }
   }
 
