@@ -1,22 +1,12 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Check, Lock, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { TemplateName } from '@/types/templates'
-
-/** Visual style hints per template for the preview placeholder */
-const TEMPLATE_VISUALS: Record<TemplateName, { bg: string; accent: string; pattern: string }> = {
-  minimal: { bg: '#FAFAF8', accent: '#1A1A1A', pattern: 'grid' },
-  dark: { bg: '#0F0F0F', accent: '#00FF88', pattern: 'dots' },
-  classique: { bg: '#F5F0EB', accent: '#2D3748', pattern: 'lines' },
-  colore: { bg: '#FFF5F0', accent: '#FF6B35', pattern: 'waves' },
-  creatif: { bg: '#1A0A2E', accent: '#FF3CAC', pattern: 'diagonal' },
-  brutalist: { bg: '#FFFF00', accent: '#000000', pattern: 'blocks' },
-  elegant: { bg: '#FAF8F5', accent: '#8B7355', pattern: 'serif' },
-  bento: { bg: '#F2F2F7', accent: '#007AFF', pattern: 'bento' },
-}
+import { TemplatePreview } from '@/components/shared/TemplatePreview'
+import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
 
 interface TemplateSelectorProps {
   value: TemplateName
@@ -25,84 +15,91 @@ interface TemplateSelectorProps {
   className?: string
 }
 
-function TemplatePreviewPlaceholder({ name }: { name: TemplateName }) {
-  const visual = TEMPLATE_VISUALS[name]
+function useDemoProps(name: TemplateName) {
+  return useMemo(() => {
+    const colors = DEMO_COLORS[name] ?? { primary: '#E8553D', secondary: '#1A1A1A' }
+    return {
+      ...DEMO_PORTFOLIO,
+      portfolio: {
+        ...DEMO_PORTFOLIO.portfolio,
+        primary_color: colors.primary,
+        secondary_color: colors.secondary,
+      },
+    }
+  }, [name])
+}
 
+function FreeTemplateCard({ name, label, idealFor, isSelected, onSelect }: {
+  name: TemplateName; label: string; idealFor: string; isSelected: boolean; onSelect: (n: TemplateName) => void
+}) {
+  const demoProps = useDemoProps(name)
   return (
-    <div
-      className="relative h-full w-full overflow-hidden"
-      style={{ backgroundColor: visual.bg }}
+    <button
+      type="button"
+      data-testid={`template-card-${name}`}
+      onClick={() => onSelect(name)}
+      className={cn(
+        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
+        isSelected
+          ? 'border-accent ring-2 ring-accent ring-offset-2'
+          : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
+      )}
     >
-      {/* Simple stylized pattern per template */}
-      {visual.pattern === 'grid' && (
-        <div className="absolute inset-3 grid grid-cols-3 gap-1.5 opacity-20">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-sm" style={{ backgroundColor: visual.accent }} />
-          ))}
-        </div>
+      <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <TemplatePreview templateName={name} templateProps={demoProps} scale={0.22} height="100%" />
+        {isSelected && (
+          <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent shadow-sm">
+            <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+          </div>
+        )}
+      </div>
+      <div className="p-3 bg-surface">
+        <p className="text-sm font-semibold text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{idealFor}</p>
+      </div>
+    </button>
+  )
+}
+
+function PremiumTemplateCard({ name, label, idealFor, isSelected, isLocked, onSelect }: {
+  name: TemplateName; label: string; idealFor: string; isSelected: boolean; isLocked: boolean; onSelect: (n: TemplateName) => void
+}) {
+  const demoProps = useDemoProps(name)
+  return (
+    <button
+      type="button"
+      data-testid={`template-card-${name}`}
+      onClick={() => onSelect(name)}
+      className={cn(
+        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
+        isSelected
+          ? 'border-accent ring-2 ring-accent ring-offset-2'
+          : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
       )}
-      {visual.pattern === 'dots' && (
-        <div className="absolute inset-3 flex flex-wrap gap-2 opacity-30">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="h-2 w-2 rounded-full" style={{ backgroundColor: visual.accent }} />
-          ))}
+    >
+      <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <TemplatePreview templateName={name} templateProps={demoProps} scale={0.22} height="100%" />
+        {isLocked && (
+          <div className="absolute inset-0 flex items-center justify-center bg-foreground/5 backdrop-blur-[1px]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm border border-border">
+              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+          </div>
+        )}
+        {isSelected && (
+          <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent shadow-sm">
+            <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+          </div>
+        )}
+      </div>
+      <div className="p-3 bg-surface">
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-semibold text-foreground">{label}</p>
+          <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded-full">2.99€</span>
         </div>
-      )}
-      {visual.pattern === 'lines' && (
-        <div className="absolute inset-3 flex flex-col gap-1.5 opacity-15">
-          <div className="h-3 w-1/3 rounded-sm" style={{ backgroundColor: visual.accent }} />
-          <div className="h-1.5 w-2/3 rounded-sm" style={{ backgroundColor: visual.accent }} />
-          <div className="h-1.5 w-1/2 rounded-sm" style={{ backgroundColor: visual.accent }} />
-          <div className="mt-auto h-px w-full" style={{ backgroundColor: visual.accent }} />
-          <div className="h-1.5 w-3/4 rounded-sm" style={{ backgroundColor: visual.accent }} />
-        </div>
-      )}
-      {visual.pattern === 'waves' && (
-        <div className="absolute inset-0 flex items-end opacity-15">
-          <svg viewBox="0 0 100 30" className="w-full" preserveAspectRatio="none">
-            <path d="M0 20 Q25 5 50 20 Q75 35 100 20 V30 H0Z" fill={visual.accent} />
-          </svg>
-        </div>
-      )}
-      {visual.pattern === 'diagonal' && (
-        <div className="absolute inset-0 opacity-15">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute h-px origin-left rotate-[-35deg]"
-              style={{
-                backgroundColor: visual.accent,
-                width: '150%',
-                top: `${i * 25}%`,
-                left: '-10%',
-              }}
-            />
-          ))}
-        </div>
-      )}
-      {visual.pattern === 'blocks' && (
-        <div className="absolute inset-2 grid grid-cols-2 gap-1 opacity-25">
-          <div className="col-span-2 h-4 rounded-none" style={{ backgroundColor: visual.accent }} />
-          <div className="h-8 rounded-none" style={{ backgroundColor: visual.accent }} />
-          <div className="h-6 rounded-none mt-2" style={{ backgroundColor: visual.accent }} />
-        </div>
-      )}
-      {visual.pattern === 'serif' && (
-        <div className="absolute inset-3 flex flex-col items-center justify-center gap-1 opacity-20">
-          <div className="text-[10px] font-serif italic" style={{ color: visual.accent }}>Aa</div>
-          <div className="h-px w-8" style={{ backgroundColor: visual.accent }} />
-          <div className="h-1 w-12 rounded-sm" style={{ backgroundColor: visual.accent }} />
-        </div>
-      )}
-      {visual.pattern === 'bento' && (
-        <div className="absolute inset-2 grid grid-cols-3 grid-rows-2 gap-1 opacity-15">
-          <div className="col-span-2 rounded-[3px]" style={{ backgroundColor: visual.accent }} />
-          <div className="rounded-[3px]" style={{ backgroundColor: visual.accent }} />
-          <div className="rounded-[3px]" style={{ backgroundColor: visual.accent }} />
-          <div className="col-span-2 rounded-[3px]" style={{ backgroundColor: visual.accent }} />
-        </div>
-      )}
-    </div>
+        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{idealFor}</p>
+      </div>
+    </button>
   )
 }
 
@@ -130,43 +127,16 @@ export function TemplateSelector({
           Templates gratuits
         </h3>
         <div className="grid grid-cols-2 gap-3">
-          {freeTemplates.map((template) => {
-            const isSelected = value === template.name
-            return (
-              <button
-                key={template.name}
-                type="button"
-                data-testid={`template-card-${template.name}`}
-                onClick={() => handleSelect(template.name)}
-                className={cn(
-                  'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
-                  isSelected
-                    ? 'border-accent ring-2 ring-accent ring-offset-2'
-                    : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
-                )}
-              >
-                {/* Preview */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden">
-                  <TemplatePreviewPlaceholder name={template.name} />
-                  {isSelected && (
-                    <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent shadow-sm">
-                      <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="p-3 bg-surface">
-                  <p className="text-sm font-semibold text-foreground">
-                    {template.label}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                    {template.idealFor}
-                  </p>
-                </div>
-              </button>
-            )
-          })}
+          {freeTemplates.map((template) => (
+            <FreeTemplateCard
+              key={template.name}
+              name={template.name}
+              label={template.label}
+              idealFor={template.idealFor}
+              isSelected={value === template.name}
+              onSelect={handleSelect}
+            />
+          ))}
         </div>
       </div>
 
@@ -180,61 +150,17 @@ export function TemplateSelector({
 
         {/* 2x2 grid but with varied sizing for visual interest */}
         <div className="grid grid-cols-2 gap-3">
-          {premiumTemplates.map((template) => {
-            const isSelected = value === template.name
-            const isPurchased = purchasedTemplates.includes(template.name)
-            const isLocked = !isPurchased
-
-            return (
-              <button
-                key={template.name}
-                type="button"
-                data-testid={`template-card-${template.name}`}
-                onClick={() => handleSelect(template.name)}
-                className={cn(
-                  'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
-                  isSelected
-                    ? 'border-accent ring-2 ring-accent ring-offset-2'
-                    : 'border-gray-200 hover:scale-[1.02] hover:shadow-md'
-                )}
-              >
-                {/* Preview */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden">
-                  <TemplatePreviewPlaceholder name={template.name} />
-
-                  {/* Lock overlay for unpurchased */}
-                  {isLocked && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-foreground/5 backdrop-blur-[1px]">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-sm border border-border">
-                        <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                      </div>
-                    </div>
-                  )}
-
-                  {isSelected && (
-                    <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent shadow-sm">
-                      <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="p-3 bg-surface">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-foreground">
-                      {template.label}
-                    </p>
-                    <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                      2.99€
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                    {template.idealFor}
-                  </p>
-                </div>
-              </button>
-            )
-          })}
+          {premiumTemplates.map((template) => (
+            <PremiumTemplateCard
+              key={template.name}
+              name={template.name}
+              label={template.label}
+              idealFor={template.idealFor}
+              isSelected={value === template.name}
+              isLocked={!purchasedTemplates.includes(template.name)}
+              onSelect={handleSelect}
+            />
+          ))}
         </div>
       </div>
     </div>
