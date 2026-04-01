@@ -135,7 +135,7 @@ export function EditorLayout({
     <>
       <div className="flex flex-col h-full min-h-0">
         {/* Step bar — steps only, centered */}
-        <div className="shrink-0 border-b border-border bg-white px-4 sm:px-6 py-3">
+        <div className="shrink-0 border-b border-gray-100 bg-white px-4 sm:px-6 py-5">
           <nav className="flex items-center gap-1 w-full" aria-label="Etapes editeur">
             {STEPS.map((step, index) => {
               const stepIndex = STEPS.findIndex((s) => s.id === step.id)
@@ -155,13 +155,13 @@ export function EditorLayout({
                           ? 'bg-accent text-white shadow-[0_2px_8px_rgba(232,85,61,0.25)]'
                           : isPast
                             ? 'bg-accent/10 text-accent'
-                            : 'bg-surface-warm text-muted-foreground group-hover:bg-border-light'
+                            : 'border border-gray-300 text-gray-400 bg-transparent group-hover:bg-gray-50'
                       )}
                     >
                       {isPast ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : index + 1}
                     </div>
                     <span className={cn(
-                      'text-xs font-medium hidden sm:inline transition-colors',
+                      'text-sm font-medium hidden sm:inline transition-colors',
                       isActive ? 'text-foreground' : 'text-muted group-hover:text-foreground'
                     )}>
                       {step.label}
@@ -169,10 +169,10 @@ export function EditorLayout({
                   </button>
                   {index < STEPS.length - 1 && (
                     <div className="flex-1 mx-2">
-                      <div className="h-0.5 rounded-full bg-border-light overflow-hidden">
+                      <div className="h-0.5 rounded-full bg-gray-200 overflow-hidden">
                         <div className={cn(
                           'h-full rounded-full transition-all duration-300',
-                          isPast ? 'bg-accent w-full' : isActive ? 'bg-accent w-1/2' : 'w-0'
+                          isPast ? 'bg-gradient-to-r from-accent/80 to-accent w-full' : isActive ? 'bg-gradient-to-r from-accent/80 to-accent w-1/2' : 'w-0'
                         )} />
                       </div>
                     </div>
@@ -188,16 +188,16 @@ export function EditorLayout({
           /* Step 5: Same layout as steps 1-3 with Précédent button */
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-              <div className="max-w-2xl mx-auto">
+              <div className="max-w-lg mx-auto">
                 {children}
               </div>
             </div>
             {/* Bottom bar: Précédent + save */}
-            <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 min-h-16 flex items-center">
+            <div className="sticky bottom-0 bg-white/80 backdrop-blur-sm border-t border-gray-100 py-4 px-6 flex items-center">
               <div className="flex items-center justify-between w-full">
                 <button type="button"
                   onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
                   <ChevronRight className="h-4 w-4 rotate-180" />
                   Precedent
                 </button>
@@ -265,11 +265,11 @@ export function EditorLayout({
             </div>
             {/* Full-width bottom bar */}
             {nextStep && (
-              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 min-h-16 flex items-center">
+              <div className="sticky bottom-0 bg-white/80 backdrop-blur-sm border-t border-gray-100 py-4 px-6 flex items-center">
                 <div className="flex items-center justify-between w-full">
                   <button type="button"
                     onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
                     <ChevronRight className="h-4 w-4 rotate-180" />
                     Precedent
                   </button>
@@ -278,13 +278,13 @@ export function EditorLayout({
                     {bottomBarExtra}
                     <button type="button" onClick={onNext} disabled={!canGoNext}
                       className={cn(
-                        'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
+                        'group inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold transition-all duration-200',
                         canGoNext
                           ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
                           : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
                       )}>
                       Suivant
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -301,12 +301,12 @@ export function EditorLayout({
             </div>
             {/* Bottom bar: Précédent / Suivant */}
             {nextStep && (
-              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 min-h-16 flex items-center">
+              <div className="sticky bottom-0 bg-white/80 backdrop-blur-sm border-t border-gray-100 py-4 px-6 flex items-center">
                 <div className="flex items-center justify-between w-full">
                   {currentStepIndex > 0 ? (
                     <button type="button"
                       onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
                       <ChevronRight className="h-4 w-4 rotate-180" />
                       Precedent
                     </button>
@@ -314,13 +314,13 @@ export function EditorLayout({
                   {saveIndicator}
                   <button type="button" onClick={onNext} disabled={!canGoNext}
                     className={cn(
-                      'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
+                      'group inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold transition-all duration-200',
                       canGoNext
                         ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
                         : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
                     )}>
                     Suivant
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 </div>
               </div>

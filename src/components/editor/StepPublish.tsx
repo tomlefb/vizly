@@ -156,10 +156,10 @@ export function StepPublish({
     <div className={cn('space-y-8', className)} data-testid="step-publish">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-accent/10 mx-auto">
-          <Rocket className="h-6 w-6 text-accent" />
+        <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 p-4 mx-auto">
+          <Rocket className="h-8 w-8 text-accent" />
         </div>
-        <h2 className="text-xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+        <h2 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
           Publie ton portfolio
         </h2>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
@@ -200,7 +200,7 @@ export function StepPublish({
         {/* Status message */}
         <div id="slug-status" aria-live="polite" className="min-h-[20px]">
           {slugStatus === 'available' && (
-            <p className="text-xs text-success font-medium flex items-center gap-1">
+            <p className="text-sm text-green-600 font-medium flex items-center gap-1">
               <Check className="h-3 w-3" />
               Disponible
             </p>
@@ -219,7 +219,7 @@ export function StepPublish({
       </div>
 
       {/* Recap */}
-      <div className="max-w-md mx-auto rounded-[var(--radius-lg)] border border-border-light bg-surface-warm/50 p-5 space-y-3">
+      <div className="max-w-md mx-auto bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-3">
         <h3 className="text-sm font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
           Recapitulatif
         </h3>
@@ -273,9 +273,9 @@ export function StepPublish({
           onClick={onPublish}
           disabled={!canPublish}
           className={cn(
-            'w-full flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-6 py-3.5 text-sm font-semibold transition-all duration-200',
+            'w-full flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-lg font-semibold transition-all duration-200',
             canPublish
-              ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_4px_16px_rgba(232,85,61,0.25)]'
+              ? 'bg-accent text-white hover:bg-accent/90 active:scale-[0.98] shadow-sm hover:shadow-md'
               : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
           )}
           aria-label={isFreeUser ? "S'abonner pour publier" : 'Publier mon portfolio'}
