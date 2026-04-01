@@ -758,7 +758,19 @@ export function EditorClient({
         )}
         {/* Step 3: Contenu (skills, blocs texte, KPIs, colonnes) */}
         {currentStep === 3 && (
-          <div className="space-y-10">
+          <div className="space-y-6">
+            {/* Page title */}
+            <div>
+              <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
+                Contenu enrichi
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Personnalise ton portfolio avec des blocs supplementaires
+              </p>
+              <p className="text-sm text-muted-foreground italic mt-2">
+                Cette etape est optionnelle — tu pourras toujours y revenir plus tard.
+              </p>
+            </div>
             <CustomBlockEditor
               blocks={portfolioData.custom_blocks ?? []}
               onChange={(blocks) => handleFieldChange('custom_blocks', blocks)}

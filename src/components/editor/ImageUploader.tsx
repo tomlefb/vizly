@@ -135,31 +135,24 @@ export function ImageUploader({
           tabIndex={0}
           aria-label={`Ajouter des images. ${remaining} emplacement${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
           className={cn(
-            'relative flex flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] border-2 border-dashed px-6 py-8 cursor-pointer transition-all duration-200',
+            'relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed min-h-[160px] px-6 py-8 cursor-pointer transition-all duration-200',
             isDragging
-              ? 'border-accent bg-accent-light/40 scale-[1.01]'
-              : 'border-border hover:border-accent/50 hover:bg-surface-warm'
+              ? 'border-accent bg-accent/5 scale-[1.01]'
+              : 'border-gray-300 bg-gray-50 hover:border-accent hover:bg-accent/5'
           )}
         >
-          <div
+          <Upload
             className={cn(
-              'flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] transition-colors duration-200',
-              isDragging ? 'bg-accent/10' : 'bg-surface-warm'
+              'h-10 w-10 transition-colors duration-200',
+              isDragging ? 'text-accent' : 'text-gray-400'
             )}
-          >
-            <Upload
-              className={cn(
-                'h-5 w-5 transition-colors duration-200',
-                isDragging ? 'text-accent' : 'text-muted-foreground'
-              )}
-            />
-          </div>
+          />
           <div className="text-center">
             <p className="text-sm font-medium text-foreground">
-              {isDragging ? 'Depose tes images ici' : 'Glisse tes images ou clique'}
+              {isDragging ? 'Depose tes images ici' : 'Glisse tes images ou clique pour parcourir'}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              JPG, PNG, WebP ou GIF
+              JPG, PNG, WebP ou GIF — max 5 images
             </p>
           </div>
           <input

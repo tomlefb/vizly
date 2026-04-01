@@ -122,31 +122,39 @@ export function StepProjects({
 
   return (
     <div className={cn('space-y-6', className)} data-testid="step-projects">
+      {/* Page title */}
+      <div>
+        <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
+          Tes projets
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Le coeur de ton portfolio
+        </p>
+      </div>
+
       {/* Empty state */}
       {projects.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] }}
-          className="flex flex-col items-center justify-center rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-warm/50 px-8 py-14 text-center"
+          className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/50 px-8 py-16 text-center"
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-accent/10 mb-4">
-            <FolderOpen className="h-7 w-7 text-accent" />
-          </div>
-          <h3 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          <FolderOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-500">
             Aucun projet pour le moment
           </h3>
           <p className="text-sm text-muted-foreground mt-1 max-w-[280px]">
-            Ajoute tes projets pour les mettre en valeur dans ton portfolio.
+            Ajoute ton premier projet pour commencer
           </p>
           <button
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="mt-5 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-hover active:scale-[0.98] shadow-sm"
           >
             <Plus className="h-4 w-4" />
-            Ajouter mon premier projet
+            Ajouter un projet
           </button>
         </motion.div>
       )}
@@ -171,10 +179,10 @@ export function StepProjects({
                   onDrop={() => handleDrop(index)}
                   onDragEnd={handleDragEnd}
                   className={cn(
-                    'group flex items-center gap-3 rounded-[var(--radius-md)] border bg-surface px-3 py-3 cursor-grab active:cursor-grabbing transition-all duration-150',
+                    'group flex items-center gap-3 rounded-xl border bg-white px-4 py-3 cursor-grab active:cursor-grabbing transition-all duration-200',
                     dragOverIndex === index
                       ? 'border-accent ring-1 ring-accent/20'
-                      : 'border-border hover:border-border hover:shadow-[0_1px_4px_rgba(0,0,0,0.04)]'
+                      : 'border-gray-200 hover:border-gray-300 shadow-sm'
                   )}
                 >
                   {/* Drag handle */}
@@ -183,7 +191,7 @@ export function StepProjects({
                   </div>
 
                   {/* Thumbnail */}
-                  <div className="shrink-0 h-10 w-10 rounded-[var(--radius-sm)] bg-surface-warm border border-border-light overflow-hidden flex items-center justify-center">
+                  <div className="shrink-0 h-20 w-20 rounded-lg bg-surface-warm border border-border-light overflow-hidden flex items-center justify-center">
                     {project.images.length > 0 ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
@@ -198,9 +206,14 @@ export function StepProjects({
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
+                    <p className="text-sm font-semibold text-foreground truncate">
                       {project.title || 'Sans titre'}
                     </p>
+                    {project.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                        {project.description}
+                      </p>
+                    )}
                     {project.tags.length > 0 && (
                       <div className="flex gap-1 mt-0.5 overflow-hidden">
                         {project.tags.slice(0, 3).map((tag) => (
@@ -249,7 +262,7 @@ export function StepProjects({
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-dashed border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:border-accent/50 hover:text-accent hover:bg-accent-light/30"
+            className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-medium text-gray-500 transition-all duration-200 hover:border-accent hover:text-accent hover:bg-accent/5"
           >
             <Plus className="h-4 w-4" />
             Ajouter un projet
@@ -287,11 +300,11 @@ export function StepProjects({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
-              className="w-full max-w-lg rounded-[var(--radius-xl)] border border-border bg-background shadow-[0_16px_48px_rgba(0,0,0,0.12)] overflow-hidden"
+              className="w-full max-w-xl rounded-[var(--radius-xl)] border border-border bg-background shadow-[0_16px_48px_rgba(0,0,0,0.12)] overflow-hidden"
             >
               {/* Dialog header */}
-              <div className="flex items-center justify-between border-b border-border px-6 py-4">
-                <h3 className="text-base font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                <h3 className="text-xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
                   {editingIndex !== null
                     ? 'Modifier le projet'
                     : 'Nouveau projet'}

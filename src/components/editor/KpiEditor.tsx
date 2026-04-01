@@ -57,7 +57,7 @@ export function KpiEditor({ kpis, onChange, primaryColor }: KpiEditorProps) {
   const needsSecondary = editingKpi.type === 'comparison' || editingKpi.type === 'trend'
 
   return (
-    <section className="space-y-4">
+    <section className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
           <BarChart3 className="h-4 w-4 text-accent" />
@@ -74,9 +74,9 @@ export function KpiEditor({ kpis, onChange, primaryColor }: KpiEditorProps) {
 
       {/* Preview of existing KPIs */}
       {kpis.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           {kpis.map((kpi, index) => (
-            <div key={kpi.id} className="relative group">
+            <div key={kpi.id} className="relative group bg-gray-50 rounded-lg p-4">
               <KpiRenderer kpi={kpi} primaryColor={primaryColor} />
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button type="button" onClick={() => openEdit(index)}
@@ -96,7 +96,7 @@ export function KpiEditor({ kpis, onChange, primaryColor }: KpiEditorProps) {
       )}
 
       <button type="button" onClick={openNew}
-        className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-dashed border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:border-accent/50 hover:text-accent">
+        className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-medium text-gray-500 transition-all duration-200 hover:border-accent hover:text-accent hover:bg-accent/5">
         <Plus className="h-4 w-4" />
         Ajouter un KPI
       </button>

@@ -91,7 +91,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
   }, [editingBlock])
 
   return (
-    <section className="space-y-4">
+    <section className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
           <Columns3 className="h-4 w-4 text-accent" />
@@ -110,7 +110,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
       {blocks.length > 0 && (
         <div className="space-y-2">
           {blocks.map((block, index) => (
-            <div key={block.id} className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface px-3 py-2.5 group">
+            <div key={block.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3 group">
               <Columns3 className="h-4 w-4 text-muted-foreground/40 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">
@@ -133,7 +133,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
         </div>
       )}
 
-      <button type="button" onClick={openNew} className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-dashed border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:border-accent/50 hover:text-accent">
+      <button type="button" onClick={openNew} className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-medium text-gray-500 transition-all duration-200 hover:border-accent hover:text-accent hover:bg-accent/5">
         <Plus className="h-4 w-4" />
         Ajouter une section colonnes
       </button>
