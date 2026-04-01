@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Eye, X, Maximize2, Check, Loader2, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
-import { DEFAULT_SECTIONS } from '@/types/sections'
+import { DEFAULT_SECTIONS, parseSections } from '@/types/sections'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
@@ -93,7 +93,8 @@ export function EditorLayout({
       display_order: p.display_order,
     })),
     skills: portfolioData.skills ?? [],
-    sections: portfolioData.sections ?? DEFAULT_SECTIONS,
+    sections: parseSections(portfolioData.sections ?? DEFAULT_SECTIONS),
+    customBlocks: portfolioData.custom_blocks ?? [],
     isPremium: false,
   }
 

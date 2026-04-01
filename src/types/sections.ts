@@ -1,5 +1,5 @@
-/** Available section block IDs */
-export type SectionId = 'hero' | 'bio' | 'socials' | 'projects' | 'skills' | 'contact'
+/** Available section block IDs — custom blocks use 'custom-{blockId}' format */
+export type SectionId = 'hero' | 'bio' | 'socials' | 'projects' | 'skills' | 'contact' | `custom-${string}`
 
 /** A section block with visibility and order */
 export interface SectionBlock {
@@ -8,14 +8,20 @@ export interface SectionBlock {
   order: number
 }
 
-/** Labels for each section shown in the UI */
-export const SECTION_LABELS: Record<SectionId, string> = {
+/** Labels for builtin sections shown in the UI */
+const BUILTIN_LABELS: Record<string, string> = {
   hero: 'En-tete (nom + photo)',
   bio: 'Biographie',
   socials: 'Reseaux sociaux',
   projects: 'Projets',
   skills: 'Competences',
   contact: 'Formulaire de contact',
+}
+
+/** Get the label for a section (supports custom blocks) */
+export function getSectionLabel(id: SectionId, customTitle?: string): string {
+  if (id.startsWith('custom-')) return customTitle ?? 'Bloc texte'
+  return BUILTIN_LABELS[id] ?? id
 }
 
 /** Default sections for new portfolios */
@@ -33,7 +39,7 @@ export function parseSections(raw: unknown): SectionBlock[] {
   if (!Array.isArray(raw)) return [...DEFAULT_SECTIONS]
 
   const parsed: SectionBlock[] = []
-  const validIds = new Set<SectionId>(['hero', 'bio', 'socials', 'projects', 'skills', 'contact'])
+  const builtinIds = new Set(['hero', 'bio', 'socials', 'projects', 'skills', 'contact'])
   const seenIds = new Set<string>()
 
   for (const item of raw) {
@@ -42,7 +48,7 @@ export function parseSections(raw: unknown): SectionBlock[] {
       item !== null &&
       'id' in item &&
       typeof item.id === 'string' &&
-      validIds.has(item.id as SectionId) &&
+      (builtinIds.has(item.id) || item.id.startsWith('custom-')) &&
       !seenIds.has(item.id)
     ) {
       seenIds.add(item.id)

@@ -5,6 +5,7 @@ import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { PublishToggle } from './publish-toggle'
 import { DeletePortfolio } from './delete-portfolio'
 import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
+import { parseCustomBlocks } from '@/types/custom-blocks'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -112,6 +113,7 @@ export default async function DashboardPage() {
               projects: [],
               skills: parseSkills(portfolio.skills),
               sections: parseSections(portfolio.sections),
+              customBlocks: parseCustomBlocks(portfolio.custom_blocks),
               isPremium: false,
             }
 

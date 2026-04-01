@@ -22,7 +22,7 @@ export const socialLinksSchema = z
   .optional()
 
 const sectionBlockSchema = z.object({
-  id: z.enum(['hero', 'bio', 'socials', 'projects', 'skills', 'contact']),
+  id: z.string().min(1),
   visible: z.boolean(),
   order: z.number().int().min(0),
 })
@@ -45,6 +45,13 @@ export const portfolioSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal('')),
   skills: z.array(z.string().max(50)).max(30).default([]),
   sections: z.array(sectionBlockSchema).optional(),
+  custom_blocks: z.array(z.object({
+    id: z.string(),
+    title: z.string().max(200),
+    subtitle: z.string().max(200).default(''),
+    content: z.string().max(10000),
+    order: z.number().int().min(0).default(0),
+  })).max(20).optional(),
 })
 
 export const projectSchema = z.object({

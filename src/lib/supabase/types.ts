@@ -56,6 +56,7 @@ export interface Database {
           custom_domain: string | null
           sections: Json | null
           skills: Json | null
+          custom_blocks: Json | null
           created_at: string
           updated_at: string
         }
@@ -76,6 +77,7 @@ export interface Database {
           custom_domain?: string | null
           sections?: Json | null
           skills?: Json | null
+          custom_blocks?: Json | null
           created_at?: string
           updated_at?: string
         }
@@ -96,6 +98,7 @@ export interface Database {
           custom_domain?: string | null
           sections?: Json | null
           skills?: Json | null
+          custom_blocks?: Json | null
           created_at?: string
           updated_at?: string
         }

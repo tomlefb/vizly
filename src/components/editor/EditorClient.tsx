@@ -25,6 +25,8 @@ import { StepProjects } from './StepProjects'
 import { StepCustomization } from './StepCustomization'
 import { StepPublish } from './StepPublish'
 import { parseSections, parseSkills } from '@/types/sections'
+import { parseCustomBlocks } from '@/types/custom-blocks'
+import { CustomBlockEditor } from './CustomBlockEditor'
 import type { Portfolio, Project } from '@/types'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
@@ -60,6 +62,7 @@ function portfolioToFormData(p: Portfolio): PortfolioFormData {
     contact_email: p.contact_email ?? '',
     skills: parseSkills(p.skills),
     sections: parseSections(p.sections),
+    custom_blocks: parseCustomBlocks(p.custom_blocks),
   }
 }
 
@@ -87,6 +90,7 @@ const DEFAULT_PORTFOLIO: PortfolioFormData = {
   contact_email: '',
   skills: [],
   sections: undefined,
+  custom_blocks: [],
 }
 
 // ------------------------------------------------------------------
@@ -272,10 +276,36 @@ export function EditorClient({
         return
       }
 
-      setPortfolioData((prev) => ({
-        ...prev,
-        [field]: value,
-      }))
+      setPortfolioData((prev) => {
+        const updated = { ...prev, [field]: value }
+
+        // When custom_blocks change, sync sections to include/remove custom block sections
+        if (field === 'custom_blocks' && Array.isArray(value)) {
+          const blocks = value as Array<{ id: string }>
+          const currentSections = [...(updated.sections ?? [])] as Array<{ id: string; visible: boolean; order: number }>
+          const existingCustomIds = new Set(currentSections.filter((s) => s.id.startsWith('custom-')).map((s) => s.id))
+          const newCustomIds = new Set(blocks.map((b) => `custom-${b.id}`))
+
+          // Add sections for new blocks
+          let maxOrder = currentSections.reduce((max, s) => Math.max(max, s.order), 0)
+          for (const block of blocks) {
+            const sectionId = `custom-${block.id}`
+            if (!existingCustomIds.has(sectionId)) {
+              maxOrder++
+              currentSections.push({ id: sectionId, visible: true, order: maxOrder })
+            }
+          }
+
+          // Remove sections for deleted blocks
+          const filteredSections = currentSections.filter(
+            (s) => !s.id.startsWith('custom-') || newCustomIds.has(s.id)
+          )
+
+          updated.sections = filteredSections
+        }
+
+        return updated
+      })
     },
     []
   )
@@ -605,11 +635,17 @@ export function EditorClient({
         projects={projectsForUI}
       >
         {currentStep === 1 && (
-          <StepPersonalInfo
-            data={portfolioData}
-            onChange={handleFieldChange}
-            errors={errors}
-          />
+          <div className="space-y-10">
+            <StepPersonalInfo
+              data={portfolioData}
+              onChange={handleFieldChange}
+              errors={errors}
+            />
+            <CustomBlockEditor
+              blocks={portfolioData.custom_blocks ?? []}
+              onChange={(blocks) => handleFieldChange('custom_blocks', blocks)}
+            />
+          </div>
         )}
         {currentStep === 2 && (
           <StepProjects

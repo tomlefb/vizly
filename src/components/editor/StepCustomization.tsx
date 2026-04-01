@@ -132,6 +132,7 @@ export function StepCustomization({
       {/* Section: Layout */}
       <SectionOrganizer
         sections={(data.sections as SectionBlock[]) ?? DEFAULT_SECTIONS}
+        customBlocks={data.custom_blocks ?? []}
         onChange={(sections) => onChange('sections', sections)}
       />
     </div>

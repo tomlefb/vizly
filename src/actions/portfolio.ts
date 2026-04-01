@@ -88,6 +88,7 @@ export async function upsertPortfolio(
           contact_email: validData.contact_email || null,
           skills: validData.skills ?? [],
           sections: validData.sections ?? null,
+          custom_blocks: validData.custom_blocks ?? [],
         })
         .eq('id', existing.id)
         .select()

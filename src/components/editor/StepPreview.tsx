@@ -49,7 +49,8 @@ export function StepPreview({
         display_order: p.display_order,
       })),
       skills: data.skills ?? [],
-      sections: data.sections ?? [],
+      sections: (data.sections ?? []) as TemplateProps['sections'],
+      customBlocks: data.custom_blocks ?? [],
       isPremium: false,
     }),
     [data, projects]

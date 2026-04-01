@@ -69,6 +69,7 @@ export const DEMO_PORTFOLIO: TemplateProps = {
     'Adobe Creative Suite',
   ],
   sections: DEFAULT_SECTIONS,
+  customBlocks: [],
   isPremium: false,
 }
 

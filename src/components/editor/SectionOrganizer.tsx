@@ -3,14 +3,18 @@
 import { useCallback } from 'react'
 import { ChevronUp, ChevronDown, Eye, EyeOff, GripVertical, LayoutList } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { SECTION_LABELS, type SectionBlock, type SectionId } from '@/types/sections'
+import { getSectionLabel, type SectionBlock, type SectionId } from '@/types/sections'
+import type { CustomBlock } from '@/types/custom-blocks'
 
 interface SectionOrganizerProps {
   sections: SectionBlock[]
+  customBlocks?: CustomBlock[]
   onChange: (sections: SectionBlock[]) => void
 }
 
-export function SectionOrganizer({ sections, onChange }: SectionOrganizerProps) {
+export function SectionOrganizer({ sections, customBlocks = [], onChange }: SectionOrganizerProps) {
+  // Build a map of custom block titles for labels
+  const customTitleMap = new Map(customBlocks.map((b) => [`custom-${b.id}`, b.title]))
   const sorted = [...sections].sort((a, b) => a.order - b.order)
 
   const moveUp = useCallback(
@@ -98,7 +102,7 @@ export function SectionOrganizer({ sections, onChange }: SectionOrganizerProps) 
                   section.visible ? 'text-foreground' : 'text-muted-foreground/50'
                 )}
               >
-                {SECTION_LABELS[section.id]}
+                {getSectionLabel(section.id, customTitleMap.get(section.id))}
               </span>
 
               {/* Move buttons */}

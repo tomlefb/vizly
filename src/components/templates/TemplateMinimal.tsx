@@ -22,7 +22,7 @@ const SOCIAL_ICONS: Record<string, LucideIcon> = {
   website: Globe,
 }
 
-export function TemplateMinimal({ portfolio, projects, skills, sections, isPremium }: TemplateProps) {
+export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -201,8 +201,36 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, isPremi
           </section>
         )
 
-      default:
+      default: {
+        // Custom blocks
+        if (section.id.startsWith('custom-')) {
+          const blockId = section.id.replace('custom-', '')
+          const block = customBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+              <div className="mx-auto max-w-4xl">
+                {block.title && (
+                  <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A', letterSpacing: '-0.01em' }} className="mb-2">
+                    {block.title}
+                  </h2>
+                )}
+                {block.subtitle && (
+                  <p style={{ fontSize: '0.95rem', color: '#8A8A8A', marginBottom: 16 }}>{block.subtitle}</p>
+                )}
+                {block.content && (
+                  <div
+                    style={{ fontSize: '0.95rem', lineHeight: 1.7, color: '#5A5A5A' }}
+                    className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                )}
+              </div>
+            </section>
+          )
+        }
         return null
+      }
     }
   }
 
