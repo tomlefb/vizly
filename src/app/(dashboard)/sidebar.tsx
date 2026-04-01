@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Home,
   LayoutGrid,
@@ -10,9 +10,11 @@ import {
   BarChart3,
   Globe,
   ArrowLeft,
+  User,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { UserMenu } from './user-menu'
+import { createClient } from '@/lib/supabase/client'
 
 interface SidebarProps {
   userName: string
@@ -32,12 +34,23 @@ const NAV_PRO = [
 ] as const
 
 // Icon container width = sidebar collapsed (60px) - margins (2*4px) = 52px
-// This ensures icons stay at the exact same position in both states
 const ICON_W = 'w-[52px]'
 
 export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [expanded, setExpanded] = useState(false)
+
+  const initials = userName
+    ? userName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
+    : userEmail.slice(0, 2).toUpperCase()
+
+  async function handleLogout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <aside
@@ -92,28 +105,41 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
         </div>
       </nav>
 
-      {/* Accueil — retour au site */}
-      <div className="shrink-0 border-t border-border/40 py-1.5">
-        <Link
-          href="/"
-          title={expanded ? undefined : 'Accueil'}
-          className="group relative flex items-center mx-1 rounded-[var(--radius-md)] text-muted hover:bg-surface-warm hover:text-foreground transition-colors duration-150"
+      {/* Bottom links: Accueil, Mon compte, Déconnexion */}
+      <div className="shrink-0 border-t border-border/40 py-1.5 space-y-0.5">
+        <NavItem href="/" icon={ArrowLeft} label="Accueil" active={false} expanded={expanded} />
+        <NavItem href="/settings" icon={User} label="Mon compte" active={pathname === '/settings'} expanded={expanded} />
+        <button
+          type="button"
+          onClick={() => void handleLogout()}
+          title={expanded ? undefined : 'Deconnexion'}
+          className="group relative flex items-center mx-1 w-[calc(100%-8px)] rounded-[var(--radius-md)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors duration-150"
         >
           <span className={cn(ICON_W, 'h-9 shrink-0 flex items-center justify-center')}>
-            <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            <LogOut className="h-[18px] w-[18px]" strokeWidth={1.5} />
           </span>
-          {expanded && <span className="text-[13px] whitespace-nowrap">Accueil</span>}
+          {expanded && <span className="text-[13px] whitespace-nowrap">Deconnexion</span>}
           {!expanded && (
             <span className="absolute left-full ml-2 z-50 rounded-md bg-foreground/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
-              Accueil
+              Deconnexion
             </span>
           )}
-        </Link>
+        </button>
       </div>
 
-      {/* User block */}
-      <div className="shrink-0 border-t border-border py-1.5">
-        <UserMenu name={userName} email={userEmail} collapsed={!expanded} />
+      {/* User avatar + name */}
+      <div className="shrink-0 border-t border-border py-2 flex items-center mx-1">
+        <span className={cn(ICON_W, 'shrink-0 flex items-center justify-center')}>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-light text-accent text-[12px] font-semibold">
+            {initials}
+          </span>
+        </span>
+        {expanded && (
+          <div className="min-w-0 pr-2">
+            <p className="text-[12px] font-medium text-foreground truncate">{userName || 'Utilisateur'}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{userEmail}</p>
+          </div>
+        )}
       </div>
     </aside>
   )
