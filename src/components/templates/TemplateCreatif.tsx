@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -28,6 +29,7 @@ export function TemplateCreatif({
   skills,
   sections,
   customBlocks,
+  kpis,
   isPremium,
 }: TemplateProps) {
   const {
@@ -515,6 +517,33 @@ export function TemplateCreatif({
                   <Mail size={18} />
                   {contact_email}
                 </a>
+              </div>
+            </div>
+          </section>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <section key="kpis" className="px-5 py-12 md:px-12 lg:px-20">
+            <div className="mx-auto max-w-6xl">
+              <h2
+                style={{
+                  fontFamily: "'Syne', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.15em',
+                  color: '#AAAAAA',
+                  marginBottom: 24,
+                }}
+              >
+                Chiffres cles
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {kpis.map((kpi) => (
+                  <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+                ))}
               </div>
             </div>
           </section>

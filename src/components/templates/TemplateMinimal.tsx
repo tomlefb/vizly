@@ -3,6 +3,7 @@ import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
+import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -23,7 +24,7 @@ const SOCIAL_ICONS: Record<string, LucideIcon> = {
   website: Globe,
 }
 
-export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
+export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -220,6 +221,20 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
         )
 
       default: {
+        // Layout blocks
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+              <div className="mx-auto max-w-5xl">
+                <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+              </div>
+            </section>
+          )
+        }
+
         // Custom blocks
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')

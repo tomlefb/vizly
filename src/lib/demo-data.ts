@@ -71,6 +71,7 @@ export const DEMO_PORTFOLIO: TemplateProps = {
   sections: DEFAULT_SECTIONS,
   customBlocks: [],
   kpis: [],
+  layoutBlocks: [],
   isPremium: false,
 }
 

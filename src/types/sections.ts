@@ -1,5 +1,5 @@
 /** Available section block IDs — custom blocks use 'custom-{blockId}' format */
-export type SectionId = 'hero' | 'bio' | 'socials' | 'projects' | 'skills' | 'kpis' | 'contact' | `custom-${string}`
+export type SectionId = 'hero' | 'bio' | 'socials' | 'projects' | 'skills' | 'kpis' | 'contact' | `custom-${string}` | `layout-${string}`
 
 /** A section block with visibility and order */
 export interface SectionBlock {
@@ -21,6 +21,7 @@ const BUILTIN_LABELS: Record<string, string> = {
 
 /** Get the label for a section (supports custom blocks) */
 export function getSectionLabel(id: SectionId, customTitle?: string): string {
+  if (id.startsWith('layout-')) return customTitle ?? 'Section colonnes'
   if (id.startsWith('custom-')) return customTitle ?? 'Bloc texte'
   return BUILTIN_LABELS[id] ?? id
 }
@@ -50,7 +51,7 @@ export function parseSections(raw: unknown): SectionBlock[] {
       item !== null &&
       'id' in item &&
       typeof item.id === 'string' &&
-      (builtinIds.has(item.id) || item.id.startsWith('custom-')) &&
+      (builtinIds.has(item.id) || item.id.startsWith('custom-') || item.id.startsWith('layout-')) &&
       !seenIds.has(item.id)
     ) {
       seenIds.add(item.id)

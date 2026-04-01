@@ -45,6 +45,18 @@ export const portfolioSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal('')),
   skills: z.array(z.string().max(50)).max(30).default([]),
   sections: z.array(sectionBlockSchema).optional(),
+  layout_blocks: z.array(z.object({
+    id: z.string(),
+    columnCount: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+    columns: z.array(z.object({
+      type: z.string(),
+      title: z.string().max(200).optional(),
+      content: z.string().max(10000).optional(),
+      kpi: z.any().optional(),
+      imageUrl: z.string().optional(),
+      imageAlt: z.string().max(200).optional(),
+    })),
+  })).max(20).optional(),
   kpis: z.array(z.object({
     id: z.string(),
     type: z.string(),

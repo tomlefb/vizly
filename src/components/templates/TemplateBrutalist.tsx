@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -28,6 +29,7 @@ export function TemplateBrutalist({
   skills,
   sections,
   customBlocks,
+  kpis,
   isPremium,
 }: TemplateProps) {
   const {
@@ -481,6 +483,34 @@ export function TemplateBrutalist({
                   <Mail size={16} />
                   {contact_email}
                 </a>
+              </div>
+            </div>
+          </section>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <section key="kpis" className="px-5 py-12 md:px-10">
+            <div className="mx-auto max-w-5xl">
+              <div style={{ height: 4, backgroundColor: borderColor, marginBottom: 32 }} />
+              <h2
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  color: textColor,
+                  marginBottom: 24,
+                  lineHeight: 1,
+                }}
+              >
+                Chiffres Cles
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {kpis.map((kpi) => (
+                  <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+                ))}
               </div>
             </div>
           </section>

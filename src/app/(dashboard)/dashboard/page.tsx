@@ -7,6 +7,7 @@ import { DeletePortfolio } from './delete-portfolio'
 import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis } from '@/types/kpis'
+import { parseLayoutBlocks } from '@/types/layout-blocks'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -116,6 +117,7 @@ export default async function DashboardPage() {
               sections: parseSections(portfolio.sections),
               customBlocks: parseCustomBlocks(portfolio.custom_blocks),
               kpis: parseKpis(portfolio.kpis),
+              layoutBlocks: parseLayoutBlocks(portfolio.layout_blocks),
               isPremium: false,
             }
 

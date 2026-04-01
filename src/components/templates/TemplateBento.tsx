@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -46,6 +47,7 @@ export function TemplateBento({
   skills,
   sections,
   customBlocks,
+  kpis,
   isPremium,
 }: TemplateProps) {
   const {
@@ -663,6 +665,40 @@ export function TemplateBento({
               <Mail size={16} />
               {contact_email}
             </a>
+          </div>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <div
+            key="kpis"
+            className="col-span-4"
+            style={{
+              backgroundColor: cardBg,
+              borderRadius: 20,
+              border: `1px solid ${borderLight}`,
+              padding: 'clamp(16px, 3vw, 24px)',
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'Inter Tight', sans-serif",
+                fontWeight: 600,
+                fontSize: '0.72rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: '#BBBBBB',
+                marginBottom: 14,
+              }}
+            >
+              Chiffres cles
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {kpis.map((kpi) => (
+                <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+              ))}
+            </div>
           </div>
         )
 

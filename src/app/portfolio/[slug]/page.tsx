@@ -5,6 +5,7 @@ import { templateMap } from '@/components/templates'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis } from '@/types/kpis'
+import { parseLayoutBlocks } from '@/types/layout-blocks'
 import { TrackView } from '@/components/analytics/TrackView'
 import type { TemplateProps } from '@/types'
 
@@ -121,6 +122,7 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
     sections: parseSections(portfolio.sections),
     customBlocks: parseCustomBlocks(portfolio.custom_blocks),
     kpis: parseKpis(portfolio.kpis),
+    layoutBlocks: parseLayoutBlocks(portfolio.layout_blocks),
     isPremium,
   }
 

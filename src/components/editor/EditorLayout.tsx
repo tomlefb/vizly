@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import { DEFAULT_SECTIONS, parseSections } from '@/types/sections'
 import { parseKpis } from '@/types/kpis'
+import { parseLayoutBlocks } from '@/types/layout-blocks'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
@@ -97,6 +98,7 @@ export function EditorLayout({
     sections: parseSections(portfolioData.sections ?? DEFAULT_SECTIONS),
     customBlocks: portfolioData.custom_blocks ?? [],
     kpis: parseKpis(portfolioData.kpis ?? []),
+    layoutBlocks: parseLayoutBlocks(portfolioData.layout_blocks ?? []),
     isPremium: false,
   }
 

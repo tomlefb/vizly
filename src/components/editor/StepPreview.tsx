@@ -52,6 +52,7 @@ export function StepPreview({
       sections: (data.sections ?? []) as TemplateProps['sections'],
       customBlocks: data.custom_blocks ?? [],
       kpis: (data.kpis ?? []) as TemplateProps['kpis'],
+      layoutBlocks: (data.layout_blocks ?? []) as TemplateProps['layoutBlocks'],
       isPremium: false,
     }),
     [data, projects]

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -25,7 +26,7 @@ const SOCIAL_ICONS: Record<
   website: { icon: Globe, label: 'Site web' },
 }
 
-export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
+export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -249,6 +250,31 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
           </div>
         )
 
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <div key="kpis" style={{ marginTop: 24 }}>
+            <h2
+              style={{
+                fontFamily: "'Merriweather', serif",
+                fontWeight: 700,
+                fontSize: '0.78rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#999999',
+                marginBottom: 12,
+              }}
+            >
+              Chiffres cles
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {kpis.map((kpi) => (
+                <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+              ))}
+            </div>
+          </div>
+        )
+
       case 'projects':
         // Projects are rendered in the main column, not sidebar
         return null
@@ -436,6 +462,30 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
               <Mail size={14} />
               <span>{contact_email}</span>
             </a>
+          </div>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <div key="kpis" className="mt-5">
+            <h2
+              style={{
+                fontFamily: "'Merriweather', serif",
+                fontWeight: 700,
+                fontSize: '1rem',
+                color: '#1A1A1A',
+                textAlign: 'center',
+                marginBottom: 12,
+              }}
+            >
+              Chiffres cles
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {kpis.map((kpi) => (
+                <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+              ))}
+            </div>
           </div>
         )
 

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -25,7 +26,7 @@ const SOCIAL_ICONS: Record<
   website: { icon: Globe, label: 'Website' },
 }
 
-export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
+export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -503,6 +504,41 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                   <Mail size={16} />
                   {contact_email}
                 </a>
+              </div>
+            </div>
+          </section>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <section key="kpis" className="px-6 py-12 md:px-10">
+            <div className="mx-auto max-w-4xl">
+              <div
+                style={{
+                  height: 1,
+                  background: `linear-gradient(90deg, transparent, ${primary_color}20, transparent)`,
+                  marginBottom: 32,
+                }}
+              />
+              <h2
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                  color: primary_color,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+                className="mb-6"
+              >
+                <span style={{ opacity: 0.4 }}>{'> '}</span>
+                chiffres cles
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {kpis.map((kpi) => (
+                  <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} dark />
+                ))}
               </div>
             </div>
           </section>

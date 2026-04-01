@@ -58,6 +58,7 @@ export interface Database {
           skills: Json | null
           custom_blocks: Json | null
           kpis: Json | null
+          layout_blocks: Json | null
           created_at: string
           updated_at: string
         }
@@ -80,6 +81,7 @@ export interface Database {
           skills?: Json | null
           custom_blocks?: Json | null
           kpis?: Json | null
+          layout_blocks?: Json | null
           created_at?: string
           updated_at?: string
         }
@@ -102,6 +104,7 @@ export interface Database {
           skills?: Json | null
           custom_blocks?: Json | null
           kpis?: Json | null
+          layout_blocks?: Json | null
           created_at?: string
           updated_at?: string
         }

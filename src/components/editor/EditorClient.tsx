@@ -27,6 +27,8 @@ import { StepPublish } from './StepPublish'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis, type KpiItem } from '@/types/kpis'
+import { parseLayoutBlocks, type LayoutBlock } from '@/types/layout-blocks'
+import { LayoutBlockEditor } from './LayoutBlockEditor'
 import { CustomBlockEditor } from './CustomBlockEditor'
 import { KpiEditor } from './KpiEditor'
 import type { Portfolio, Project } from '@/types'
@@ -66,6 +68,7 @@ function portfolioToFormData(p: Portfolio): PortfolioFormData {
     sections: parseSections(p.sections),
     custom_blocks: parseCustomBlocks(p.custom_blocks),
     kpis: parseKpis(p.kpis),
+    layout_blocks: parseLayoutBlocks(p.layout_blocks),
   }
 }
 
@@ -95,6 +98,7 @@ const DEFAULT_PORTFOLIO: PortfolioFormData = {
   sections: undefined,
   custom_blocks: [],
   kpis: [],
+  layout_blocks: [],
 }
 
 // ------------------------------------------------------------------
@@ -282,6 +286,25 @@ export function EditorClient({
 
       setPortfolioData((prev) => {
         const updated = { ...prev, [field]: value }
+
+        // When layout_blocks change, sync sections
+        if (field === 'layout_blocks' && Array.isArray(value)) {
+          const blocks = value as Array<{ id: string }>
+          const currentSections = [...(updated.sections ?? [])] as Array<{ id: string; visible: boolean; order: number }>
+          const existingIds = new Set(currentSections.filter((s) => s.id.startsWith('layout-')).map((s) => s.id))
+          const newIds = new Set(blocks.map((b) => `layout-${b.id}`))
+          let maxOrder = currentSections.reduce((max, s) => Math.max(max, s.order), 0)
+          for (const block of blocks) {
+            const sectionId = `layout-${block.id}`
+            if (!existingIds.has(sectionId)) {
+              maxOrder++
+              currentSections.push({ id: sectionId, visible: true, order: maxOrder })
+            }
+          }
+          updated.sections = currentSections.filter(
+            (s) => !s.id.startsWith('layout-') || newIds.has(s.id)
+          )
+        }
 
         // When custom_blocks change, sync sections to include/remove custom block sections
         if (field === 'custom_blocks' && Array.isArray(value)) {
@@ -652,6 +675,11 @@ export function EditorClient({
             <KpiEditor
               kpis={(portfolioData.kpis ?? []) as KpiItem[]}
               onChange={(kpis) => handleFieldChange('kpis', kpis)}
+              primaryColor={portfolioData.primary_color}
+            />
+            <LayoutBlockEditor
+              blocks={(portfolioData.layout_blocks ?? []) as LayoutBlock[]}
+              onChange={(blocks) => handleFieldChange('layout_blocks', blocks)}
               primaryColor={portfolioData.primary_color}
             />
           </div>

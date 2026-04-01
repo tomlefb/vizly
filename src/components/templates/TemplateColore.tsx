@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -43,7 +44,7 @@ function lightenColor(hex: string, amount: number): string {
   return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`
 }
 
-export function TemplateColore({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
+export function TemplateColore({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -512,6 +513,42 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                 <Mail size={18} />
                 {contact_email}
               </a>
+            </div>
+          </section>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <section key="kpis" className="px-6 py-10 md:px-10">
+            <div className="mx-auto max-w-5xl text-center">
+              <h2
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontWeight: 600,
+                  fontSize: '1.4rem',
+                  color: '#2A2A2A',
+                  marginBottom: 24,
+                }}
+              >
+                Chiffres cles{' '}
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: secondary_color,
+                    marginLeft: 4,
+                    verticalAlign: 'middle',
+                  }}
+                />
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {kpis.map((kpi) => (
+                  <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+                ))}
+              </div>
             </div>
           </section>
         )

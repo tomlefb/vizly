@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -28,6 +29,7 @@ export function TemplateElegant({
   skills,
   sections,
   customBlocks,
+  kpis,
   isPremium,
 }: TemplateProps) {
   const {
@@ -449,6 +451,41 @@ export function TemplateElegant({
                 <Mail size={14} />
                 {contact_email}
               </a>
+            </div>
+          </section>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <section key="kpis" className="px-6 py-12 md:px-16 lg:px-24" style={{ textAlign: 'center' }}>
+            <div className="mx-auto max-w-4xl">
+              <h2
+                style={{
+                  fontFamily: "'Raleway', sans-serif",
+                  fontWeight: 300,
+                  fontSize: '0.72rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.25em',
+                  color: '#BBBBBB',
+                  marginBottom: 28,
+                }}
+              >
+                Chiffres cles
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {kpis.map((kpi) => (
+                  <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+                ))}
+              </div>
+              <div
+                style={{
+                  width: 40,
+                  height: 1,
+                  backgroundColor: `${primary_color}30`,
+                  margin: '32px auto 0',
+                }}
+              />
             </div>
           </section>
         )

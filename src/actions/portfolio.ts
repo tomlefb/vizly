@@ -90,6 +90,7 @@ export async function upsertPortfolio(
           sections: validData.sections ?? null,
           custom_blocks: validData.custom_blocks ?? [],
           kpis: validData.kpis ?? [],
+          layout_blocks: validData.layout_blocks ?? [],
         })
         .eq('id', existing.id)
         .select()
