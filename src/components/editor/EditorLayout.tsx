@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Eye, X, Check, Loader2, ChevronRight } from 'lucide-react'
+import { Maximize2, X, Check, Loader2, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import { DEFAULT_SECTIONS, parseSections } from '@/types/sections'
@@ -107,6 +107,26 @@ export function EditorLayout({
     isPremium: false,
   }
 
+  const saveIndicator = (
+    <div className="flex items-center">
+      {saveStatus === 'saving' && (
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          Sauvegarde...
+        </span>
+      )}
+      {saveStatus === 'saved' && (
+        <span className="flex items-center gap-1.5 text-xs text-success">
+          <Check className="h-3 w-3" />
+          Sauvegarde
+        </span>
+      )}
+      {saveStatus === 'error' && (
+        <span className="text-xs text-destructive truncate">{saveError ?? 'Erreur'}</span>
+      )}
+    </div>
+  )
+
   const previewBg = portfolioData.template === 'dark' ? '#0A0A0A'
     : portfolioData.template === 'colore' ? '#FFF5E6'
     : '#FAFAF8'
@@ -114,88 +134,53 @@ export function EditorLayout({
   return (
     <>
       <div className="flex flex-col h-full min-h-0">
-        {/* Step bar */}
+        {/* Step bar — steps only, full width */}
         <div className="shrink-0 border-b border-border bg-background px-4 sm:px-6 py-3">
-          <div className="flex items-center justify-between">
-            <nav className="flex items-center gap-1 flex-1" aria-label="Etapes editeur">
-              {STEPS.map((step, index) => {
-                const stepIndex = STEPS.findIndex((s) => s.id === step.id)
-                const isActive = currentStep === step.id
-                const isPast = stepIndex < currentStepIndex
-                return (
-                  <div key={step.id} className="flex items-center flex-1">
-                    <button
-                      type="button"
-                      onClick={() => onStepChange(step.id)}
-                      className="flex items-center gap-2 group"
+          <nav className="flex items-center gap-1" aria-label="Etapes editeur">
+            {STEPS.map((step, index) => {
+              const stepIndex = STEPS.findIndex((s) => s.id === step.id)
+              const isActive = currentStep === step.id
+              const isPast = stepIndex < currentStepIndex
+              return (
+                <div key={step.id} className="flex items-center flex-1">
+                  <button
+                    type="button"
+                    onClick={() => onStepChange(step.id)}
+                    className="flex items-center gap-2 group"
+                  >
+                    <div
+                      className={cn(
+                        'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-200 shrink-0',
+                        isActive
+                          ? 'bg-accent text-white shadow-[0_2px_8px_rgba(232,85,61,0.25)]'
+                          : isPast
+                            ? 'bg-accent/10 text-accent'
+                            : 'bg-surface-warm text-muted-foreground group-hover:bg-border-light'
+                      )}
                     >
-                      <div
-                        className={cn(
-                          'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-200 shrink-0',
-                          isActive
-                            ? 'bg-accent text-white shadow-[0_2px_8px_rgba(232,85,61,0.25)]'
-                            : isPast
-                              ? 'bg-accent/10 text-accent'
-                              : 'bg-surface-warm text-muted-foreground group-hover:bg-border-light'
-                        )}
-                      >
-                        {isPast ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : index + 1}
+                      {isPast ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : index + 1}
+                    </div>
+                    <span className={cn(
+                      'text-xs font-medium hidden sm:inline transition-colors',
+                      isActive ? 'text-foreground' : 'text-muted group-hover:text-foreground'
+                    )}>
+                      {step.label}
+                    </span>
+                  </button>
+                  {index < STEPS.length - 1 && (
+                    <div className="flex-1 mx-2">
+                      <div className="h-0.5 rounded-full bg-border-light overflow-hidden">
+                        <div className={cn(
+                          'h-full rounded-full transition-all duration-300',
+                          isPast ? 'bg-accent w-full' : isActive ? 'bg-accent w-1/2' : 'w-0'
+                        )} />
                       </div>
-                      <span className={cn(
-                        'text-xs font-medium hidden sm:inline transition-colors',
-                        isActive ? 'text-foreground' : 'text-muted group-hover:text-foreground'
-                      )}>
-                        {step.label}
-                      </span>
-                    </button>
-                    {index < STEPS.length - 1 && (
-                      <div className="flex-1 mx-2">
-                        <div className="h-0.5 rounded-full bg-border-light overflow-hidden">
-                          <div className={cn(
-                            'h-full rounded-full transition-all duration-300',
-                            isPast ? 'bg-accent w-full' : isActive ? 'bg-accent w-1/2' : 'w-0'
-                          )} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </nav>
-
-            {/* Save status + preview button */}
-            <div className="flex items-center gap-2 ml-4 shrink-0">
-              <div className="w-24 flex justify-end">
-                {saveStatus === 'saving' && (
-                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    <span className="hidden sm:inline">Sauvegarde...</span>
-                  </span>
-                )}
-                {saveStatus === 'saved' && (
-                  <span className="flex items-center gap-1.5 text-xs text-success">
-                    <Check className="h-3 w-3" />
-                    <span className="hidden sm:inline">Sauvegarde</span>
-                  </span>
-                )}
-                {saveStatus === 'error' && (
-                  <span className="text-xs text-destructive truncate">{saveError ?? 'Erreur'}</span>
-                )}
-              </div>
-
-              {/* "Plein écran" button — only on design step */}
-              {isDesignStep && (
-                <button
-                  type="button"
-                  onClick={() => setPreviewOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Plein ecran</span>
-                </button>
-              )}
-            </div>
-          </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </nav>
         </div>
 
         {/* Main content — varies by step */}
@@ -207,7 +192,7 @@ export function EditorLayout({
                 {children}
               </div>
             </div>
-            {/* Bottom bar: Précédent only */}
+            {/* Bottom bar: Précédent + save */}
             <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
               <div className="flex items-center justify-between">
                 <button type="button"
@@ -216,7 +201,7 @@ export function EditorLayout({
                   <ChevronRight className="h-4 w-4 rotate-180" />
                   Precedent
                 </button>
-                <span />
+                {saveIndicator}
               </div>
             </div>
           </div>
@@ -266,6 +251,15 @@ export function EditorLayout({
                       <p className="text-sm text-muted">Aucun template selectionne</p>
                     </div>
                   )}
+                  {/* Fullscreen button overlay */}
+                  <button
+                    type="button"
+                    onClick={() => setPreviewOpen(true)}
+                    className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] bg-background/80 border border-border backdrop-blur-sm text-muted-foreground transition-colors hover:bg-background hover:text-foreground shadow-sm"
+                    title="Plein ecran"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -279,6 +273,7 @@ export function EditorLayout({
                     <ChevronRight className="h-4 w-4 rotate-180" />
                     Precedent
                   </button>
+                  {saveIndicator}
                   <div className="flex items-center gap-3">
                     {bottomBarExtra}
                     <button type="button" onClick={onNext} disabled={!canGoNext}
@@ -316,6 +311,7 @@ export function EditorLayout({
                       Precedent
                     </button>
                   ) : <span />}
+                  {saveIndicator}
                   <button type="button" onClick={onNext} disabled={!canGoNext}
                     className={cn(
                       'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
