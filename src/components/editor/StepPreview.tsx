@@ -36,6 +36,7 @@ export function StepPreview({
         primary_color: data.primary_color,
         secondary_color: data.secondary_color,
         font: data.font,
+        font_body: data.font_body ?? data.font,
         social_links: (data.social_links as Record<string, string> | null) ?? null,
         contact_email: data.contact_email || null,
       },

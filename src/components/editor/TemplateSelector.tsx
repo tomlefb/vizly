@@ -184,12 +184,10 @@ export function TemplateSelector({
 
         {/* 2x2 grid but with varied sizing for visual interest */}
         <div className="grid grid-cols-2 gap-3">
-          {premiumTemplates.map((template, index) => {
+          {premiumTemplates.map((template) => {
             const isSelected = value === template.name
             const isPurchased = purchasedTemplates.includes(template.name)
             const isLocked = !isPurchased
-            // Alternate tall/short cards for visual variety
-            const isTall = index === 0 || index === 3
 
             return (
               <button
@@ -205,10 +203,7 @@ export function TemplateSelector({
                 )}
               >
                 {/* Preview */}
-                <div className={cn(
-                  'relative w-full overflow-hidden',
-                  isTall ? 'aspect-[3/4]' : 'aspect-[4/3]'
-                )}>
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <TemplatePreviewPlaceholder name={template.name} />
 
                   {/* Lock overlay for unpurchased */}

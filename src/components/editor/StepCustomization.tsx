@@ -52,6 +52,13 @@ export function StepCustomization({
     [onChange]
   )
 
+  const handleFontBodyChange = useCallback(
+    (font: string) => {
+      onChange('font_body', font)
+    },
+    [onChange]
+  )
+
   return (
     <div
       className={cn('space-y-10', className)}
@@ -126,7 +133,12 @@ export function StepCustomization({
           </div>
         </div>
 
-        <FontSelector value={data.font} onChange={handleFontChange} />
+        <FontSelector
+          value={data.font}
+          valueBody={data.font_body ?? data.font}
+          onChange={handleFontChange}
+          onChangeBody={handleFontBodyChange}
+        />
       </section>
 
       {/* Section: Layout */}

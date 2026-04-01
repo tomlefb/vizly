@@ -26,6 +26,7 @@ export interface TemplateProps {
     primary_color: string
     secondary_color: string
     font: string
+    font_body: string
     social_links: Record<string, string> | null
     contact_email: string | null
   }

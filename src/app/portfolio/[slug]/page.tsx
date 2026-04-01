@@ -106,6 +106,7 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
       primary_color: portfolio.primary_color,
       secondary_color: portfolio.secondary_color,
       font: portfolio.font,
+      font_body: portfolio.font_body ?? portfolio.font,
       social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
       contact_email: portfolio.contact_email,
     },

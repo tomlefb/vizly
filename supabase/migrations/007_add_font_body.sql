@@ -1,0 +1,1 @@
+ALTER TABLE portfolios ADD COLUMN IF NOT EXISTS font_body text NOT NULL DEFAULT 'DM Sans';

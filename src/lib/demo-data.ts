@@ -10,6 +10,7 @@ export const DEMO_PORTFOLIO: TemplateProps = {
     primary_color: '#E8553D',
     secondary_color: '#1A1A1A',
     font: 'default',
+    font_body: 'default',
     social_links: {
       linkedin: 'https://linkedin.com/in/mariedupont',
       dribbble: 'https://dribbble.com/mariedupont',

@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback } from 'react'
-import { Check } from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const AVAILABLE_FONTS = [
@@ -19,78 +19,127 @@ const AVAILABLE_FONTS = [
   { name: 'JetBrains Mono', family: '"JetBrains Mono", monospace', style: 'Code, dev' },
 ] as const
 
-interface FontSelectorProps {
+interface FontDropdownProps {
+  label: string
   value: string
   onChange: (font: string) => void
-  className?: string
 }
 
-export function FontSelector({
-  value,
-  onChange,
-  className,
-}: FontSelectorProps) {
+function FontDropdown({ label, value, onChange }: FontDropdownProps) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const selectedFont = AVAILABLE_FONTS.find((f) => f.name === value)
+  const selectedFamily = selectedFont?.family ?? '"DM Sans", sans-serif'
+
   const handleSelect = useCallback(
     (fontName: string) => {
       onChange(fontName)
+      setOpen(false)
     },
     [onChange]
   )
 
   return (
-    <div
-      className={cn('space-y-3', className)}
-      data-testid="font-selector"
-      role="radiogroup"
-      aria-label="Choix de la police"
-    >
-      <p className="text-sm font-medium text-foreground font-[family-name:var(--font-satoshi)]">
-        Police
-      </p>
+    <div ref={containerRef} className="space-y-1.5">
+      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        {label}
+      </label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          onBlur={(e) => {
+            if (!containerRef.current?.contains(e.relatedTarget)) {
+              setOpen(false)
+            }
+          }}
+          className={cn(
+            'flex w-full items-center justify-between rounded-[var(--radius-md)] border px-3 py-2.5 text-left transition-all duration-150',
+            open
+              ? 'border-accent ring-2 ring-accent/20'
+              : 'border-border bg-surface hover:border-border-light'
+          )}
+        >
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-foreground truncate" style={{ fontFamily: selectedFamily }}>
+              {value}
+            </p>
+            {selectedFont && (
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {selectedFont.style}
+              </p>
+            )}
+          </div>
+          <ChevronDown className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
+        </button>
 
-      <div className="grid gap-2">
-        {AVAILABLE_FONTS.map((font) => {
-          const isSelected = value === font.name
-          return (
-            <button
-              key={font.name}
-              type="button"
-              onClick={() => handleSelect(font.name)}
-              role="radio"
-              aria-checked={isSelected}
-              className={cn(
-                'group flex items-center justify-between rounded-[var(--radius-md)] border px-4 py-3 text-left transition-all duration-150',
-                isSelected
-                  ? 'border-accent bg-accent-light/50 shadow-[0_0_0_1px_var(--color-accent)]'
-                  : 'border-border bg-surface hover:border-border hover:bg-surface-warm'
-              )}
-            >
-              <div className="min-w-0 flex-1">
-                <p
-                  className="text-base text-foreground truncate"
-                  style={{ fontFamily: font.family }}
+        {open && (
+          <div className="absolute z-20 mt-1 w-full rounded-[var(--radius-md)] border border-border bg-background shadow-lg max-h-60 overflow-y-auto">
+            {AVAILABLE_FONTS.map((font) => {
+              const isSelected = value === font.name
+              return (
+                <button
+                  key={font.name}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSelect(font.name)}
+                  className={cn(
+                    'flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
+                    isSelected
+                      ? 'bg-accent/5 text-foreground'
+                      : 'hover:bg-surface-warm text-foreground'
+                  )}
                 >
-                  Aa Bb Cc 123
-                </p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs font-medium text-foreground/80">
+                  <span className="text-sm flex-1 truncate" style={{ fontFamily: font.family }}>
                     {font.name}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-[11px] text-muted-foreground shrink-0">
                     {font.style}
                   </span>
-                </div>
-              </div>
-
-              {isSelected && (
-                <div className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent">
-                  <Check className="h-3 w-3 text-white" strokeWidth={3} />
-                </div>
-              )}
-            </button>
-          )
-        })}
+                  {isSelected && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
+    </div>
+  )
+}
+
+interface FontSelectorProps {
+  value: string
+  valueBody: string
+  onChange: (font: string) => void
+  onChangeBody: (font: string) => void
+  className?: string
+}
+
+export function FontSelector({
+  value,
+  valueBody,
+  onChange,
+  onChangeBody,
+  className,
+}: FontSelectorProps) {
+  return (
+    <div
+      className={cn('grid gap-4', className)}
+      data-testid="font-selector"
+    >
+      <FontDropdown
+        label="Police de titre"
+        value={value}
+        onChange={onChange}
+      />
+      <FontDropdown
+        label="Police de texte"
+        value={valueBody}
+        onChange={onChangeBody}
+      />
     </div>
   )
 }

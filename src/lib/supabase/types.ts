@@ -50,6 +50,7 @@ export interface Database {
           primary_color: string
           secondary_color: string
           font: string
+          font_body: string
           social_links: Json | null
           contact_email: string | null
           published: boolean
@@ -73,6 +74,7 @@ export interface Database {
           primary_color?: string
           secondary_color?: string
           font?: string
+          font_body?: string
           social_links?: Json | null
           contact_email?: string | null
           published?: boolean
@@ -96,6 +98,7 @@ export interface Database {
           primary_color?: string
           secondary_color?: string
           font?: string
+          font_body?: string
           social_links?: Json | null
           contact_email?: string | null
           published?: boolean

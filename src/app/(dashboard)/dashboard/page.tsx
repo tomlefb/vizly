@@ -109,6 +109,7 @@ export default async function DashboardPage() {
                 primary_color: portfolio.primary_color || '#E8553D',
                 secondary_color: portfolio.secondary_color || '#1A1A1A',
                 font: portfolio.font || 'DM Sans',
+                font_body: portfolio.font_body ?? portfolio.font ?? 'DM Sans',
                 social_links: (portfolio.social_links as Record<string, string> | null) ?? null,
                 contact_email: portfolio.contact_email ?? null,
               },

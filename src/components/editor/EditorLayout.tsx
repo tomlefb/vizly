@@ -66,6 +66,7 @@ export function EditorLayout({
   const [previewOpen, setPreviewOpen] = useState(false)
 
   useGoogleFont(portfolioData.font)
+  useGoogleFont(portfolioData.font_body ?? portfolioData.font)
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep)
   const nextStep = STEPS[currentStepIndex + 1]
@@ -82,6 +83,7 @@ export function EditorLayout({
       primary_color: portfolioData.primary_color,
       secondary_color: portfolioData.secondary_color,
       font: portfolioData.font,
+      font_body: portfolioData.font_body ?? portfolioData.font,
       social_links: portfolioData.social_links ?? null,
       contact_email: portfolioData.contact_email ?? null,
     },
@@ -201,7 +203,10 @@ export function EditorLayout({
               {TemplateComponent && (
                 <>
                   {portfolioData.font && (
-                    <style>{`.publish-preview-font * { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }`}</style>
+                    <style>{`
+                        .publish-preview-font h1, .publish-preview-font h2, .publish-preview-font h3, .publish-preview-font h4, .publish-preview-font h5, .publish-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
+                        .publish-preview-font p, .publish-preview-font span, .publish-preview-font li, .publish-preview-font a, .publish-preview-font td, .publish-preview-font input, .publish-preview-font textarea, .publish-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
+                      `}</style>
                   )}
                   <div className="publish-preview-font">
                     <TemplateComponent {...templateProps} />
@@ -217,8 +222,33 @@ export function EditorLayout({
         ) : isDesignStep ? (
           /* Step 4: Split screen — form (35%) + preview (65%) */
           <div className="flex-1 flex min-h-0">
-            <div className="w-[35%] overflow-y-auto border-r border-border px-4 sm:px-6 py-6">
-              {children}
+            <div className="w-[35%] flex flex-col border-r border-border">
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+                {children}
+              </div>
+              {/* Bottom nav: Précédent / Suivant */}
+              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
+                <div className="flex items-center justify-between">
+                  <button type="button"
+                    onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                    Precedent
+                  </button>
+                  {nextStep && (
+                    <button type="button" onClick={onNext} disabled={!canGoNext}
+                      className={cn(
+                        'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
+                        canGoNext
+                          ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
+                          : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
+                      )}>
+                      Suivant
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Browser chrome */}
@@ -242,7 +272,10 @@ export function EditorLayout({
                 {TemplateComponent ? (
                   <div className="absolute inset-0 overflow-y-auto">
                     {portfolioData.font && (
-                      <style>{`.editor-preview-font * { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }`}</style>
+                      <style>{`
+                        .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
+                        .editor-preview-font p, .editor-preview-font span, .editor-preview-font li, .editor-preview-font a, .editor-preview-font td, .editor-preview-font input, .editor-preview-font textarea, .editor-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
+                      `}</style>
                     )}
                     <div className="origin-top-left editor-preview-font"
                       style={{ width: '1280px', minHeight: '200vh', transform: 'scale(0.55)', transformOrigin: 'top left' }}>
@@ -317,7 +350,10 @@ export function EditorLayout({
             </div>
             <div className="flex-1 overflow-y-auto" style={{ backgroundColor: previewBg }}>
               {portfolioData.font && (
-                <style>{`.modal-preview-font * { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }`}</style>
+                <style>{`
+                  .modal-preview-font h1, .modal-preview-font h2, .modal-preview-font h3, .modal-preview-font h4, .modal-preview-font h5, .modal-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
+                  .modal-preview-font p, .modal-preview-font span, .modal-preview-font li, .modal-preview-font a, .modal-preview-font td, .modal-preview-font input, .modal-preview-font textarea, .modal-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
+                `}</style>
               )}
               <div className="modal-preview-font">
                 {TemplateComponent && <TemplateComponent {...templateProps} />}

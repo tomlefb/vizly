@@ -41,6 +41,7 @@ export const portfolioSchema = z.object({
     .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide')
     .default('#1A1A1A'),
   font: z.string().default('DM Sans'),
+  font_body: z.string().default('DM Sans'),
   social_links: socialLinksSchema,
   contact_email: z.string().optional().or(z.literal('')),
   skills: z.array(z.string().max(50)).max(30).default([]),
