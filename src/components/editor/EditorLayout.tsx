@@ -135,7 +135,7 @@ export function EditorLayout({
     <>
       <div className="flex flex-col h-full min-h-0">
         {/* Step bar — steps only, centered */}
-        <div className="shrink-0 border-b border-border bg-background px-4 sm:px-6 py-3">
+        <div className="shrink-0 border-b border-border bg-white px-4 sm:px-6 py-3">
           <nav className="flex items-center gap-1 w-full" aria-label="Etapes editeur">
             {STEPS.map((step, index) => {
               const stepIndex = STEPS.findIndex((s) => s.id === step.id)
