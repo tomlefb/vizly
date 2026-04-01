@@ -77,7 +77,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
             />
           ))}
         </div>
-        <div className="space-y-0.5 mt-3 pt-3 border-t border-border/40 mx-2">
+        <div className="space-y-0.5 mt-3 pt-3 border-t border-border/40">
           {NAV_PRO.map(({ href, icon: Icon, label }) => (
             <NavItem
               key={href}
