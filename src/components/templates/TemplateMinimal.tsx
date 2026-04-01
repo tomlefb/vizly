@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
+import { KpiRenderer } from './KpiRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
@@ -22,7 +23,7 @@ const SOCIAL_ICONS: Record<string, LucideIcon> = {
   website: Globe,
 }
 
-export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, isPremium }: TemplateProps) {
+export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -197,6 +198,23 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                 <Mail size={18} />
                 {contact_email}
               </a>
+            </div>
+          </section>
+        )
+
+      case 'kpis':
+        if (kpis.length === 0) return null
+        return (
+          <section key="kpis" className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+            <div className="mx-auto max-w-5xl">
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A', letterSpacing: '-0.01em' }} className="mb-6">
+                Chiffres cles
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {kpis.map((kpi) => (
+                  <KpiRenderer key={kpi.id} kpi={kpi} primaryColor={primary_color} />
+                ))}
+              </div>
             </div>
           </section>
         )

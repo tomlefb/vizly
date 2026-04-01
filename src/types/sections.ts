@@ -1,5 +1,5 @@
 /** Available section block IDs — custom blocks use 'custom-{blockId}' format */
-export type SectionId = 'hero' | 'bio' | 'socials' | 'projects' | 'skills' | 'contact' | `custom-${string}`
+export type SectionId = 'hero' | 'bio' | 'socials' | 'projects' | 'skills' | 'kpis' | 'contact' | `custom-${string}`
 
 /** A section block with visibility and order */
 export interface SectionBlock {
@@ -15,6 +15,7 @@ const BUILTIN_LABELS: Record<string, string> = {
   socials: 'Reseaux sociaux',
   projects: 'Projets',
   skills: 'Competences',
+  kpis: 'Chiffres cles',
   contact: 'Formulaire de contact',
 }
 
@@ -31,7 +32,8 @@ export const DEFAULT_SECTIONS: SectionBlock[] = [
   { id: 'socials', visible: true, order: 2 },
   { id: 'projects', visible: true, order: 3 },
   { id: 'skills', visible: true, order: 4 },
-  { id: 'contact', visible: false, order: 5 },
+  { id: 'kpis', visible: false, order: 5 },
+  { id: 'contact', visible: false, order: 6 },
 ]
 
 /** Parse sections from JSON (DB or form), fallback to defaults */
@@ -39,7 +41,7 @@ export function parseSections(raw: unknown): SectionBlock[] {
   if (!Array.isArray(raw)) return [...DEFAULT_SECTIONS]
 
   const parsed: SectionBlock[] = []
-  const builtinIds = new Set(['hero', 'bio', 'socials', 'projects', 'skills', 'contact'])
+  const builtinIds = new Set(['hero', 'bio', 'socials', 'projects', 'skills', 'kpis', 'contact'])
   const seenIds = new Set<string>()
 
   for (const item of raw) {

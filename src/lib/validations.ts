@@ -45,6 +45,17 @@ export const portfolioSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal('')),
   skills: z.array(z.string().max(50)).max(30).default([]),
   sections: z.array(sectionBlockSchema).optional(),
+  kpis: z.array(z.object({
+    id: z.string(),
+    type: z.string(),
+    label: z.string().max(200),
+    value: z.number(),
+    maxValue: z.number().default(100),
+    unit: z.string().max(20).default(''),
+    secondaryValue: z.number().optional(),
+    secondaryLabel: z.string().max(200).optional(),
+    dataPoints: z.array(z.object({ label: z.string(), value: z.number() })).optional(),
+  })).max(20).optional(),
   custom_blocks: z.array(z.object({
     id: z.string(),
     title: z.string().max(200),

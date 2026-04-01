@@ -26,7 +26,9 @@ import { StepCustomization } from './StepCustomization'
 import { StepPublish } from './StepPublish'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
+import { parseKpis, type KpiItem } from '@/types/kpis'
 import { CustomBlockEditor } from './CustomBlockEditor'
+import { KpiEditor } from './KpiEditor'
 import type { Portfolio, Project } from '@/types'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
@@ -63,6 +65,7 @@ function portfolioToFormData(p: Portfolio): PortfolioFormData {
     skills: parseSkills(p.skills),
     sections: parseSections(p.sections),
     custom_blocks: parseCustomBlocks(p.custom_blocks),
+    kpis: parseKpis(p.kpis),
   }
 }
 
@@ -91,6 +94,7 @@ const DEFAULT_PORTFOLIO: PortfolioFormData = {
   skills: [],
   sections: undefined,
   custom_blocks: [],
+  kpis: [],
 }
 
 // ------------------------------------------------------------------
@@ -644,6 +648,11 @@ export function EditorClient({
             <CustomBlockEditor
               blocks={portfolioData.custom_blocks ?? []}
               onChange={(blocks) => handleFieldChange('custom_blocks', blocks)}
+            />
+            <KpiEditor
+              kpis={(portfolioData.kpis ?? []) as KpiItem[]}
+              onChange={(kpis) => handleFieldChange('kpis', kpis)}
+              primaryColor={portfolioData.primary_color}
             />
           </div>
         )}

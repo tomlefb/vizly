@@ -15,6 +15,7 @@ export type ProjectUpdate = Database['public']['Tables']['projects']['Update']
 
 import type { SectionBlock } from './sections'
 import type { CustomBlock } from './custom-blocks'
+import type { KpiItem } from './kpis'
 
 export interface TemplateProps {
   portfolio: {
@@ -39,5 +40,6 @@ export interface TemplateProps {
   skills: string[]
   sections: SectionBlock[]
   customBlocks: CustomBlock[]
+  kpis: KpiItem[]
   isPremium: boolean
 }

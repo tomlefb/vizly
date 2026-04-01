@@ -6,6 +6,7 @@ import { PublishToggle } from './publish-toggle'
 import { DeletePortfolio } from './delete-portfolio'
 import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
+import { parseKpis } from '@/types/kpis'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -114,6 +115,7 @@ export default async function DashboardPage() {
               skills: parseSkills(portfolio.skills),
               sections: parseSections(portfolio.sections),
               customBlocks: parseCustomBlocks(portfolio.custom_blocks),
+              kpis: parseKpis(portfolio.kpis),
               isPremium: false,
             }
 
