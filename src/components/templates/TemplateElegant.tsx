@@ -3,6 +3,7 @@ import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
+import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import type { LucideIcon } from 'lucide-react'
 import {
   Code2,
