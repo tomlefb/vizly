@@ -200,26 +200,24 @@ export function EditorLayout({
 
         {/* Main content — varies by step */}
         {isPublishStep ? (
-          /* Step 5: Full page preview + publish bar */
+          /* Step 5: Same layout as steps 1-3 with Précédent button */
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 overflow-y-auto" style={{ backgroundColor: previewBg }}>
-              {TemplateComponent && (
-                <>
-                  {portfolioData.font && (
-                    <style>{`
-                        .publish-preview-font h1, .publish-preview-font h2, .publish-preview-font h3, .publish-preview-font h4, .publish-preview-font h5, .publish-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
-                        .publish-preview-font p, .publish-preview-font span, .publish-preview-font li, .publish-preview-font a, .publish-preview-font td, .publish-preview-font input, .publish-preview-font textarea, .publish-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
-                      `}</style>
-                  )}
-                  <div className="publish-preview-font">
-                    <TemplateComponent {...templateProps} />
-                  </div>
-                </>
-              )}
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+              <div className="max-w-2xl mx-auto">
+                {children}
+              </div>
             </div>
-            {/* Publish bar at bottom */}
-            <div className="shrink-0 border-t border-border bg-background px-6 py-4">
-              {children}
+            {/* Bottom bar: Précédent only */}
+            <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
+              <div className="flex items-center justify-between">
+                <button type="button"
+                  onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
+                  <ChevronRight className="h-4 w-4 rotate-180" />
+                  Precedent
+                </button>
+                <span />
+              </div>
             </div>
           </div>
         ) : isDesignStep ? (
