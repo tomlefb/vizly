@@ -31,6 +31,7 @@ export function TemplateCreatif({
   sections,
   customBlocks,
   kpis,
+  layoutBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -551,6 +552,20 @@ export function TemplateCreatif({
         )
 
       default: {
+        // Layout blocks
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-5 py-12 md:px-12 lg:px-20">
+              <div className="mx-auto max-w-6xl">
+                <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+              </div>
+            </section>
+          )
+        }
+
         // Custom blocks
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')

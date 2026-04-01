@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Eye, X, Maximize2, Check, Loader2, ChevronRight } from 'lucide-react'
+import { Eye, X, Check, Loader2, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { templateMap } from '@/components/templates'
 import { DEFAULT_SECTIONS, parseSections } from '@/types/sections'
@@ -11,13 +11,13 @@ import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
 const STEPS = [
-  { id: 1, label: 'Infos' },
+  { id: 1, label: 'Profil' },
   { id: 2, label: 'Projets' },
-  { id: 3, label: 'Style' },
+  { id: 3, label: 'Contenu' },
+  { id: 4, label: 'Design' },
   { id: 5, label: 'Publier' },
 ] as const
 
-/** Load a Google Font dynamically */
 function useGoogleFont(fontName: string) {
   useEffect(() => {
     if (!fontName) return
@@ -63,16 +63,16 @@ export function EditorLayout({
   saveError,
   children,
 }: EditorLayoutProps) {
-  const [fullPreview, setFullPreview] = useState(false)
-  const [mobileShowPreview, setMobileShowPreview] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   useGoogleFont(portfolioData.font)
 
-  const isPublishStep = currentStep === 5
-  const isLastBeforePublish = currentStep === 3
-  const TemplateComponent = templateMap[portfolioData.template as TemplateName]
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep)
   const nextStep = STEPS[currentStepIndex + 1]
+  const isDesignStep = currentStep === 4
+  const isPublishStep = currentStep === 5
+
+  const TemplateComponent = templateMap[portfolioData.template as TemplateName]
 
   const templateProps = {
     portfolio: {
@@ -101,6 +101,10 @@ export function EditorLayout({
     layoutBlocks: parseLayoutBlocks(portfolioData.layout_blocks ?? []),
     isPremium: false,
   }
+
+  const previewBg = portfolioData.template === 'dark' ? '#0A0A0A'
+    : portfolioData.template === 'colore' ? '#FFF5E6'
+    : '#FAFAF8'
 
   return (
     <>
@@ -142,12 +146,10 @@ export function EditorLayout({
                     {index < STEPS.length - 1 && (
                       <div className="flex-1 mx-2">
                         <div className="h-0.5 rounded-full bg-border-light overflow-hidden">
-                          <div
-                            className={cn(
-                              'h-full rounded-full transition-all duration-300',
-                              isPast ? 'bg-accent w-full' : isActive ? 'bg-accent w-1/2' : 'w-0'
-                            )}
-                          />
+                          <div className={cn(
+                            'h-full rounded-full transition-all duration-300',
+                            isPast ? 'bg-accent w-full' : isActive ? 'bg-accent w-1/2' : 'w-0'
+                          )} />
                         </div>
                       </div>
                     )}
@@ -156,9 +158,8 @@ export function EditorLayout({
               })}
             </nav>
 
-            {/* Right side: fixed-width zone for save + buttons */}
+            {/* Save status + preview button */}
             <div className="flex items-center gap-2 ml-4 shrink-0">
-              {/* Save indicator — fixed width to prevent layout shift */}
               <div className="w-24 flex justify-end">
                 {saveStatus === 'saving' && (
                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -173,159 +174,128 @@ export function EditorLayout({
                   </span>
                 )}
                 {saveStatus === 'error' && (
-                  <span className="text-xs text-destructive truncate">
-                    {saveError ?? 'Erreur'}
-                  </span>
+                  <span className="text-xs text-destructive truncate">{saveError ?? 'Erreur'}</span>
                 )}
               </div>
 
-              {!isPublishStep && (
+              {/* "Voir l'aperçu" button for steps 1-3 */}
+              {!isDesignStep && !isPublishStep && (
                 <button
                   type="button"
-                  onClick={() => setMobileShowPreview(!mobileShowPreview)}
-                  className="lg:hidden inline-flex items-center justify-center rounded-[var(--radius-md)] border border-border w-8 h-8 text-muted transition-colors hover:bg-surface-warm"
+                  onClick={() => setPreviewOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
                 >
                   <Eye className="h-3.5 w-3.5" />
-                </button>
-              )}
-              {!isPublishStep && (
-                <button
-                  type="button"
-                  onClick={() => setFullPreview(true)}
-                  className="hidden lg:inline-flex items-center justify-center rounded-[var(--radius-md)] border border-border w-8 h-8 text-muted transition-colors hover:bg-surface-warm hover:text-foreground"
-                  title="Plein ecran"
-                >
-                  <Maximize2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Apercu</span>
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Main content */}
+        {/* Main content — varies by step */}
         {isPublishStep ? (
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-            <div className="max-w-3xl mx-auto">{children}</div>
+          /* Step 5: Full page preview + publish bar */
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto" style={{ backgroundColor: previewBg }}>
+              {TemplateComponent && (
+                <>
+                  {portfolioData.font && (
+                    <style>{`.publish-preview-font * { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }`}</style>
+                  )}
+                  <div className="publish-preview-font">
+                    <TemplateComponent {...templateProps} />
+                  </div>
+                </>
+              )}
+            </div>
+            {/* Publish bar at bottom */}
+            <div className="shrink-0 border-t border-border bg-background px-6 py-4">
+              {children}
+            </div>
+          </div>
+        ) : isDesignStep ? (
+          /* Step 4: Split screen — form (35%) + preview (65%) */
+          <div className="flex-1 flex min-h-0">
+            <div className="w-[35%] overflow-y-auto border-r border-border px-4 sm:px-6 py-6">
+              {children}
+            </div>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Browser chrome */}
+              <div className="shrink-0 flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-2">
+                <div className="flex gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#FF6259]" />
+                  <span className="w-2 h-2 rounded-full bg-[#FFBF2F]" />
+                  <span className="w-2 h-2 rounded-full bg-[#29CE42]" />
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="rounded-[3px] bg-background border border-border-light px-2.5 py-0.5 text-[10px] text-muted font-mono">
+                    pseudo.vizly.fr
+                  </div>
+                </div>
+                <span className="text-[9px] text-muted-foreground/60 font-medium capitalize">
+                  {portfolioData.template}
+                </span>
+              </div>
+              {/* Scaled template */}
+              <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: previewBg }}>
+                {TemplateComponent ? (
+                  <div className="absolute inset-0 overflow-y-auto">
+                    {portfolioData.font && (
+                      <style>{`.editor-preview-font * { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }`}</style>
+                    )}
+                    <div className="origin-top-left editor-preview-font"
+                      style={{ width: '1280px', minHeight: '200vh', transform: 'scale(0.55)', transformOrigin: 'top left' }}>
+                      <TemplateComponent {...templateProps} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-sm text-muted">Aucun template selectionne</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="flex-1 flex min-h-0">
-            {/* Form panel */}
-            <div
-              className={cn(
-                'flex-1 flex flex-col overflow-hidden',
-                'lg:max-w-[50%] lg:border-r lg:border-border',
-                mobileShowPreview ? 'hidden lg:flex' : 'flex'
-              )}
-            >
-              {/* Scrollable form */}
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+          /* Steps 1, 2, 3: Full width form */
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+              <div className="max-w-2xl mx-auto">
                 {children}
               </div>
-
-              {/* Bottom bar with Précédent / Suivant */}
-              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3 flex items-center justify-between">
-                {currentStepIndex > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
-                  >
-                    <ChevronRight className="h-4 w-4 rotate-180" />
-                    Precedent
-                  </button>
-                ) : (
-                  <span />
-                )}
-                {nextStep && (
-                  <button
-                    type="button"
-                    onClick={onNext}
-                    disabled={!canGoNext}
+            </div>
+            {/* Bottom bar: Précédent / Suivant */}
+            {nextStep && (
+              <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
+                <div className="max-w-2xl mx-auto flex items-center justify-between">
+                  {currentStepIndex > 0 ? (
+                    <button type="button"
+                      onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground">
+                      <ChevronRight className="h-4 w-4 rotate-180" />
+                      Precedent
+                    </button>
+                  ) : <span />}
+                  <button type="button" onClick={onNext} disabled={!canGoNext}
                     className={cn(
                       'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
                       canGoNext
                         ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
                         : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
-                    )}
-                  >
-                    {isLastBeforePublish ? 'Publier' : 'Suivant'}
+                    )}>
+                    Suivant
                     <ChevronRight className="h-4 w-4" />
                   </button>
-                )}
-              </div>
-            </div>
-
-            {/* Live preview panel */}
-            <div
-              className={cn(
-                'overflow-hidden',
-                'lg:flex-1 lg:block',
-                mobileShowPreview ? 'block flex-1' : 'hidden lg:block'
-              )}
-            >
-              <div className="h-full flex flex-col">
-                {/* Browser chrome */}
-                <div className="shrink-0 flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-2">
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#FF6259]" />
-                    <span className="w-2 h-2 rounded-full bg-[#FFBF2F]" />
-                    <span className="w-2 h-2 rounded-full bg-[#29CE42]" />
-                  </div>
-                  <div className="flex-1 flex justify-center">
-                    <div className="rounded-[3px] bg-background border border-border-light px-2.5 py-0.5 text-[10px] text-muted font-mono">
-                      pseudo.vizly.fr
-                    </div>
-                  </div>
-                  <span className="text-[9px] text-muted-foreground/60 font-medium capitalize">
-                    {portfolioData.template}
-                  </span>
-                </div>
-
-                {/* Scaled template render — bg matches template theme */}
-                <div
-                  className="flex-1 overflow-hidden relative"
-                  style={{
-                    backgroundColor: portfolioData.template === 'dark' ? '#0A0A0A'
-                      : portfolioData.template === 'brutalist' ? '#FFFFFF'
-                      : portfolioData.template === 'colore' ? '#FFF5E6'
-                      : '#FAFAF8',
-                  }}
-                >
-                  {TemplateComponent ? (
-                    <div className="absolute inset-0 overflow-y-auto">
-                      {portfolioData.font && (
-                        <style>{`
-                          .editor-preview-font * {
-                            font-family: "${portfolioData.font}", system-ui, sans-serif !important;
-                          }
-                        `}</style>
-                      )}
-                      <div
-                        className="origin-top-left editor-preview-font"
-                        style={{
-                          width: '1280px',
-                          minHeight: '200vh',
-                          transform: 'scale(0.5)',
-                          transformOrigin: 'top left',
-                        }}
-                      >
-                        <TemplateComponent {...templateProps} />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-sm text-muted">Aucun template selectionne</p>
-                    </div>
-                  )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Full-screen preview modal */}
-      {fullPreview && (
+      {/* Preview modal (steps 1-3) */}
+      {previewOpen && (
         <div className="fixed inset-0 z-50 bg-background">
           <div className="flex flex-col h-full">
             <div className="shrink-0 flex items-center justify-between border-b border-border px-6 py-3">
@@ -339,24 +309,17 @@ export function EditorLayout({
                   pseudo.vizly.fr
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setFullPreview(false)}
-                className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm"
-              >
+              <button type="button" onClick={() => setPreviewOpen(false)}
+                className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm">
                 <X className="h-4 w-4" />
                 Fermer
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" style={{ backgroundColor: previewBg }}>
               {portfolioData.font && (
-                <style>{`
-                  .editor-fullpreview-font * {
-                    font-family: "${portfolioData.font}", system-ui, sans-serif !important;
-                  }
-                `}</style>
+                <style>{`.modal-preview-font * { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }`}</style>
               )}
-              <div className="editor-fullpreview-font">
+              <div className="modal-preview-font">
                 {TemplateComponent && <TemplateComponent {...templateProps} />}
               </div>
             </div>

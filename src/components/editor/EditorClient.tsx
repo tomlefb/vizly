@@ -378,7 +378,8 @@ export function EditorClient({
       }
 
       // Step 2: always valid (0 projects is ok)
-      // Step 3: template is always set (has default 'minimal')
+      // Step 3: always valid (contenu is optional)
+      // Step 4: template is always set (has default 'minimal')
 
       setErrors(newErrors)
       return Object.keys(newErrors).length === 0
@@ -389,7 +390,8 @@ export function EditorClient({
   const canGoNext = useMemo(() => {
     if (currentStep === 1) return portfolioData.title.trim() !== ''
     if (currentStep === 2) return true
-    if (currentStep === 3) return portfolioData.template.trim() !== ''
+    if (currentStep === 3) return true // Contenu is optional
+    if (currentStep === 4) return portfolioData.template.trim() !== ''
     return false // Step 5 (Publish) is handled by StepPublish
   }, [currentStep, portfolioData.title, portfolioData.template])
 
@@ -504,8 +506,8 @@ export function EditorClient({
       await syncProjects()
     }
 
-    // Navigate to next step in the STEPS sequence (1 → 2 → 3 → 5)
-    const stepOrder = [1, 2, 3, 5]
+    // Navigate to next step in the STEPS sequence (1 → 2 → 3 → 4 → 5)
+    const stepOrder = [1, 2, 3, 4, 5]
     const currentIndex = stepOrder.indexOf(currentStep)
     const nextStepId = stepOrder[currentIndex + 1]
     if (nextStepId !== undefined) {
@@ -661,13 +663,24 @@ export function EditorClient({
         portfolioData={portfolioData}
         projects={projectsForUI}
       >
+        {/* Step 1: Profil */}
         {currentStep === 1 && (
+          <StepPersonalInfo
+            data={portfolioData}
+            onChange={handleFieldChange}
+            errors={errors}
+          />
+        )}
+        {/* Step 2: Projets */}
+        {currentStep === 2 && (
+          <StepProjects
+            projects={projectsForUI}
+            onProjectsChange={handleProjectsChange}
+          />
+        )}
+        {/* Step 3: Contenu (skills, blocs texte, KPIs, colonnes) */}
+        {currentStep === 3 && (
           <div className="space-y-10">
-            <StepPersonalInfo
-              data={portfolioData}
-              onChange={handleFieldChange}
-              errors={errors}
-            />
             <CustomBlockEditor
               blocks={portfolioData.custom_blocks ?? []}
               onChange={(blocks) => handleFieldChange('custom_blocks', blocks)}
@@ -684,13 +697,8 @@ export function EditorClient({
             />
           </div>
         )}
-        {currentStep === 2 && (
-          <StepProjects
-            projects={projectsForUI}
-            onProjectsChange={handleProjectsChange}
-          />
-        )}
-        {currentStep === 3 && (
+        {/* Step 4: Design */}
+        {currentStep === 4 && (
           <div className="space-y-4">
             <StepCustomization
               data={portfolioData}

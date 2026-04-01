@@ -49,6 +49,7 @@ export function TemplateBento({
   sections,
   customBlocks,
   kpis,
+  layoutBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -704,6 +705,27 @@ export function TemplateBento({
         )
 
       default: {
+        // Layout blocks
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <div
+              key={section.id}
+              className="col-span-4"
+              style={{
+                backgroundColor: cardBg,
+                borderRadius: 20,
+                border: `1px solid ${borderLight}`,
+                padding: 'clamp(16px, 3vw, 24px)',
+              }}
+            >
+              <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+            </div>
+          )
+        }
+
         // Custom blocks
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')

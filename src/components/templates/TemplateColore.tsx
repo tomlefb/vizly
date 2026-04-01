@@ -45,7 +45,7 @@ function lightenColor(hex: string, amount: number): string {
   return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`
 }
 
-export function TemplateColore({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
+export function TemplateColore({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -555,6 +555,20 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
         )
 
       default: {
+        // Layout blocks
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-10 md:px-10">
+              <div className="mx-auto max-w-5xl">
+                <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+              </div>
+            </section>
+          )
+        }
+
         // Custom blocks
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')

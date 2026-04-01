@@ -31,6 +31,7 @@ export function TemplateElegant({
   sections,
   customBlocks,
   kpis,
+  layoutBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -492,6 +493,28 @@ export function TemplateElegant({
         )
 
       default: {
+        // Layout blocks
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-12 md:px-16 lg:px-24">
+              <div className="mx-auto max-w-4xl">
+                <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+                <div
+                  style={{
+                    width: 40,
+                    height: 1,
+                    backgroundColor: `${primary_color}30`,
+                    margin: '32px auto 0',
+                  }}
+                />
+              </div>
+            </section>
+          )
+        }
+
         // Custom blocks
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')

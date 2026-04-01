@@ -27,7 +27,7 @@ const SOCIAL_ICONS: Record<
   website: { icon: Globe, label: 'Site web' },
 }
 
-export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
+export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -281,6 +281,18 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         return null
 
       default: {
+        // Layout blocks in sidebar
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <div key={section.id} style={{ marginTop: 24 }}>
+              <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+            </div>
+          )
+        }
+
         // Custom blocks in sidebar
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')
@@ -494,6 +506,18 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         return null
 
       default: {
+        // Layout blocks in mobile view
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <div key={section.id} className="mt-5">
+              <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+            </div>
+          )
+        }
+
         // Custom blocks in mobile view
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')

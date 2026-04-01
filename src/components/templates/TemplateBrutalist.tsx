@@ -31,6 +31,7 @@ export function TemplateBrutalist({
   sections,
   customBlocks,
   kpis,
+  layoutBlocks,
   isPremium,
 }: TemplateProps) {
   const {
@@ -518,6 +519,21 @@ export function TemplateBrutalist({
         )
 
       default: {
+        // Layout blocks
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-5 py-12 md:px-10">
+              <div className="mx-auto max-w-5xl">
+                <div style={{ height: 4, backgroundColor: borderColor, marginBottom: 32 }} />
+                <LayoutBlockRenderer block={block} primaryColor={primary_color} />
+              </div>
+            </section>
+          )
+        }
+
         // Custom blocks
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')

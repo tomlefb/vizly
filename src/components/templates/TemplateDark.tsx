@@ -27,7 +27,7 @@ const SOCIAL_ICONS: Record<
   website: { icon: Globe, label: 'Website' },
 }
 
-export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, isPremium }: TemplateProps) {
+export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
   const {
     title,
     bio,
@@ -546,6 +546,27 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
         )
 
       default: {
+        // Layout blocks
+        if (section.id.startsWith('layout-')) {
+          const blockId = section.id.replace('layout-', '')
+          const block = layoutBlocks.find((b) => b.id === blockId)
+          if (!block) return null
+          return (
+            <section key={section.id} className="px-6 py-12 md:px-10">
+              <div className="mx-auto max-w-4xl">
+                <div
+                  style={{
+                    height: 1,
+                    background: `linear-gradient(90deg, transparent, ${primary_color}20, transparent)`,
+                    marginBottom: 32,
+                  }}
+                />
+                <LayoutBlockRenderer block={block} primaryColor={primary_color} dark />
+              </div>
+            </section>
+          )
+        }
+
         // Custom blocks
         if (section.id.startsWith('custom-')) {
           const blockId = section.id.replace('custom-', '')
