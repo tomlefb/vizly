@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef, useCallback } from 'react'
-import { Bold, Italic, Heading1, Heading2, List, AlignLeft, AlignCenter } from 'lucide-react'
+import { useRef, useCallback, useEffect } from 'react'
+import { Bold, Italic, Heading1, Heading2, List, AlignLeft, AlignCenter, Type } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface RichTextEditorProps {
@@ -12,14 +12,21 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte ici...' }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
+  const isInitializedRef = useRef(false)
+
+  // Set initial content only once
+  useEffect(() => {
+    if (editorRef.current && !isInitializedRef.current) {
+      editorRef.current.innerHTML = value
+      isInitializedRef.current = true
+    }
+  }, [value])
 
   const execCommand = useCallback((command: string, val?: string) => {
     document.execCommand(command, false, val)
-    // Read updated HTML
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML)
     }
-    editorRef.current?.focus()
   }, [onChange])
 
   const handleInput = useCallback(() => {
@@ -38,16 +45,22 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
     { icon: AlignCenter, command: 'justifyCenter', label: 'Centrer' },
   ]
 
+  const sizes = [
+    { value: '1', label: 'P', title: 'Petit' },
+    { value: '3', label: 'M', title: 'Moyen' },
+    { value: '5', label: 'G', title: 'Grand' },
+  ]
+
   return (
     <div className="rounded-[var(--radius-md)] border border-border bg-surface overflow-hidden focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-colors">
       {/* Toolbar */}
-      <div className="flex items-center gap-0.5 border-b border-border bg-surface-warm/50 px-2 py-1.5">
+      <div className="flex items-center gap-0.5 border-b border-border bg-surface-warm/50 px-2 py-1.5 flex-wrap">
         {tools.map((tool) => (
           <button
             key={tool.command + (tool.value ?? '')}
             type="button"
             onMouseDown={(e) => {
-              e.preventDefault() // Prevent focus loss
+              e.preventDefault()
               execCommand(tool.command, tool.value)
             }}
             className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground"
@@ -58,21 +71,28 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
           </button>
         ))}
 
-        {/* Font size */}
+        {/* Separator */}
         <span className="mx-1 h-4 w-px bg-border" />
-        <select
-          onChange={(e) => execCommand('fontSize', e.target.value)}
-          onMouseDown={(e) => e.stopPropagation()}
-          className="h-7 rounded-[var(--radius-sm)] border-none bg-transparent text-xs text-muted-foreground focus:outline-none cursor-pointer"
-          defaultValue="3"
-          aria-label="Taille du texte"
-        >
-          <option value="1">Petit</option>
-          <option value="2">Normal</option>
-          <option value="3">Moyen</option>
-          <option value="4">Grand</option>
-          <option value="5">Tres grand</option>
-        </select>
+
+        {/* Font size buttons */}
+        <div className="flex items-center gap-0.5">
+          <Type className="h-3 w-3 text-muted-foreground/50 mr-0.5" />
+          {sizes.map((size) => (
+            <button
+              key={size.value}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault()
+                execCommand('fontSize', size.value)
+              }}
+              className="flex h-7 items-center justify-center rounded-[var(--radius-sm)] px-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground"
+              title={size.title}
+              aria-label={size.title}
+            >
+              {size.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Editable area */}
@@ -91,7 +111,6 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
           'empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50'
         )}
         data-placeholder={placeholder}
-        dangerouslySetInnerHTML={{ __html: value }}
       />
     </div>
   )
