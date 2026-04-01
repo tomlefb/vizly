@@ -228,6 +228,33 @@ export function EditorClient({
     }
   }, [saveStatus])
 
+  // ---- Manual save (Ctrl+S) ------------------------------------
+
+  const manualSave = useCallback(async () => {
+    if (!portfolioData.title.trim()) return
+    setSaveStatus('saving')
+    setSaveError(null)
+    const result = await upsertPortfolio(portfolioData)
+    if (result.error) {
+      setSaveStatus('error')
+      setSaveError(result.error)
+    } else {
+      setSaveStatus('saved')
+      if (result.data) setPortfolioId(result.data.id)
+    }
+  }, [portfolioData])
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault()
+        void manualSave()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [manualSave])
+
   // ---- Load billing status on mount -----------------------------
 
   useEffect(() => {

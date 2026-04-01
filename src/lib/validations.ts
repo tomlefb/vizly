@@ -18,7 +18,7 @@ export const slugSchema = z
   .refine((s) => !s.includes('--'), 'Le pseudo ne peut pas contenir deux tirets consécutifs')
 
 export const socialLinksSchema = z
-  .record(z.enum(SOCIAL_PLATFORMS), z.string().url().or(z.literal('')))
+  .record(z.enum(SOCIAL_PLATFORMS), z.string().or(z.literal('')))
   .optional()
 
 const sectionBlockSchema = z.object({
@@ -30,7 +30,7 @@ const sectionBlockSchema = z.object({
 export const portfolioSchema = z.object({
   title: z.string().min(1, 'Le titre est requis').max(100),
   bio: z.string().max(MAX_BIO_LENGTH).optional(),
-  photo_url: z.string().url().optional().or(z.literal('')),
+  photo_url: z.string().optional().or(z.literal('')),
   template: z.string().min(1, 'Choisis un template'),
   primary_color: z
     .string()
@@ -42,7 +42,7 @@ export const portfolioSchema = z.object({
     .default('#1A1A1A'),
   font: z.string().default('DM Sans'),
   social_links: socialLinksSchema,
-  contact_email: z.string().email().optional().or(z.literal('')),
+  contact_email: z.string().optional().or(z.literal('')),
   skills: z.array(z.string().max(50)).max(30).default([]),
   sections: z.array(sectionBlockSchema).optional(),
   layout_blocks: z.array(z.object({
