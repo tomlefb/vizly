@@ -49,6 +49,8 @@ interface EditorLayoutProps {
   projects: ProjectFormData[]
   saveStatus?: SaveStatus
   saveError?: string | null
+  /** Extra content rendered in the bottom bar next to the Suivant button (e.g. premium indicator) */
+  bottomBarExtra?: React.ReactNode
   children: React.ReactNode
 }
 
@@ -61,6 +63,7 @@ export function EditorLayout({
   projects,
   saveStatus = 'idle',
   saveError,
+  bottomBarExtra,
   children,
 }: EditorLayoutProps) {
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -220,13 +223,56 @@ export function EditorLayout({
             </div>
           </div>
         ) : isDesignStep ? (
-          /* Step 4: Split screen — form (35%) + preview (65%) */
-          <div className="flex-1 flex min-h-0">
-            <div className="w-[35%] flex flex-col border-r border-border">
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+          /* Step 4: Split screen — form (35%) + preview (65%) + full-width bottom bar */
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex-1 flex min-h-0">
+              {/* Left panel: form */}
+              <div className="w-[35%] overflow-y-auto border-r border-border px-4 sm:px-6 py-6">
                 {children}
               </div>
-              {/* Bottom nav: Précédent / Suivant */}
+              {/* Right panel: preview */}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Browser chrome */}
+                <div className="shrink-0 flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-2">
+                  <div className="flex gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#FF6259]" />
+                    <span className="w-2 h-2 rounded-full bg-[#FFBF2F]" />
+                    <span className="w-2 h-2 rounded-full bg-[#29CE42]" />
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <div className="rounded-[3px] bg-background border border-border-light px-2.5 py-0.5 text-[10px] text-muted font-mono">
+                      pseudo.vizly.fr
+                    </div>
+                  </div>
+                  <span className="text-[9px] text-muted-foreground/60 font-medium capitalize">
+                    {portfolioData.template}
+                  </span>
+                </div>
+                {/* Scaled template */}
+                <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: previewBg }}>
+                  {TemplateComponent ? (
+                    <div className="absolute inset-0 overflow-y-auto">
+                      {portfolioData.font && (
+                        <style>{`
+                          .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
+                          .editor-preview-font p, .editor-preview-font span, .editor-preview-font li, .editor-preview-font a, .editor-preview-font td, .editor-preview-font input, .editor-preview-font textarea, .editor-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
+                        `}</style>
+                      )}
+                      <div className="origin-top-left editor-preview-font"
+                        style={{ width: '1280px', minHeight: '200vh', transform: 'scale(0.55)', transformOrigin: 'top left' }}>
+                        <TemplateComponent {...templateProps} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-sm text-muted">Aucun template selectionne</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* Full-width bottom bar */}
+            {nextStep && (
               <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
                 <div className="flex items-center justify-between">
                   <button type="button"
@@ -235,7 +281,8 @@ export function EditorLayout({
                     <ChevronRight className="h-4 w-4 rotate-180" />
                     Precedent
                   </button>
-                  {nextStep && (
+                  <div className="flex items-center gap-3">
+                    {bottomBarExtra}
                     <button type="button" onClick={onNext} disabled={!canGoNext}
                       className={cn(
                         'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
@@ -246,49 +293,10 @@ export function EditorLayout({
                       Suivant
                       <ChevronRight className="h-4 w-4" />
                     </button>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Browser chrome */}
-              <div className="shrink-0 flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-2">
-                <div className="flex gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#FF6259]" />
-                  <span className="w-2 h-2 rounded-full bg-[#FFBF2F]" />
-                  <span className="w-2 h-2 rounded-full bg-[#29CE42]" />
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="rounded-[3px] bg-background border border-border-light px-2.5 py-0.5 text-[10px] text-muted font-mono">
-                    pseudo.vizly.fr
                   </div>
                 </div>
-                <span className="text-[9px] text-muted-foreground/60 font-medium capitalize">
-                  {portfolioData.template}
-                </span>
               </div>
-              {/* Scaled template */}
-              <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: previewBg }}>
-                {TemplateComponent ? (
-                  <div className="absolute inset-0 overflow-y-auto">
-                    {portfolioData.font && (
-                      <style>{`
-                        .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
-                        .editor-preview-font p, .editor-preview-font span, .editor-preview-font li, .editor-preview-font a, .editor-preview-font td, .editor-preview-font input, .editor-preview-font textarea, .editor-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
-                      `}</style>
-                    )}
-                    <div className="origin-top-left editor-preview-font"
-                      style={{ width: '1280px', minHeight: '200vh', transform: 'scale(0.55)', transformOrigin: 'top left' }}>
-                      <TemplateComponent {...templateProps} />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <p className="text-sm text-muted">Aucun template selectionne</p>
-                  </div>
-                )}
-              </div>
-            </div>
+            )}
           </div>
         ) : (
           /* Steps 1, 2, 3: Full width form */

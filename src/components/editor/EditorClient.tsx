@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -435,9 +434,15 @@ export function EditorClient({
     }
     if (currentStep === 2) return true
     if (currentStep === 3) return true
-    if (currentStep === 4) return portfolioData.template.trim() !== ''
+    if (currentStep === 4) {
+      if (!portfolioData.template.trim()) return false
+      // Block if selected template is premium and not purchased
+      const config = TEMPLATE_CONFIGS.find((t) => t.name === portfolioData.template)
+      if (config?.isPremium && !purchasedTemplates.includes(config.name)) return false
+      return true
+    }
     return false
-  }, [currentStep, portfolioData.title, portfolioData.template, portfolioData.social_links, portfolioData.contact_email])
+  }, [currentStep, portfolioData.title, portfolioData.template, portfolioData.social_links, portfolioData.contact_email, purchasedTemplates])
 
   // ---- Project sync on leaving step 2 ----------------------------
 
@@ -706,6 +711,35 @@ export function EditorClient({
         canGoNext={canGoNext}
         portfolioData={portfolioData}
         projects={projectsForUI}
+        bottomBarExtra={
+          currentStep === 4 && selectedTemplateNeedsPurchase && selectedTemplateConfig ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                Template &laquo; {selectedTemplateConfig.label} &raquo; est premium
+              </span>
+              <button
+                type="button"
+                onClick={() => void handleTemplatePurchase(selectedTemplateConfig.name)}
+                disabled={checkoutLoading}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-semibold transition-all duration-200',
+                  checkoutLoading
+                    ? 'bg-accent/40 text-white/60 cursor-not-allowed'
+                    : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
+                )}
+              >
+                {checkoutLoading ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Redirection...
+                  </>
+                ) : (
+                  'Acheter (2.99 EUR)'
+                )}
+              </button>
+            </div>
+          ) : undefined
+        }
       >
         {/* Step 1: Profil */}
         {currentStep === 1 && (
@@ -743,66 +777,11 @@ export function EditorClient({
         )}
         {/* Step 4: Design */}
         {currentStep === 4 && (
-          <div className="space-y-4">
-            <StepCustomization
-              data={portfolioData}
-              onChange={handleFieldChange}
-              purchasedTemplates={purchasedTemplates}
-            />
-            {/* Premium template purchase banner */}
-            {selectedTemplateNeedsPurchase && selectedTemplateConfig && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className="mx-auto max-w-lg rounded-[var(--radius-lg)] border border-accent/20 bg-accent/5 p-4"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10">
-                    <Loader2 className={cn('h-4 w-4 text-accent', checkoutLoading ? 'animate-spin' : 'hidden')} />
-                    <svg
-                      className={cn('h-4 w-4 text-accent', checkoutLoading && 'hidden')}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
-                      Template &laquo; {selectedTemplateConfig.label} &raquo; est premium
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Achete ce template une seule fois pour l&apos;utiliser a vie dans ton portfolio.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => void handleTemplatePurchase(selectedTemplateConfig.name)}
-                      disabled={checkoutLoading}
-                      className={cn(
-                        'mt-3 inline-flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-2 text-sm font-semibold transition-all duration-200',
-                        checkoutLoading
-                          ? 'bg-accent/40 text-white/60 cursor-not-allowed'
-                          : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(232,85,61,0.2)]'
-                      )}
-                    >
-                      {checkoutLoading ? (
-                        <>
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          Redirection...
-                        </>
-                      ) : (
-                        'Acheter ce template (2.99 EUR)'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </div>
+          <StepCustomization
+            data={portfolioData}
+            onChange={handleFieldChange}
+            purchasedTemplates={purchasedTemplates}
+          />
         )}
         {currentStep === 5 && (
           <StepPublish
