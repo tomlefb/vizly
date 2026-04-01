@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useId, useRef } from 'react'
-import { X, Plus, Link as LinkIcon } from 'lucide-react'
+import { X, Plus, Link as LinkIcon, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ImageUploader } from './ImageUploader'
 import { MAX_PROJECT_DESCRIPTION_LENGTH } from '@/lib/constants'
@@ -22,6 +22,7 @@ export function ProjectForm({
   const [tagInput, setTagInput] = useState('')
   const [localFiles, setLocalFiles] = useState<File[]>([])
   const [isUploadingImages, setIsUploadingImages] = useState(false)
+  const [linkError, setLinkError] = useState<string | null>(null)
 
   // Ref to always read latest project state (avoids stale closures in async upload)
   const projectRef = useRef(project)
@@ -210,11 +211,33 @@ export function ProjectForm({
             id={`${id}-link`}
             type="url"
             value={project.external_link ?? ''}
-            onChange={(e) => handleFieldChange('external_link', e.target.value || '')}
+            onChange={(e) => {
+              handleFieldChange('external_link', e.target.value || '')
+              if (linkError) setLinkError(null)
+            }}
+            onBlur={() => {
+              const val = project.external_link ?? ''
+              if (val.trim()) {
+                try { new URL(val) ; setLinkError(null) } catch { setLinkError('URL invalide (doit commencer par https://)') }
+              } else {
+                setLinkError(null)
+              }
+            }}
             placeholder="https://github.com/..."
-            className="w-full rounded-[var(--radius-md)] border border-border bg-surface pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 focus:border-accent focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+            className={cn(
+              'w-full rounded-[var(--radius-md)] border bg-surface pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2',
+              linkError
+                ? 'border-destructive focus:border-destructive focus-visible:outline-destructive'
+                : 'border-border focus:border-accent focus-visible:outline-accent'
+            )}
           />
         </div>
+        {linkError && (
+          <p className="text-[11px] text-destructive flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            {linkError}
+          </p>
+        )}
       </div>
 
       {/* Tags */}
