@@ -60,8 +60,8 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-slate-100">
-          <LayoutList className="h-3.5 w-3.5 text-slate-600" />
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+          <LayoutList className="h-3.5 w-3.5 text-accent" />
         </div>
         <div>
           <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">

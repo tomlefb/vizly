@@ -78,8 +78,8 @@ export function StepCustomization({
       {/* Section: Template */}
       <section className="space-y-4 border-b border-border/30 pb-5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-violet-50">
-            <LayoutGrid className="h-3.5 w-3.5 text-violet-600" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+            <LayoutGrid className="h-3.5 w-3.5 text-accent" />
           </div>
           <div>
             <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
@@ -101,8 +101,8 @@ export function StepCustomization({
       {/* Section: Colors — dots style */}
       <section className="space-y-4 border-b border-border/30 pb-5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-pink-50">
-            <Palette className="h-3.5 w-3.5 text-pink-600" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+            <Palette className="h-3.5 w-3.5 text-accent" />
           </div>
           <div>
             <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
@@ -176,8 +176,8 @@ export function StepCustomization({
       {/* Section: Typography */}
       <section className="space-y-4 border-b border-border/30 pb-5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-teal-50">
-            <Type className="h-3.5 w-3.5 text-teal-600" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+            <Type className="h-3.5 w-3.5 text-accent" />
           </div>
           <div>
             <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">

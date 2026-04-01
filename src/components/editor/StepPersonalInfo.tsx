@@ -55,14 +55,6 @@ const SOCIAL_COLORS: Record<string, string> = {
   website: 'text-muted-foreground',
 } as const
 
-// Pastel icon backgrounds per section
-const SECTION_STYLES = {
-  identity: { bg: 'bg-blue-50', text: 'text-blue-600' },
-  contact: { bg: 'bg-amber-50', text: 'text-amber-600' },
-  social: { bg: 'bg-violet-50', text: 'text-violet-600' },
-  skills: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
-}
-
 function isValidUrl(str: string): boolean {
   if (!str) return true
   try { new URL(str); return true } catch { return false }
@@ -161,8 +153,8 @@ export function StepPersonalInfo({
         {/* Identity card */}
         <section className="lg:col-span-7 bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
           <div className="flex items-center gap-2.5">
-            <div className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)]', SECTION_STYLES.identity.bg)}>
-              <User className={cn('h-3.5 w-3.5', SECTION_STYLES.identity.text)} />
+            <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+              <User className="h-3.5 w-3.5 text-accent" />
             </div>
             <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Identite
@@ -266,8 +258,8 @@ export function StepPersonalInfo({
         {/* Contact card */}
         <section className="lg:col-span-5 bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
           <div className="flex items-center gap-2.5">
-            <div className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)]', SECTION_STYLES.contact.bg)}>
-              <Mail className={cn('h-3.5 w-3.5', SECTION_STYLES.contact.text)} />
+            <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+              <Mail className="h-3.5 w-3.5 text-accent" />
             </div>
             <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Contact
@@ -322,8 +314,8 @@ export function StepPersonalInfo({
         {/* Social links */}
         <section className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
           <div className="flex items-center gap-2.5">
-            <div className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)]', SECTION_STYLES.social.bg)}>
-              <Globe className={cn('h-3.5 w-3.5', SECTION_STYLES.social.text)} />
+            <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+              <Globe className="h-3.5 w-3.5 text-accent" />
             </div>
             <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               Reseaux sociaux
@@ -417,8 +409,8 @@ function SkillsInput({
   return (
     <section className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
       <div className="flex items-center gap-2.5">
-        <div className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)]', SECTION_STYLES.skills.bg)}>
-          <Hash className={cn('h-3.5 w-3.5', SECTION_STYLES.skills.text)} />
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
+          <Hash className="h-3.5 w-3.5 text-accent" />
         </div>
         <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
           Competences
