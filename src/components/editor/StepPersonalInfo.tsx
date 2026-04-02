@@ -116,7 +116,7 @@ export function StepPersonalInfo({
             Les infos principales de ton portfolio
           </p>
         </div>
-        <div className="flex-1 md:max-w-[480px] space-y-4">
+        <div className="flex-1 space-y-4">
           {/* Photo + Name on same line */}
           <div className="flex items-start gap-4">
             <div className="shrink-0">
@@ -220,7 +220,7 @@ export function StepPersonalInfo({
             L&apos;email affiche sur ton portfolio
           </p>
         </div>
-        <div className="flex-1 md:max-w-[480px]">
+        <div className="flex-1">
           <div>
             <label htmlFor={`${id}-email`} className="block text-sm text-[#6B7280] mb-1.5">
               Email de contact
@@ -270,7 +270,7 @@ export function StepPersonalInfo({
             Tes liens pour etre retrouve
           </p>
         </div>
-        <div className="flex-1 md:max-w-[480px]">
+        <div className="flex-1">
           <div className="grid gap-4 grid-cols-2">
             {SOCIAL_PLATFORMS.map((platform) => {
               const label = SOCIAL_LABELS[platform] ?? platform
@@ -322,7 +322,7 @@ export function StepPersonalInfo({
             Tes skills et technologies
           </p>
         </div>
-        <div className="flex-1 md:max-w-[480px]">
+        <div className="flex-1">
           <SkillsInput
             id={id}
             skills={data.skills ?? []}
