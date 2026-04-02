@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   Plus,
   GripVertical,
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ProjectForm } from './ProjectForm'
+import { ImageUploader } from './ImageUploader'
 import type { ProjectFormData } from '@/lib/validations'
 
 interface StepProjectsProps {
@@ -32,20 +33,24 @@ export function StepProjects({
   onProjectsChange,
   className,
 }: StepProjectsProps) {
-  // -1 = new project, 0+ = editing existing
   const [editingIndex, setEditingIndex] = useState(-1)
   const [editingProject, setEditingProject] = useState<ProjectFormData>({
     ...EMPTY_PROJECT,
     display_order: projects.length,
   })
+  const [localFiles, setLocalFiles] = useState<File[]>([])
+  const [isUploadingImages, setIsUploadingImages] = useState(false)
   const [dragStartIndex, setDragStartIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   const isEditing = editingIndex >= 0
+  const editingRef = useRef(editingProject)
+  editingRef.current = editingProject
 
   const resetToNew = useCallback(() => {
     setEditingIndex(-1)
     setEditingProject({ ...EMPTY_PROJECT, display_order: projects.length })
+    setLocalFiles([])
   }, [projects.length])
 
   const openEditProject = useCallback(
@@ -54,17 +59,73 @@ export function StepProjects({
       if (project) {
         setEditingIndex(index)
         setEditingProject({ ...project })
+        setLocalFiles([])
       }
     },
     [projects]
   )
 
-  // Reset to new mode when projects change (after save/delete)
   useEffect(() => {
     if (isEditing && editingIndex >= projects.length) {
       resetToNew()
     }
   }, [projects.length, editingIndex, isEditing, resetToNew])
+
+  // ── Image handling (lifted from ProjectForm) ──
+
+  const handleImagesChange = useCallback(
+    (files: File[]) => {
+      const newFiles = files.slice(localFiles.length)
+      setLocalFiles(files)
+      if (newFiles.length === 0) return
+
+      setIsUploadingImages(true)
+      void (async () => {
+        const uploadedUrls: string[] = []
+        const uploadedFiles: File[] = []
+        for (const file of newFiles) {
+          try {
+            const body = new FormData()
+            body.append('file', file)
+            const res = await fetch('/api/upload', { method: 'POST', body })
+            const result = (await res.json()) as { url?: string }
+            if (result.url) {
+              uploadedUrls.push(result.url)
+              uploadedFiles.push(file)
+            }
+          } catch { /* skip */ }
+        }
+        if (uploadedFiles.length > 0) {
+          setLocalFiles((prev) => prev.filter((f) => !uploadedFiles.includes(f)))
+        }
+        if (uploadedUrls.length > 0) {
+          const latest = editingRef.current
+          setEditingProject({ ...latest, images: [...latest.images, ...uploadedUrls] })
+        }
+        setIsUploadingImages(false)
+      })()
+    },
+    [localFiles.length]
+  )
+
+  const handleImageRemove = useCallback(
+    (index: number) => {
+      const existingCount = editingProject.images.length
+      if (index < existingCount) {
+        const newImages = [...editingProject.images]
+        newImages.splice(index, 1)
+        setEditingProject({ ...editingProject, images: newImages })
+      } else {
+        const localIndex = index - existingCount
+        const newFiles = [...localFiles]
+        newFiles.splice(localIndex, 1)
+        setLocalFiles(newFiles)
+      }
+    },
+    [editingProject, localFiles]
+  )
+
+  // ── Project CRUD ──
 
   const handleSave = useCallback(() => {
     if (!editingProject.title.trim()) return
@@ -88,31 +149,20 @@ export function StepProjects({
     [projects, onProjectsChange, resetToNew]
   )
 
-  const handleDragStart = useCallback((index: number) => {
-    setDragStartIndex(index)
-  }, [])
+  // ── Drag & drop ──
 
-  const handleDragOver = useCallback(
-    (e: React.DragEvent, index: number) => {
-      e.preventDefault()
-      setDragOverIndex(index)
-    },
-    []
-  )
+  const handleDragStart = useCallback((index: number) => { setDragStartIndex(index) }, [])
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => { e.preventDefault(); setDragOverIndex(index) }, [])
+  const handleDragEnd = useCallback(() => { setDragStartIndex(null); setDragOverIndex(null) }, [])
 
   const handleDrop = useCallback(
     (targetIndex: number) => {
-      if (dragStartIndex === null || dragStartIndex === targetIndex) {
-        setDragStartIndex(null)
-        setDragOverIndex(null)
-        return
-      }
+      if (dragStartIndex === null || dragStartIndex === targetIndex) { setDragStartIndex(null); setDragOverIndex(null); return }
       const reordered = [...projects]
       const [moved] = reordered.splice(dragStartIndex, 1)
       if (moved) {
         reordered.splice(targetIndex, 0, moved)
-        const withOrder = reordered.map((p, i) => ({ ...p, display_order: i }))
-        onProjectsChange(withOrder)
+        onProjectsChange(reordered.map((p, i) => ({ ...p, display_order: i })))
       }
       setDragStartIndex(null)
       setDragOverIndex(null)
@@ -120,26 +170,18 @@ export function StepProjects({
     [dragStartIndex, projects, onProjectsChange]
   )
 
-  const handleDragEnd = useCallback(() => {
-    setDragStartIndex(null)
-    setDragOverIndex(null)
-  }, [])
-
   return (
-    <div className={cn('space-y-8', className)} data-testid="step-projects">
-      {/* Split layout */}
+    <div className={cn(className)} data-testid="step-projects">
       <div className="flex flex-col lg:flex-row lg:gap-12">
 
-        {/* ── Left: Form ── */}
-        <div className="flex-1 lg:max-w-[480px] space-y-5">
+        {/* ── Left: Text fields ── */}
+        <div className="flex-1 space-y-4">
           <div>
             <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
               {isEditing ? 'Modifier le projet' : 'Nouveau projet'}
             </h2>
             <p className="text-[13px] text-[#6B7280] mt-1">
-              {isEditing
-                ? 'Modifie les informations de ton projet'
-                : 'Ajoute un projet a ton portfolio'}
+              {isEditing ? 'Modifie les informations de ton projet' : 'Ajoute un projet a ton portfolio'}
             </p>
           </div>
 
@@ -149,7 +191,7 @@ export function StepProjects({
             onChange={setEditingProject}
           />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 pt-1">
             <button
               type="button"
               onClick={handleSave}
@@ -175,107 +217,107 @@ export function StepProjects({
           </div>
         </div>
 
-        {/* ── Right: Project list ── */}
-        <div className="flex-1 mt-8 lg:mt-0">
-          <div className="flex items-center justify-between mb-4">
+        {/* ── Right: Images + Project list ── */}
+        <div className="flex-1 lg:max-w-[360px] space-y-6 mt-8 lg:mt-0">
+
+          {/* Images */}
+          <div>
             <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
+              Images
+            </h2>
+            <p className="text-[13px] text-[#6B7280] mt-1 mb-3">
+              {isUploadingImages ? 'Upload en cours...' : 'Ajoute jusqu\u2019a 5 images'}
+            </p>
+            <ImageUploader
+              images={localFiles}
+              existingUrls={editingProject.images}
+              isUploading={isUploadingImages}
+              onImagesChange={handleImagesChange}
+              onImageRemove={handleImageRemove}
+            />
+          </div>
+
+          <div className="border-b border-[#E5E7EB]" />
+
+          {/* Project list */}
+          <div>
+            <h2 className="text-[18px] font-semibold leading-7 text-[#111827] mb-3">
               {projects.length > 0
                 ? `${projects.length} projet${projects.length > 1 ? 's' : ''}`
                 : 'Tes projets'}
             </h2>
-          </div>
 
-          {projects.length === 0 ? (
-            <div className="flex items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] py-16">
-              <p className="text-sm text-[#9CA3AF]">
-                Tes projets apparaitront ici
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3" data-testid="project-list" role="list">
-              {projects.map((project, index) => (
-                <div
-                  key={`project-${index}-${project.title}`}
-                  role="listitem"
-                  draggable
-                  onDragStart={() => handleDragStart(index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDrop={() => handleDrop(index)}
-                  onDragEnd={handleDragEnd}
-                  className={cn(
-                    'group relative flex gap-3 rounded-xl border bg-white p-4 cursor-grab active:cursor-grabbing transition-[border-color] duration-150',
-                    editingIndex === index
-                      ? 'border-[#D1D5DB]'
-                      : dragOverIndex === index
+            {projects.length === 0 ? (
+              <div className="flex items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] py-10">
+                <p className="text-[13px] text-[#9CA3AF]">Tes projets apparaitront ici</p>
+              </div>
+            ) : (
+              <div className="space-y-2" data-testid="project-list" role="list">
+                {projects.map((project, index) => (
+                  <div
+                    key={`project-${index}-${project.title}`}
+                    role="listitem"
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDrop={() => handleDrop(index)}
+                    onDragEnd={handleDragEnd}
+                    className={cn(
+                      'group relative flex items-center gap-2.5 rounded-xl border bg-white p-3 cursor-grab active:cursor-grabbing transition-[border-color] duration-150',
+                      editingIndex === index || dragOverIndex === index
                         ? 'border-[#D1D5DB]'
                         : 'border-[#E5E7EB]',
-                  )}
-                >
-                  {/* Drag handle */}
-                  <div className="shrink-0 pt-0.5 text-[#E5E7EB] group-hover:text-[#9CA3AF] transition-colors">
-                    <GripVertical className="h-4 w-4" />
-                  </div>
-
-                  {/* Thumbnail */}
-                  <div className="shrink-0 h-14 w-14 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] overflow-hidden flex items-center justify-center">
-                    {project.images.length > 0 ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={project.images[0]} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <ImageIcon className="h-4 w-4 text-[#D1D5DB]" />
                     )}
-                  </div>
+                  >
+                    <div className="shrink-0 text-[#E5E7EB] group-hover:text-[#9CA3AF] transition-colors">
+                      <GripVertical className="h-3.5 w-3.5" />
+                    </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#111827] truncate">
-                      {project.title || 'Sans titre'}
-                    </p>
-                    {project.description && (
-                      <p className="text-[13px] text-[#6B7280] line-clamp-1 mt-0.5">
-                        {project.description}
+                    {/* Thumbnail */}
+                    <div className="shrink-0 h-10 w-10 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] overflow-hidden flex items-center justify-center">
+                      {project.images.length > 0 ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={project.images[0]} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <ImageIcon className="h-3.5 w-3.5 text-[#D1D5DB]" />
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[#111827] truncate">
+                        {project.title || 'Sans titre'}
                       </p>
-                    )}
-                    {project.tags.length > 0 && (
-                      <div className="flex gap-1 mt-1.5 overflow-hidden">
-                        {project.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center h-5 px-2 bg-[#F3F4F6] text-[#111827] rounded-[6px] text-[10px]"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {project.tags.length > 3 && (
-                          <span className="text-[10px] text-[#9CA3AF]">+{project.tags.length - 3}</span>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                      {project.tags.length > 0 && (
+                        <p className="text-[12px] text-[#9CA3AF] truncate mt-0.5">
+                          {project.tags.slice(0, 3).join(', ')}
+                          {project.tags.length > 3 && ` +${project.tags.length - 3}`}
+                        </p>
+                      )}
+                    </div>
 
-                  {/* Actions */}
-                  <div className="flex items-start gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                    <button
-                      type="button"
-                      onClick={() => openEditProject(index)}
-                      className="flex h-7 w-7 items-center justify-center rounded-[6px] border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#111827] transition-colors"
-                      aria-label={`Modifier le projet ${project.title}`}
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(index)}
-                      className="flex h-7 w-7 items-center justify-center rounded-[6px] border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#DC2626] transition-colors"
-                      aria-label={`Supprimer le projet ${project.title}`}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      <button
+                        type="button"
+                        onClick={() => openEditProject(index)}
+                        className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors"
+                        aria-label={`Modifier ${project.title}`}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(index)}
+                        className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#DC2626] hover:bg-[#F3F4F6] transition-colors"
+                        aria-label={`Supprimer ${project.title}`}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
