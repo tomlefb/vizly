@@ -116,9 +116,9 @@ export function StepPersonalInfo({
             Les infos principales de ton portfolio
           </p>
         </div>
-        <div className="flex-1 md:max-w-[480px]">
+        <div className="flex-1 md:max-w-[480px] space-y-4">
+          {/* Photo + Name on same line */}
           <div className="flex items-start gap-4">
-            {/* Photo circle */}
             <div className="shrink-0">
               <button
                 type="button"
@@ -148,65 +148,62 @@ export function StepPersonalInfo({
                 tabIndex={-1}
               />
             </div>
-
-            {/* Name + Bio */}
-            <div className="flex-1 space-y-4">
-              <div>
-                <label htmlFor={`${id}-title`} className="block text-sm text-[#6B7280] mb-1.5">
-                  Nom complet <span className="text-[#DC2626]">*</span>
-                </label>
-                <input
-                  id={`${id}-title`}
-                  data-testid="input-title"
-                  type="text"
-                  value={data.title}
-                  onChange={(e) => onChange('title', e.target.value)}
-                  placeholder="Tom Lefebvre"
-                  maxLength={100}
-                  className={cn(
-                    'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
-                    errors['title'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
-                  )}
-                  aria-invalid={!!errors['title']}
-                  aria-describedby={errors['title'] ? `${id}-title-error` : undefined}
-                />
-                {errors['title'] && (
-                  <p id={`${id}-title-error`} className="text-[13px] text-[#DC2626] mt-1" role="alert">
-                    {errors['title']}
-                  </p>
+            <div className="flex-1 pt-5">
+              <label htmlFor={`${id}-title`} className="block text-sm text-[#6B7280] mb-1.5">
+                Nom complet <span className="text-[#DC2626]">*</span>
+              </label>
+              <input
+                id={`${id}-title`}
+                data-testid="input-title"
+                type="text"
+                value={data.title}
+                onChange={(e) => onChange('title', e.target.value)}
+                placeholder="Tom Lefebvre"
+                maxLength={100}
+                className={cn(
+                  'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+                  errors['title'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
                 )}
-              </div>
-
-              <div>
-                <label htmlFor={`${id}-bio`} className="block text-sm text-[#6B7280] mb-1.5">
-                  Bio
-                </label>
-                <textarea
-                  id={`${id}-bio`}
-                  data-testid="input-bio"
-                  value={data.bio ?? ''}
-                  onChange={(e) => onChange('bio', e.target.value)}
-                  placeholder="Parle de toi en quelques lignes..."
-                  maxLength={MAX_BIO_LENGTH}
-                  rows={3}
-                  className={cn(
-                    'w-full rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[72px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
-                    errors['bio'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
-                  )}
-                  aria-invalid={!!errors['bio']}
-                  aria-describedby={`${id}-bio-count`}
-                />
-                <p
-                  id={`${id}-bio-count`}
-                  className={cn(
-                    'text-[13px] text-right mt-1',
-                    bioLength > MAX_BIO_LENGTH * 0.9 ? 'text-[#DC2626]' : 'text-[#9CA3AF]'
-                  )}
-                >
-                  {bioLength}/{MAX_BIO_LENGTH}
+                aria-invalid={!!errors['title']}
+                aria-describedby={errors['title'] ? `${id}-title-error` : undefined}
+              />
+              {errors['title'] && (
+                <p id={`${id}-title-error`} className="text-[13px] text-[#DC2626] mt-1" role="alert">
+                  {errors['title']}
                 </p>
-              </div>
+              )}
             </div>
+          </div>
+
+          {/* Bio — full width below photo + name */}
+          <div>
+            <label htmlFor={`${id}-bio`} className="block text-sm text-[#6B7280] mb-1.5">
+              Bio
+            </label>
+            <textarea
+              id={`${id}-bio`}
+              data-testid="input-bio"
+              value={data.bio ?? ''}
+              onChange={(e) => onChange('bio', e.target.value)}
+              placeholder="Parle de toi en quelques lignes..."
+              maxLength={MAX_BIO_LENGTH}
+              rows={3}
+              className={cn(
+                'w-full rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[72px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+                errors['bio'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
+              )}
+              aria-invalid={!!errors['bio']}
+              aria-describedby={`${id}-bio-count`}
+            />
+            <p
+              id={`${id}-bio-count`}
+              className={cn(
+                'text-[13px] text-right mt-1',
+                bioLength > MAX_BIO_LENGTH * 0.9 ? 'text-[#DC2626]' : 'text-[#9CA3AF]'
+              )}
+            >
+              {bioLength}/{MAX_BIO_LENGTH}
+            </p>
           </div>
         </div>
       </section>
