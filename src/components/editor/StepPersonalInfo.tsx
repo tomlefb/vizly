@@ -230,7 +230,7 @@ export function StepPersonalInfo({
             Contact
           </h2>
           <p className="text-[13px] text-[#6B7280] mt-1">
-            L'email affiche sur ton portfolio
+            L&apos;email affiche sur ton portfolio
           </p>
         </div>
         <div className="flex-1 md:max-w-[480px]">

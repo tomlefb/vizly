@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useId, useRef } from 'react'
-import { X, Plus, AlertCircle } from 'lucide-react'
+import { X, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ImageUploader } from './ImageUploader'
 import { MAX_PROJECT_DESCRIPTION_LENGTH } from '@/lib/constants'

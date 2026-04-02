@@ -2,7 +2,6 @@
 
 import { useCallback } from 'react'
 import { Plus, Trash2, BarChart3 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { generateKpiId, type KpiItem } from '@/types/kpis'
 
 interface KpiEditorProps {

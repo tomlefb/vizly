@@ -6,7 +6,6 @@ import {
   GripVertical,
   Pencil,
   Trash2,
-  ChevronUp,
   ImageIcon,
   X,
 } from 'lucide-react'
