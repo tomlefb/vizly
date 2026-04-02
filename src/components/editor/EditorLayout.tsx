@@ -21,10 +21,9 @@ import type { TemplateName } from '@/types/templates'
 
 const STEPS = [
   { id: 1, label: 'Profil' },
-  { id: 2, label: 'Projets' },
-  { id: 3, label: 'Contenu' },
-  { id: 4, label: 'Design' },
-  { id: 5, label: 'Publier' },
+  { id: 2, label: 'Contenu' },
+  { id: 3, label: 'Design' },
+  { id: 4, label: 'Publier' },
 ]
 
 function useGoogleFont(fontName: string) {
@@ -82,7 +81,7 @@ export function EditorLayout({
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep)
   const nextStep = STEPS[currentStepIndex + 1]
-  const isDesignStep = currentStep === 4
+  const isDesignStep = currentStep === 3
 
   const TemplateComponent = templateMap[portfolioData.template as TemplateName]
 

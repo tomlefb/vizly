@@ -5,11 +5,10 @@ import { ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const STEPS = [
-  { id: 1, label: 'Infos', short: 'Infos' },
-  { id: 2, label: 'Projets', short: 'Projets' },
-  { id: 3, label: 'Style', short: 'Style' },
-  { id: 4, label: 'Preview', short: 'Preview' },
-  { id: 5, label: 'Publier', short: 'Publier' },
+  { id: 1, label: 'Profil', short: 'Profil' },
+  { id: 2, label: 'Contenu', short: 'Contenu' },
+  { id: 3, label: 'Design', short: 'Design' },
+  { id: 4, label: 'Publier', short: 'Publier' },
 ] as const
 
 interface StepNavigationProps {
@@ -30,7 +29,7 @@ export function StepNavigation({
   canGoNext = true,
 }: StepNavigationProps) {
   const isFirst = currentStep === 1
-  const isLast = currentStep === 5
+  const isLast = currentStep === 4
 
   const handleStepClick = useCallback(
     (step: number) => {

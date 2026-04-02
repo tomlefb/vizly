@@ -20,16 +20,13 @@ import {
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { EditorLayout } from './EditorLayout'
 import { StepPersonalInfo } from './StepPersonalInfo'
-import { StepProjects } from './StepProjects'
+import { StepContent } from './StepContent'
 import { StepCustomization } from './StepCustomization'
 import { StepPublish } from './StepPublish'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis, type KpiItem } from '@/types/kpis'
 import { parseLayoutBlocks, type LayoutBlock } from '@/types/layout-blocks'
-import { LayoutBlockEditor } from './LayoutBlockEditor'
-import { CustomBlockEditor } from './CustomBlockEditor'
-import { KpiEditor } from './KpiEditor'
 import type { Portfolio, Project } from '@/types'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
@@ -407,9 +404,8 @@ export function EditorClient({
         }
       }
 
-      // Step 2: always valid (0 projects is ok)
-      // Step 3: always valid (contenu is optional)
-      // Step 4: template is always set (has default 'minimal')
+      // Step 2: always valid (contenu is optional)
+      // Step 3: template is always set (has default 'minimal')
 
       setErrors(newErrors)
       return Object.keys(newErrors).length === 0
@@ -434,9 +430,8 @@ export function EditorClient({
       }
       return true
     }
-    if (currentStep === 2) return true
-    if (currentStep === 3) return true
-    if (currentStep === 4) {
+    if (currentStep === 2) return true // Contenu: always valid
+    if (currentStep === 3) {
       if (!portfolioData.template.trim()) return false
       // Block if selected template is premium and not purchased
       const config = TEMPLATE_CONFIGS.find((t) => t.name === portfolioData.template)
@@ -557,8 +552,8 @@ export function EditorClient({
       await syncProjects()
     }
 
-    // Navigate to next step in the STEPS sequence (1 → 2 → 3 → 4 → 5)
-    const stepOrder = [1, 2, 3, 4, 5]
+    // Navigate to next step in the STEPS sequence (1 → 2 → 3 → 4)
+    const stepOrder = [1, 2, 3, 4]
     const currentIndex = stepOrder.indexOf(currentStep)
     const nextStepId = stepOrder[currentIndex + 1]
     if (nextStepId !== undefined) {
@@ -716,7 +711,7 @@ export function EditorClient({
         portfolioData={portfolioData}
         projects={projectsForUI}
         bottomBarExtra={
-          currentStep === 4 && selectedTemplateNeedsPurchase && selectedTemplateConfig ? (
+          currentStep === 3 && selectedTemplateNeedsPurchase && selectedTemplateConfig ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
                 Template &laquo; {selectedTemplateConfig.label} &raquo; est premium
@@ -753,50 +748,28 @@ export function EditorClient({
             errors={errors}
           />
         )}
-        {/* Step 2: Projets */}
+        {/* Step 2: Contenu (projets + blocs texte + KPIs + colonnes) */}
         {currentStep === 2 && (
-          <StepProjects
+          <StepContent
             projects={projectsForUI}
             onProjectsChange={handleProjectsChange}
+            customBlocks={portfolioData.custom_blocks ?? []}
+            onCustomBlocksChange={(blocks) => handleFieldChange('custom_blocks', blocks)}
+            kpis={(portfolioData.kpis ?? []) as KpiItem[]}
+            onKpisChange={(kpis) => handleFieldChange('kpis', kpis)}
+            layoutBlocks={(portfolioData.layout_blocks ?? []) as LayoutBlock[]}
+            onLayoutBlocksChange={(blocks) => handleFieldChange('layout_blocks', blocks)}
           />
         )}
-        {/* Step 3: Contenu (skills, blocs texte, KPIs, colonnes) */}
+        {/* Step 3: Design */}
         {currentStep === 3 && (
-          <div className="space-y-4">
-            {/* Page title */}
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-                Contenu enrichi
-              </h1>
-              <p className="text-[13px] text-muted mt-1">
-                Personnalise ton portfolio avec des blocs supplementaires
-              </p>
-            </div>
-            <CustomBlockEditor
-              blocks={portfolioData.custom_blocks ?? []}
-              onChange={(blocks) => handleFieldChange('custom_blocks', blocks)}
-            />
-            <KpiEditor
-              kpis={(portfolioData.kpis ?? []) as KpiItem[]}
-              onChange={(kpis) => handleFieldChange('kpis', kpis)}
-              primaryColor={portfolioData.primary_color}
-            />
-            <LayoutBlockEditor
-              blocks={(portfolioData.layout_blocks ?? []) as LayoutBlock[]}
-              onChange={(blocks) => handleFieldChange('layout_blocks', blocks)}
-              primaryColor={portfolioData.primary_color}
-            />
-          </div>
-        )}
-        {/* Step 4: Design */}
-        {currentStep === 4 && (
           <StepCustomization
             data={portfolioData}
             onChange={handleFieldChange}
             purchasedTemplates={purchasedTemplates}
           />
         )}
-        {currentStep === 5 && (
+        {currentStep === 4 && (
           <StepPublish
             data={portfolioData}
             projects={projectsForUI}
