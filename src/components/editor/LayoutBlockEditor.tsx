@@ -91,7 +91,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
   }, [editingBlock])
 
   return (
-    <section className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
+    <section className="border border-border rounded-[var(--radius-lg)] p-5 space-y-4">
       <div className="flex items-center gap-2.5">
         <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
           <Columns3 className="h-3.5 w-3.5 text-accent" />

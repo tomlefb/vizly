@@ -83,7 +83,7 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
             <div
               key={section.id}
               className={cn(
-                'flex items-center gap-2 bg-white border border-border/60 rounded-[var(--radius-sm)] px-3 py-2.5 transition-colors duration-200 hover:bg-surface-warm',
+                'flex items-center gap-2 border border-border rounded-[var(--radius-sm)] px-3 py-2.5 transition-colors duration-200 hover:bg-surface-warm',
                 !section.visible && 'opacity-50'
               )}
             >
