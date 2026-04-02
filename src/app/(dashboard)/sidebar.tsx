@@ -56,42 +56,34 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       style={{ width: sidebarWidth }}
     >
       {/* Logo + toggle */}
-      <div className="flex h-14 items-center shrink-0 px-2">
-        <Link
-          href="/dashboard"
-          aria-label="Dashboard"
-          className={cn(
-            'flex items-center',
-            expanded ? 'pl-2' : 'pl-0.5',
-          )}
-        >
-          <span className="font-[family-name:var(--font-satoshi)] font-bold text-xl select-none shrink-0">
-            V
-            <span className="inline-block w-[0.22em] h-[0.22em] rounded-full bg-[#E8553D] ml-[0.02em] -translate-y-[0.08em]" />
-          </span>
-          {expanded && (
-            <span className="font-[family-name:var(--font-satoshi)] font-bold text-[17px] select-none whitespace-nowrap ml-0.5">
-              izly
-            </span>
-          )}
-        </Link>
-        <button
-          type="button"
-          onClick={toggle}
-          className={cn(
-            'flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150 shrink-0',
-            expanded ? 'ml-auto' : 'ml-1',
-          )}
-          aria-label={expanded ? 'Réduire la sidebar' : 'Étendre la sidebar'}
-        >
-          <ChevronLeft
-            className={cn(
-              'h-4 w-4 transition-transform duration-200',
-              !expanded && 'rotate-180',
-            )}
-            strokeWidth={1.5}
-          />
-        </button>
+      <div className="flex h-14 items-center shrink-0 px-3">
+        {expanded ? (
+          <>
+            <Link href="/dashboard" aria-label="Dashboard" className="flex items-baseline">
+              <span className="font-[family-name:var(--font-satoshi)] font-bold text-[20px] text-[#111827] select-none whitespace-nowrap">
+                Vizly
+                <span className="inline-block w-[0.3em] h-[0.3em] rounded-full bg-[#E8553D] ml-[0.1em]" />
+              </span>
+            </Link>
+            <button
+              type="button"
+              onClick={toggle}
+              className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150 shrink-0 ml-auto"
+              aria-label="Réduire la sidebar"
+            >
+              <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={toggle}
+            className="flex h-8 w-full items-center justify-center rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150"
+            aria-label="Étendre la sidebar"
+          >
+            <ChevronLeft className="h-4 w-4 rotate-180" strokeWidth={1.5} />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
