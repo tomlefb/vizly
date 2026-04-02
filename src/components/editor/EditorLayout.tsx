@@ -83,7 +83,6 @@ export function EditorLayout({
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep)
   const nextStep = STEPS[currentStepIndex + 1]
   const isDesignStep = currentStep === 4
-  const isPublishStep = currentStep === 5
 
   const TemplateComponent = templateMap[portfolioData.template as TemplateName]
 
@@ -298,11 +297,8 @@ export function EditorLayout({
         ) : (
           /* Steps 1, 2, 3, 5: Full width form */
           <div className="flex-1 flex flex-col min-h-0">
-            <div className={cn(
-              'flex-1 overflow-y-auto px-5 py-5',
-              isPublishStep && 'flex items-start justify-center'
-            )}>
-              <div className={cn(isPublishStep && 'w-full max-w-lg')}>
+            <div className="flex-1 overflow-y-auto px-5 py-5">
+              <div className="max-w-[680px]">
                 {children}
               </div>
             </div>
