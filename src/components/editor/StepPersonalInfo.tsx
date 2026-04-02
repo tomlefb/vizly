@@ -106,16 +106,6 @@ export function StepPersonalInfo({
       className={cn('space-y-8', className)}
       data-testid="step-personal-info"
     >
-      {/* Page title */}
-      <div>
-        <h1 className="text-[24px] font-semibold leading-8 text-[#111827]">
-          Ton profil
-        </h1>
-        <p className="text-[13px] text-[#9CA3AF] mt-1">
-          Les informations de base de ton portfolio
-        </p>
-      </div>
-
       {/* ── Identite ── */}
       <section className="flex flex-col md:flex-row md:gap-16">
         <div className="w-full md:w-[280px] md:shrink-0 mb-4 md:mb-0">

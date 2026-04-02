@@ -239,16 +239,6 @@ export function StepPublish({
   // ── Main publish form ──
   return (
     <div className={cn('space-y-6', className)} data-testid="step-publish">
-      {/* Header — sober, no illustration */}
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          Publie ton portfolio
-        </h1>
-        <p className="text-[13px] text-muted max-w-sm mx-auto">
-          Choisis ton pseudo pour ton URL personnalisee.
-        </p>
-      </div>
-
       {/* Slug input */}
       <div className="space-y-2">
         <label

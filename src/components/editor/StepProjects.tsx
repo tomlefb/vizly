@@ -120,16 +120,8 @@ export function StepProjects({
 
   return (
     <div className={cn('space-y-4', className)} data-testid="step-projects">
-      {/* Page title */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-            Tes projets
-          </h1>
-          <p className="text-[13px] text-muted mt-1">
-            Le coeur de ton portfolio
-          </p>
-        </div>
+      {/* Top action */}
+      <div className="flex items-center justify-end">
         {projects.length > 0 && inlineFormIndex === null && (
           <button
             type="button"
