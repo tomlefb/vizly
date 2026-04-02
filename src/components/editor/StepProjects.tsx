@@ -119,15 +119,23 @@ export function StepProjects({
   }, [])
 
   return (
-    <div className={cn('space-y-4', className)} data-testid="step-projects">
-      {/* Top action */}
-      <div className="flex items-center justify-end">
+    <div className={cn('space-y-6', className)} data-testid="step-projects">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[24px] font-semibold leading-8 text-[#111827]">
+            Tes projets
+          </h1>
+          <p className="text-[13px] text-[#6B7280] mt-1">
+            Le coeur de ton portfolio
+          </p>
+        </div>
         {projects.length > 0 && inlineFormIndex === null && (
           <button
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="inline-flex items-center gap-1.5 h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E]"
+            className="inline-flex items-center gap-1.5 h-10 rounded-lg border border-[#E5E7EB] bg-white px-5 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
           >
             <Plus className="h-4 w-4" />
             Ajouter
@@ -137,13 +145,13 @@ export function StepProjects({
 
       {/* Empty state */}
       {projects.length === 0 && inlineFormIndex === null && (
-        <div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-border bg-white px-6 py-12 text-center">
-          <p className="text-sm text-muted-foreground">Aucun projet</p>
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-sm text-[#6B7280]">Aucun projet pour le moment</p>
           <button
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="mt-4 inline-flex items-center gap-1.5 h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E]"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#E8553D] transition-colors duration-150 hover:text-[#D4442E]"
           >
             <Plus className="h-4 w-4" />
             Ajouter un projet
@@ -164,35 +172,32 @@ export function StepProjects({
               onDrop={() => handleDrop(index)}
               onDragEnd={handleDragEnd}
               className={cn(
-                'group relative flex gap-3 rounded-[var(--radius-lg)] border bg-white p-3.5 cursor-grab active:cursor-grabbing transition-all duration-150',
-                dragOverIndex === index
-                  ? 'border-accent ring-1 ring-accent/20'
-                  : 'border-border/60 hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)]',
-                inlineFormIndex === index && 'ring-2 ring-accent/20 border-accent'
+                'group relative flex gap-3 rounded-xl border border-[#E5E7EB] bg-white p-4 cursor-grab active:cursor-grabbing transition-[border-color] duration-150',
+                dragOverIndex === index && 'border-[#D1D5DB]',
               )}
             >
               {/* Drag handle */}
-              <div className="shrink-0 pt-0.5 text-muted-foreground/20 group-hover:text-muted-foreground transition-colors">
+              <div className="shrink-0 pt-0.5 text-[#E5E7EB] group-hover:text-[#9CA3AF] transition-colors">
                 <GripVertical className="h-4 w-4" />
               </div>
 
               {/* Thumbnail */}
-              <div className="shrink-0 h-16 w-16 rounded-[var(--radius-sm)] bg-surface-warm border border-border/40 overflow-hidden flex items-center justify-center">
+              <div className="shrink-0 h-16 w-16 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] overflow-hidden flex items-center justify-center">
                 {project.images.length > 0 ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={project.images[0]} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <ImageIcon className="h-4 w-4 text-muted-foreground/20" />
+                  <ImageIcon className="h-4 w-4 text-[#D1D5DB]" />
                 )}
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold text-foreground truncate">
+                <p className="text-sm font-medium text-[#111827] truncate">
                   {project.title || 'Sans titre'}
                 </p>
                 {project.description && (
-                  <p className="text-[12px] text-muted line-clamp-1 mt-0.5">
+                  <p className="text-[13px] text-[#6B7280] line-clamp-1 mt-0.5">
                     {project.description}
                   </p>
                 )}
@@ -207,18 +212,18 @@ export function StepProjects({
                       </span>
                     ))}
                     {project.tags.length > 3 && (
-                      <span className="text-[10px] text-muted-foreground">+{project.tags.length - 3}</span>
+                      <span className="text-[10px] text-[#9CA3AF]">+{project.tags.length - 3}</span>
                     )}
                   </div>
                 )}
               </div>
 
               {/* Actions — hover */}
-              <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+              <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                 <button
                   type="button"
                   onClick={() => openEditProject(index)}
-                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-white border border-border text-muted hover:text-foreground transition-colors shadow-sm"
+                  className="flex h-7 w-7 items-center justify-center rounded-[6px] border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#111827] transition-colors"
                   aria-label={`Modifier le projet ${project.title}`}
                 >
                   <Pencil className="h-3 w-3" />
@@ -226,7 +231,7 @@ export function StepProjects({
                 <button
                   type="button"
                   onClick={() => handleDelete(index)}
-                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-white border border-border text-muted hover:text-destructive transition-colors shadow-sm"
+                  className="flex h-7 w-7 items-center justify-center rounded-[6px] border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#DC2626] transition-colors"
                   aria-label={`Supprimer le projet ${project.title}`}
                 >
                   <Trash2 className="h-3 w-3" />
@@ -237,30 +242,30 @@ export function StepProjects({
         </div>
       )}
 
-      {/* Inline form — appears below the list or empty state */}
+      {/* Inline form — no card, just fields */}
       {inlineFormIndex !== null && (
-        <div className="bg-white border border-border/60 rounded-[var(--radius-lg)] overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border/40 px-5 py-3">
-            <h3 className="text-[14px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[18px] font-semibold text-[#111827]">
               {inlineFormIndex >= 0 ? 'Modifier le projet' : 'Nouveau projet'}
             </h3>
             <button
               type="button"
               onClick={handleCancel}
-              className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-foreground hover:bg-surface-warm transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors"
               aria-label="Annuler"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="px-5 py-4">
-            <ProjectForm
-              key={inlineFormIndex >= 0 ? `edit-${inlineFormIndex}` : `new-${projects.length}`}
-              project={editingProject}
-              onChange={setEditingProject}
-            />
-          </div>
-          <div className="flex items-center justify-end gap-2 border-t border-border/40 px-5 py-3">
+
+          <ProjectForm
+            key={inlineFormIndex >= 0 ? `edit-${inlineFormIndex}` : `new-${projects.length}`}
+            project={editingProject}
+            onChange={setEditingProject}
+          />
+
+          <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={handleCancel}
@@ -285,14 +290,14 @@ export function StepProjects({
         </div>
       )}
 
-      {/* Add button (when list has items and form is closed) */}
+      {/* Add button — text link style */}
       {projects.length > 0 && inlineFormIndex === null && (
         <button
           type="button"
           onClick={openNewProject}
-          className="flex items-center justify-center gap-1.5 w-full h-10 border border-dashed border-[#E5E7EB] rounded-lg text-sm font-medium text-[#6B7280] transition-colors duration-150 hover:border-[#D1D5DB] hover:bg-[#F3F4F6]"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#E8553D] transition-colors duration-150 hover:text-[#D4442E]"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-4 w-4" />
           Ajouter un projet
         </button>
       )}

@@ -135,23 +135,18 @@ export function ImageUploader({
           tabIndex={0}
           aria-label={`Ajouter des images. ${remaining} emplacement${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
           className={cn(
-            'relative flex items-center justify-center gap-3 rounded-[var(--radius-lg)] border-2 border-dashed h-[100px] px-6 cursor-pointer transition-all duration-200',
+            'relative flex items-center justify-center gap-3 rounded-xl border-[1.5px] border-dashed h-[100px] px-6 cursor-pointer transition-[border-color] duration-150',
             isDragging
-              ? 'border-accent bg-accent-light scale-[1.01]'
-              : 'border-accent/30 bg-accent-light/50 hover:border-accent hover:bg-accent-light'
+              ? 'border-[#D1D5DB] bg-[#F3F4F6]'
+              : 'border-[#E5E7EB] bg-[#F9FAFB] hover:border-[#D1D5DB]'
           )}
         >
-          <Upload
-            className={cn(
-              'h-7 w-7 shrink-0 transition-colors duration-200',
-              isDragging ? 'text-accent' : 'text-accent/50'
-            )}
-          />
+          <Upload className="h-6 w-6 shrink-0 text-[#9CA3AF]" />
           <div>
-            <p className="text-[13px] font-medium text-foreground">
+            <p className="text-sm text-[#6B7280]">
               {isDragging ? 'Depose tes images ici' : 'Glisse ou clique pour ajouter'}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[13px] text-[#9CA3AF]">
               JPG, PNG, WebP ou GIF — max 5 images
             </p>
           </div>
@@ -176,7 +171,7 @@ export function ImageUploader({
             key={i}
             className={cn(
               'h-2 w-2 rounded-full transition-colors duration-200',
-              i < totalImages ? 'bg-accent' : 'bg-border'
+              i < totalImages ? 'bg-[#111827]' : 'bg-[#E5E7EB]'
             )}
             aria-hidden="true"
           />
