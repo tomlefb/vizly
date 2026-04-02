@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { Check, ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const STEPS = [
@@ -42,64 +42,42 @@ export function StepNavigation({
   return (
     <div data-testid="step-nav" className="space-y-0">
       {/* Step indicators */}
-      <nav aria-label="Etapes de l'editeur" className="px-1">
-        <ol className="flex items-center gap-1">
+      <nav aria-label="Etapes de l'editeur" className="px-1 py-3">
+        <ol className="flex items-center">
           {STEPS.map((step, index) => {
             const isCurrent = step.id === currentStep
             const isCompleted = completedSteps.includes(step.id)
             const isPast = step.id < currentStep
 
             return (
-              <li key={step.id} className="flex flex-1 items-center">
+              <li key={step.id} className={cn('flex items-center', index < STEPS.length - 1 ? 'flex-1' : 'shrink-0')}>
                 <button
                   type="button"
                   onClick={() => handleStepClick(step.id)}
                   aria-current={isCurrent ? 'step' : undefined}
                   aria-label={`Etape ${step.id}: ${step.label}${isCompleted ? ' (completee)' : ''}`}
-                  className={cn(
-                    'group relative flex w-full flex-col items-center gap-1.5 py-3 transition-all duration-200'
-                  )}
+                  className="flex flex-col items-center gap-1.5 shrink-0"
                 >
-                  {/* Step pill */}
                   <div
                     className={cn(
-                      'flex h-8 items-center gap-1.5 rounded-[var(--radius-full)] px-3 text-xs font-semibold transition-all duration-200',
-                      isCurrent
-                        ? 'bg-accent text-white shadow-[0_2px_8px_rgba(212,99,78,0.25)]'
-                        : isCompleted || isPast
-                          ? 'bg-accent/10 text-accent group-hover:bg-accent/15'
-                          : 'bg-surface-warm text-muted-foreground group-hover:bg-border-light group-hover:text-foreground'
+                      'h-2.5 w-2.5 rounded-full transition-colors duration-150',
+                      isCurrent || isPast || isCompleted
+                        ? 'bg-[#E8553D]'
+                        : 'border-2 border-[#E5E7EB] bg-white',
                     )}
-                  >
-                    {isCompleted && !isCurrent ? (
-                      <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
-                    ) : (
-                      <span className="tabular-nums">{step.id}</span>
-                    )}
-                    <span className="hidden sm:inline">{step.short}</span>
-                  </div>
-
-                  {/* Progress bar beneath */}
-                  <div className="w-full h-0.5 rounded-full overflow-hidden">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-all duration-300',
-                        isCurrent
-                          ? 'bg-accent w-1/2'
-                          : isCompleted || isPast
-                            ? 'bg-accent w-full'
-                            : 'bg-border-light w-full'
-                      )}
-                    />
-                  </div>
+                  />
+                  <span className={cn(
+                    'text-[12px] font-medium whitespace-nowrap',
+                    isCurrent ? 'text-[#111827]' : isPast || isCompleted ? 'text-[#111827]' : 'text-[#9CA3AF]',
+                  )}>
+                    {step.short}
+                  </span>
                 </button>
-
-                {/* Connector line */}
                 {index < STEPS.length - 1 && (
                   <div
                     className={cn(
-                      'h-px w-4 shrink-0 -mt-3 transition-colors duration-300',
-                      isPast || isCompleted ? 'bg-accent/30' : 'bg-border-light'
+                      'flex-1 h-0.5 mx-2 transition-colors duration-150',
+                      isPast || isCompleted ? 'bg-[#E8553D]' : 'bg-[#E5E7EB]',
                     )}
                     aria-hidden="true"
                   />

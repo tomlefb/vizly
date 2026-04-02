@@ -2,11 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import {
-  User,
-  FolderOpen,
-  FileText,
-  Palette,
-  Globe,
   Maximize2,
   X,
   Check,
@@ -25,11 +20,11 @@ import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
 const STEPS = [
-  { id: 1, label: 'Profil', icon: User },
-  { id: 2, label: 'Projets', icon: FolderOpen },
-  { id: 3, label: 'Contenu', icon: FileText },
-  { id: 4, label: 'Design', icon: Palette },
-  { id: 5, label: 'Publier', icon: Globe },
+  { id: 1, label: 'Profil' },
+  { id: 2, label: 'Projets' },
+  { id: 3, label: 'Contenu' },
+  { id: 4, label: 'Design' },
+  { id: 5, label: 'Publier' },
 ]
 
 function useGoogleFont(fontName: string) {
@@ -187,53 +182,41 @@ export function EditorLayout({
     <>
       <div className="flex flex-col h-full min-h-0">
         {/* ── Stepper ── */}
-        <div className="shrink-0 border-b border-border/50 bg-white px-4 sm:px-6 py-2.5">
-          <nav className="flex items-start w-full" aria-label="Etapes editeur">
+        <div className="shrink-0 border-b border-[#E5E7EB] bg-white px-4 sm:px-6 py-4">
+          <nav className="flex items-center w-full" aria-label="Etapes editeur">
             {STEPS.map((step, index) => {
-              const stepIndex = index
               const isActive = currentStep === step.id
-              const isPast = stepIndex < currentStepIndex
-              const StepIcon = step.icon
+              const isPast = index < currentStepIndex
 
               return (
-                <div key={step.id} className={cn('flex items-start', index < STEPS.length - 1 ? 'flex-1' : 'shrink-0')}>
+                <div key={step.id} className={cn('flex items-center', index < STEPS.length - 1 ? 'flex-1' : 'shrink-0')}>
                   <button
                     type="button"
                     onClick={() => onStepChange(step.id)}
-                    className="flex flex-col items-center gap-1 group shrink-0"
+                    className="flex flex-col items-center gap-1.5 shrink-0"
                   >
                     <div
                       className={cn(
-                        'flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200',
-                        isActive
-                          ? 'bg-accent text-white shadow-[0_2px_8px_rgba(212,99,78,0.25)]'
-                          : isPast
-                            ? 'bg-accent/10 text-accent'
-                            : 'bg-surface-warm text-muted-foreground group-hover:text-foreground group-hover:bg-border-light'
+                        'h-2.5 w-2.5 rounded-full transition-colors duration-150',
+                        isActive || isPast
+                          ? 'bg-[#E8553D]'
+                          : 'border-2 border-[#E5E7EB] bg-white',
                       )}
-                    >
-                      {isPast ? (
-                        <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
-                      ) : (
-                        <StepIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
-                      )}
-                    </div>
+                    />
                     <span className={cn(
-                      'text-[10px] font-medium hidden sm:inline transition-colors whitespace-nowrap',
-                      isActive ? 'text-accent' : isPast ? 'text-foreground' : 'text-muted-foreground'
+                      'text-[12px] font-medium hidden sm:inline whitespace-nowrap',
+                      isActive ? 'text-[#111827]' : isPast ? 'text-[#111827]' : 'text-[#9CA3AF]',
                     )}>
                       {step.label}
                     </span>
                   </button>
                   {index < STEPS.length - 1 && (
-                    <div className="flex-1 mt-3.5 mx-1.5">
-                      <div className="h-0.5 rounded-full bg-border-light overflow-hidden">
-                        <div className={cn(
-                          'h-full rounded-full bg-accent transition-all duration-300',
-                          isPast ? 'w-full' : isActive ? 'w-1/2' : 'w-0'
-                        )} />
-                      </div>
-                    </div>
+                    <div
+                      className={cn(
+                        'flex-1 h-0.5 mx-2 transition-colors duration-150',
+                        isPast ? 'bg-[#E8553D]' : 'bg-[#E5E7EB]',
+                      )}
+                    />
                   )}
                 </div>
               )
