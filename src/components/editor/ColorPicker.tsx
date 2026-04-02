@@ -71,7 +71,7 @@ export function ColorPicker({
             onChange={(e) => handleHexChange(e.target.value)}
             maxLength={6}
             placeholder="D4634E"
-            className="w-full rounded-[var(--radius-sm)] border border-border bg-surface px-3 pl-7 py-2 text-sm font-mono text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 focus:border-accent focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+            className="w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 pl-7 py-2 text-sm font-mono text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
             aria-label={`Code hexadecimal pour ${label}`}
           />
         </div>

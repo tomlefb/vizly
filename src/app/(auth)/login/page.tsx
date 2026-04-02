@@ -108,7 +108,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="ton@email.com"
-            className="block w-full rounded-[var(--radius-md)] border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 hover:border-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
 
@@ -127,7 +127,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Ton mot de passe"
-            className="block w-full rounded-[var(--radius-md)] border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 hover:border-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
 
@@ -143,7 +143,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full items-center justify-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
@@ -187,7 +187,7 @@ export default function LoginPage() {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="flex w-full items-center justify-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+        className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-[#E5E7EB] bg-white px-5 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
           <path

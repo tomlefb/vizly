@@ -6,26 +6,12 @@ import {
   Mail,
   Camera,
   Globe,
-  Link2,
-  Code2,
-  Pen,
-  Image,
-  AtSign,
   Hash,
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { MAX_BIO_LENGTH, SOCIAL_PLATFORMS } from '@/lib/constants'
 import type { PortfolioFormData } from '@/lib/validations'
-
-const SOCIAL_ICONS: Record<string, React.ElementType> = {
-  linkedin: Link2,
-  github: Code2,
-  dribbble: Pen,
-  instagram: Image,
-  twitter: AtSign,
-  website: Globe,
-} as const
 
 const SOCIAL_LABELS: Record<string, string> = {
   linkedin: 'LinkedIn',
@@ -43,16 +29,6 @@ const SOCIAL_PLACEHOLDERS: Record<string, string> = {
   instagram: 'https://instagram.com/...',
   twitter: 'https://x.com/...',
   website: 'https://...',
-} as const
-
-// Brand colors for social icons
-const SOCIAL_COLORS: Record<string, string> = {
-  linkedin: 'text-[#0A66C2]',
-  github: 'text-[#181717]',
-  dribbble: 'text-[#EA4C89]',
-  instagram: 'text-[#E4405F]',
-  twitter: 'text-[#1DA1F2]',
-  website: 'text-muted-foreground',
 } as const
 
 function isValidUrl(str: string): boolean {
@@ -196,8 +172,8 @@ export function StepPersonalInfo({
 
             {/* Name + Bio */}
             <div className="flex-1 space-y-3">
-              <div className="space-y-1">
-                <label htmlFor={`${id}-title`} className="block text-[12px] font-medium text-muted">
+              <div className="space-y-1.5">
+                <label htmlFor={`${id}-title`} className="block text-sm text-[#6B7280]">
                   Nom complet <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -209,8 +185,8 @@ export function StepPersonalInfo({
                   placeholder="Tom Lefebvre"
                   maxLength={100}
                   className={cn(
-                    'w-full rounded-[var(--radius-md)] border bg-surface-warm px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
-                    errors['title'] ? 'border-destructive focus:ring-destructive/20 focus:border-destructive' : 'border-border'
+                    'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+                    errors['title'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
                   )}
                   aria-invalid={!!errors['title']}
                   aria-describedby={errors['title'] ? `${id}-title-error` : undefined}
@@ -222,8 +198,8 @@ export function StepPersonalInfo({
                 )}
               </div>
 
-              <div className="space-y-1">
-                <label htmlFor={`${id}-bio`} className="block text-[12px] font-medium text-muted">
+              <div className="space-y-1.5">
+                <label htmlFor={`${id}-bio`} className="block text-sm text-[#6B7280]">
                   Bio
                 </label>
                 <textarea
@@ -235,8 +211,8 @@ export function StepPersonalInfo({
                   maxLength={MAX_BIO_LENGTH}
                   rows={3}
                   className={cn(
-                    'w-full rounded-[var(--radius-md)] border bg-surface-warm px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[72px] focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
-                    errors['bio'] ? 'border-destructive focus:ring-destructive/20 focus:border-destructive' : 'border-border'
+                    'w-full rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[72px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+                    errors['bio'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
                   )}
                   aria-invalid={!!errors['bio']}
                   aria-describedby={`${id}-bio-count`}
@@ -266,33 +242,30 @@ export function StepPersonalInfo({
             </h2>
           </div>
 
-          <div className="space-y-1">
-            <label htmlFor={`${id}-email`} className="block text-[12px] font-medium text-muted">
+          <div className="space-y-1.5">
+            <label htmlFor={`${id}-email`} className="block text-sm text-[#6B7280]">
               Email de contact
             </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <input
-                id={`${id}-email`}
-                data-testid="input-contact-email"
-                type="email"
-                value={data.contact_email ?? ''}
-                onChange={(e) => {
-                  onChange('contact_email', e.target.value)
-                  if (fieldErrors['contact_email']) setFieldError('contact_email', null)
-                }}
-                onBlur={() => validateEmailOnBlur(data.contact_email ?? '')}
-                placeholder="contact@example.com"
-                className={cn(
-                  'w-full rounded-[var(--radius-md)] border bg-surface-warm pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
-                  (errors['contact_email'] || fieldErrors['contact_email'])
-                    ? 'border-destructive focus:ring-destructive/20 focus:border-destructive'
-                    : 'border-border'
-                )}
-                aria-invalid={!!(errors['contact_email'] || fieldErrors['contact_email'])}
-                aria-describedby={(errors['contact_email'] || fieldErrors['contact_email']) ? `${id}-email-error` : undefined}
-              />
-            </div>
+            <input
+              id={`${id}-email`}
+              data-testid="input-contact-email"
+              type="email"
+              value={data.contact_email ?? ''}
+              onChange={(e) => {
+                onChange('contact_email', e.target.value)
+                if (fieldErrors['contact_email']) setFieldError('contact_email', null)
+              }}
+              onBlur={() => validateEmailOnBlur(data.contact_email ?? '')}
+              placeholder="contact@example.com"
+              className={cn(
+                'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+                (errors['contact_email'] || fieldErrors['contact_email'])
+                  ? 'border-[#DC2626]'
+                  : 'border-[#E5E7EB]'
+              )}
+              aria-invalid={!!(errors['contact_email'] || fieldErrors['contact_email'])}
+              aria-describedby={(errors['contact_email'] || fieldErrors['contact_email']) ? `${id}-email-error` : undefined}
+            />
             {(errors['contact_email'] || fieldErrors['contact_email']) && (
               <p id={`${id}-email-error`} className="text-[11px] text-destructive" role="alert">
                 {errors['contact_email'] || fieldErrors['contact_email']}
@@ -324,38 +297,33 @@ export function StepPersonalInfo({
 
           <div className="grid gap-2.5 grid-cols-2">
             {SOCIAL_PLATFORMS.map((platform) => {
-              const Icon = SOCIAL_ICONS[platform] ?? Globe
               const label = SOCIAL_LABELS[platform] ?? platform
               const placeholder = SOCIAL_PLACEHOLDERS[platform] ?? 'https://...'
-              const brandColor = SOCIAL_COLORS[platform] ?? 'text-muted-foreground'
               const currentValue = data.social_links?.[platform] ?? ''
               const fieldKey = `social_${platform}`
               const error = fieldErrors[fieldKey]
 
               return (
-                <div key={platform} className="space-y-1">
-                  <label htmlFor={`${id}-social-${platform}`} className="block text-[11px] font-medium text-muted">
+                <div key={platform} className="space-y-1.5">
+                  <label htmlFor={`${id}-social-${platform}`} className="block text-sm text-[#6B7280]">
                     {label}
                   </label>
-                  <div className="relative">
-                    <Icon className={cn('absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none', brandColor)} />
-                    <input
-                      id={`${id}-social-${platform}`}
-                      data-testid={`input-social-${platform}`}
-                      type="url"
-                      value={currentValue}
-                      onChange={(e) => {
-                        handleSocialChange(platform, e.target.value)
-                        if (error) setFieldError(fieldKey, null)
-                      }}
-                      onBlur={() => validateUrlOnBlur(fieldKey, currentValue)}
-                      placeholder={placeholder}
-                      className={cn(
-                        'w-full rounded-[var(--radius-sm)] border bg-surface-warm pl-8 pr-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
-                        error ? 'border-destructive focus:ring-destructive/20 focus:border-destructive' : 'border-border'
-                      )}
-                    />
-                  </div>
+                  <input
+                    id={`${id}-social-${platform}`}
+                    data-testid={`input-social-${platform}`}
+                    type="url"
+                    value={currentValue}
+                    onChange={(e) => {
+                      handleSocialChange(platform, e.target.value)
+                      if (error) setFieldError(fieldKey, null)
+                    }}
+                    onBlur={() => validateUrlOnBlur(fieldKey, currentValue)}
+                    placeholder={placeholder}
+                    className={cn(
+                      'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+                      error ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
+                    )}
+                  />
                   {error && (
                     <p className="text-[10px] text-destructive">{error}</p>
                   )}
@@ -417,17 +385,17 @@ function SkillsInput({
         </h2>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] border border-border bg-surface-warm px-3.5 py-2.5 min-h-[40px] transition-colors duration-150 focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 min-h-[40px] transition-[border-color] duration-150 focus-within:border-[#D1D5DB] focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]">
         {skills.map((skill) => (
           <span
             key={skill}
-            className="inline-flex items-center gap-1 rounded-full bg-white border border-border/60 text-foreground px-2.5 py-0.5 text-[12px] font-medium"
+            className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-[#F3F4F6] text-[#111827] rounded-[6px] text-[13px]"
           >
             {skill}
             <button
               type="button"
               onClick={() => removeSkill(skill)}
-              className="flex h-3.5 w-3.5 items-center justify-center rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="flex h-3.5 w-3.5 items-center justify-center text-[#9CA3AF] hover:text-[#111827] transition-colors"
               aria-label={`Supprimer ${skill}`}
             >
               <X className="h-2.5 w-2.5" />
@@ -450,7 +418,7 @@ function SkillsInput({
               }
             }}
             placeholder={skills.length === 0 ? 'React, Figma, TypeScript...' : 'Ajouter...'}
-            className="flex-1 min-w-[100px] bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground outline-none"
+            className="flex-1 min-w-[100px] bg-transparent text-[13px] text-[#111827] placeholder:text-[#9CA3AF] outline-none"
           />
         )}
       </div>

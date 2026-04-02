@@ -66,14 +66,14 @@ export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
                   updateKpi(index, { value: isNaN(num) ? 0 : num })
                 }}
                 placeholder="42"
-                className="w-20 rounded-[var(--radius-sm)] border border-border bg-surface-warm px-3 py-2 text-base font-bold text-foreground text-center placeholder:text-muted-foreground/30 transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
+                className="w-20 h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-base font-bold text-[#111827] text-center placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
               />
               <input
                 type="text"
                 value={kpi.label}
                 onChange={(e) => updateKpi(index, { label: e.target.value })}
                 placeholder="clients satisfaits"
-                className="flex-1 rounded-[var(--radius-sm)] border border-border bg-surface-warm px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
+                className="flex-1 h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-[13px] text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
               />
               <button
                 type="button"
@@ -92,7 +92,7 @@ export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
       <button
         type="button"
         onClick={addKpi}
-        className="flex items-center justify-center gap-1.5 w-full border border-dashed border-accent/30 rounded-[var(--radius-md)] py-2.5 text-[12px] font-medium text-accent transition-all duration-200 hover:border-accent hover:bg-accent-light/50"
+        className="flex items-center justify-center gap-1.5 w-full h-10 border border-dashed border-[#E5E7EB] rounded-lg text-sm font-medium text-[#6B7280] transition-colors duration-150 hover:border-[#D1D5DB] hover:bg-[#F3F4F6]"
       >
         <Plus className="h-3.5 w-3.5" />
         Ajouter un KPI

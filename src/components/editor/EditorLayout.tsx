@@ -142,35 +142,34 @@ export function EditorLayout({
 
   // ── Bottom bar (shared across all layouts) ──
   const bottomBar = (
-    <div className="shrink-0 h-16 bg-white/80 backdrop-blur-sm border-t border-border/50 px-6 flex items-center">
+    <div className="shrink-0 h-16 bg-white border-t border-[#E5E7EB] px-6 flex items-center">
       <div className="flex items-center justify-between w-full">
-        {currentStepIndex > 0 ? (
-          <button
-            type="button"
-            onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-warm transition-colors"
-          >
-            <ChevronRight className="h-4 w-4 rotate-180" />
-            Precedent
-          </button>
-        ) : <span />}
         {saveIndicator}
         <div className="flex items-center gap-3">
           {bottomBarExtra}
+          {currentStepIndex > 0 && (
+            <button
+              type="button"
+              onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
+              className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors duration-150"
+            >
+              Precedent
+            </button>
+          )}
           {nextStep ? (
             <button
               type="button"
               onClick={onNext}
               disabled={!canGoNext}
               className={cn(
-                'group inline-flex items-center gap-2 rounded-[var(--radius-md)] px-6 py-2.5 text-sm font-semibold transition-all duration-200',
+                'inline-flex items-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
                 canGoNext
-                  ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
-                  : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
+                  ? 'bg-[#E8553D] text-white hover:bg-[#D4442E]'
+                  : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
               )}
             >
               Suivant
-              <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           ) : <span />}
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useId, useRef } from 'react'
-import { X, Plus, Link as LinkIcon, AlertCircle } from 'lucide-react'
+import { X, Plus, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ImageUploader } from './ImageUploader'
 import { MAX_PROJECT_DESCRIPTION_LENGTH } from '@/lib/constants'
@@ -139,7 +139,7 @@ export function ProjectForm({
       <div className="space-y-1.5">
         <label
           htmlFor={`${id}-title`}
-          className="block text-[13px] font-medium text-muted"
+          className="block text-sm text-[#6B7280]"
         >
           Titre du projet <span className="text-destructive">*</span>
         </label>
@@ -151,7 +151,7 @@ export function ProjectForm({
           onChange={(e) => handleFieldChange('title', e.target.value)}
           placeholder="Mon super projet"
           maxLength={100}
-          className="w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent"
+          className="w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
         />
         {!project.title.trim() && (
           <p className="text-xs text-muted-foreground">Ex: Refonte du site de mon asso</p>
@@ -162,7 +162,7 @@ export function ProjectForm({
       <div className="space-y-1.5">
         <label
           htmlFor={`${id}-description`}
-          className="block text-[13px] font-medium text-muted"
+          className="block text-sm text-[#6B7280]"
         >
           Description
         </label>
@@ -174,7 +174,7 @@ export function ProjectForm({
           placeholder="Decris ton projet en quelques lignes..."
           maxLength={MAX_PROJECT_DESCRIPTION_LENGTH}
           rows={3}
-          className="w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent"
+          className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[80px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
         />
         <p className="text-xs text-muted-foreground text-right">
           {descriptionLength}/{MAX_PROJECT_DESCRIPTION_LENGTH}
@@ -204,37 +204,32 @@ export function ProjectForm({
       <div className="space-y-1.5">
         <label
           htmlFor={`${id}-link`}
-          className="block text-sm font-medium text-foreground"
+          className="block text-sm text-[#6B7280]"
         >
           Lien externe
         </label>
-        <div className="relative">
-          <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          <input
-            id={`${id}-link`}
-            type="url"
-            value={project.external_link ?? ''}
-            onChange={(e) => {
-              handleFieldChange('external_link', e.target.value || '')
-              if (linkError) setLinkError(null)
-            }}
-            onBlur={() => {
-              const val = project.external_link ?? ''
-              if (val.trim()) {
-                try { new URL(val) ; setLinkError(null) } catch { setLinkError('URL invalide (doit commencer par https://)') }
-              } else {
-                setLinkError(null)
-              }
-            }}
-            placeholder="https://github.com/..."
-            className={cn(
-              'w-full rounded-lg border bg-surface pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent',
-              linkError
-                ? 'border-destructive focus:ring-destructive/20 focus:border-destructive'
-                : 'border-gray-200'
-            )}
-          />
-        </div>
+        <input
+          id={`${id}-link`}
+          type="url"
+          value={project.external_link ?? ''}
+          onChange={(e) => {
+            handleFieldChange('external_link', e.target.value || '')
+            if (linkError) setLinkError(null)
+          }}
+          onBlur={() => {
+            const val = project.external_link ?? ''
+            if (val.trim()) {
+              try { new URL(val) ; setLinkError(null) } catch { setLinkError('URL invalide (doit commencer par https://)') }
+            } else {
+              setLinkError(null)
+            }
+          }}
+          placeholder="https://github.com/..."
+          className={cn(
+            'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+            linkError ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
+          )}
+        />
         {linkError && (
           <p className="text-[11px] text-destructive flex items-center gap-1">
             <AlertCircle className="h-3 w-3" />
@@ -247,21 +242,21 @@ export function ProjectForm({
       <div className="space-y-1.5">
         <label
           htmlFor={`${id}-tags`}
-          className="block text-sm font-medium text-foreground"
+          className="block text-sm text-[#6B7280]"
         >
           Technologies / Tags
         </label>
-        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-gray-200 bg-surface px-4 py-3 min-h-[42px] transition-colors duration-150 focus-within:ring-2 focus-within:ring-accent/20 focus-within:border-accent">
+        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 min-h-[40px] transition-[border-color] duration-150 focus-within:border-[#D1D5DB] focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]">
           {project.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-sm"
+              className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-[#F3F4F6] text-[#111827] rounded-[6px] text-[13px]"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => handleRemoveTag(tag)}
-                className="flex h-3.5 w-3.5 items-center justify-center rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors duration-100"
+                className="flex h-3.5 w-3.5 items-center justify-center text-[#9CA3AF] hover:text-[#111827] transition-colors"
                 aria-label={`Supprimer le tag ${tag}`}
               >
                 <X className="h-2.5 w-2.5" />
@@ -276,7 +271,7 @@ export function ProjectForm({
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagKeyDown}
               placeholder={project.tags.length === 0 ? 'Ajoute un tag et appuie sur Entree' : 'Ajouter...'}
-              className="flex-1 min-w-[100px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
+              className="flex-1 min-w-[100px] bg-transparent text-sm text-[#111827] placeholder:text-[#9CA3AF] outline-none"
             />
           )}
         </div>

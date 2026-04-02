@@ -136,7 +136,7 @@ export function StepProjects({
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-accent px-4 py-2 text-[13px] font-semibold text-white transition-all duration-200 hover:bg-accent-hover active:scale-[0.98] shadow-sm"
+            className="inline-flex items-center gap-1.5 h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E]"
           >
             <Plus className="h-4 w-4" />
             Ajouter
@@ -152,7 +152,7 @@ export function StepProjects({
             type="button"
             data-testid="add-project-btn"
             onClick={openNewProject}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-200 hover:bg-accent-hover active:scale-[0.98] shadow-sm"
+            className="mt-4 inline-flex items-center gap-1.5 h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E]"
           >
             <Plus className="h-4 w-4" />
             Ajouter un projet
@@ -210,7 +210,7 @@ export function StepProjects({
                     {project.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
-                        className="inline-block rounded-full bg-surface-warm border border-border/40 px-2 py-px text-[10px] text-muted font-medium"
+                        className="inline-flex items-center h-5 px-2 bg-[#F3F4F6] text-[#111827] rounded-[6px] text-[10px]"
                       >
                         {tag}
                       </span>
@@ -273,7 +273,7 @@ export function StepProjects({
             <button
               type="button"
               onClick={handleCancel}
-              className="rounded-[var(--radius-md)] px-4 py-2 text-[12px] font-medium text-muted hover:text-foreground hover:bg-surface-warm transition-colors"
+              className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors duration-150"
             >
               Annuler
             </button>
@@ -282,10 +282,10 @@ export function StepProjects({
               onClick={handleSave}
               disabled={!editingProject.title.trim()}
               className={cn(
-                'rounded-[var(--radius-md)] px-5 py-2 text-[12px] font-semibold transition-all duration-200',
+                'h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
                 editingProject.title.trim()
-                  ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98]'
-                  : 'bg-accent/50 text-white/60 cursor-not-allowed'
+                  ? 'bg-[#E8553D] text-white hover:bg-[#D4442E]'
+                  : 'bg-[#E8553D]/50 text-white/60 cursor-not-allowed'
               )}
             >
               {inlineFormIndex >= 0 ? 'Enregistrer' : 'Ajouter'}
@@ -299,7 +299,7 @@ export function StepProjects({
         <button
           type="button"
           onClick={openNewProject}
-          className="flex items-center justify-center gap-1.5 w-full border border-dashed border-accent/30 rounded-[var(--radius-lg)] py-3 text-[12px] font-medium text-accent transition-all duration-200 hover:border-accent hover:bg-accent-light/50"
+          className="flex items-center justify-center gap-1.5 w-full h-10 border border-dashed border-[#E5E7EB] rounded-lg text-sm font-medium text-[#6B7280] transition-colors duration-150 hover:border-[#D1D5DB] hover:bg-[#F3F4F6]"
         >
           <Plus className="h-3.5 w-3.5" />
           Ajouter un projet

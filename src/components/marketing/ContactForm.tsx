@@ -72,7 +72,7 @@ export function ContactForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Ton nom"
-          className="w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-accent focus:outline-none"
+          className="w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
         />
       </div>
 
@@ -87,7 +87,7 @@ export function ContactForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="ton@email.com"
-          className="w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-accent focus:outline-none"
+          className="w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
         />
       </div>
 
@@ -102,7 +102,7 @@ export function ContactForm() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Ton message..."
-          className="w-full rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 resize-y min-h-[120px] focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[120px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
         />
       </div>
 
@@ -114,10 +114,10 @@ export function ContactForm() {
         type="submit"
         disabled={status === 'sending'}
         className={cn(
-          'w-full inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-6 py-3 text-sm font-semibold transition-all duration-200',
+          'w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
           status === 'sending'
-            ? 'bg-accent/60 text-white/60 cursor-not-allowed'
-            : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98]'
+            ? 'bg-[#E8553D]/60 text-white/60 cursor-not-allowed'
+            : 'bg-[#E8553D] text-white hover:bg-[#D4442E]'
         )}
       >
         {status === 'sending' ? (

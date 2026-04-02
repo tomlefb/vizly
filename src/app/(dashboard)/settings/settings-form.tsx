@@ -127,12 +127,12 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
           }}
           placeholder="Ton nom complet"
           maxLength={100}
-          className="flex-1 rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted transition-colors duration-150 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className="flex-1 h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
         />
         <button
           type="submit"
           disabled={isPending || name.trim() === initialName}
-          className="inline-flex items-center rounded-[var(--radius-md)] bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? 'Sauvegarde...' : 'Sauvegarder'}
         </button>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const STEPS = [
@@ -89,23 +89,18 @@ export function StepNavigation({
       </nav>
 
       {/* Bottom navigation buttons */}
-      <div className="flex items-center justify-between pt-6 px-1 border-t border-border-light">
-        <button
-          type="button"
-          data-testid="step-prev"
-          onClick={onPrevious}
-          disabled={isFirst}
-          className={cn(
-            'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-2.5 text-sm font-medium transition-all duration-200',
-            isFirst
-              ? 'text-muted-foreground/40 cursor-not-allowed'
-              : 'text-foreground hover:bg-surface-warm active:scale-[0.98]'
-          )}
-          aria-label="Etape precedente"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Precedent</span>
-        </button>
+      <div className="flex items-center justify-end gap-3 pt-6 px-1 border-t border-[#E5E7EB]">
+        {!isFirst && (
+          <button
+            type="button"
+            data-testid="step-prev"
+            onClick={onPrevious}
+            className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors duration-150"
+            aria-label="Etape precedente"
+          >
+            Precedent
+          </button>
+        )}
 
         <button
           type="button"
@@ -113,10 +108,10 @@ export function StepNavigation({
           onClick={onNext}
           disabled={isLast || !canGoNext}
           className={cn(
-            'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
+            'inline-flex items-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
             isLast || !canGoNext
-              ? 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
-              : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
+              ? 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
+              : 'bg-[#E8553D] text-white hover:bg-[#D4442E]'
           )}
           aria-label={isLast ? 'Derniere etape' : 'Etape suivante'}
         >

@@ -34,7 +34,7 @@ export default async function DomainesPage() {
         </p>
         <Link
           href="/billing"
-          className="mt-6 inline-flex items-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+          className="mt-6 inline-flex items-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E]"
         >
           Passer au Pro
         </Link>
