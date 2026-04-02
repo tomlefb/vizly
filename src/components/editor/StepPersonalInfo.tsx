@@ -151,7 +151,7 @@ export function StepPersonalInfo({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Identity card */}
-        <section className="lg:col-span-7 border border-border rounded-[var(--radius-lg)] p-5 space-y-4">
+        <section className="lg:col-span-7 bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
               <User className="h-3.5 w-3.5 text-accent" />
@@ -168,7 +168,7 @@ export function StepPersonalInfo({
               <button
                 type="button"
                 onClick={() => photoInputRef.current?.click()}
-                className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-border transition-all duration-200 hover:border-accent/50"
+                className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-border bg-surface-warm transition-all duration-200 hover:border-accent/50"
                 aria-label="Choisir une photo de profil"
               >
                 {photoPreview ? (
@@ -209,7 +209,7 @@ export function StepPersonalInfo({
                   placeholder="Tom Lefebvre"
                   maxLength={100}
                   className={cn(
-                    'w-full rounded-[var(--radius-md)] border bg-white px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
+                    'w-full rounded-[var(--radius-md)] border bg-surface-warm px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
                     errors['title'] ? 'border-destructive focus:ring-destructive/20 focus:border-destructive' : 'border-border'
                   )}
                   aria-invalid={!!errors['title']}
@@ -235,7 +235,7 @@ export function StepPersonalInfo({
                   maxLength={MAX_BIO_LENGTH}
                   rows={3}
                   className={cn(
-                    'w-full rounded-[var(--radius-md)] border bg-white px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[72px] focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
+                    'w-full rounded-[var(--radius-md)] border bg-surface-warm px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[72px] focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
                     errors['bio'] ? 'border-destructive focus:ring-destructive/20 focus:border-destructive' : 'border-border'
                   )}
                   aria-invalid={!!errors['bio']}
@@ -256,7 +256,7 @@ export function StepPersonalInfo({
         </section>
 
         {/* Contact card */}
-        <section className="lg:col-span-5 border border-border rounded-[var(--radius-lg)] p-5 space-y-4">
+        <section className="lg:col-span-5 bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
               <Mail className="h-3.5 w-3.5 text-accent" />
@@ -284,7 +284,7 @@ export function StepPersonalInfo({
                 onBlur={() => validateEmailOnBlur(data.contact_email ?? '')}
                 placeholder="contact@example.com"
                 className={cn(
-                  'w-full rounded-[var(--radius-md)] border bg-white pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
+                  'w-full rounded-[var(--radius-md)] border bg-surface-warm pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
                   (errors['contact_email'] || fieldErrors['contact_email'])
                     ? 'border-destructive focus:ring-destructive/20 focus:border-destructive'
                     : 'border-border'
@@ -312,7 +312,7 @@ export function StepPersonalInfo({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* Social links */}
-        <section className="border border-border rounded-[var(--radius-lg)] p-5 space-y-4">
+        <section className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
               <Globe className="h-3.5 w-3.5 text-accent" />
@@ -351,7 +351,7 @@ export function StepPersonalInfo({
                       onBlur={() => validateUrlOnBlur(fieldKey, currentValue)}
                       placeholder={placeholder}
                       className={cn(
-                        'w-full rounded-[var(--radius-sm)] border bg-white pl-8 pr-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
+                        'w-full rounded-[var(--radius-sm)] border bg-surface-warm pl-8 pr-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent',
                         error ? 'border-destructive focus:ring-destructive/20 focus:border-destructive' : 'border-border'
                       )}
                     />
@@ -407,7 +407,7 @@ function SkillsInput({
   )
 
   return (
-    <section className="border border-border rounded-[var(--radius-lg)] p-5 space-y-4">
+    <section className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
       <div className="flex items-center gap-2.5">
         <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
           <Hash className="h-3.5 w-3.5 text-accent" />
@@ -417,7 +417,7 @@ function SkillsInput({
         </h2>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] border border-border bg-white px-3.5 py-2.5 min-h-[40px] transition-colors duration-150 focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] border border-border bg-surface-warm px-3.5 py-2.5 min-h-[40px] transition-colors duration-150 focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent">
         {skills.map((skill) => (
           <span
             key={skill}

@@ -37,7 +37,7 @@ export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
   }, [kpis, onChange])
 
   return (
-    <section className="border border-border rounded-[var(--radius-lg)] p-5 space-y-4">
+    <section className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-5 space-y-4">
       <div className="flex items-center gap-2.5">
         <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
           <BarChart3 className="h-3.5 w-3.5 text-accent" />
@@ -66,14 +66,14 @@ export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
                   updateKpi(index, { value: isNaN(num) ? 0 : num })
                 }}
                 placeholder="42"
-                className="w-20 rounded-[var(--radius-sm)] border border-border bg-white px-3 py-2 text-base font-bold text-foreground text-center placeholder:text-muted-foreground/30 transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
+                className="w-20 rounded-[var(--radius-sm)] border border-border bg-surface-warm px-3 py-2 text-base font-bold text-foreground text-center placeholder:text-muted-foreground/30 transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
               />
               <input
                 type="text"
                 value={kpi.label}
                 onChange={(e) => updateKpi(index, { label: e.target.value })}
                 placeholder="clients satisfaits"
-                className="flex-1 rounded-[var(--radius-sm)] border border-border bg-white px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
+                className="flex-1 rounded-[var(--radius-sm)] border border-border bg-surface-warm px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
               />
               <button
                 type="button"

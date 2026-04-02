@@ -703,7 +703,7 @@ export function EditorClient({
   return (
     <>
     <style>{`.vizly-editor{left:0}@media(min-width:1024px){.vizly-editor{left:${sidebarWidth}px;transition:left 200ms ease-out}}`}</style>
-    <div className="vizly-editor fixed inset-y-0 right-0 z-40 bg-white">
+    <div className="vizly-editor fixed inset-y-0 right-0 z-40 bg-surface-warm">
       <EditorLayout
         saveStatus={saveStatus}
         saveError={saveError}

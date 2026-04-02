@@ -180,7 +180,7 @@ export function StepPublish({
         </div>
 
         {/* URL copy box */}
-        <div className="flex items-center gap-2 border border-border rounded-[var(--radius-md)] p-1.5">
+        <div className="flex items-center gap-2 bg-white border border-border/60 rounded-[var(--radius-md)] p-1.5">
           <input
             type="text"
             readOnly
@@ -298,7 +298,7 @@ export function StepPublish({
       </div>
 
       {/* Recap card */}
-      <div className="border border-border rounded-[var(--radius-lg)] p-4 space-y-2.5">
+      <div className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-4 space-y-2.5">
         <h3 className="text-[12px] font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
           Recapitulatif
         </h3>

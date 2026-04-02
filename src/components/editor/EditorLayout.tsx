@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import {
+  User,
+  FolderOpen,
+  FileText,
+  Palette,
+  Globe,
   Maximize2,
   X,
   Check,
   Loader2,
-  ChevronLeft,
   ChevronRight,
   Monitor,
   Smartphone,
@@ -21,11 +25,11 @@ import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
 const STEPS = [
-  { id: 1, label: 'Profil' },
-  { id: 2, label: 'Projets' },
-  { id: 3, label: 'Contenu' },
-  { id: 4, label: 'Design' },
-  { id: 5, label: 'Publier' },
+  { id: 1, label: 'Profil', icon: User },
+  { id: 2, label: 'Projets', icon: FolderOpen },
+  { id: 3, label: 'Contenu', icon: FileText },
+  { id: 4, label: 'Design', icon: Palette },
+  { id: 5, label: 'Publier', icon: Globe },
 ]
 
 function useGoogleFont(fontName: string) {
@@ -141,17 +145,17 @@ export function EditorLayout({
     : portfolioData.template === 'colore' ? '#FFF5E6'
     : '#FAFAF8'
 
-  // ── Bottom bar (Apollo style: Back left, save center, Next right) ──
+  // ── Bottom bar (shared across all layouts) ──
   const bottomBar = (
-    <div className="shrink-0 h-16 bg-white border-t border-border/40 px-6 flex items-center">
+    <div className="shrink-0 h-16 bg-white/80 backdrop-blur-sm border-t border-border/50 px-6 flex items-center">
       <div className="flex items-center justify-between w-full">
         {currentStepIndex > 0 ? (
           <button
             type="button"
             onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-surface-warm transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-warm transition-colors"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronRight className="h-4 w-4 rotate-180" />
             Precedent
           </button>
         ) : <span />}
@@ -164,14 +168,14 @@ export function EditorLayout({
               onClick={onNext}
               disabled={!canGoNext}
               className={cn(
-                'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2 text-[13px] font-semibold transition-all duration-200',
+                'group inline-flex items-center gap-2 rounded-[var(--radius-md)] px-6 py-2.5 text-sm font-semibold transition-all duration-200',
                 canGoNext
-                  ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98]'
+                  ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
                   : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
               )}
             >
               Suivant
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </button>
           ) : <span />}
         </div>
@@ -181,56 +185,77 @@ export function EditorLayout({
 
   return (
     <>
-      <div className="flex flex-col h-full min-h-0 bg-white">
-        {/* ── Stepper — tab underline style (Sprig/Apollo) ── */}
-        <div className="shrink-0 border-b border-border/40 bg-white">
-          <nav className="flex items-center gap-0 px-4 sm:px-6" aria-label="Etapes editeur">
+      <div className="flex flex-col h-full min-h-0">
+        {/* ── Stepper ── */}
+        <div className="shrink-0 border-b border-border/50 bg-white px-4 sm:px-6 py-2.5">
+          <nav className="flex items-start w-full" aria-label="Etapes editeur">
             {STEPS.map((step, index) => {
+              const stepIndex = index
               const isActive = currentStep === step.id
-              const isPast = index < currentStepIndex
+              const isPast = stepIndex < currentStepIndex
+              const StepIcon = step.icon
 
               return (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => onStepChange(step.id)}
-                  className={cn(
-                    'relative px-4 py-3 text-[13px] font-medium transition-colors duration-150 whitespace-nowrap',
-                    isActive
-                      ? 'text-foreground'
-                      : isPast
-                        ? 'text-foreground/70 hover:text-foreground'
-                        : 'text-muted-foreground hover:text-foreground/70'
+                <div key={step.id} className={cn('flex items-start', index < STEPS.length - 1 ? 'flex-1' : 'shrink-0')}>
+                  <button
+                    type="button"
+                    onClick={() => onStepChange(step.id)}
+                    className="flex flex-col items-center gap-1 group shrink-0"
+                  >
+                    <div
+                      className={cn(
+                        'flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200',
+                        isActive
+                          ? 'bg-accent text-white shadow-[0_2px_8px_rgba(212,99,78,0.25)]'
+                          : isPast
+                            ? 'bg-accent/10 text-accent'
+                            : 'bg-surface-warm text-muted-foreground group-hover:text-foreground group-hover:bg-border-light'
+                      )}
+                    >
+                      {isPast ? (
+                        <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                      ) : (
+                        <StepIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      )}
+                    </div>
+                    <span className={cn(
+                      'text-[10px] font-medium hidden sm:inline transition-colors whitespace-nowrap',
+                      isActive ? 'text-accent' : isPast ? 'text-foreground' : 'text-muted-foreground'
+                    )}>
+                      {step.label}
+                    </span>
+                  </button>
+                  {index < STEPS.length - 1 && (
+                    <div className="flex-1 mt-3.5 mx-1.5">
+                      <div className="h-0.5 rounded-full bg-border-light overflow-hidden">
+                        <div className={cn(
+                          'h-full rounded-full bg-accent transition-all duration-300',
+                          isPast ? 'w-full' : isActive ? 'w-1/2' : 'w-0'
+                        )} />
+                      </div>
+                    </div>
                   )}
-                >
-                  {step.label}
-                  {/* Active underline */}
-                  <span className={cn(
-                    'absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-colors duration-200',
-                    isActive ? 'bg-accent' : isPast ? 'bg-accent/25' : 'bg-transparent'
-                  )} />
-                </button>
+                </div>
               )
             })}
-            {/* Progress line behind tabs */}
           </nav>
         </div>
 
         {/* ── Main content ── */}
         {isDesignStep ? (
-          /* Step 4: Split — config left + preview right */
+          /* Step 4: Split — config left (35%) + preview right (65%) */
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 flex min-h-0">
               {/* Config panel */}
-              <div className="w-[35%] overflow-y-auto border-r border-border/40 bg-white px-5 py-5">
+              <div className="w-[35%] overflow-y-auto border-r border-border/50 px-4 sm:px-5 py-5">
                 {children}
               </div>
               {/* Preview panel */}
-              <div className="flex-1 flex flex-col overflow-hidden bg-surface-warm">
-                {/* Preview bar */}
-                <div className="shrink-0 flex items-center justify-between border-b border-border/40 bg-white px-4 h-10">
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Minimal preview bar — no browser chrome */}
+                <div className="shrink-0 flex items-center justify-between border-b border-border/50 bg-white/60 backdrop-blur-sm px-4 h-10">
                   <span />
-                  <span className="text-[11px] text-muted-foreground font-mono tracking-wide">pseudo.vizly.fr</span>
+                  <span className="text-[11px] text-muted font-mono tracking-wide">pseudo.vizly.fr</span>
                   <div className="flex items-center gap-1">
                     <button type="button" onClick={() => setPreviewDevice('desktop')}
                       className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'desktop' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
@@ -247,7 +272,7 @@ export function EditorLayout({
                       title="Mobile" aria-label="Vue mobile">
                       <Smartphone className="h-3.5 w-3.5" />
                     </button>
-                    <div className="w-px h-4 bg-border/40 mx-0.5" />
+                    <div className="w-px h-4 bg-border/50 mx-0.5" />
                     <button type="button" onClick={() => setPreviewOpen(true)}
                       className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-foreground transition-colors"
                       title="Plein ecran" aria-label="Plein ecran">
@@ -289,13 +314,13 @@ export function EditorLayout({
             {bottomBar}
           </div>
         ) : (
-          /* Steps 1, 2, 3, 5: Full width form on white background */
+          /* Steps 1, 2, 3, 5: Full width form */
           <div className="flex-1 flex flex-col min-h-0">
             <div className={cn(
-              'flex-1 overflow-y-auto px-6 py-6 bg-white',
+              'flex-1 overflow-y-auto px-5 py-5',
               isPublishStep && 'flex items-start justify-center'
             )}>
-              <div className={cn(isPublishStep ? 'w-full max-w-lg' : 'max-w-3xl')}>
+              <div className={cn(isPublishStep && 'w-full max-w-lg')}>
                 {children}
               </div>
             </div>
@@ -308,10 +333,11 @@ export function EditorLayout({
       {previewOpen && (
         <div className="fixed inset-0 z-50 bg-background">
           <div className="flex flex-col h-full">
-            <div className="shrink-0 flex items-center justify-between border-b border-border/40 px-6 h-12">
-              <span className="text-[11px] text-muted-foreground font-mono tracking-wide">pseudo.vizly.fr</span>
+            {/* Minimal header */}
+            <div className="shrink-0 flex items-center justify-between border-b border-border/50 px-6 h-12">
+              <span className="text-[11px] text-muted font-mono tracking-wide">pseudo.vizly.fr</span>
               <button type="button" onClick={() => setPreviewOpen(false)}
-                className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:bg-surface-warm">
+                className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm">
                 <X className="h-4 w-4" />
                 Fermer
               </button>

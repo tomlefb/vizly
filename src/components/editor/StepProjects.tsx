@@ -173,7 +173,7 @@ export function StepProjects({
               onDrop={() => handleDrop(index)}
               onDragEnd={handleDragEnd}
               className={cn(
-                'group relative flex gap-3 rounded-[var(--radius-lg)] border border-border p-3.5 cursor-grab active:cursor-grabbing transition-all duration-150',
+                'group relative flex gap-3 rounded-[var(--radius-lg)] border bg-white p-3.5 cursor-grab active:cursor-grabbing transition-all duration-150',
                 dragOverIndex === index
                   ? 'border-accent ring-1 ring-accent/20'
                   : 'border-border/60 hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)]',
@@ -248,7 +248,7 @@ export function StepProjects({
 
       {/* Inline form — appears below the list or empty state */}
       {inlineFormIndex !== null && (
-        <div className="border border-border rounded-[var(--radius-lg)] overflow-hidden">
+        <div className="bg-white border border-border/60 rounded-[var(--radius-lg)] overflow-hidden">
           <div className="flex items-center justify-between border-b border-border/40 px-5 py-3">
             <h3 className="text-[14px] font-medium text-foreground font-[family-name:var(--font-satoshi)]">
               {inlineFormIndex >= 0 ? 'Modifier le projet' : 'Nouveau projet'}
