@@ -595,13 +595,7 @@ export function TemplateElegant({
           minHeight: '100vh',
         }}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', columnGap: '1.5rem' }}>
-          {visibleSections.map(section => {
-            const el = renderSection(section)
-            if (!el) return null
-            return <div key={section.id} style={{ gridColumn: `span ${section.width ?? 12}` }}>{el}</div>
-          })}
-        </div>
+        {visibleSections.map(renderSection)}
 
         {/* Footer */}
         <footer

@@ -1,0 +1,159 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Retour au dashboard" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e6]: Vizly
+      - navigation "Navigation principale" [ref=e8]:
+        - generic [ref=e9]:
+          - link "Dashboard" [ref=e10] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e11]
+            - text: Dashboard
+          - link "Templates" [ref=e13] [cursor=pointer]:
+            - /url: /mes-templates
+            - img [ref=e14]
+            - text: Templates
+          - link "Facturation" [ref=e16] [cursor=pointer]:
+            - /url: /billing
+            - img [ref=e17]
+            - text: Facturation
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: Pro
+          - link "Statistiques" [ref=e21] [cursor=pointer]:
+            - /url: /statistiques
+            - img [ref=e22]
+            - text: Statistiques
+          - link "Domaines" [ref=e24] [cursor=pointer]:
+            - /url: /domaines
+            - img [ref=e25]
+            - text: Domaines
+      - generic [ref=e27]:
+        - link "Accueil" [ref=e28] [cursor=pointer]:
+          - /url: /
+          - img [ref=e29]
+          - text: Accueil
+        - link "Mon compte" [ref=e31] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e32]
+          - text: Mon compte
+        - button "Déconnexion" [ref=e34]:
+          - img [ref=e35]
+          - text: Déconnexion
+    - main [ref=e37]:
+      - generic [ref=e40]:
+        - navigation "Etapes editeur" [ref=e42]:
+          - button "1 Profil" [ref=e44]:
+            - generic [ref=e45]: "1"
+            - generic [ref=e46]: Profil
+          - button "2 Projets" [ref=e51]:
+            - generic [ref=e52]: "2"
+            - generic [ref=e53]: Projets
+          - button "3 Contenu" [ref=e57]:
+            - generic [ref=e58]: "3"
+            - generic [ref=e59]: Contenu
+          - button "4 Design" [ref=e63]:
+            - generic [ref=e64]: "4"
+            - generic [ref=e65]: Design
+          - button "5 Publier" [ref=e69]:
+            - generic [ref=e70]: "5"
+            - generic [ref=e71]: Publier
+        - generic [ref=e72]:
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - heading "Ton profil" [level=1] [ref=e77]
+              - paragraph [ref=e78]: Les informations de base de ton portfolio
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - img [ref=e82]
+                - generic [ref=e85]:
+                  - heading "Identite" [level=2] [ref=e86]
+                  - paragraph [ref=e87]: Ton nom et ta presentation
+              - generic [ref=e88]:
+                - generic [ref=e89]:
+                  - button "Choisir une photo de profil" [ref=e90]:
+                    - img [ref=e91]
+                  - button [ref=e94]
+                  - paragraph [ref=e95]: Ajouter une photo
+                - generic [ref=e97]:
+                  - generic [ref=e98]: Nom complet *
+                  - textbox "Nom complet *" [ref=e99]:
+                    - /placeholder: Tom Lefebvre
+                    - text: jh
+              - generic [ref=e100]:
+                - generic [ref=e101]: Bio
+                - textbox "Bio" [ref=e102]:
+                  - /placeholder: Parle de toi en quelques lignes... Ce que tu fais, ce qui te passionne, ce que tu cherches.
+                  - text: kjhkjhkjhkjh
+                - paragraph [ref=e104]: 12/500
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - img [ref=e108]
+                - generic [ref=e111]:
+                  - heading "Contact" [level=2] [ref=e112]
+                  - paragraph [ref=e113]: Comment tes visiteurs peuvent te joindre
+              - generic [ref=e114]:
+                - generic [ref=e115]: Email de contact
+                - generic [ref=e116]:
+                  - img
+                  - textbox "Email de contact" [ref=e117]:
+                    - /placeholder: contact@example.com
+            - generic [ref=e118]:
+              - generic [ref=e119]:
+                - img [ref=e121]
+                - generic [ref=e124]:
+                  - heading "Reseaux sociaux" [level=2] [ref=e125]
+                  - paragraph [ref=e126]: Tes liens vers tes profils en ligne
+              - generic [ref=e127]:
+                - generic [ref=e128]:
+                  - generic [ref=e129]: LinkedIn
+                  - generic [ref=e130]:
+                    - img
+                    - textbox "LinkedIn" [ref=e131]:
+                      - /placeholder: https://linkedin.com/in/...
+                - generic [ref=e132]:
+                  - generic [ref=e133]: GitHub
+                  - generic [ref=e134]:
+                    - img
+                    - textbox "GitHub" [ref=e135]:
+                      - /placeholder: https://github.com/...
+                - generic [ref=e136]:
+                  - generic [ref=e137]: Dribbble
+                  - generic [ref=e138]:
+                    - img
+                    - textbox "Dribbble" [ref=e139]:
+                      - /placeholder: https://dribbble.com/...
+                - generic [ref=e140]:
+                  - generic [ref=e141]: Instagram
+                  - generic [ref=e142]:
+                    - img
+                    - textbox "Instagram" [ref=e143]:
+                      - /placeholder: https://instagram.com/...
+                - generic [ref=e144]:
+                  - generic [ref=e145]: Twitter / X
+                  - generic [ref=e146]:
+                    - img
+                    - textbox "Twitter / X" [ref=e147]:
+                      - /placeholder: https://x.com/...
+                - generic [ref=e148]:
+                  - generic [ref=e149]: Site web
+                  - generic [ref=e150]:
+                    - img
+                    - textbox "Site web" [ref=e151]:
+                      - /placeholder: https://...
+            - generic [ref=e152]:
+              - generic [ref=e153]:
+                - img [ref=e155]
+                - generic [ref=e158]:
+                  - heading "Competences" [level=2] [ref=e159]
+                  - paragraph [ref=e160]: Ajoute tes technologies, outils et savoir-faire
+              - textbox "React, Figma, TypeScript..." [ref=e162]
+              - generic [ref=e163]:
+                - generic [ref=e164]: Appuie sur Entree pour ajouter
+                - generic [ref=e165]: 0/30
+          - button "Suivant" [ref=e168]:
+            - text: Suivant
+            - img [ref=e169]
+  - button "Open Next.js Dev Tools" [ref=e176] [cursor=pointer]:
+    - img [ref=e177]
+  - alert [ref=e180]

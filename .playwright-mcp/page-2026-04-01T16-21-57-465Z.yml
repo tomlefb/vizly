@@ -1,0 +1,102 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Retour au dashboard" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e6]: Vizly
+      - navigation "Navigation principale" [ref=e8]:
+        - generic [ref=e9]:
+          - link "Dashboard" [ref=e10] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e11]
+            - text: Dashboard
+          - link "Templates" [ref=e13] [cursor=pointer]:
+            - /url: /mes-templates
+            - img [ref=e14]
+            - text: Templates
+          - link "Facturation" [ref=e16] [cursor=pointer]:
+            - /url: /billing
+            - img [ref=e17]
+            - text: Facturation
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: Pro
+          - link "Statistiques" [ref=e21] [cursor=pointer]:
+            - /url: /statistiques
+            - img [ref=e22]
+            - text: Statistiques
+          - link "Domaines" [ref=e24] [cursor=pointer]:
+            - /url: /domaines
+            - img [ref=e25]
+            - text: Domaines
+      - generic [ref=e27]:
+        - link "Accueil" [ref=e28] [cursor=pointer]:
+          - /url: /
+          - img [ref=e29]
+          - text: Accueil
+        - link "Mon compte" [ref=e31] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e32]
+          - text: Mon compte
+        - button "Déconnexion" [ref=e34]:
+          - img [ref=e35]
+          - text: Déconnexion
+    - main [ref=e37]:
+      - generic [ref=e40]:
+        - navigation "Etapes editeur" [ref=e42]:
+          - button "Profil" [ref=e181]:
+            - img [ref=e182]
+            - generic [ref=e46]: Profil
+          - button "Projets" [ref=e184]:
+            - img [ref=e185]
+            - generic [ref=e53]: Projets
+          - button "Contenu" [ref=e188]:
+            - img [ref=e189]
+            - generic [ref=e59]: Contenu
+          - button "Design" [ref=e192]:
+            - img [ref=e193]
+            - generic [ref=e65]: Design
+          - button "5 Publier" [active] [ref=e69]:
+            - generic [ref=e70]: "5"
+            - generic [ref=e71]: Publier
+        - generic [ref=e72]:
+          - generic [ref=e196]:
+            - generic [ref=e197]:
+              - img [ref=e199]
+              - heading "Publie ton portfolio" [level=2] [ref=e204]
+              - paragraph [ref=e205]: Choisis ton pseudo pour ton URL personnalisee. Ton portfolio sera accessible a tout le monde.
+            - generic [ref=e206]:
+              - generic [ref=e207]: Ton pseudo
+              - generic [ref=e208]:
+                - textbox "Ton pseudo" [ref=e209]:
+                  - /placeholder: tonpseudo
+                - generic [ref=e211]: .vizly.fr
+            - generic [ref=e213]:
+              - heading "Recapitulatif" [level=3] [ref=e214]
+              - generic [ref=e215]:
+                - generic [ref=e216]:
+                  - img [ref=e217]
+                  - generic [ref=e220]: Nom
+                  - generic [ref=e221]: jh
+                - generic [ref=e222]:
+                  - img [ref=e223]
+                  - generic [ref=e225]: Template
+                  - generic [ref=e226]: dark
+                - generic [ref=e227]:
+                  - img [ref=e228]
+                  - generic [ref=e230]: Projets
+                  - generic [ref=e231]: "0"
+                - generic [ref=e232]:
+                  - img [ref=e233]
+                  - generic [ref=e236]: URL
+                  - generic [ref=e237]: —
+            - generic [ref=e238]:
+              - button "Publier mon portfolio" [disabled] [ref=e239]:
+                - img [ref=e240]
+                - text: Publier mon portfolio
+              - paragraph [ref=e245]: Ton portfolio sera accessible publiquement.
+          - button "Precedent" [ref=e246]:
+            - img [ref=e247]
+            - text: Precedent
+  - button "Open Next.js Dev Tools" [ref=e176] [cursor=pointer]:
+    - img [ref=e177]
+  - alert [ref=e180]

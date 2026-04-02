@@ -274,13 +274,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
 
       <div style={{ fontFamily: "'Source Sans 3', sans-serif", backgroundColor: '#FAFAFA', color: '#2D2D2D', minHeight: '100vh' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', columnGap: '1.5rem' }}>
-          {visibleSections.map(section => {
-            const el = renderSection(section)
-            if (!el) return null
-            return <div key={section.id} style={{ gridColumn: `span ${section.width ?? 12}` }}>{el}</div>
-          })}
-        </div>
+        {visibleSections.map(renderSection)}
 
         {/* Footer */}
         <footer className="px-6 py-8" style={{ borderTop: '1px solid #EBEBEB' }}>
