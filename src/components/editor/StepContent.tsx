@@ -386,7 +386,7 @@ export function StepContent({
       {modalType && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/30" onClick={closeModal} onKeyDown={() => {}} role="presentation" />
-          <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-white rounded-xl overflow-hidden mx-4', modalType === 'layout' ? 'max-w-[960px]' : 'max-w-[560px]')}>
+          <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-white rounded-xl overflow-hidden mx-4', modalType === 'layout' ? 'max-w-[1060px]' : 'max-w-[560px]')}>
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-8 space-y-5">
               {/* Close button */}
