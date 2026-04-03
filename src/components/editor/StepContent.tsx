@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Plus,
   Pencil,
@@ -382,10 +383,10 @@ export function StepContent({
       {/* MODALS */}
       {/* ══════════════════════════════════════════════════════════════ */}
 
-      {modalType && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center">
+      {modalType && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/30" onClick={closeModal} onKeyDown={() => {}} role="presentation" />
-          <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-white rounded-xl overflow-hidden', modalType === 'layout' ? 'max-w-[720px]' : 'max-w-[560px]')}>
+          <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-white rounded-xl overflow-hidden mx-4', modalType === 'layout' ? 'max-w-[900px]' : 'max-w-[560px]')}>
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-8 space-y-5">
               {/* Close button */}
@@ -560,7 +561,8 @@ export function StepContent({
             {modalType === 'kpi' && <ModalFooter onSave={saveKpi} disabled={!editingKpi.label.trim()} label={editingIndex >= 0 ? 'Enregistrer' : 'Ajouter'} />}
             {modalType === 'layout' && <ModalFooter onSave={saveLayout} disabled={false} label={editingIndex >= 0 ? 'Enregistrer' : 'Ajouter'} />}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
