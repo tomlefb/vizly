@@ -279,11 +279,11 @@ export function StepContent({
 
   function ModalFooter({ onSave, disabled, label }: { onSave: () => void; disabled: boolean; label: string }) {
     return (
-      <div className="sticky bottom-0 -mx-8 -mb-8 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center gap-3">
+      <div className="shrink-0 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+        <button type="button" onClick={closeModal} className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors">Annuler</button>
         <button type="button" onClick={onSave} disabled={disabled} className={cn('h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150', disabled ? 'bg-[#E8553D]/50 text-white/60 cursor-not-allowed' : 'bg-[#E8553D] text-white hover:bg-[#D4442E]')}>
           {label}
         </button>
-        <button type="button" onClick={closeModal} className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors">Annuler</button>
       </div>
     )
   }
@@ -383,9 +383,9 @@ export function StepContent({
       {/* ══════════════════════════════════════════════════════════════ */}
 
       {modalType && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/30" onClick={closeModal} onKeyDown={() => {}} role="presentation" />
-          <div className="relative w-full max-w-[560px] max-h-[85vh] flex flex-col bg-white rounded-xl overflow-hidden">
+          <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-white rounded-xl overflow-hidden', modalType === 'layout' ? 'max-w-[720px]' : 'max-w-[560px]')}>
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto p-8 space-y-5">
               {/* Close button */}
@@ -479,30 +479,73 @@ export function StepContent({
                         </div>
 
                         {col.type === 'text' && (
-                          <>
+                          <div className="space-y-2">
                             <input type="text" value={col.title ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { title: e.target.value })} placeholder="Titre" className={inputClass} />
-                            <textarea value={col.content ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { content: e.target.value })} placeholder="Contenu..." rows={3} className={textareaClass} />
-                          </>
+                            <input type="text" value={(col as LayoutColumn & { subtitle?: string }).subtitle ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { subtitle: e.target.value } as Partial<LayoutColumn>)} placeholder="Sous-titre (optionnel)" className={inputClass} />
+                            <RichTextEditor value={col.content ?? ''} onChange={(v) => updateLayoutColumn(colIdx, { content: v })} />
+                          </div>
                         )}
                         {col.type === 'image' && (
-                          <>
-                            <input type="url" value={col.imageUrl ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { imageUrl: e.target.value })} placeholder="URL de l&apos;image" className={inputClass} />
+                          <div className="space-y-2">
+                            <div
+                              className="flex flex-col items-center justify-center gap-1 rounded-xl border-[1.5px] border-dashed border-[#E5E7EB] bg-[#F9FAFB] py-6 cursor-pointer hover:border-[#D1D5DB] transition-[border-color] duration-150"
+                              onClick={() => {
+                                const input = document.createElement('input')
+                                input.type = 'file'
+                                input.accept = 'image/jpeg,image/png,image/webp'
+                                input.onchange = async (e) => {
+                                  const file = (e.target as HTMLInputElement).files?.[0]
+                                  if (!file) return
+                                  const body = new FormData(); body.append('file', file)
+                                  try {
+                                    const res = await fetch('/api/upload', { method: 'POST', body })
+                                    const result = (await res.json()) as { url?: string }
+                                    if (result.url) updateLayoutColumn(colIdx, { imageUrl: result.url })
+                                  } catch { /* skip */ }
+                                }
+                                input.click()
+                              }}
+                              onKeyDown={() => {}}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              {col.imageUrl ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img src={col.imageUrl} alt={col.imageAlt ?? ''} className="w-full h-24 object-cover rounded-lg" />
+                              ) : (
+                                <>
+                                  <Upload className="h-5 w-5 text-[#9CA3AF]" />
+                                  <p className="text-[12px] text-[#9CA3AF]">Cliquer pour importer</p>
+                                </>
+                              )}
+                            </div>
                             <input type="text" value={col.imageAlt ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { imageAlt: e.target.value })} placeholder="Texte alternatif" className={inputClass} />
-                            {col.imageUrl && (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img src={col.imageUrl} alt={col.imageAlt ?? ''} className="w-full h-20 object-cover rounded-lg border border-[#E5E7EB]" />
-                            )}
-                          </>
+                          </div>
                         )}
                         {col.type === 'kpi' && col.kpi && (
-                          <>
-                            <input type="number" value={col.kpi.value || ''} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, value: parseFloat(e.target.value) || 0 } })} placeholder="Valeur" className={inputClass} />
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-5 gap-1">
+                              {KPI_TYPES.slice(0, 10).map((t) => (
+                                <button key={t.type} type="button" onClick={() => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, type: t.type } })}
+                                  className={cn('flex flex-col items-center gap-0.5 rounded-md py-1 text-center transition-colors duration-150', col.kpi!.type === t.type ? 'bg-[#111827] text-white' : 'border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]')}>
+                                  <span className="text-[10px]">{t.icon}</span>
+                                  <span className="text-[8px] leading-tight">{t.label}</span>
+                                </button>
+                              ))}
+                            </div>
                             <input type="text" value={col.kpi.label} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, label: e.target.value } })} placeholder="Label" className={inputClass} />
-                            <input type="text" value={col.kpi.unit} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, unit: e.target.value } })} placeholder="Unite" className={inputClass} />
-                          </>
+                            <div className="grid grid-cols-3 gap-2">
+                              <input type="number" value={col.kpi.value || ''} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, value: parseFloat(e.target.value) || 0 } })} placeholder="Valeur" className={inputClass} />
+                              <input type="number" value={col.kpi.maxValue || ''} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, maxValue: parseFloat(e.target.value) || 100 } })} placeholder="Max" className={inputClass} />
+                              <input type="text" value={col.kpi.unit} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, unit: e.target.value } })} placeholder="Unite" className={inputClass} />
+                            </div>
+                            <div className="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-3 flex items-center justify-center min-h-[60px]">
+                              <KpiRenderer kpi={col.kpi} primaryColor="#E8553D" />
+                            </div>
+                          </div>
                         )}
                         {col.type === 'empty' && (
-                          <p className="text-[13px] text-[#9CA3AF] py-4 text-center">Colonne vide</p>
+                          <p className="text-[13px] text-[#9CA3AF] py-4 text-center">Vide — espace libre</p>
                         )}
                       </div>
                     ))}
