@@ -2,10 +2,7 @@
   "name": "vizly",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": "20.x"
-  },
-  "scripts": {
+"scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
