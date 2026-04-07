@@ -1,0 +1,11 @@
+.claude
+node_modules
+.next
+.git
+.env
+.env.local
+.env*.local
+tests
+playwright-report
+test-results
+.vercel

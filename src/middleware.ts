@@ -8,14 +8,14 @@ export async function middleware(request: NextRequest) {
   // Extract subdomain
   const subdomain = hostname.replace(`.${rootDomain}`, '').replace(`:${request.nextUrl.port}`, '')
 
-  // If it's the main domain, www, vercel.app, or localhost, continue normally
+  // If it's the main domain, www, or localhost, continue normally
   if (
     subdomain === 'www' ||
     subdomain === rootDomain ||
     hostname === rootDomain ||
     hostname === 'localhost' ||
     hostname.startsWith('localhost:') ||
-    hostname.endsWith('.vercel.app')
+    hostname.endsWith('.railway.app')
   ) {
     return await updateSession(request)
   }
