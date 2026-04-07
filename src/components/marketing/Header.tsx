@@ -17,11 +17,13 @@ const navLinks = [
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [authReady, setAuthReady] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       setIsLoggedIn(!!user)
+      setAuthReady(true)
     })
   }, [])
 
@@ -52,7 +54,9 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-5">
-          {isLoggedIn ? (
+          {!authReady ? (
+            <div className="w-[140px]" />
+          ) : isLoggedIn ? (
             <Link
               href="/dashboard"
               className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
@@ -115,7 +119,9 @@ export function Header() {
           </ul>
 
           <div className="border-t border-border pt-4 space-y-3">
-            {isLoggedIn ? (
+            {!authReady ? (
+              <div className="h-10" />
+            ) : isLoggedIn ? (
               <Link
                 href="/dashboard"
                 className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
