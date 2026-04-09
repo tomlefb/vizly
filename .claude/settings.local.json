@@ -5,7 +5,13 @@
       "Bash(npx:*)",
       "Bash(for dir:*)",
       "Bash(do echo:*)",
-      "Bash(grep -v \"^\\\\.$\" done)"
+      "Bash(grep -v \"^\\\\.$\" done)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "mcp__vercel__list_deployments",
+      "mcp__vercel__get_deployment_build_logs",
+      "Bash(node:*)"
     ]
   }
 }
