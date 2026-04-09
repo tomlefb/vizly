@@ -62,13 +62,8 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
     .sort((a, b) => a.order - b.order)
 
   const bgColor = lightenColor(primary_color, 0.93)
-  const cardBg = lightenColor(primary_color, 0.96)
-  const tagVariants = [
-    primary_color,
-    secondary_color,
-    lightenColor(primary_color, 0.3),
-    lightenColor(secondary_color, 0.3),
-  ]
+  // Single, readable tag color — derived from primary
+  const tagBg = lightenColor(primary_color, 0.85)
 
   function renderSection(section: SectionBlock) {
     switch (section.id) {
@@ -256,147 +251,171 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
               </h2>
 
               {sortedProjects.length > 0 ? (
-                <div className={`grid grid-cols-1 gap-5 ${sortedProjects.length === 1 ? 'max-w-2xl mx-auto' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
-                  {sortedProjects.map((project, index) => {
-                    // Vary card sizes: first and every 4th card spans 2 cols on large screens
-                    const isFeature = sortedProjects.length > 1 && (index === 0 || index % 5 === 0)
-                    return (
-                      <ClickableProject
-                        key={project.id}
-                        project={project}
-                        primaryColor={primary_color}
-                        className={isFeature ? 'sm:col-span-2 lg:col-span-2' : ''}
+                <div
+                  className={`grid grid-cols-1 gap-5 ${
+                    sortedProjects.length === 1
+                      ? 'max-w-2xl mx-auto'
+                      : 'sm:grid-cols-2 md:gap-6'
+                  }`}
+                >
+                  {sortedProjects.map((project) => (
+                    <ClickableProject
+                      key={project.id}
+                      project={project}
+                      primaryColor={primary_color}
+                    >
+                      <article
+                        className="group h-full flex flex-col overflow-hidden"
+                        style={{
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: 20,
+                          border: `1.5px solid ${primary_color}15`,
+                          boxShadow: `0 6px 24px ${primary_color}0A`,
+                          transition: 'transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease',
+                        }}
                       >
-                        <article
-                          className="group overflow-hidden transition-all duration-300 h-full hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
-                          style={{
-                            backgroundColor: '#FFFFFF',
-                            borderRadius: 20,
-                            border: `2px solid ${primary_color}15`,
-                            boxShadow: `0 4px 20px ${primary_color}08`,
-                            transition: 'transform 200ms ease, box-shadow 200ms ease',
-                          }}
-                        >
-                          {/* Project image */}
-                          {project.images[0] ? (
-                            <div
-                              className="relative overflow-hidden"
+                        {/* Project image */}
+                        {project.images[0] ? (
+                          <div
+                            className="relative overflow-hidden shrink-0"
+                            style={{
+                              aspectRatio: '16/10',
+                            }}
+                          >
+                            <Image
+                              src={project.images[0]}
+                              alt={project.title}
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                              sizes="(max-width: 640px) 100vw, 50vw"
+                            />
+                            {project.images.length > 1 && (
+                              <span
+                                style={{
+                                  position: 'absolute',
+                                  bottom: 10,
+                                  right: 10,
+                                  backgroundColor: 'rgba(0,0,0,0.55)',
+                                  backdropFilter: 'blur(4px)',
+                                  color: '#FFF',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 600,
+                                  padding: '3px 9px',
+                                  borderRadius: 999,
+                                }}
+                              >
+                                +{project.images.length - 1}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div
+                            className="shrink-0"
+                            style={{
+                              aspectRatio: '16/10',
+                              backgroundColor: `${primary_color}10`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <span
                               style={{
-                                aspectRatio: isFeature ? '2/1' : '4/3',
-                                borderRadius: '18px 18px 0 0',
+                                fontFamily: "'Fredoka', sans-serif",
+                                fontSize: '3rem',
+                                fontWeight: 700,
+                                color: `${primary_color}30`,
                               }}
                             >
-                              <Image
-                                src={project.images[0]}
-                                alt={project.title}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                                sizes={
-                                  isFeature
-                                    ? '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw'
-                                    : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
-                                }
-                              />
-                              {project.images.length > 1 && (
-                                <span style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: '#FFF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>
-                                  +{project.images.length - 1}
+                              {project.title.charAt(0)}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Content */}
+                        <div className="flex flex-1 flex-col p-5 md:p-6">
+                          <h3
+                            style={{
+                              fontFamily: "'Fredoka', sans-serif",
+                              fontWeight: 600,
+                              fontSize: '1.1rem',
+                              color: '#2A2A2A',
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {project.title}
+                          </h3>
+
+                          {project.description ? (
+                            <p
+                              className="mt-2.5"
+                              style={{
+                                fontSize: '0.88rem',
+                                lineHeight: 1.6,
+                                color: '#777777',
+                                fontWeight: 500,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                              }}
+                            >
+                              {project.description}
+                            </p>
+                          ) : null}
+
+                          {/* Tags — single accent color, readable */}
+                          {project.tags.length > 0 ? (
+                            <div className="mt-4 flex flex-wrap gap-1.5">
+                              {project.tags.slice(0, 5).map((tag) => (
+                                <span
+                                  key={tag}
+                                  style={{
+                                    fontFamily: "'Fredoka', sans-serif",
+                                    fontSize: '0.74rem',
+                                    fontWeight: 600,
+                                    color: primary_color,
+                                    backgroundColor: tagBg,
+                                    padding: '4px 12px',
+                                    borderRadius: 999,
+                                    letterSpacing: '0.01em',
+                                  }}
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                              {project.tags.length > 5 && (
+                                <span
+                                  style={{
+                                    fontSize: '0.74rem',
+                                    color: '#AAAAAA',
+                                    fontFamily: "'Fredoka', sans-serif",
+                                    fontWeight: 500,
+                                    alignSelf: 'center',
+                                  }}
+                                >
+                                  +{project.tags.length - 5}
                                 </span>
                               )}
                             </div>
-                          ) : (
-                            <div
-                              style={{
-                                aspectRatio: isFeature ? '2/1' : '4/3',
-                                backgroundColor: `${primary_color}10`,
-                                borderRadius: '18px 18px 0 0',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontFamily: "'Fredoka', sans-serif",
-                                  fontSize: '3rem',
-                                  fontWeight: 700,
-                                  color: `${primary_color}25`,
-                                }}
-                              >
-                                {project.title.charAt(0)}
-                              </span>
-                            </div>
-                          )}
+                          ) : null}
 
-                          {/* Content */}
-                          <div className="p-5 md:p-6">
-                            <h3
-                              style={{
-                                fontFamily: "'Fredoka', sans-serif",
-                                fontWeight: 600,
-                                fontSize: '1.1rem',
-                                color: '#2A2A2A',
-                                lineHeight: 1.3,
-                              }}
-                            >
-                              {project.title}
-                            </h3>
-
-                            {project.description ? (
-                              <p
-                                className="mt-2.5"
-                                style={{
-                                  fontSize: '0.88rem',
-                                  lineHeight: 1.6,
-                                  color: '#777777',
-                                  fontWeight: 500,
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: isFeature ? 4 : 3,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                {project.description}
-                              </p>
-                            ) : null}
-
-                            {/* Tags with color variants */}
-                            {project.tags.length > 0 ? (
-                              <div className="mt-4 flex flex-wrap gap-2">
-                                {project.tags.slice(0, 5).map((tag, tagIndex) => {
-                                  const variantColor =
-                                    tagVariants[tagIndex % tagVariants.length] ?? primary_color
-                                  return (
-                                    <span
-                                      key={tag}
-                                      style={{
-                                        fontFamily: "'Fredoka', sans-serif",
-                                        fontSize: '0.74rem',
-                                        fontWeight: 600,
-                                        color: variantColor,
-                                        backgroundColor: `${variantColor}12`,
-                                        padding: '4px 12px',
-                                        borderRadius: 50,
-                                        letterSpacing: '0.01em',
-                                      }}
-                                    >
-                                      {tag}
-                                    </span>
-                                  )
-                                })}
-                                {project.tags.length > 5 && (
-                                  <span style={{ fontSize: '0.74rem', color: '#AAAAAA', fontFamily: "'Fredoka', sans-serif", fontWeight: 500 }}>+{project.tags.length - 5}</span>
-                                )}
-                              </div>
-                            ) : null}
-
-                            <p style={{ marginTop: 12, fontSize: '0.78rem', color: primary_color, fontWeight: 600, fontFamily: "'Fredoka', sans-serif" }}>
-                              Voir le detail &rarr;
-                            </p>
-                          </div>
-                        </article>
-                      </ClickableProject>
-                    )
-                  })}
+                          <p
+                            style={{
+                              marginTop: 'auto',
+                              paddingTop: 14,
+                              fontSize: '0.78rem',
+                              color: primary_color,
+                              fontWeight: 600,
+                              fontFamily: "'Fredoka', sans-serif",
+                            }}
+                          >
+                            Voir le detail &rarr;
+                          </p>
+                        </div>
+                      </article>
+                    </ClickableProject>
+                  ))}
                 </div>
               ) : (
                 <p
@@ -441,27 +460,24 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   }}
                 />
               </h2>
-              <div className="flex flex-wrap items-center justify-center gap-2.5">
-                {skills.map((skill, i) => {
-                  const variantColor = tagVariants[i % tagVariants.length] ?? primary_color
-                  return (
-                    <span
-                      key={skill}
-                      style={{
-                        fontFamily: "'Fredoka', sans-serif",
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        color: variantColor,
-                        backgroundColor: `${variantColor}12`,
-                        padding: '7px 16px',
-                        borderRadius: 50,
-                        letterSpacing: '0.01em',
-                      }}
-                    >
-                      {skill}
-                    </span>
-                  )
-                })}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {skills.map((skill) => (
+                  <span
+                    key={skill}
+                    style={{
+                      fontFamily: "'Fredoka', sans-serif",
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: primary_color,
+                      backgroundColor: tagBg,
+                      padding: '7px 16px',
+                      borderRadius: 999,
+                      letterSpacing: '0.01em',
+                    }}
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
             </div>
           </section>

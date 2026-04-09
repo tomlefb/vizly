@@ -260,7 +260,31 @@ export function TemplateElegant({
                               </span>
                             )}
                           </div>
-                        ) : null}
+                        ) : (
+                          <div
+                            className="relative flex items-center justify-center"
+                            style={{
+                              aspectRatio: '3/2',
+                              borderRadius: 2,
+                              marginBottom: 32,
+                              backgroundColor: '#F2EFE8',
+                              border: '1px solid #E8E4D9',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: "'Cormorant Garamond', serif",
+                                fontSize: '4rem',
+                                fontWeight: 300,
+                                fontStyle: 'italic',
+                                color: '#C9C2B0',
+                                letterSpacing: '0.05em',
+                              }}
+                            >
+                              {project.title.charAt(0)}
+                            </span>
+                          </div>
+                        )}
 
                         {/* Title */}
                         <h3
