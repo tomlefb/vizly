@@ -1,0 +1,416 @@
+{
+  "metadata": {
+    "title": "Vizly — Crée ton portfolio en 5 minutes",
+    "description": "Crée un portfolio en ligne professionnel en quelques minutes. Choisis un template, remplis tes infos, et ton site est live sur pseudo.vizly.fr.",
+    "ogTitle": "Vizly — Crée ton portfolio en 5 minutes",
+    "ogDescription": "Le builder de portfolios le plus simple. Remplis, personnalise, publie.",
+    "jsonLdDescription": "Crée un portfolio en ligne professionnel en quelques minutes."
+  },
+  "nav": {
+    "features": "Fonctionnalités",
+    "templates": "Templates",
+    "pricing": "Tarifs",
+    "blog": "Blog",
+    "dashboard": "Mon dashboard",
+    "login": "Se connecter",
+    "register": "Créer mon portfolio",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "home": "Vizly - Accueil"
+  },
+  "hero": {
+    "badge": "100% gratuit pour commencer",
+    "titleStart": "Crée ton portfolio",
+    "titleHighlight": "en 5 minutes",
+    "description": "Remplis un formulaire, choisis un template, et ton site portfolio est live sur {domain}. Aucune compétence technique requise.",
+    "cta": "Commencer gratuitement",
+    "secondary": "Voir les templates",
+    "socialProof": "Déjà 2 000+ portfolios créés \u00b7 Aucune carte bancaire requise"
+  },
+  "features": {
+    "title": "Tout ce qu'il faut",
+    "titleMuted": "pour briller en ligne",
+    "subtitle": "Un outil simple qui fait une chose et la fait bien : mettre ton travail en valeur.",
+    "form": {
+      "title": "Formulaire guidé",
+      "description": "Remplis tes infos étape par étape, on s'occupe de la mise en page. Zéro prise de tête."
+    },
+    "templates": {
+      "title": "Templates pro",
+      "description": "8 templates uniques, du minimal au brutalist. Chacun avec sa propre personnalité."
+    },
+    "live": {
+      "title": "Live en 5 min",
+      "description": "Ton site sur pseudo.vizly.fr, instantanément. Pas d'attente, pas de déploiement compliqué."
+    },
+    "mobile": {
+      "title": "Mobile-first",
+      "description": "Un rendu parfait sur téléphone, tablette et desktop. Tes visiteurs verront toujours le meilleur."
+    },
+    "customizable": {
+      "title": "Personnalisable",
+      "description": "Couleurs, typographies, organisation. Mets ta touche personnelle en quelques clics."
+    },
+    "unlimited": {
+      "title": "Projets illimités",
+      "description": "Montre tout ton travail, sans aucune limite. Portfolio complet, tout le temps."
+    }
+  },
+  "socialProof": {
+    "stats": {
+      "portfolios": { "value": "2k", "suffix": "+", "label": "portfolios créés et publiés" },
+      "time": { "value": "4", "suffix": "min", "label": "temps moyen pour être live" },
+      "templates": { "value": "8", "suffix": "", "label": "templates designés par des pros" },
+      "price": { "value": "0", "suffix": "\u202F€", "label": "pour commencer, sans CB requise" }
+    },
+    "features": {
+      "form": { "title": "Formulaire guidé", "desc": "Étape par étape, zéro prise de tête." },
+      "templates": { "title": "8 templates pro", "desc": "Du minimal au bold, chacun son style." },
+      "live": { "title": "Live en 5 min", "desc": "Ton site sur prénom.vizly.fr instantanément." },
+      "mobile": { "title": "Mobile-first", "desc": "Parfait sur tous les écrans." },
+      "customizable": { "title": "Personnalisable", "desc": "Couleurs, typos, sections à ta guise." },
+      "unlimited": { "title": "Projets illimités", "desc": "Montre tout ton travail, sans limite." }
+    }
+  },
+  "pricing": {
+    "title": "Simple,",
+    "titleAccent": "transparent.",
+    "subtitle": "Commence gratuitement. Tu ne paies que quand tu veux publier ton portfolio.",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "yearlyDiscount": "−15% sur l'annuel",
+    "perMonth": "/mois",
+    "perYear": "soit {price}€/an",
+    "popular": "Populaire",
+    "note": "Tous les prix sont en euros, TTC \u00b7 Annulation possible à tout moment",
+    "plans": {
+      "free": {
+        "name": "Gratuit",
+        "description": "Pour découvrir et créer ton portfolio.",
+        "cta": "Commencer"
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Pour mettre ton portfolio en ligne.",
+        "cta": "Choisir Starter"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les pros qui veulent aller plus loin.",
+        "cta": "Choisir Pro"
+      }
+    },
+    "features": {
+      "unlimitedProjects": "Projets illimités",
+      "freeTemplates": "4 templates gratuits",
+      "fullPreview": "Prévisualisation complète",
+      "onlinePublish": "Mise en ligne",
+      "customDomain": "Domaine personnalisé",
+      "analytics": "Analytics",
+      "allFree": "Tout du gratuit",
+      "oneOnline": "1 portfolio en ligne",
+      "vizlyBadge": "Badge \"Fait avec Vizly\"",
+      "contactForm": "Formulaire de contact",
+      "allStarter": "Tout du Starter",
+      "unlimitedOnline": "Portfolios illimités",
+      "analyticsStats": "Analytics & stats",
+      "prioritySupport": "Support prioritaire"
+    }
+  },
+  "faq": {
+    "items": [
+      {
+        "q": "C'est quoi Vizly ?",
+        "a": "Vizly est un builder de portfolios en ligne. Tu remplis un formulaire guidé, tu choisis un template, et ton site portfolio est live sur pseudo.vizly.fr en quelques minutes. Aucune compétence technique requise."
+      },
+      {
+        "q": "Combien ça coûte ?",
+        "a": "Créer et prévisualiser ton portfolio est 100% gratuit. La mise en ligne démarre à 4,99 €/mois (plan Starter). Le plan Pro à 9,99 €/mois ajoute un domaine custom, un formulaire de contact et des analytics. Les templates premium sont à 2,99 € l'unité (achat unique)."
+      },
+      {
+        "q": "Je peux utiliser mon propre nom de domaine ?",
+        "a": "Oui, avec le plan Pro (9,99 €/mois). Tu achètes ton domaine chez le registrar de ton choix et tu pointes ton DNS vers Vizly. On t'accompagne avec un guide pas à pas."
+      },
+      {
+        "q": "Que se passe-t-il si j'arrête de payer ?",
+        "a": "Ton portfolio est mis hors ligne sous 24 heures. Tu reçois un email d'avertissement. Toutes tes données sont conservées 30 jours. Si tu réactives ton abonnement pendant cette période, tout revient en ligne instantanément."
+      },
+      {
+        "q": "Mes données sont-elles sécurisées ?",
+        "a": "Oui. Tes données sont stockées chez Supabase (serveurs UE). Les paiements sont traités par Stripe (aucune CB stockée chez nous). Nous utilisons uniquement des cookies fonctionnels. Tu peux supprimer ton compte et tes données à tout moment."
+      },
+      {
+        "q": "Combien de projets je peux mettre ?",
+        "a": "Autant que tu veux. Il n'y a aucune limite sur le nombre de projets, quel que soit ton plan."
+      },
+      {
+        "q": "Je peux changer de template après publication ?",
+        "a": "Oui, tu peux changer de template à tout moment depuis l'éditeur. Tes données sont conservées, seule la présentation change."
+      },
+      {
+        "q": "Les templates premium sont-ils un abonnement ?",
+        "a": "Non, c'est un achat unique à 2,99 €. Tu achètes un template une fois et tu le gardes pour toujours."
+      },
+      {
+        "q": "Comment supprimer mon compte ?",
+        "a": "Va dans Paramètres > Supprimer mon compte. Toutes tes données seront supprimées définitivement."
+      },
+      {
+        "q": "Comment contacter le support ?",
+        "a": "Envoie un email à tom@vizly.fr. On répond généralement sous 24 heures."
+      },
+      {
+        "q": "Vizly est-il adapté aux mobiles ?",
+        "a": "Oui, tous les templates sont responsive mobile-first. Ton portfolio s'affiche parfaitement sur téléphone, tablette et desktop."
+      },
+      {
+        "q": "Je peux exporter mon portfolio ?",
+        "a": "Pour le moment, les portfolios sont hébergés exclusivement sur Vizly. L'export est prévu dans une future mise à jour."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Prêt à montrer",
+    "titleAccent": "ton talent",
+    "description": "Crée ton portfolio gratuitement en quelques minutes. Tu ne paieras que si tu décides de le mettre en ligne.",
+    "primary": "Créer mon portfolio",
+    "secondary": "Voir les tarifs"
+  },
+  "footer": {
+    "tagline": "Le moyen le plus simple de créer un portfolio en ligne professionnel. Remplis, personnalise, publie.",
+    "copyright": "© {year} Vizly. Tous droits réservés.",
+    "produit": {
+      "title": "Produit",
+      "features": "Fonctionnalités",
+      "templates": "Templates",
+      "pricing": "Tarifs",
+      "changelog": "Changelog"
+    },
+    "ressources": {
+      "title": "Ressources",
+      "blog": "Blog",
+      "guide": "Guide de démarrage",
+      "examples": "Exemples de portfolios",
+      "faq": "FAQ"
+    },
+    "legal": {
+      "title": "Légal",
+      "mentions": "Mentions légales",
+      "cgu": "CGU",
+      "privacy": "Politique de confidentialité",
+      "contact": "Contact"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Connecte-toi pour accéder à ton portfolio",
+      "email": "Email",
+      "emailPlaceholder": "ton@email.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Ton mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "loading": "Connexion...",
+      "or": "ou",
+      "google": "Continuer avec Google",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Crée ton portfolio en quelques minutes",
+      "name": "Nom complet",
+      "namePlaceholder": "Jean Dupont",
+      "email": "Email",
+      "emailPlaceholder": "ton@email.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "6 caractères minimum",
+      "terms": "J'accepte les",
+      "cgu": "Conditions Générales d'Utilisation",
+      "and": "et la",
+      "privacy": "Politique de Confidentialité",
+      "submit": "Créer mon compte",
+      "loading": "Création...",
+      "or": "ou",
+      "google": "Continuer avec Google",
+      "hasAccount": "Déjà un compte ?",
+      "login": "Se connecter",
+      "successTitle": "Vérifie ta boîte mail",
+      "successMessage": "Un email de confirmation a été envoyé à {email}.",
+      "successHint": "Clique sur le lien pour activer ton compte.",
+      "backToLogin": "Retour à la connexion"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Entre ton email pour recevoir un lien de réinitialisation.",
+      "email": "Email",
+      "emailPlaceholder": "ton@email.com",
+      "submit": "Envoyer le lien",
+      "loading": "Envoi en cours...",
+      "backToLogin": "Retour à la connexion",
+      "successTitle": "Email envoyé",
+      "successMessage": "Si un compte existe pour {email}, tu recevras un lien pour réinitialiser ton mot de passe."
+    },
+    "errors": {
+      "invalidEmail": "Adresse email invalide",
+      "passwordMin": "Le mot de passe doit contenir au moins 6 caractères",
+      "nameRequired": "Le nom est requis",
+      "invalidData": "Données invalides",
+      "invalidCredentials": "Email ou mot de passe incorrect",
+      "alreadyRegistered": "Un compte existe déjà avec cet email",
+      "acceptTerms": "Tu dois accepter les CGU et la Politique de Confidentialité",
+      "unexpected": "Une erreur inattendue est survenue"
+    }
+  },
+  "dashboard": {
+    "title": "Mes projets",
+    "welcomeUser": "Bienvenue, {name}",
+    "welcome": "Bienvenue sur Vizly",
+    "newProject": "Nouveau projet",
+    "online": "En ligne",
+    "draft": "Brouillon",
+    "template": "Template",
+    "untitled": "Sans titre",
+    "edit": "Modifier",
+    "viewSite": "Voir le site",
+    "createNew": "Créer un nouveau projet",
+    "notPublished": "non publié",
+    "previewOnly": "Preview uniquement",
+    "upgradeStarter": "Passe au Starter",
+    "upgradePro": "Passe au Pro",
+    "toPublish": "pour publier",
+    "forMore": "pour plus",
+    "projectsOnline": "{count} projet{count, plural, one {} other {s}} en ligne",
+    "projectCount": "{count} projet{count, plural, one {} other {s}}",
+    "publishLimit0": "Preview uniquement — {link} pour publier",
+    "publishLimit1": "{count}/1 projet en ligne — {link} pour plus",
+    "emptyTitle": "{name}, crée ton premier projet",
+    "emptyTitleDefault": "Crée ton premier projet",
+    "emptyDescription": "En 5 minutes chrono. Remplis tes infos, choisis un template, et prévisualise ton portfolio.",
+    "emptyCta": "Créer mon projet",
+    "delete": {
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "title": "Supprimer {title}"
+    },
+    "publish": {
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "noSlug": "Configure un pseudo dans l'éditeur avant de publier",
+      "upgradeStarter": "Passe au Starter pour publier",
+      "limitReached": "Limite atteinte — passe au Pro"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "templates": "Templates",
+    "billing": "Facturation",
+    "stats": "Statistiques",
+    "domains": "Domaines",
+    "home": "Accueil",
+    "account": "Mon compte",
+    "logout": "Déconnexion",
+    "collapse": "Réduire la sidebar",
+    "expand": "Étendre la sidebar",
+    "user": "Utilisateur"
+  },
+  "editor": {
+    "steps": {
+      "profile": "Profil",
+      "content": "Contenu",
+      "design": "Design",
+      "publish": "Publier"
+    },
+    "nav": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "stepsLabel": "Étapes de l'éditeur",
+      "stepLabel": "Étape {id}: {label}",
+      "completed": "(complétée)",
+      "lastStep": "Dernière étape",
+      "previousStep": "Étape précédente",
+      "nextStep": "Étape suivante"
+    },
+    "save": {
+      "saving": "Sauvegarde...",
+      "saved": "Sauvegardé",
+      "error": "Erreur"
+    },
+    "preview": {
+      "url": "pseudo.vizly.fr",
+      "desktop": "Vue desktop",
+      "tablet": "Vue tablette",
+      "mobile": "Vue mobile",
+      "fullscreen": "Plein écran",
+      "close": "Fermer",
+      "noTemplate": "Aucun template sélectionné"
+    },
+    "templatePremium": "Template \u00ab {label} \u00bb est premium",
+    "buyTemplate": "Acheter (2.99 €)",
+    "redirecting": "Redirection..."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gère ton profil et ton compte.",
+    "profile": "Profil",
+    "email": "Email",
+    "emailHint": "L'email est lié à ton compte et ne peut pas être modifié ici.",
+    "name": "Nom",
+    "namePlaceholder": "Ton nom complet",
+    "save": "Sauvegarder",
+    "saving": "Sauvegarde...",
+    "nameSuccess": "Nom mis à jour avec succès.",
+    "currentPlan": "Plan actuel",
+    "upgradePlan": "Passe à un plan payant pour publier ton portfolio.",
+    "manageSubscription": "Gérer mon abonnement",
+    "dangerZone": "Zone dangereuse",
+    "dangerDescription": "La suppression de ton compte est irréversible. Toutes tes données, ton portfolio et tes projets seront définitivement supprimés.",
+    "deleteAccount": "Supprimer mon compte",
+    "deleteConfirm": "Es-tu certain de vouloir supprimer ton compte ? Cette action est irréversible.",
+    "deleteConfirmBtn": "Oui, supprimer définitivement",
+    "deleting": "Suppression...",
+    "cancel": "Annuler"
+  },
+  "billing": {
+    "title": "Facturation",
+    "subtitle": "Gère ton abonnement et tes templates premium.",
+    "mySubscription": "Mon abonnement",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "yearlyDiscount": "-15%",
+    "plan": "Plan {name}",
+    "free": "Gratuit",
+    "pricePerMonth": "{price} €/mois",
+    "featuresLabel": "Fonctionnalités du plan",
+    "upgradeStarter": "Passer au Starter ({price})",
+    "upgradePro": "Passer au Pro ({price})",
+    "manageSubscription": "Gérer mon abonnement",
+    "redirecting": "Redirection...",
+    "premiumTemplates": "Templates premium",
+    "premiumPrice": "2.99 €",
+    "premiumAvailableWith": "Les templates premium sont disponibles avec un abonnement Starter ou Pro.",
+    "purchased": "Acheté",
+    "idealFor": "Idéal pour : {use}",
+    "buyTemplate": "Acheter (2.99 €)",
+    "paymentConfirmed": "Paiement confirmé",
+    "paymentConfirmedDesc": "Ton abonnement est actif. Les changements peuvent prendre quelques instants.",
+    "paymentCancelled": "Paiement annulé",
+    "paymentCancelledDesc": "Le paiement a été annulé. Tu peux réessayer à tout moment.",
+    "subscriptionUpdated": "Abonnement mis à jour",
+    "subscriptionUpdatedDesc": "Abonnement mis à jour. Les changements sont effectifs immédiatement.",
+    "notOnline": "Pas de mise en ligne"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que tu cherches n'existe pas ou a été déplacée.",
+    "home": "Accueil",
+    "templates": "Templates",
+    "blog": "Blog"
+  },
+  "language": {
+    "label": "Langue",
+    "fr": "FR",
+    "en": "EN"
+  }
+}

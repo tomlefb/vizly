@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Globe, GlobeLock, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { publishPortfolio, unpublishPortfolio } from '@/actions/portfolio'
@@ -21,6 +22,7 @@ export function PublishToggle({
   planMessage,
 }: PublishToggleProps) {
   const router = useRouter()
+  const t = useTranslations('dashboard')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -40,7 +42,7 @@ export function PublishToggle({
     } else {
       // Publish — need a slug
       if (!slug) {
-        setError('Configure un pseudo dans l\'editeur avant de publier')
+        setError(t('publish.noSlug'))
         return
       }
       startTransition(async () => {
@@ -78,7 +80,7 @@ export function PublishToggle({
         ) : (
           <Globe className="h-3.5 w-3.5" />
         )}
-        {published ? 'Depublier' : 'Publier'}
+        {published ? t('publish.unpublish') : t('publish.publish')}
       </button>
       {error && <p className="mt-1 text-[10px] text-red-600">{error}</p>}
       {!published && !canPublish && planMessage && (

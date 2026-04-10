@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { z } from 'zod'
 
-const emailSchema = z.string().email('Adresse email invalide')
-
 export default function ForgotPasswordPage() {
+  const t = useTranslations('auth')
+
+  const emailSchema = z.string().email(t('errors.invalidEmail'))
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
@@ -19,7 +21,7 @@ export default function ForgotPasswordPage() {
 
     const parsed = emailSchema.safeParse(email)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Email invalide')
+      setError(parsed.error.issues[0]?.message ?? t('errors.invalidEmail'))
       return
     }
 
@@ -39,7 +41,7 @@ export default function ForgotPasswordPage() {
 
       setSent(true)
     } catch {
-      setError('Une erreur inattendue est survenue')
+      setError(t('errors.unexpected'))
     } finally {
       setLoading(false)
     }
@@ -65,17 +67,16 @@ export default function ForgotPasswordPage() {
           </svg>
         </div>
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-          Email envoye
+          {t('forgotPassword.successTitle')}
         </h1>
         <p className="mt-3 text-sm text-muted leading-relaxed">
-          Si un compte existe pour <span className="font-medium text-foreground">{email}</span>,
-          tu recevras un lien pour reinitialiser ton mot de passe.
+          {t('forgotPassword.successMessage', { email })}
         </p>
         <Link
           href="/login"
           className="mt-6 inline-block text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
         >
-          Retour a la connexion
+          {t('forgotPassword.backToLogin')}
         </Link>
       </div>
     )
@@ -84,10 +85,10 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-        Mot de passe oublie
+        {t('forgotPassword.title')}
       </h1>
       <p className="mt-2 text-center text-sm text-muted">
-        Entre ton email pour recevoir un lien de reinitialisation.
+        {t('forgotPassword.subtitle')}
       </p>
 
       {error && (
@@ -105,7 +106,7 @@ export default function ForgotPasswordPage() {
             htmlFor="email"
             className="mb-1.5 block text-sm font-medium text-foreground"
           >
-            Email
+            {t('forgotPassword.email')}
           </label>
           <input
             id="email"
@@ -114,7 +115,7 @@ export default function ForgotPasswordPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="ton@email.com"
+            placeholder={t('forgotPassword.emailPlaceholder')}
             className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
@@ -124,7 +125,7 @@ export default function ForgotPasswordPage() {
           disabled={loading}
           className="flex w-full items-center justify-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? 'Envoi en cours...' : 'Envoyer le lien'}
+          {loading ? t('forgotPassword.loading') : t('forgotPassword.submit')}
         </button>
       </form>
 
@@ -133,7 +134,7 @@ export default function ForgotPasswordPage() {
           href="/login"
           className="font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
         >
-          Retour a la connexion
+          {t('forgotPassword.backToLogin')}
         </Link>
       </p>
     </>

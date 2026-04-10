@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useImageUpload } from '@/hooks/useImageUpload'
@@ -33,6 +34,7 @@ export function EditorClient({
   initialPortfolio,
   initialProjects,
 }: EditorClientProps) {
+  const t = useTranslations('editor')
   const { uploadImage } = useImageUpload()
   const { sidebarWidth } = useSidebar()
 
@@ -88,7 +90,7 @@ export function EditorClient({
           editor.currentStep === 3 && editor.selectedTemplateNeedsPurchase && editor.selectedTemplateConfig ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
-                Template &laquo; {editor.selectedTemplateConfig.label} &raquo; est premium
+                {t('templatePremium', { label: editor.selectedTemplateConfig.label })}
               </span>
               <button
                 type="button"
@@ -104,10 +106,10 @@ export function EditorClient({
                 {editor.checkoutLoading ? (
                   <>
                     <Loader2 className="h-3 w-3 animate-spin" />
-                    Redirection...
+                    {t('redirecting')}
                   </>
                 ) : (
-                  'Acheter (2.99 EUR)'
+                  t('buyTemplate')
                 )}
               </button>
             </div>

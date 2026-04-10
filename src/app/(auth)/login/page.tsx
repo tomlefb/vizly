@@ -2,15 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { z } from 'zod'
 
-const loginSchema = z.object({
-  email: z.string().email('Adresse email invalide'),
-  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
-})
-
 export default function LoginPage() {
+  const t = useTranslations('auth')
+
+  const loginSchema = z.object({
+    email: z.string().email(t('errors.invalidEmail')),
+    password: z.string().min(6, t('errors.passwordMin')),
+  })
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,7 +25,7 @@ export default function LoginPage() {
 
     const parsed = loginSchema.safeParse({ email, password })
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Données invalides')
+      setError(parsed.error.issues[0]?.message ?? t('errors.invalidData'))
       return
     }
 
@@ -38,7 +40,7 @@ export default function LoginPage() {
 
       if (authError) {
         if (authError.message === 'Invalid login credentials') {
-          setError('Email ou mot de passe incorrect')
+          setError(t('errors.invalidCredentials'))
         } else {
           setError(authError.message)
         }
@@ -48,7 +50,7 @@ export default function LoginPage() {
       // Hard redirect to ensure cookies are propagated to the server
       window.location.href = '/dashboard'
     } catch {
-      setError('Une erreur inattendue est survenue')
+      setError(t('errors.unexpected'))
     } finally {
       setLoading(false)
     }
@@ -70,17 +72,17 @@ export default function LoginPage() {
         setError(authError.message)
       }
     } catch {
-      setError('Une erreur inattendue est survenue')
+      setError(t('errors.unexpected'))
     }
   }
 
   return (
     <>
       <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-        Connexion
+        {t('login.title')}
       </h1>
       <p className="mt-2 text-center text-sm text-muted">
-        Connecte-toi pour accéder à ton portfolio
+        {t('login.subtitle')}
       </p>
 
       {error && (
@@ -98,7 +100,7 @@ export default function LoginPage() {
             htmlFor="email"
             className="mb-1.5 block text-sm font-medium text-foreground"
           >
-            Email
+            {t('login.email')}
           </label>
           <input
             id="email"
@@ -107,7 +109,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="ton@email.com"
+            placeholder={t('login.emailPlaceholder')}
             className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
@@ -117,7 +119,7 @@ export default function LoginPage() {
             htmlFor="password"
             className="mb-1.5 block text-sm font-medium text-foreground"
           >
-            Mot de passe
+            {t('login.password')}
           </label>
           <input
             id="password"
@@ -126,7 +128,7 @@ export default function LoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Ton mot de passe"
+            placeholder={t('login.passwordPlaceholder')}
             className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
@@ -136,7 +138,7 @@ export default function LoginPage() {
             href="/forgot-password"
             className="text-xs text-muted hover:text-accent transition-colors duration-150"
           >
-            Mot de passe oublie ?
+            {t('login.forgotPassword')}
           </Link>
         </div>
 
@@ -167,10 +169,10 @@ export default function LoginPage() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                 />
               </svg>
-              Connexion...
+              {t('login.loading')}
             </span>
           ) : (
-            'Se connecter'
+            t('login.submit')
           )}
         </button>
       </form>
@@ -180,7 +182,7 @@ export default function LoginPage() {
           <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-3 text-muted">ou</span>
+          <span className="bg-background px-3 text-muted">{t('login.or')}</span>
         </div>
       </div>
 
@@ -207,16 +209,16 @@ export default function LoginPage() {
             fill="#EA4335"
           />
         </svg>
-        Continuer avec Google
+        {t('login.google')}
       </button>
 
       <p className="mt-8 text-center text-sm text-muted">
-        Pas encore de compte ?{' '}
+        {t('login.noAccount')}{' '}
         <Link
           href="/register"
           className="font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
         >
-          Créer un compte
+          {t('login.createAccount')}
         </Link>
       </p>
     </>

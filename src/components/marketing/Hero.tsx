@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Sparkles } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { HeroPortfolioWall } from './HeroPortfolioWall'
 
 const easeOut = [0, 0, 0.2, 1] as const
@@ -17,6 +18,8 @@ const fadeUp = {
 }
 
 export function Hero() {
+  const t = useTranslations('hero')
+
   return (
     <section className="relative overflow-hidden pt-12 pb-24 lg:pt-20 lg:pb-32 min-h-[520px] lg:min-h-[600px]">
       {/* Scrolling portfolio wall -- right half, behind text on mobile */}
@@ -32,7 +35,7 @@ export function Hero() {
           >
             <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-light px-3.5 py-1.5 text-xs font-semibold text-accent tracking-wide">
               <Sparkles className="h-3.5 w-3.5" />
-              100% gratuit pour commencer
+              {t('badge')}
             </span>
           </motion.div>
 
@@ -43,9 +46,9 @@ export function Hero() {
             animate="visible"
             custom={0.1}
           >
-            Cree ton portfolio{' '}
+            {t('titleStart')}{' '}
             <span className="relative">
-              <span className="relative z-10">en 5 minutes</span>
+              <span className="relative z-10">{t('titleHighlight')}</span>
               <span
                 className="absolute -bottom-1 left-0 right-0 h-3 bg-accent/15 rounded-sm -z-0"
                 aria-hidden="true"
@@ -60,10 +63,7 @@ export function Hero() {
             animate="visible"
             custom={0.2}
           >
-            Remplis un formulaire, choisis un template, et ton site portfolio est
-            live sur{' '}
-            <span className="font-medium text-foreground">pseudo.vizly.fr</span>.
-            Aucune competence technique requise.
+            {t('description', { domain: 'pseudo.vizly.fr' })}
           </motion.p>
 
           <motion.div
@@ -77,14 +77,14 @@ export function Hero() {
               href="/register"
               className="group inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-7 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-hover hover:gap-3"
             >
-              Commencer gratuitement
+              {t('cta')}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/templates"
               className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-border px-7 py-3.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-surface-warm"
             >
-              Voir les templates
+              {t('secondary')}
             </Link>
           </motion.div>
 
@@ -95,7 +95,7 @@ export function Hero() {
             animate="visible"
             custom={0.4}
           >
-            Deja 2 000+ portfolios crees &middot; Aucune carte bancaire requise
+            {t('socialProof')}
           </motion.p>
         </div>
       </div>

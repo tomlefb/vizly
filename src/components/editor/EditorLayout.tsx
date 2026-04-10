@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Maximize2,
   X,
@@ -19,12 +20,12 @@ import { parseLayoutBlocks } from '@/types/layout-blocks'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
-const STEPS = [
-  { id: 1, label: 'Profil' },
-  { id: 2, label: 'Contenu' },
-  { id: 3, label: 'Design' },
-  { id: 4, label: 'Publier' },
-]
+const STEP_KEYS = [
+  { id: 1, key: 'steps.profile' },
+  { id: 2, key: 'steps.content' },
+  { id: 3, key: 'steps.design' },
+  { id: 4, key: 'steps.publish' },
+] as const
 
 function useGoogleFont(fontName: string) {
   useEffect(() => {
@@ -73,12 +74,14 @@ export function EditorLayout({
   bottomBarExtra,
   children,
 }: EditorLayoutProps) {
+  const t = useTranslations('editor')
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
 
   useGoogleFont(portfolioData.font)
   useGoogleFont(portfolioData.font_body ?? portfolioData.font)
 
+  const STEPS = STEP_KEYS.map((s) => ({ id: s.id, label: t(s.key) }))
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep)
   const nextStep = STEPS[currentStepIndex + 1]
   const isDesignStep = currentStep === 3
@@ -119,17 +122,17 @@ export function EditorLayout({
       {saveStatus === 'saving' && (
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Loader2 className="h-3 w-3 animate-spin" />
-          Sauvegarde...
+          {t('save.saving')}
         </span>
       )}
       {saveStatus === 'saved' && (
         <span className="flex items-center gap-1.5 text-xs text-success">
           <Check className="h-3 w-3" />
-          Sauvegarde
+          {t('save.saved')}
         </span>
       )}
       {saveStatus === 'error' && (
-        <span className="text-xs text-destructive truncate">{saveError ?? 'Erreur'}</span>
+        <span className="text-xs text-destructive truncate">{saveError ?? t('save.error')}</span>
       )}
     </div>
   )
@@ -151,7 +154,7 @@ export function EditorLayout({
               onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
               className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors duration-150"
             >
-              Precedent
+              {t('nav.previous')}
             </button>
           )}
           {nextStep ? (
@@ -166,7 +169,7 @@ export function EditorLayout({
                   : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
               )}
             >
-              Suivant
+              {t('nav.next')}
               <ChevronRight className="h-4 w-4" />
             </button>
           ) : <span />}
@@ -180,7 +183,7 @@ export function EditorLayout({
       <div className="flex flex-col h-full min-h-0">
         {/* ── Stepper ── */}
         <div className="shrink-0 border-b border-[#E5E7EB] bg-white px-4 sm:px-6 py-4">
-          <nav className="flex items-center w-full" aria-label="Etapes editeur">
+          <nav className="flex items-center w-full" aria-label={t('nav.stepsLabel')}>
             {STEPS.map((step, index) => {
               const isActive = currentStep === step.id
               const isPast = index < currentStepIndex
@@ -235,27 +238,27 @@ export function EditorLayout({
                 {/* Minimal preview bar — no browser chrome */}
                 <div className="shrink-0 flex items-center justify-between border-b border-border/50 bg-white/60 backdrop-blur-sm px-4 h-10">
                   <span />
-                  <span className="text-[11px] text-muted font-mono tracking-wide">pseudo.vizly.fr</span>
+                  <span className="text-[11px] text-muted font-mono tracking-wide">{t('preview.url')}</span>
                   <div className="flex items-center gap-1">
                     <button type="button" onClick={() => setPreviewDevice('desktop')}
                       className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'desktop' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
-                      title="Desktop" aria-label="Vue desktop">
+                      title={t('preview.desktop')} aria-label={t('preview.desktop')}>
                       <Monitor className="h-3.5 w-3.5" />
                     </button>
                     <button type="button" onClick={() => setPreviewDevice('tablet')}
                       className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'tablet' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
-                      title="Tablet" aria-label="Vue tablette">
+                      title={t('preview.tablet')} aria-label={t('preview.tablet')}>
                       <Tablet className="h-3.5 w-3.5" />
                     </button>
                     <button type="button" onClick={() => setPreviewDevice('mobile')}
                       className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'mobile' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
-                      title="Mobile" aria-label="Vue mobile">
+                      title={t('preview.mobile')} aria-label={t('preview.mobile')}>
                       <Smartphone className="h-3.5 w-3.5" />
                     </button>
                     <div className="w-px h-4 bg-border/50 mx-0.5" />
                     <button type="button" onClick={() => setPreviewOpen(true)}
                       className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-foreground transition-colors"
-                      title="Plein ecran" aria-label="Plein ecran">
+                      title={t('preview.fullscreen')} aria-label={t('preview.fullscreen')}>
                       <Maximize2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -285,7 +288,7 @@ export function EditorLayout({
                     </div>
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <p className="text-sm text-muted">Aucun template selectionne</p>
+                      <p className="text-sm text-muted">{t('preview.noTemplate')}</p>
                     </div>
                   )}
                 </div>
@@ -310,11 +313,11 @@ export function EditorLayout({
           <div className="flex flex-col h-full">
             {/* Minimal header */}
             <div className="shrink-0 flex items-center justify-between border-b border-border/50 px-6 h-12">
-              <span className="text-[11px] text-muted font-mono tracking-wide">pseudo.vizly.fr</span>
+              <span className="text-[11px] text-muted font-mono tracking-wide">{t('preview.url')}</span>
               <button type="button" onClick={() => setPreviewOpen(false)}
                 className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm">
                 <X className="h-4 w-4" />
-                Fermer
+                {t('preview.close')}
               </button>
             </div>
             <div className="flex-1 overflow-y-auto" style={{ backgroundColor: previewBg }}>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   Home,
   LayoutGrid,
@@ -14,6 +15,7 @@ import {
   ChevronLeft,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
 import { createClient } from '@/lib/supabase/client'
 import { useSidebar } from './sidebar-context'
 
@@ -23,18 +25,19 @@ interface SidebarProps {
   isPro: boolean
 }
 
-const NAV_MAIN = [
-  { href: '/dashboard', icon: Home, label: 'Dashboard' },
-  { href: '/mes-templates', icon: LayoutGrid, label: 'Templates' },
-  { href: '/billing', icon: CreditCard, label: 'Facturation' },
-] as const
-
-const NAV_PRO = [
-  { href: '/statistiques', icon: BarChart3, label: 'Statistiques' },
-  { href: '/domaines', icon: Globe, label: 'Domaines' },
-] as const
-
 export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
+  const t = useTranslations('sidebar')
+
+  const NAV_MAIN = [
+    { href: '/dashboard', icon: Home, label: t('dashboard') },
+    { href: '/mes-templates', icon: LayoutGrid, label: t('templates') },
+    { href: '/billing', icon: CreditCard, label: t('billing') },
+  ] as const
+
+  const NAV_PRO = [
+    { href: '/statistiques', icon: BarChart3, label: t('stats') },
+    { href: '/domaines', icon: Globe, label: t('domains') },
+  ] as const
   const pathname = usePathname()
   const router = useRouter()
   const { expanded, toggle, sidebarWidth } = useSidebar()
@@ -69,7 +72,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
               type="button"
               onClick={toggle}
               className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150 shrink-0 ml-auto"
-              aria-label="Réduire la sidebar"
+              aria-label={t('collapse')}
             >
               <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
             </button>
@@ -79,7 +82,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
             type="button"
             onClick={toggle}
             className="flex h-8 w-full items-center justify-center rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150"
-            aria-label="Étendre la sidebar"
+            aria-label={t('expand')}
           >
             <ChevronLeft className="h-4 w-4 rotate-180" strokeWidth={1.5} />
           </button>
@@ -115,24 +118,33 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
         </div>
       </nav>
 
-      {/* Bottom links */}
+      {/* Language + Bottom links */}
       <div className="shrink-0 border-t border-[#E5E7EB]/40 py-1.5 px-2 space-y-0.5">
-        <NavItem href="/" icon={ArrowLeft} label="Accueil" active={false} expanded={expanded} />
-        <NavItem href="/settings" icon={User} label="Mon compte" active={pathname === '/settings'} expanded={expanded} />
+        {expanded ? (
+          <div className="px-3 py-1.5">
+            <LanguageSwitcher />
+          </div>
+        ) : (
+          <div className="flex justify-center py-1.5">
+            <LanguageSwitcher />
+          </div>
+        )}
+        <NavItem href="/" icon={ArrowLeft} label={t('home')} active={false} expanded={expanded} />
+        <NavItem href="/settings" icon={User} label={t('account')} active={pathname === '/settings'} expanded={expanded} />
         <button
           type="button"
           onClick={() => void handleLogout()}
-          title={expanded ? undefined : 'Deconnexion'}
+          title={expanded ? undefined : t('logout')}
           className={cn(
             'group relative flex items-center w-full h-9 rounded-[6px] text-[#6B7280] hover:text-[#DC2626] hover:bg-[#F3F4F6] transition-colors duration-150',
             expanded ? 'pl-3' : 'justify-center',
           )}
         >
           <LogOut className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
-          {expanded && <span className="text-[13px] whitespace-nowrap ml-3">Deconnexion</span>}
+          {expanded && <span className="text-[13px] whitespace-nowrap ml-3">{t('logout')}</span>}
           {!expanded && (
             <span className="absolute left-full ml-2 z-50 rounded-[6px] bg-[#111827]/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150">
-              Deconnexion
+              {t('logout')}
             </span>
           )}
         </button>
@@ -148,7 +160,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
         </span>
         {expanded && (
           <div className="min-w-0 ml-3 pr-2">
-            <p className="text-[12px] font-medium text-[#111827] truncate">{userName || 'Utilisateur'}</p>
+            <p className="text-[12px] font-medium text-[#111827] truncate">{userName || t('user')}</p>
             <p className="text-[10px] text-[#6B7280] truncate">{userEmail}</p>
           </div>
         )}

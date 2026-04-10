@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
-export function CTA() {
+export async function CTA() {
+  const t = await getTranslations('cta')
+
   return (
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -18,13 +21,12 @@ export function CTA() {
 
           <div className="relative z-10 max-w-2xl">
             <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight text-background sm:text-4xl lg:text-5xl">
-              Pret a montrer{' '}
-              <span className="text-accent">ton talent</span>&nbsp;?
+              {t('title')}{' '}
+              <span className="text-accent">{t('titleAccent')}</span>&nbsp;?
             </h2>
 
             <p className="mt-5 text-lg text-background/60 leading-relaxed max-w-lg">
-              Cree ton portfolio gratuitement en quelques minutes. Tu ne paieras
-              que si tu decides de le mettre en ligne.
+              {t('description')}
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
@@ -32,14 +34,14 @@ export function CTA() {
                 href="/register"
                 className="group inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-7 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-hover hover:gap-3"
               >
-                Creer mon portfolio
+                {t('primary')}
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Link>
               <Link
                 href="/#pricing"
                 className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-background/20 px-7 py-3.5 text-sm font-semibold text-background/80 transition-colors duration-200 hover:bg-background/5 hover:text-background"
               >
-                Voir les tarifs
+                {t('secondary')}
               </Link>
             </div>
           </div>

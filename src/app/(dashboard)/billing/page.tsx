@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server'
 import { getBillingStatus } from '@/actions/billing'
 import { BillingClient } from '@/components/billing/BillingClient'
 
@@ -6,6 +7,7 @@ interface BillingPageProps {
 }
 
 export default async function BillingPage({ searchParams }: BillingPageProps) {
+  const t = await getTranslations('billing')
   const [billing, resolvedParams] = await Promise.all([
     getBillingStatus(),
     searchParams,
@@ -20,10 +22,10 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
   return (
     <div className="space-y-2">
       <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
-        Facturation
+        {t('title')}
       </h1>
       <p className="text-sm text-muted-foreground">
-        Gere ton abonnement et tes templates premium.
+        {t('subtitle')}
       </p>
 
       <div className="pt-6">

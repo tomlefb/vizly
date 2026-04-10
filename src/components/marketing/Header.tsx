@@ -3,21 +3,24 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/shared/Logo'
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
 import { createClient } from '@/lib/supabase/client'
 
-const navLinks = [
-  { label: 'Fonctionnalites', href: '/#features' },
-  { label: 'Templates', href: '/templates' },
-  { label: 'Tarifs', href: '/#pricing' },
-  { label: 'Blog', href: '/blog' },
-] as const
-
 export function Header() {
+  const t = useTranslations('nav')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [authReady, setAuthReady] = useState(false)
+
+  const navLinks = [
+    { label: t('features'), href: '/#features' },
+    { label: t('templates'), href: '/templates' },
+    { label: t('pricing'), href: '/#pricing' },
+    { label: t('blog'), href: '/blog' },
+  ]
 
   useEffect(() => {
     const supabase = createClient()
@@ -34,7 +37,7 @@ export function Header() {
         aria-label="Navigation principale"
       >
         {/* Logo */}
-        <Link href="/" className="shrink-0" aria-label="Vizly - Accueil">
+        <Link href="/" className="shrink-0" aria-label={t('home')}>
           <Logo size="md" />
         </Link>
 
@@ -54,6 +57,7 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-5">
+          <LanguageSwitcher />
           {!authReady ? (
             <div className="w-[140px]" />
           ) : isLoggedIn ? (
@@ -61,7 +65,7 @@ export function Header() {
               href="/dashboard"
               className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
             >
-              Mon dashboard
+              {t('dashboard')}
             </Link>
           ) : (
             <>
@@ -69,13 +73,13 @@ export function Header() {
                 href="/login"
                 className="text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
               >
-                Se connecter
+                {t('login')}
               </Link>
               <Link
                 href="/register"
                 className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
               >
-                Creer mon portfolio
+                {t('register')}
               </Link>
             </>
           )}
@@ -88,7 +92,7 @@ export function Header() {
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
-          aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          aria-label={mobileOpen ? t('closeMenu') : t('openMenu')}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -119,6 +123,9 @@ export function Header() {
           </ul>
 
           <div className="border-t border-border pt-4 space-y-3">
+            <div className="flex justify-center">
+              <LanguageSwitcher />
+            </div>
             {!authReady ? (
               <div className="h-10" />
             ) : isLoggedIn ? (
@@ -127,7 +134,7 @@ export function Header() {
                 className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
                 onClick={() => setMobileOpen(false)}
               >
-                Mon dashboard
+                {t('dashboard')}
               </Link>
             ) : (
               <>
@@ -136,14 +143,14 @@ export function Header() {
                   className="block text-center rounded-[var(--radius-md)] border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm"
                   onClick={() => setMobileOpen(false)}
                 >
-                  Se connecter
+                  {t('login')}
                 </Link>
                 <Link
                   href="/register"
                   className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
                   onClick={() => setMobileOpen(false)}
                 >
-                  Creer mon portfolio
+                  {t('register')}
                 </Link>
               </>
             )}

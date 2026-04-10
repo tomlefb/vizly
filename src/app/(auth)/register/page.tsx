@@ -2,16 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { z } from 'zod'
 
-const registerSchema = z.object({
-  name: z.string().min(1, 'Le nom est requis').max(100),
-  email: z.string().email('Adresse email invalide'),
-  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
-})
-
 export default function RegisterPage() {
+  const t = useTranslations('auth')
+
+  const registerSchema = z.object({
+    name: z.string().min(1, t('errors.nameRequired')).max(100),
+    email: z.string().email(t('errors.invalidEmail')),
+    password: z.string().min(6, t('errors.passwordMin')),
+  })
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -26,7 +28,7 @@ export default function RegisterPage() {
 
     const parsed = registerSchema.safeParse({ name, email, password })
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Données invalides')
+      setError(parsed.error.issues[0]?.message ?? t('errors.invalidData'))
       return
     }
 
@@ -47,7 +49,7 @@ export default function RegisterPage() {
 
       if (authError) {
         if (authError.message.includes('already registered')) {
-          setError('Un compte existe déjà avec cet email')
+          setError(t('errors.alreadyRegistered'))
         } else {
           setError(authError.message)
         }
@@ -56,7 +58,7 @@ export default function RegisterPage() {
 
       setSuccess(true)
     } catch {
-      setError('Une erreur inattendue est survenue')
+      setError(t('errors.unexpected'))
     } finally {
       setLoading(false)
     }
@@ -66,7 +68,7 @@ export default function RegisterPage() {
     setError(null)
 
     if (!acceptTerms) {
-      setError('Tu dois accepter les CGU et la Politique de Confidentialité')
+      setError(t('errors.acceptTerms'))
       return
     }
 
@@ -83,7 +85,7 @@ export default function RegisterPage() {
         setError(authError.message)
       }
     } catch {
-      setError('Une erreur inattendue est survenue')
+      setError(t('errors.unexpected'))
     }
   }
 
@@ -107,19 +109,18 @@ export default function RegisterPage() {
           </svg>
         </div>
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-          Vérifie ta boîte mail
+          {t('register.successTitle')}
         </h1>
         <p className="mt-3 text-sm text-muted leading-relaxed">
-          Un email de confirmation a été envoyé à{' '}
-          <span className="font-medium text-foreground">{email}</span>.
+          {t('register.successMessage', { email })}
           <br />
-          Clique sur le lien pour activer ton compte.
+          {t('register.successHint')}
         </p>
         <Link
           href="/login"
           className="mt-6 inline-block text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
         >
-          Retour à la connexion
+          {t('register.backToLogin')}
         </Link>
       </div>
     )
@@ -128,10 +129,10 @@ export default function RegisterPage() {
   return (
     <>
       <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-        Créer un compte
+        {t('register.title')}
       </h1>
       <p className="mt-2 text-center text-sm text-muted">
-        Crée ton portfolio en quelques minutes
+        {t('register.subtitle')}
       </p>
 
       {error && (
@@ -149,7 +150,7 @@ export default function RegisterPage() {
             htmlFor="name"
             className="mb-1.5 block text-sm font-medium text-foreground"
           >
-            Nom complet
+            {t('register.name')}
           </label>
           <input
             id="name"
@@ -158,7 +159,7 @@ export default function RegisterPage() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Jean Dupont"
+            placeholder={t('register.namePlaceholder')}
             className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
@@ -168,7 +169,7 @@ export default function RegisterPage() {
             htmlFor="email"
             className="mb-1.5 block text-sm font-medium text-foreground"
           >
-            Email
+            {t('register.email')}
           </label>
           <input
             id="email"
@@ -177,7 +178,7 @@ export default function RegisterPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="ton@email.com"
+            placeholder={t('register.emailPlaceholder')}
             className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
@@ -187,7 +188,7 @@ export default function RegisterPage() {
             htmlFor="password"
             className="mb-1.5 block text-sm font-medium text-foreground"
           >
-            Mot de passe
+            {t('register.password')}
           </label>
           <input
             id="password"
@@ -197,7 +198,7 @@ export default function RegisterPage() {
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="6 caractères minimum"
+            placeholder={t('register.passwordPlaceholder')}
             className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
           />
         </div>
@@ -211,13 +212,13 @@ export default function RegisterPage() {
             className="mt-0.5 h-4 w-4 shrink-0 rounded border border-border accent-accent"
           />
           <span className="text-xs text-muted leading-relaxed">
-            J&apos;accepte les{' '}
+            {t('register.terms')}{' '}
             <Link href="/legal/cgu" target="_blank" className="underline text-foreground hover:text-accent">
-              Conditions Générales d&apos;Utilisation
+              {t('register.cgu')}
             </Link>{' '}
-            et la{' '}
+            {t('register.and')}{' '}
             <Link href="/legal/confidentialite" target="_blank" className="underline text-foreground hover:text-accent">
-              Politique de Confidentialité
+              {t('register.privacy')}
             </Link>
           </span>
         </label>
@@ -249,10 +250,10 @@ export default function RegisterPage() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                 />
               </svg>
-              Création...
+              {t('register.loading')}
             </span>
           ) : (
-            'Créer mon compte'
+            t('register.submit')
           )}
         </button>
       </form>
@@ -262,7 +263,7 @@ export default function RegisterPage() {
           <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-3 text-muted">ou</span>
+          <span className="bg-background px-3 text-muted">{t('register.or')}</span>
         </div>
       </div>
 
@@ -289,16 +290,16 @@ export default function RegisterPage() {
             fill="#EA4335"
           />
         </svg>
-        Continuer avec Google
+        {t('register.google')}
       </button>
 
       <p className="mt-8 text-center text-sm text-muted">
-        Déjà un compte ?{' '}
+        {t('register.hasAccount')}{' '}
         <Link
           href="/login"
           className="font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
         >
-          Se connecter
+          {t('register.login')}
         </Link>
       </p>
     </>

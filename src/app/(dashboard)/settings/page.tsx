@@ -1,9 +1,11 @@
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS } from '@/lib/constants'
 import { SettingsForm } from './settings-form'
 
 export default async function SettingsPage() {
+  const t = await getTranslations('settings')
   const supabase = await createClient()
   const {
     data: { user },
@@ -25,30 +27,30 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-2">
       <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
-        Parametres
+        {t('title')}
       </h1>
       <p className="text-sm text-muted">
-        Gere ton profil et ton compte.
+        {t('subtitle')}
       </p>
 
       <div className="pt-6 space-y-8">
         {/* Profile section */}
         <section className="rounded-[var(--radius-lg)] border border-border bg-surface p-6">
           <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-4">
-            Profil
+            {t('profile')}
           </h2>
 
           <div className="space-y-4">
             {/* Email (read-only) */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">
-                Email
+                {t('email')}
               </label>
               <div className="rounded-[var(--radius-md)] border border-border bg-surface-warm px-4 py-2.5 text-sm text-muted">
                 {user.email}
               </div>
               <p className="mt-1 text-xs text-muted">
-                L&apos;email est lie a ton compte et ne peut pas etre modifie ici.
+                {t('emailHint')}
               </p>
             </div>
 
@@ -60,7 +62,7 @@ export default async function SettingsPage() {
         {/* Plan section */}
         <section className="rounded-[var(--radius-lg)] border border-border bg-surface p-6">
           <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-4">
-            Plan actuel
+            {t('currentPlan')}
           </h2>
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent capitalize">
@@ -68,7 +70,7 @@ export default async function SettingsPage() {
             </span>
             {plan === 'free' && (
               <span className="text-sm text-muted">
-                Passe a un plan payant pour publier ton portfolio.
+                {t('upgradePlan')}
               </span>
             )}
           </div>
@@ -77,7 +79,7 @@ export default async function SettingsPage() {
               href="/billing"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
             >
-              Gerer mon abonnement
+              {t('manageSubscription')}
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -99,10 +101,10 @@ export default async function SettingsPage() {
         {/* Danger zone */}
         <section className="rounded-[var(--radius-lg)] border border-red-200 bg-red-50/50 p-6">
           <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-red-700 mb-2">
-            Zone dangereuse
+            {t('dangerZone')}
           </h2>
           <p className="text-sm text-red-600/80 mb-4">
-            La suppression de ton compte est irreversible. Toutes tes donnees, ton portfolio et tes projets seront definitivement supprimes.
+            {t('dangerDescription')}
           </p>
           <SettingsForm initialName={profile?.name ?? ''} showDeleteOnly />
         </section>

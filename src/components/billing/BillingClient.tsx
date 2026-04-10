@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Check,
   Loader2,
@@ -47,6 +48,7 @@ export function BillingClient({
   purchasedTemplates,
   checkoutStatus,
 }: BillingClientProps) {
+  const t = useTranslations('billing')
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null)
   const [error, setError] = useState<string | null>(null)
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly')
@@ -71,7 +73,7 @@ export function BillingClient({
 
       // Subscription updated in-place (upgrade/downgrade)
       if (result.updated) {
-        setSuccessMessage('Abonnement mis a jour. Les changements sont effectifs immediatement.')
+        setSuccessMessage(t('subscriptionUpdatedDesc'))
         setLoadingAction(null)
         return
       }
@@ -142,10 +144,10 @@ export function BillingClient({
           </div>
           <div>
             <p className="text-sm font-semibold text-green-800">
-              Paiement confirme
+              {t('paymentConfirmed')}
             </p>
             <p className="text-xs text-green-700 mt-0.5">
-              Ton abonnement est actif. Les changements peuvent prendre quelques instants.
+              {t('paymentConfirmedDesc')}
             </p>
           </div>
         </div>
@@ -157,10 +159,10 @@ export function BillingClient({
           </div>
           <div>
             <p className="text-sm font-semibold text-amber-800">
-              Paiement annule
+              {t('paymentCancelled')}
             </p>
             <p className="text-xs text-amber-700 mt-0.5">
-              Le paiement a ete annule. Tu peux reessayer a tout moment.
+              {t('paymentCancelledDesc')}
             </p>
           </div>
         </div>
@@ -174,7 +176,7 @@ export function BillingClient({
           </div>
           <div>
             <p className="text-sm font-semibold text-green-800">
-              Abonnement mis a jour
+              {t('subscriptionUpdated')}
             </p>
             <p className="text-xs text-green-700 mt-0.5">
               {successMessage}
@@ -194,7 +196,7 @@ export function BillingClient({
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-            Mon abonnement
+            {t('mySubscription')}
           </h2>
 
           {/* Billing interval toggle */}
@@ -210,7 +212,7 @@ export function BillingClient({
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                Mensuel
+                {t('monthly')}
               </button>
               <button
                 type="button"
@@ -222,8 +224,8 @@ export function BillingClient({
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                Annuel
-                <span className="ml-1 text-[10px] font-semibold text-accent">-15%</span>
+                {t('yearly')}
+                <span className="ml-1 text-[10px] font-semibold text-accent">{t('yearlyDiscount')}</span>
               </button>
             </div>
           )}
@@ -239,12 +241,12 @@ export function BillingClient({
               )}
               <div>
                 <h3 className="text-base font-semibold text-foreground">
-                  Plan {planInfo.name}
+                  {t('plan', { name: planInfo.name })}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {planInfo.price === 0
-                    ? 'Gratuit'
-                    : `${planInfo.price.toFixed(2)} EUR/mois`}
+                    ? t('free')
+                    : t('pricePerMonth', { price: planInfo.price.toFixed(2) })}
                 </p>
               </div>
             </div>
@@ -259,7 +261,7 @@ export function BillingClient({
           </div>
 
           {/* Feature list */}
-          <ul className="space-y-2" aria-label="Fonctionnalites du plan">
+          <ul className="space-y-2" aria-label={t('featuresLabel')}>
             {planInfo.features.map((feature) => (
               <li key={feature} className="flex items-center gap-2 text-sm text-foreground">
                 <Check className="h-3.5 w-3.5 text-accent shrink-0" />
@@ -295,12 +297,12 @@ export function BillingClient({
                   {loadingAction === 'checkout-starter' ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Redirection...
+                      {t('redirecting')}
                     </>
                   ) : billingInterval === 'yearly' ? (
-                    'Passer au Starter (50.90 EUR/an)'
+                    t('upgradeStarter', { price: '50.90 EUR/an' })
                   ) : (
-                    'Passer au Starter (4.99 EUR/mois)'
+                    t('upgradeStarter', { price: '4.99 EUR/mois' })
                   )}
                 </button>
                 <button
@@ -317,12 +319,12 @@ export function BillingClient({
                   {loadingAction === 'checkout-pro' ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Redirection...
+                      {t('redirecting')}
                     </>
                   ) : billingInterval === 'yearly' ? (
-                    'Passer au Pro (101.90 EUR/an)'
+                    t('upgradePro', { price: '101.90 EUR/an' })
                   ) : (
-                    'Passer au Pro (9.99 EUR/mois)'
+                    t('upgradePro', { price: '9.99 EUR/mois' })
                   )}
                 </button>
               </>
@@ -344,10 +346,10 @@ export function BillingClient({
                   {loadingAction === 'checkout-pro' ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Redirection...
+                      {t('redirecting')}
                     </>
                   ) : (
-                    'Passer au Pro (9.99 EUR/mois)'
+                    t('upgradePro', { price: '9.99 EUR/mois' })
                   )}
                 </button>
                 <button
@@ -364,11 +366,11 @@ export function BillingClient({
                   {loadingAction === 'portal' ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Redirection...
+                      {t('redirecting')}
                     </>
                   ) : (
                     <>
-                      Gerer mon abonnement
+                      {t('manageSubscription')}
                       <ExternalLink className="h-3.5 w-3.5" />
                     </>
                   )}
@@ -391,11 +393,11 @@ export function BillingClient({
                 {loadingAction === 'portal' ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Redirection...
+                    {t('redirecting')}
                   </>
                 ) : (
                   <>
-                    Gerer mon abonnement
+                    {t('manageSubscription')}
                     <ExternalLink className="h-3.5 w-3.5" />
                   </>
                 )}
@@ -409,17 +411,17 @@ export function BillingClient({
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-            Templates premium
+            {t('premiumTemplates')}
           </h2>
           <span className="inline-flex items-center gap-1 rounded-[var(--radius-full)] bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent uppercase tracking-wide">
             <Sparkles className="h-3 w-3" />
-            2.99 EUR
+            {t('premiumPrice')}
           </span>
         </div>
 
         {plan === 'free' && (
           <p className="text-sm text-muted-foreground">
-            Les templates premium sont disponibles avec un abonnement Starter ou Pro.
+            {t('premiumAvailableWith')}
           </p>
         )}
 
@@ -448,7 +450,7 @@ export function BillingClient({
                       {isPurchased && (
                         <span className="inline-flex items-center gap-1 rounded-[var(--radius-sm)] bg-accent/10 px-1.5 py-0.5 text-[9px] font-bold text-accent uppercase tracking-wider">
                           <Check className="h-2.5 w-2.5" />
-                          Achete
+                          {t('purchased')}
                         </span>
                       )}
                     </div>
@@ -456,7 +458,7 @@ export function BillingClient({
                       {template.description}
                     </p>
                     <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                      Ideal pour : {template.idealFor}
+                      {t('idealFor', { use: template.idealFor })}
                     </p>
                   </div>
                 </div>
@@ -476,12 +478,12 @@ export function BillingClient({
                     {isLoadingThis ? (
                       <>
                         <Loader2 className="h-3 w-3 animate-spin" />
-                        Redirection...
+                        {t('redirecting')}
                       </>
                     ) : (
                       <>
                         <Sparkles className="h-3 w-3" />
-                        Acheter (2.99 EUR)
+                        {t('buyTemplate')}
                       </>
                     )}
                   </button>

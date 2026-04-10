@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS, type PlanType } from '@/lib/constants'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
@@ -10,6 +11,7 @@ import { parseKpis } from '@/types/kpis'
 import { parseLayoutBlocks } from '@/types/layout-blocks'
 
 export default async function DashboardPage() {
+  const t = await getTranslations('dashboard')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -39,9 +41,9 @@ export default async function DashboardPage() {
   const canPublishMore = publishedCount < publishLimit
   const planMessage =
     publishLimit === 0
-      ? 'Passe au Starter pour publier'
+      ? t('publish.upgradeStarter')
       : publishLimit === 1 && publishedCount >= 1
-        ? 'Limite atteinte — passe au Pro'
+        ? t('publish.limitReached')
         : undefined
 
   const planBadgeStyle =
@@ -57,10 +59,10 @@ export default async function DashboardPage() {
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight">
-            Mes projets
+            {t('title')}
           </h1>
           <p className="mt-1 text-muted">
-            {profile?.name ? `Bienvenue, ${profile.name}` : 'Bienvenue sur Vizly'}
+            {profile?.name ? t('welcomeUser', { name: profile.name }) : t('welcome')}
           </p>
         </div>
         <Link
@@ -70,7 +72,7 @@ export default async function DashboardPage() {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          Nouveau projet
+          {t('newProject')}
         </Link>
       </div>
 
@@ -82,18 +84,18 @@ export default async function DashboardPage() {
           </span>
           <span className="text-sm text-muted">
             {publishLimit === 0 && (
-              <>Preview uniquement &mdash; <Link href="/billing" className="text-accent font-medium hover:text-accent-hover">Passe au Starter</Link> pour publier</>
+              <>{t('previewOnly')} &mdash; <Link href="/billing" className="text-accent font-medium hover:text-accent-hover">{t('upgradeStarter')}</Link> {t('toPublish')}</>
             )}
             {publishLimit === 1 && (
-              <>{publishedCount}/1 projet en ligne &mdash; <Link href="/billing" className="text-accent font-medium hover:text-accent-hover">Passe au Pro</Link> pour plus</>
+              <>{publishedCount}/1 {t('projectsOnline', { count: publishedCount })} &mdash; <Link href="/billing" className="text-accent font-medium hover:text-accent-hover">{t('upgradePro')}</Link> {t('forMore')}</>
             )}
             {publishLimit === Infinity && (
-              <>{publishedCount} projet{publishedCount !== 1 ? 's' : ''} en ligne</>
+              <>{t('projectsOnline', { count: publishedCount })}</>
             )}
           </span>
         </div>
         <span className="text-sm font-semibold text-foreground">
-          {allPortfolios.length} projet{allPortfolios.length !== 1 ? 's' : ''}
+          {t('projectCount', { count: allPortfolios.length })}
         </span>
       </div>
 
@@ -139,7 +141,7 @@ export default async function DashboardPage() {
                       </div>
                       <div className="flex-1 flex justify-center">
                         <div className="rounded-[2px] bg-background border border-border-light px-2 py-px text-[9px] text-muted font-mono truncate max-w-[140px]">
-                          {portfolio.slug ? `${portfolio.slug}.vizly.fr` : 'non publie'}
+                          {portfolio.slug ? `${portfolio.slug}.vizly.fr` : t('notPublished')}
                         </div>
                       </div>
                     </div>
@@ -158,10 +160,10 @@ export default async function DashboardPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="min-w-0 flex-1">
                           <h3 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground truncate">
-                            {portfolio.title || 'Sans titre'}
+                            {portfolio.title || t('untitled')}
                           </h3>
                           <p className="text-sm text-muted mt-0.5">
-                            Template <span className="capitalize font-medium text-foreground">{portfolio.template}</span>
+                            {t('template')} <span className="capitalize font-medium text-foreground">{portfolio.template}</span>
                           </p>
                         </div>
                         <span
@@ -171,7 +173,7 @@ export default async function DashboardPage() {
                               : 'bg-surface-warm text-muted'
                           }`}
                         >
-                          {portfolio.published ? 'En ligne' : 'Brouillon'}
+                          {portfolio.published ? t('online') : t('draft')}
                         </span>
                       </div>
 
@@ -196,7 +198,7 @@ export default async function DashboardPage() {
                         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
                         </svg>
-                        Modifier
+                        {t('edit')}
                       </Link>
 
                       <PublishToggle
@@ -217,7 +219,7 @@ export default async function DashboardPage() {
                           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                           </svg>
-                          Voir le site
+                          {t('viewSite')}
                         </a>
                       )}
 
@@ -226,7 +228,7 @@ export default async function DashboardPage() {
 
                       <DeletePortfolio
                         portfolioId={portfolio.id}
-                        portfolioTitle={portfolio.title || 'Sans titre'}
+                        portfolioTitle={portfolio.title || t('untitled')}
                       />
                     </div>
                   </div>
@@ -247,7 +249,7 @@ export default async function DashboardPage() {
                 </svg>
               </div>
               <span className="text-sm font-medium text-muted transition-colors group-hover:text-foreground">
-                Creer un nouveau projet
+                {t('createNew')}
               </span>
             </div>
           </Link>
@@ -272,17 +274,16 @@ export default async function DashboardPage() {
             </svg>
           </div>
           <h2 className="font-[family-name:var(--font-satoshi)] text-xl font-semibold">
-            {profile?.name ? `${profile.name}, cree ton premier projet` : 'Cree ton premier projet'}
+            {profile?.name ? t('emptyTitle', { name: profile.name }) : t('emptyTitleDefault')}
           </h2>
           <p className="mt-2 max-w-sm text-sm text-muted leading-relaxed">
-            En 5 minutes chrono. Remplis tes infos, choisis un template,
-            et previsualise ton portfolio.
+            {t('emptyDescription')}
           </p>
           <Link
             href="/editor"
             className="mt-6 inline-flex items-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
           >
-            Creer mon projet
+            {t('emptyCta')}
           </Link>
         </div>
       )}

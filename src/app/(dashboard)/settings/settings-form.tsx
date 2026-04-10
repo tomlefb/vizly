@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { updateProfile, deleteAccount } from '@/actions/auth'
 
 interface SettingsFormProps {
@@ -11,6 +12,7 @@ interface SettingsFormProps {
 
 export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps) {
   const router = useRouter()
+  const t = useTranslations('settings')
 
   // ---------------------------------------------------------------------------
   // Name update
@@ -71,12 +73,12 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
             onClick={() => setShowConfirm(true)}
             className="inline-flex items-center rounded-[var(--radius-md)] border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition-colors duration-150 hover:bg-red-50"
           >
-            Supprimer mon compte
+            {t('deleteAccount')}
           </button>
         ) : (
           <div className="rounded-[var(--radius-md)] border border-red-300 bg-white p-4">
             <p className="text-sm font-medium text-red-700 mb-3">
-              Es-tu certain de vouloir supprimer ton compte ? Cette action est irreversible.
+              {t('deleteConfirm')}
             </p>
             <div className="flex gap-3">
               <button
@@ -85,7 +87,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
                 disabled={isDeleting}
                 className="inline-flex items-center rounded-[var(--radius-md)] bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-red-700 disabled:opacity-50"
               >
-                {isDeleting ? 'Suppression...' : 'Oui, supprimer definitivement'}
+                {isDeleting ? t('deleting') : t('deleteConfirmBtn')}
               </button>
               <button
                 type="button"
@@ -93,7 +95,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
                 disabled={isDeleting}
                 className="inline-flex items-center rounded-[var(--radius-md)] border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm disabled:opacity-50"
               >
-                Annuler
+                {t('cancel')}
               </button>
             </div>
             {deleteError && (
@@ -113,7 +115,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
   return (
     <form onSubmit={handleNameSubmit}>
       <label htmlFor="settings-name" className="block text-sm font-medium text-foreground mb-1.5">
-        Nom
+        {t('name')}
       </label>
       <div className="flex gap-3">
         <input
@@ -125,7 +127,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
             setNameError(null)
             setNameSuccess(false)
           }}
-          placeholder="Ton nom complet"
+          placeholder={t('namePlaceholder')}
           maxLength={100}
           className="flex-1 h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
         />
@@ -134,7 +136,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
           disabled={isPending || name.trim() === initialName}
           className="inline-flex items-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending ? 'Sauvegarde...' : 'Sauvegarder'}
+          {isPending ? t('saving') : t('save')}
         </button>
       </div>
       {nameError && (
@@ -144,7 +146,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
       )}
       {nameSuccess && (
         <p className="mt-2 text-sm text-green-600" role="status">
-          Nom mis a jour avec succes.
+          {t('nameSuccess')}
         </p>
       )}
     </form>
