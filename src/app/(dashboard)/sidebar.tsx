@@ -13,9 +13,10 @@ import {
   User,
   LogOut,
   ChevronLeft,
+  Languages,
 } from 'lucide-react'
+import { useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
 import { createClient } from '@/lib/supabase/client'
 import { useSidebar } from './sidebar-context'
 
@@ -41,10 +42,17 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { expanded, toggle, sidebarWidth } = useSidebar()
+  const locale = useLocale()
 
   const initials = userName
     ? userName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
     : userEmail.slice(0, 2).toUpperCase()
+
+  function handleSwitchLocale() {
+    const next = locale === 'fr' ? 'en' : 'fr'
+    document.cookie = `NEXT_LOCALE=${next};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`
+    window.location.reload()
+  }
 
   async function handleLogout() {
     const supabase = createClient()
@@ -118,17 +126,25 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
         </div>
       </nav>
 
-      {/* Language + Bottom links */}
+      {/* Bottom links */}
       <div className="shrink-0 border-t border-[#E5E7EB]/40 py-1.5 px-2 space-y-0.5">
-        {expanded ? (
-          <div className="px-3 py-1.5">
-            <LanguageSwitcher />
-          </div>
-        ) : (
-          <div className="flex justify-center py-1.5">
-            <LanguageSwitcher />
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={handleSwitchLocale}
+          title={expanded ? undefined : (locale === 'fr' ? 'English' : 'Français')}
+          className={cn(
+            'group relative flex items-center w-full h-9 rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors duration-150',
+            expanded ? 'pl-3' : 'justify-center',
+          )}
+        >
+          <Languages className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
+          {expanded && <span className="text-[13px] whitespace-nowrap ml-3">{locale === 'fr' ? 'Français' : 'English'}</span>}
+          {!expanded && (
+            <span className="absolute left-full ml-2 z-50 rounded-[6px] bg-[#111827]/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150">
+              {locale === 'fr' ? 'English' : 'Français'}
+            </span>
+          )}
+        </button>
         <NavItem href="/" icon={ArrowLeft} label={t('home')} active={false} expanded={expanded} />
         <NavItem href="/settings" icon={User} label={t('account')} active={pathname === '/settings'} expanded={expanded} />
         <button
