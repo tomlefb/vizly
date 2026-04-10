@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Check, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { ScrollReveal } from '@/components/shared/ScrollReveal'
 
 type BillingInterval = 'monthly' | 'yearly'
 
@@ -82,7 +83,7 @@ export function Pricing() {
     <section id="pricing" className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-10 lg:mb-14">
+        <ScrollReveal className="mb-10 lg:mb-14">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
             <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
               {t('title')} <span className="text-accent">{t('titleAccent')}</span>
@@ -126,7 +127,7 @@ export function Pricing() {
               </span>
             )}
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Plan cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">

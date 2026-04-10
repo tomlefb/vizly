@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
+import { ScrollReveal } from '@/components/shared/ScrollReveal'
 
 export async function CTA() {
   const t = await getTranslations('cta')
@@ -8,6 +9,7 @@ export async function CTA() {
   return (
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <ScrollReveal>
         <div className="relative overflow-hidden rounded-[var(--radius-xl)] bg-foreground px-8 py-16 sm:px-16 sm:py-20 lg:px-24 lg:py-24">
           {/* Background accent shape */}
           <div
@@ -46,6 +48,7 @@ export async function CTA() {
             </div>
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   )

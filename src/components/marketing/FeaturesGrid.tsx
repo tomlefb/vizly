@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import { ScrollReveal } from '@/components/shared/ScrollReveal'
 
 const FEATURE_KEYS = ['live', 'form', 'templates', 'customizable', 'unlimited'] as const
 
@@ -11,7 +12,7 @@ export async function FeaturesGrid() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header -- matching pricing pattern */}
-        <div className="mb-10 lg:mb-14">
+        <ScrollReveal className="mb-10 lg:mb-14">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
             <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
               <span className="text-accent">{ft('titleAccent')}</span> {ft('titleEnd')}
@@ -20,7 +21,7 @@ export async function FeaturesGrid() {
               {ft('subtitle')}
             </p>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Features text grid */}
         <div className="grid grid-cols-2 md:grid-cols-5">
