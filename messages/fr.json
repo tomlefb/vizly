@@ -55,7 +55,7 @@
   "socialProof": {
     "stats": {
       "portfolios": { "value": "2k", "suffix": "+", "label": "portfolios créés et publiés" },
-      "time": { "value": "4", "suffix": "min", "label": "temps moyen pour être live" },
+      "time": { "value": "4", "suffix": "min", "label": "temps moyen pour être live" }
     },
     "features": {
       "live": { "title": "Live en 5 min", "desc": "Ton pseudo devient ton URL sur vizly.fr." },

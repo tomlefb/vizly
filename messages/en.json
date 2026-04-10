@@ -55,7 +55,7 @@
   "socialProof": {
     "stats": {
       "portfolios": { "value": "2k", "suffix": "+", "label": "portfolios created and published" },
-      "time": { "value": "4", "suffix": "min", "label": "average time to go live" },
+      "time": { "value": "4", "suffix": "min", "label": "average time to go live" }
     },
     "features": {
       "live": { "title": "Live in 5 min", "desc": "Your username becomes your vizly.fr URL." },
