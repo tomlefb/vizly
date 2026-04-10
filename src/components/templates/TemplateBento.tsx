@@ -1,30 +1,16 @@
 import { Fragment } from 'react'
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
-import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
-import type { LucideIcon } from 'lucide-react'
+import { TemplateFooter } from './TemplateFooter'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import {
-  Code2,
-  Link2,
-  Camera,
-  AtSign,
-  Globe,
-  Pen,
   Mail,
   ArrowUpRight,
 } from 'lucide-react'
-
-const SOCIAL_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
-  github: { icon: Code2, label: 'GitHub' },
-  linkedin: { icon: Link2, label: 'LinkedIn' },
-  instagram: { icon: Camera, label: 'Instagram' },
-  twitter: { icon: AtSign, label: 'Twitter' },
-  dribbble: { icon: Pen, label: 'Dribbble' },
-  website: { icon: Globe, label: 'Site web' },
-}
 
 /** Mix a hex color with white. amount 0=hex, 1=white */
 function lightenHex(hex: string, amount: number): string {
@@ -82,18 +68,12 @@ export function TemplateBento({
     contact_email,
   } = portfolio
 
-  const sortedProjects = [...projects].sort(
-    (a, b) => a.display_order - b.display_order
-  )
-  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order)
+  const sortedProjects = getSortedProjects(projects)
+  const visibleSections = getVisibleSections(sections)
 
   const accentLight = lightenHex(primary_color, 0.92)
 
-  const socialEntries = social_links
-    ? Object.entries(social_links).filter(([, url]) => url)
-    : []
+  const socialEntries = getSocialEntries(social_links)
 
   function renderSection(section: SectionBlock): React.ReactNode {
     switch (section.id) {
@@ -761,7 +741,28 @@ export function TemplateBento({
           </div>
 
           {/* Footer */}
-          <div className="mt-6 flex items-center justify-between px-1">
+          <TemplateFooter
+            isPremium={isPremium}
+            primaryColor={primary_color}
+            className="mt-6 px-1"
+            style={{
+              borderTop: 'none',
+              fontFamily: "'Inter Tight', sans-serif",
+            }}
+            containerClassName="flex items-center justify-between"
+            yearStyle={{
+              fontFamily: "'Inter Tight', sans-serif",
+              fontSize: '0.7rem',
+              fontWeight: 500,
+              color: TEXT_TERTIARY,
+            }}
+            badgeStyle={{
+              fontFamily: "'Inter Tight', sans-serif",
+              fontSize: '0.7rem',
+              fontWeight: 500,
+              color: TEXT_TERTIARY,
+            }}
+          >
             <p
               style={{
                 fontFamily: "'Inter Tight', sans-serif",
@@ -772,26 +773,7 @@ export function TemplateBento({
             >
               © {new Date().getFullYear()} {title}
             </p>
-            {!isPremium ? (
-              <a
-                href="https://vizly.fr"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  fontFamily: "'Inter Tight', sans-serif",
-                  fontSize: '0.7rem',
-                  fontWeight: 500,
-                  color: TEXT_TERTIARY,
-                  textDecoration: 'none',
-                }}
-              >
-                Fait avec{' '}
-                <span style={{ fontWeight: 700, color: primary_color }}>
-                  Vizly
-                </span>
-              </a>
-            ) : null}
-          </div>
+          </TemplateFooter>
         </div>
       </div>
     </>

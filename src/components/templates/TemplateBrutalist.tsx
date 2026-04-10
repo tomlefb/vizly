@@ -1,28 +1,12 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
-import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import type { SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
-import type { LucideIcon } from 'lucide-react'
-import {
-  Code2,
-  Link2,
-  Camera,
-  AtSign,
-  Globe,
-  Pen,
-  Mail,
-} from 'lucide-react'
-
-const SOCIAL_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
-  github: { icon: Code2, label: 'GitHub' },
-  linkedin: { icon: Link2, label: 'LinkedIn' },
-  instagram: { icon: Camera, label: 'Instagram' },
-  twitter: { icon: AtSign, label: 'Twitter' },
-  dribbble: { icon: Pen, label: 'Dribbble' },
-  website: { icon: Globe, label: 'Site web' },
-}
+import { TemplateFooter } from './TemplateFooter'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { Mail } from 'lucide-react'
 
 export function TemplateBrutalist({
   portfolio,
@@ -44,12 +28,8 @@ export function TemplateBrutalist({
     contact_email,
   } = portfolio
 
-  const sortedProjects = [...projects].sort(
-    (a, b) => a.display_order - b.display_order
-  )
-  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order)
+  const sortedProjects = getSortedProjects(projects)
+  const visibleSections = getVisibleSections(sections)
 
   // Determine if dark mode: secondary color luminance check
   const secClean = secondary_color.replace('#', '')
@@ -140,7 +120,7 @@ export function TemplateBrutalist({
         )
 
       case 'socials': {
-        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        const socialEntries = getSocialEntries(social_links)
         if (socialEntries.length === 0 && !contact_email) return null
         return (
           <section key="socials" className="px-5 py-6 md:px-10">
@@ -626,56 +606,27 @@ export function TemplateBrutalist({
           {visibleSections.map(renderSection)}
 
           {/* Footer */}
-          <footer className="px-5 py-8 md:px-10">
-            <div className="mx-auto max-w-5xl">
-              <div
-                style={{
-                  height: 4,
-                  backgroundColor: borderColor,
-                  marginBottom: 20,
-                }}
-              />
-              <div className="flex items-center justify-between">
-                <p
-                  style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: '1rem',
-                    letterSpacing: '0.08em',
-                    color: mutedColor,
-                  }}
-                >
-                  {new Date().getFullYear()}
-                </p>
-                {!isPremium ? (
-                  <a
-                    href="https://vizly.fr"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                      color: mutedColor,
-                      textDecoration: 'none',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                    }}
-                  >
-                    Fait avec{' '}
-                    <span
-                      style={{
-                        fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: '0.85rem',
-                        color: primary_color,
-                        letterSpacing: '0.04em',
-                      }}
-                    >
-                      VIZLY
-                    </span>
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </footer>
+          <TemplateFooter
+            isPremium={isPremium}
+            primaryColor={primary_color}
+            className="px-5 py-8 md:px-10"
+            style={{ borderTop: 'none' }}
+            containerClassName="mx-auto max-w-5xl flex items-center justify-between"
+            containerStyle={{ paddingTop: 20, borderTop: `4px solid ${borderColor}` }}
+            yearStyle={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: '1rem',
+              letterSpacing: '0.08em',
+              color: mutedColor,
+            }}
+            badgeStyle={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              color: mutedColor,
+              letterSpacing: '0.06em',
+            }}
+          />
         </div>
       </div>
     </>

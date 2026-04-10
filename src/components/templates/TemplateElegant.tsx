@@ -1,28 +1,12 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
-import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import type { SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
-import type { LucideIcon } from 'lucide-react'
-import {
-  Code2,
-  Link2,
-  Camera,
-  AtSign,
-  Globe,
-  Pen,
-  Mail,
-} from 'lucide-react'
-
-const SOCIAL_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
-  github: { icon: Code2, label: 'GitHub' },
-  linkedin: { icon: Link2, label: 'LinkedIn' },
-  instagram: { icon: Camera, label: 'Instagram' },
-  twitter: { icon: AtSign, label: 'Twitter' },
-  dribbble: { icon: Pen, label: 'Dribbble' },
-  website: { icon: Globe, label: 'Site web' },
-}
+import { TemplateFooter } from './TemplateFooter'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { Mail } from 'lucide-react'
 
 export function TemplateElegant({
   portfolio,
@@ -44,12 +28,8 @@ export function TemplateElegant({
     contact_email,
   } = portfolio
 
-  const sortedProjects = [...projects].sort(
-    (a, b) => a.display_order - b.display_order
-  )
-  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order)
+  const sortedProjects = getSortedProjects(projects)
+  const visibleSections = getVisibleSections(sections)
 
   function renderSection(section: SectionBlock) {
     switch (section.id) {
@@ -144,7 +124,7 @@ export function TemplateElegant({
         )
 
       case 'socials': {
-        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        const socialEntries = getSocialEntries(social_links)
         if (socialEntries.length === 0 && !contact_email) return null
         return (
           <section key="socials" className="px-6 py-10 md:px-16 lg:px-24" style={{ textAlign: 'center' }}>
@@ -622,55 +602,43 @@ export function TemplateElegant({
         {visibleSections.map(renderSection)}
 
         {/* Footer */}
-        <footer
+        <TemplateFooter
+          isPremium={isPremium}
+          primaryColor={primary_color}
           className="px-6 py-16 md:px-16 md:py-20 lg:px-24"
-          style={{ textAlign: 'center' }}
+          style={{ borderTop: 'none', textAlign: 'center' }}
+          containerClassName="mx-auto max-w-4xl"
+          badgeStyle={{
+            display: 'inline-block',
+            marginTop: 12,
+            fontFamily: "'Raleway', sans-serif",
+            fontSize: '0.65rem',
+            fontWeight: 400,
+            color: '#CCCCCC',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+          }}
         >
-          <div className="mx-auto max-w-4xl">
-            <div
-              style={{
-                width: 1,
-                height: 40,
-                backgroundColor: '#E0E0E0',
-                margin: '0 auto 24px',
-              }}
-            />
-            <p
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: '0.85rem',
-                color: '#CCCCCC',
-                letterSpacing: '0.1em',
-                fontWeight: 300,
-              }}
-            >
-              {new Date().getFullYear()}
-            </p>
-            {!isPremium ? (
-              <a
-                href="https://vizly.fr"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-block',
-                  marginTop: 12,
-                  fontFamily: "'Raleway', sans-serif",
-                  fontSize: '0.65rem',
-                  fontWeight: 400,
-                  color: '#CCCCCC',
-                  textDecoration: 'none',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.2em',
-                }}
-              >
-                Fait avec{' '}
-                <span style={{ fontWeight: 600, color: primary_color }}>
-                  Vizly
-                </span>
-              </a>
-            ) : null}
-          </div>
-        </footer>
+          <div
+            style={{
+              width: 1,
+              height: 40,
+              backgroundColor: '#E0E0E0',
+              margin: '0 auto 24px',
+            }}
+          />
+          <p
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: '0.85rem',
+              color: '#CCCCCC',
+              letterSpacing: '0.1em',
+              fontWeight: 300,
+            }}
+          >
+            {new Date().getFullYear()}
+          </p>
+        </TemplateFooter>
       </div>
     </>
   )

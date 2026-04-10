@@ -1,31 +1,12 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
-import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
-import type { LucideIcon } from 'lucide-react'
-import {
-  Code2,
-  Link2,
-  Camera,
-  AtSign,
-  Globe,
-  Pen,
-  Mail,
-} from 'lucide-react'
-
-const SOCIAL_ICONS: Record<
-  string,
-  { icon: LucideIcon; label: string }
-> = {
-  github: { icon: Code2, label: 'GitHub' },
-  linkedin: { icon: Link2, label: 'LinkedIn' },
-  instagram: { icon: Camera, label: 'Instagram' },
-  twitter: { icon: AtSign, label: 'Twitter' },
-  dribbble: { icon: Pen, label: 'Dribbble' },
-  website: { icon: Globe, label: 'Website' },
-}
+import { TemplateFooter } from './TemplateFooter'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { Mail } from 'lucide-react'
 
 export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
   const {
@@ -38,10 +19,8 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
     contact_email,
   } = portfolio
 
-  const sortedProjects = [...projects].sort((a, b) => a.display_order - b.display_order)
-  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order)
+  const sortedProjects = getSortedProjects(projects)
+  const visibleSections = getVisibleSections(sections)
 
   // Glow shadow from primary color
   const glowSm = `0 0 12px ${primary_color}40`
@@ -143,7 +122,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
         )
 
       case 'socials': {
-        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        const socialEntries = getSocialEntries(social_links)
         if (socialEntries.length === 0 && !contact_email) return null
         return (
           <section key="socials" className="px-6 py-6 md:px-10">
@@ -657,49 +636,25 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
           {visibleSections.map(renderSection)}
 
           {/* Footer */}
-          <footer className="px-6 py-8 md:px-10">
-            <div className="mx-auto max-w-4xl">
-              <div
-                style={{
-                  height: 1,
-                  background: `linear-gradient(90deg, transparent, ${primary_color}20, transparent)`,
-                  marginBottom: 24,
-                }}
-              />
-              <div className="flex items-center justify-between">
-                <p
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '0.7rem',
-                    color: '#444458',
-                  }}
-                >
-                  {new Date().getFullYear()}
-                </p>
-                {!isPremium ? (
-                  <a
-                    href="https://vizly.fr"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: '0.7rem',
-                      color: '#444458',
-                      textDecoration: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    built with{' '}
-                    <span style={{ color: primary_color, fontWeight: 600 }}>
-                      vizly
-                    </span>
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </footer>
+          <TemplateFooter
+            isPremium={isPremium}
+            primaryColor={primary_color}
+            className="px-6 py-8 md:px-10"
+            style={{
+              borderTop: 'none',
+            }}
+            containerClassName="mx-auto max-w-4xl flex items-center justify-between"
+            yearStyle={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.7rem',
+              color: '#444458',
+            }}
+            badgeStyle={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.7rem',
+              color: '#444458',
+            }}
+          />
         </div>
       </div>
     </>

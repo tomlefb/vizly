@@ -1,31 +1,12 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
-import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
-import type { LucideIcon } from 'lucide-react'
-import {
-  Code2,
-  Link2,
-  Camera,
-  AtSign,
-  Globe,
-  Pen,
-  Mail,
-} from 'lucide-react'
-
-const SOCIAL_ICONS: Record<
-  string,
-  { icon: LucideIcon; label: string }
-> = {
-  github: { icon: Code2, label: 'GitHub' },
-  linkedin: { icon: Link2, label: 'LinkedIn' },
-  instagram: { icon: Camera, label: 'Instagram' },
-  twitter: { icon: AtSign, label: 'Twitter' },
-  dribbble: { icon: Pen, label: 'Dribbble' },
-  website: { icon: Globe, label: 'Site web' },
-}
+import { TemplateFooter } from './TemplateFooter'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { Mail } from 'lucide-react'
 
 export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
   const {
@@ -38,10 +19,8 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
     contact_email,
   } = portfolio
 
-  const sortedProjects = [...projects].sort((a, b) => a.display_order - b.display_order)
-  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order)
+  const sortedProjects = getSortedProjects(projects)
+  const visibleSections = getVisibleSections(sections)
 
   // The Classique template has a sidebar layout on desktop.
   // We render the sidebar content from visible sections, and projects in main.
@@ -396,7 +375,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         )
 
       case 'socials': {
-        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        const socialEntries = getSocialEntries(social_links)
         if (socialEntries.length === 0) return null
         return (
           <div key="socials" className="mt-4 flex flex-wrap items-center justify-center gap-3">
@@ -770,28 +749,20 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         </div>
 
         {/* Mobile footer badge */}
-        {!isPremium ? (
-          <footer
-            className="block px-6 py-6 text-center lg:hidden"
-            style={{ borderTop: '1px solid #E8E8E3' }}
-          >
-            <a
-              href="https://vizly.fr"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontSize: '0.75rem',
-                color: '#AAAAAA',
-                textDecoration: 'none',
-              }}
-            >
-              Fait avec{' '}
-              <span style={{ fontWeight: 700, color: primary_color }}>
-                Vizly
-              </span>
-            </a>
-          </footer>
-        ) : null}
+        <TemplateFooter
+          isPremium={isPremium}
+          primaryColor={primary_color}
+          className="block px-6 py-6 text-center lg:hidden"
+          style={{ borderTop: '1px solid #E8E8E3' }}
+          containerClassName="flex items-center justify-center"
+          badgeStyle={{
+            fontSize: '0.75rem',
+            color: '#AAAAAA',
+          }}
+        >
+          {/* No year text in mobile footer — badge only */}
+          <span />
+        </TemplateFooter>
       </div>
     </>
   )

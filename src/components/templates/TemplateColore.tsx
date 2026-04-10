@@ -1,32 +1,12 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
-import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import { type SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
-import type { LucideIcon } from 'lucide-react'
-import {
-  Code2,
-  Link2,
-  Camera,
-  AtSign,
-  Globe,
-  Pen,
-  Mail,
-  Sparkles,
-} from 'lucide-react'
-
-const SOCIAL_ICONS: Record<
-  string,
-  { icon: LucideIcon; label: string }
-> = {
-  github: { icon: Code2, label: 'GitHub' },
-  linkedin: { icon: Link2, label: 'LinkedIn' },
-  instagram: { icon: Camera, label: 'Instagram' },
-  twitter: { icon: AtSign, label: 'Twitter' },
-  dribbble: { icon: Pen, label: 'Dribbble' },
-  website: { icon: Globe, label: 'Site web' },
-}
+import { TemplateFooter } from './TemplateFooter'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { Mail, Sparkles } from 'lucide-react'
 
 /**
  * Lighten a hex color by mixing it with white.
@@ -56,10 +36,8 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
     contact_email,
   } = portfolio
 
-  const sortedProjects = [...projects].sort((a, b) => a.display_order - b.display_order)
-  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order)
+  const sortedProjects = getSortedProjects(projects)
+  const visibleSections = getVisibleSections(sections)
 
   const bgColor = lightenColor(primary_color, 0.93)
   // Single, readable tag color — derived from primary
@@ -155,7 +133,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
         )
 
       case 'socials': {
-        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        const socialEntries = getSocialEntries(social_links)
         if (socialEntries.length === 0 && !contact_email) return null
         return (
           <section key="socials" className="px-6 py-7 md:px-10">
@@ -708,7 +686,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
           {visibleSections.map(renderSection)}
 
           {/* Footer */}
-          <footer className="px-6 py-8">
+          <div className="px-6 py-8">
             <div className="mx-auto max-w-5xl text-center">
               <div
                 style={{
@@ -719,7 +697,19 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   margin: '0 auto 20px',
                 }}
               />
-              <div className="flex items-center justify-center gap-3">
+              <TemplateFooter
+                isPremium={isPremium}
+                primaryColor={primary_color}
+                className=""
+                style={{ borderTop: 'none' }}
+                containerClassName="flex items-center justify-center gap-3"
+                badgeStyle={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontSize: '0.82rem',
+                  color: '#BBBBBB',
+                  fontWeight: 500,
+                }}
+              >
                 <p
                   style={{
                     fontFamily: "'Fredoka', sans-serif",
@@ -730,31 +720,10 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                 >
                   {new Date().getFullYear()}
                 </p>
-                {!isPremium ? (
-                  <>
-                    <span style={{ color: '#DDDDDD' }}>|</span>
-                    <a
-                      href="https://vizly.fr"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        fontFamily: "'Fredoka', sans-serif",
-                        fontSize: '0.82rem',
-                        color: '#BBBBBB',
-                        textDecoration: 'none',
-                        fontWeight: 500,
-                      }}
-                    >
-                      Fait avec{' '}
-                      <span style={{ fontWeight: 700, color: primary_color }}>
-                        Vizly
-                      </span>
-                    </a>
-                  </>
-                ) : null}
-              </div>
+                {!isPremium ? <span style={{ color: '#DDDDDD' }}>|</span> : null}
+              </TemplateFooter>
             </div>
-          </footer>
+          </div>
         </div>
       </div>
     </>

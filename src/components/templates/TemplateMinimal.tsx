@@ -1,28 +1,12 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
-import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
+import type { SectionBlock } from '@/types/sections'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
-import type { LucideIcon } from 'lucide-react'
-import {
-  Code2,
-  Link2,
-  Camera,
-  AtSign,
-  Globe,
-  Pen,
-  Mail,
-} from 'lucide-react'
-
-const SOCIAL_ICONS: Record<string, LucideIcon> = {
-  github: Code2,
-  linkedin: Link2,
-  instagram: Camera,
-  twitter: AtSign,
-  dribbble: Pen,
-  website: Globe,
-}
+import { TemplateFooter } from './TemplateFooter'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { Mail } from 'lucide-react'
 
 export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
   const {
@@ -35,10 +19,8 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
     contact_email,
   } = portfolio
 
-  const sortedProjects = [...projects].sort((a, b) => a.display_order - b.display_order)
-  const visibleSections = [...(sections ?? DEFAULT_SECTIONS)]
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order)
+  const sortedProjects = getSortedProjects(projects)
+  const visibleSections = getVisibleSections(sections)
 
   function renderSection(section: SectionBlock) {
     switch (section.id) {
@@ -73,23 +55,20 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
         )
 
       case 'socials': {
-        const socialEntries = social_links ? Object.entries(social_links).filter(([, url]) => url) : []
+        const socialEntries = getSocialEntries(social_links)
         if (socialEntries.length === 0 && !contact_email) return null
-        const SOCIAL_NAMES: Record<string, string> = {
-          github: 'GitHub', linkedin: 'LinkedIn', instagram: 'Instagram',
-          twitter: 'Twitter', dribbble: 'Dribbble', website: 'Site web',
-        }
         return (
           <section key="socials" className="px-6 py-6">
             <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-2">
               {socialEntries.map(([platform, url]) => {
-                const IconComponent = SOCIAL_ICONS[platform]
-                if (!IconComponent || !url) return null
+                const entry = SOCIAL_ICONS[platform]
+                if (!entry || !url) return null
+                const IconComponent = entry.icon
                 return (
-                  <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Profil ${SOCIAL_NAMES[platform] ?? platform}`}
+                  <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Profil ${entry.label}`}
                     style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
                     <IconComponent size={15} />
-                    <span>{SOCIAL_NAMES[platform] ?? platform}</span>
+                    <span>{entry.label}</span>
                   </a>
                 )
               })}
@@ -276,18 +255,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
       <div style={{ fontFamily: "'Source Sans 3', sans-serif", backgroundColor: '#FAFAFA', color: '#2D2D2D', minHeight: '100vh' }}>
         {visibleSections.map(renderSection)}
 
-        {/* Footer */}
-        <footer className="px-6 py-8" style={{ borderTop: '1px solid #EBEBEB' }}>
-          <div className="mx-auto flex max-w-5xl items-center justify-between">
-            <p style={{ fontSize: '0.8rem', color: '#ABABAB' }}>{new Date().getFullYear()}</p>
-            {!isPremium ? (
-              <a href="https://vizly.fr" target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: '0.75rem', color: '#ABABAB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
-                Fait avec <span style={{ fontWeight: 600, color: primary_color }}>Vizly</span>
-              </a>
-            ) : null}
-          </div>
-        </footer>
+        <TemplateFooter isPremium={isPremium} primaryColor={primary_color} />
       </div>
     </>
   )
