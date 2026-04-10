@@ -350,7 +350,7 @@ const COL_3 = [2, 5].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : [])    // classi
 
 const RENDER_WIDTH = 1280
 // Slight overscale so templates with internal max-width still fill the card
-const SCALE_BOOST = 1.08
+const SCALE_BOOST = 1.15
 
 function AutoHeightPreview({ templateName, templateProps }: { templateName: string; templateProps: TemplateProps }) {
   const [Component, setComponent] = useState<ComponentType<TemplateProps> | null>(null)
