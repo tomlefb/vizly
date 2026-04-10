@@ -53,7 +53,7 @@ export function TemplateShowcase() {
           const demoProps = getDemoPortfolio(template.name, template.isPremium)
 
           return (
-            <StaggerItem key={template.name} index={i}>
+            <StaggerItem key={template.name} index={i} stagger={0.05}>
             <Link
               href={`/templates/${template.name}`}
               className="group relative rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)]"

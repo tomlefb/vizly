@@ -36,9 +36,10 @@ interface StaggerItemProps {
   className?: string
   index: number
   baseDelay?: number
+  stagger?: number
 }
 
-export function StaggerItem({ children, className, index, baseDelay = 0.15 }: StaggerItemProps) {
+export function StaggerItem({ children, className, index, baseDelay = 0.15, stagger = 0.08 }: StaggerItemProps) {
   const prefersReduced = useReducedMotion()
 
   if (prefersReduced) {
@@ -51,7 +52,7 @@ export function StaggerItem({ children, className, index, baseDelay = 0.15 }: St
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-15% 0px' }}
-      transition={{ duration: 0.4, ease: EASE_OUT_EXPO, delay: baseDelay + index * 0.08 }}
+      transition={{ duration: 0.4, ease: EASE_OUT_EXPO, delay: baseDelay + index * stagger }}
     >
       {children}
     </motion.div>
