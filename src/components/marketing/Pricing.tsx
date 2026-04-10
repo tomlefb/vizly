@@ -147,13 +147,13 @@ export function Pricing() {
                 className={cn(
                   'relative rounded-[var(--radius-lg)] flex flex-col p-7 lg:p-8',
                   plan.featured
-                    ? 'border-[1.5px] border-accent'
+                    ? 'border-[1.5px] border-accent md:-translate-y-2'
                     : 'border-[0.5px] border-border'
                 )}
               >
                 {/* Popular badge */}
                 {plan.featured && (
-                  <div className="absolute -top-3 left-5">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
                       <span className="h-1.5 w-1.5 rounded-full bg-white" />
                       Populaire
