@@ -28,8 +28,9 @@
     "socialProof": "Déjà 2 000+ portfolios créés"
   },
   "features": {
-    "title": "Tout ce qu'il",
-    "titleAccent": "faut.",
+    "title": "",
+    "titleAccent": "Tout",
+    "titleEnd": "ce qu'il faut.",
     "subtitle": "Cinq fonctionnalités, pour tout faire.",
     "form": {
       "title": "Formulaire guidé",

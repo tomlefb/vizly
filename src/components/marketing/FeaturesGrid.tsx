@@ -14,7 +14,7 @@ export async function FeaturesGrid() {
         <div className="mb-10 lg:mb-14">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
             <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
-              <span className="text-accent">{ft('title')} {ft('titleAccent')}</span>
+              <span className="text-accent">{ft('titleAccent')}</span> {ft('titleEnd')}
             </h2>
             <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
               {ft('subtitle')}

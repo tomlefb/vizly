@@ -28,8 +28,9 @@
     "socialProof": "Already 2,000+ portfolios created"
   },
   "features": {
-    "title": "Everything you",
-    "titleAccent": "need.",
+    "title": "",
+    "titleAccent": "Everything",
+    "titleEnd": "you need.",
     "subtitle": "Five features to do it all.",
     "form": {
       "title": "Guided form",
