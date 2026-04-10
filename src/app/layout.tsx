@@ -28,8 +28,8 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Vizly — Crée ton portfolio en 5 minutes',
-    template: '%s | Vizly',
+    default: 'Vizly · Crée ton portfolio en 5 minutes',
+    template: '%s · Vizly',
   },
   description:
     'Crée un portfolio en ligne professionnel en quelques minutes. Choisis un template, remplis tes infos, et ton site est live sur pseudo.vizly.fr.',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL ?? `https://${process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'}`
   ),
   openGraph: {
-    title: 'Vizly — Crée ton portfolio en 5 minutes',
+    title: 'Vizly · Crée ton portfolio en 5 minutes',
     description:
       'Le builder de portfolios le plus simple. Remplis, personnalise, publie.',
     siteName: 'Vizly',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Vizly — Crée ton portfolio en 5 minutes',
+    title: 'Vizly · Crée ton portfolio en 5 minutes',
     description:
       'Le builder de portfolios le plus simple. Remplis, personnalise, publie.',
   },

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: "Conditions Generales d'Utilisation",
-  description: "CGU de la plateforme Vizly — creation de portfolios en ligne.",
+  description: "CGU de la plateforme Vizly · creation de portfolios en ligne.",
 }
 
 export default function CGUPage() {

@@ -3,7 +3,7 @@ import { FAQAccordion } from '@/components/marketing/FAQAccordion'
 
 export const metadata: Metadata = {
   title: 'FAQ',
-  description: 'Questions frequentes sur Vizly — creation de portfolios en ligne.',
+  description: 'Questions frequentes sur Vizly · creation de portfolios en ligne.',
 }
 
 export default function FAQPage() {

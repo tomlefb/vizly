@@ -3,7 +3,7 @@ import { ContactForm } from '@/components/marketing/ContactForm'
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Contacte l\'equipe Vizly — on repond sous 24 heures.',
+  description: 'Contacte l\'equipe Vizly · on repond sous 24 heures.',
 }
 
 export default function ContactPage() {

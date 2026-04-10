@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialite',
-  description: 'Politique de confidentialite de Vizly — comment nous protegeons vos donnees.',
+  description: 'Politique de confidentialite de Vizly · comment nous protegeons vos donnees.',
 }
 
 export default function ConfidentialitePage() {
