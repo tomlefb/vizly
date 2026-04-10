@@ -350,7 +350,7 @@ const COL_3 = [2, 5].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : [])    // classi
 
 const RENDER_WIDTH = 1280
 // Slight overscale so templates with internal max-width still fill the card
-const SCALE_BOOST = 1.15
+const SCALE_BOOST = 1.06
 
 function AutoHeightPreview({ templateName, templateProps }: { templateName: string; templateProps: TemplateProps }) {
   const [Component, setComponent] = useState<ComponentType<TemplateProps> | null>(null)
@@ -422,7 +422,7 @@ function AutoHeightPreview({ templateName, templateProps }: { templateName: stri
 
 function Card({ entry }: { entry: WallEntry }) {
   return (
-    <div className="w-full rounded-[var(--radius-lg)] ring-1 ring-border bg-surface overflow-hidden">
+    <div className="w-full rounded-[var(--radius-lg)] ring-1 ring-border overflow-hidden">
       {/* Mini browser chrome */}
       <div className="flex items-center gap-1.5 border-b border-border bg-surface-warm px-2.5 py-1.5">
         <div className="flex gap-1">
