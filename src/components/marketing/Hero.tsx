@@ -35,13 +35,7 @@ export function Hero() {
             custom={0}
           >
             {t('titleStart')}{' '}
-            <span className="relative">
-              <span className="relative z-10">{t('titleHighlight')}</span>
-              <span
-                className="absolute -bottom-1 left-0 right-0 h-3 bg-accent/15 rounded-sm -z-0"
-                aria-hidden="true"
-              />
-            </span>
+            <span className="text-accent">{t('titleHighlight')}</span>
           </motion.h1>
 
           <motion.p
