@@ -28,9 +28,9 @@
     "socialProof": "Already 2,000+ portfolios created"
   },
   "features": {
-    "title": "Everything you need",
-    "titleMuted": "to shine online",
-    "subtitle": "A simple tool that does one thing and does it well: showcase your work.",
+    "title": "Everything you",
+    "titleAccent": "need.",
+    "subtitle": "Five features, not one more.",
     "form": {
       "title": "Guided form",
       "description": "Fill in your info in order — profile, projects, skills — and the portfolio builds itself alongside."

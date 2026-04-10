@@ -30,15 +30,16 @@ export async function Features() {
   return (
     <section id="features" className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Header -- left-aligned for asymmetry */}
-        <div className="max-w-2xl mb-10 lg:mb-14">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            {t('title')}{' '}
-            <span className="text-muted">{t('titleMuted')}</span>
-          </h2>
-          <p className="mt-5 text-lg text-muted leading-relaxed">
-            {t('subtitle')}
-          </p>
+        {/* Header -- matching pricing pattern */}
+        <div className="mb-10 lg:mb-14">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
+            <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
+              {t('title')} <span className="text-accent">{t('titleAccent')}</span>
+            </h2>
+            <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
+              {t('subtitle')}
+            </p>
+          </div>
         </div>
 
         {/* Feature grid -- varied sizes using col-span */}

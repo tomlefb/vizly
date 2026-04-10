@@ -28,9 +28,9 @@
     "socialProof": "Déjà 2 000+ portfolios créés"
   },
   "features": {
-    "title": "Tout ce qu'il faut",
-    "titleMuted": "pour briller en ligne",
-    "subtitle": "Un outil simple qui fait une chose et la fait bien : mettre ton travail en valeur.",
+    "title": "Tout ce qu'il",
+    "titleAccent": "faut.",
+    "subtitle": "Cinq fonctionnalités, pas une de plus.",
     "form": {
       "title": "Formulaire guidé",
       "description": "Tu remplis tes infos dans l'ordre — profil, projets, compétences — et le portfolio se construit en parallèle."
