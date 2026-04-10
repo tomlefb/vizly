@@ -170,14 +170,14 @@
     ]
   },
   "cta": {
-    "title": "Ready to show",
-    "titleAccent": "your talent",
-    "description": "Create your portfolio for free in minutes. You only pay if you decide to publish it.",
+    "title": "Your portfolio,",
+    "titleAccent": "live tonight",
+    "description": "Sign up in 30 seconds, first portfolio is free. You only pay to go live.",
     "primary": "Create my portfolio",
     "secondary": "View pricing"
   },
   "footer": {
-    "tagline": "The simplest way to create a professional online portfolio. Fill in, customize, publish.",
+    "tagline": "Your portfolio at username.vizly.fr — built for students and freelancers who'd rather work than code a website.",
     "copyright": "© {year} Vizly. All rights reserved.",
     "produit": {
       "title": "Product",

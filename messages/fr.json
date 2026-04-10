@@ -170,14 +170,14 @@
     ]
   },
   "cta": {
-    "title": "Prêt à montrer",
-    "titleAccent": "ton talent",
-    "description": "Crée ton portfolio gratuitement en quelques minutes. Tu ne paieras que si tu décides de le mettre en ligne.",
+    "title": "Ton portfolio,",
+    "titleAccent": "live ce soir",
+    "description": "Inscription en 30 secondes, premier portfolio gratuit. Tu paies uniquement pour la mise en ligne.",
     "primary": "Créer mon portfolio",
     "secondary": "Voir les tarifs"
   },
   "footer": {
-    "tagline": "Le moyen le plus simple de créer un portfolio en ligne professionnel. Remplis, personnalise, publie.",
+    "tagline": "Ton portfolio sur pseudo.vizly.fr — pensé pour les étudiants et freelances qui ont mieux à faire que coder un site.",
     "copyright": "© {year} Vizly. Tous droits réservés.",
     "produit": {
       "title": "Produit",
