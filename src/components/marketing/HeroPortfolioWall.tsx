@@ -348,11 +348,13 @@ const COL_3 = [2, 5].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : [])    // classi
 /*  Auto-height template preview (measures real content)              */
 /* ------------------------------------------------------------------ */
 
-const PREVIEW_SCALE = 0.18
+const RENDER_WIDTH = 1280
 
 function AutoHeightPreview({ templateName, templateProps }: { templateName: string; templateProps: TemplateProps }) {
   const [Component, setComponent] = useState<ComponentType<TemplateProps> | null>(null)
   const [height, setHeight] = useState(320)
+  const [scale, setScale] = useState(0.18)
+  const containerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -370,25 +372,35 @@ function AutoHeightPreview({ templateName, templateProps }: { templateName: stri
   }, [templateName])
 
   useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setScale(entry.contentRect.width / RENDER_WIDTH)
+    })
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
     const el = innerRef.current
     if (!el) return
     const observer = new ResizeObserver(([entry]) => {
-      if (entry) setHeight(entry.contentRect.height * PREVIEW_SCALE)
+      if (entry) setHeight(entry.contentRect.height * scale)
     })
     observer.observe(el)
     return () => observer.disconnect()
-  }, [Component])
+  }, [Component, scale])
 
   if (!Component) {
     return <div className="h-[320px] bg-surface-warm/50" />
   }
 
   return (
-    <div className="relative overflow-hidden" style={{ height }}>
+    <div ref={containerRef} className="relative overflow-hidden" style={{ height }}>
       <div
         ref={innerRef}
         className="absolute top-0 left-0 origin-top-left pointer-events-none"
-        style={{ width: '1280px', transform: `scale(${PREVIEW_SCALE})` }}
+        style={{ width: `${RENDER_WIDTH}px`, transform: `scale(${scale})` }}
       >
         <Component {...templateProps} />
       </div>
