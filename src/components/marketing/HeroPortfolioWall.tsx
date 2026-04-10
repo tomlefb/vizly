@@ -1,7 +1,7 @@
 'use client'
 
+import { useState, useEffect, useRef, type ComponentType } from 'react'
 import { DEMO_COLORS } from '@/lib/demo-data'
-import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import type { TemplateName } from '@/types/templates'
 import type { TemplateProps } from '@/types'
 import type { KpiItem } from '@/types/kpis'
@@ -345,11 +345,60 @@ const COL_2 = [1, 4, 7].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : []) // dark, 
 const COL_3 = [2, 5].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : [])    // classique, brutalist
 
 /* ------------------------------------------------------------------ */
-/*  Card: mini browser frame + real template preview                  */
+/*  Auto-height template preview (measures real content)              */
 /* ------------------------------------------------------------------ */
 
 const PREVIEW_SCALE = 0.18
-const PREVIEW_HEIGHT = '520px'
+
+function AutoHeightPreview({ templateName, templateProps }: { templateName: string; templateProps: TemplateProps }) {
+  const [Component, setComponent] = useState<ComponentType<TemplateProps> | null>(null)
+  const [height, setHeight] = useState(320)
+  const innerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const mod = await import('@/components/templates')
+        const map = mod.templateMap as Record<string, ComponentType<TemplateProps>>
+        const comp = map[templateName as TemplateName]
+        if (!cancelled && comp) setComponent(() => comp)
+      } catch { /* template not found */ }
+    }
+    void load()
+    return () => { cancelled = true }
+  }, [templateName])
+
+  useEffect(() => {
+    const el = innerRef.current
+    if (!el) return
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setHeight(entry.contentRect.height * PREVIEW_SCALE)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [Component])
+
+  if (!Component) {
+    return <div className="h-[320px] bg-surface-warm/50" />
+  }
+
+  return (
+    <div className="relative overflow-hidden" style={{ height }}>
+      <div
+        ref={innerRef}
+        className="absolute top-0 left-0 origin-top-left pointer-events-none"
+        style={{ width: '1280px', transform: `scale(${PREVIEW_SCALE})` }}
+      >
+        <Component {...templateProps} />
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Card: mini browser frame + auto-height template preview           */
+/* ------------------------------------------------------------------ */
 
 function Card({ entry }: { entry: WallEntry }) {
   return (
@@ -368,13 +417,8 @@ function Card({ entry }: { entry: WallEntry }) {
         </div>
       </div>
 
-      {/* Real template preview */}
-      <TemplatePreview
-        templateName={entry.template}
-        templateProps={entry.props}
-        scale={PREVIEW_SCALE}
-        height={PREVIEW_HEIGHT}
-      />
+      {/* Real template preview — auto-height */}
+      <AutoHeightPreview templateName={entry.template} templateProps={entry.props} />
     </div>
   )
 }
