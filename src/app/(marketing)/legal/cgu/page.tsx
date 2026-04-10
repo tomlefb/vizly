@@ -21,7 +21,7 @@ export default function CGUPage() {
 
       <Section title="2. Editeur">
         Vizly est edite par Tom Lefevre Bonzon, Entrepreneur individuel,
-        SIREN 103 332 276, 18 rue Henri See, 35700 Rennes, France.
+        SIREN 103 332 276, 35700 Rennes, France.
         Contact :{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>.
       </Section>

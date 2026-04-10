@@ -22,7 +22,7 @@ export default function MentionsLegalesPage() {
         <br />
         Code APE : 6201Z (Programmation informatique)
         <br />
-        18 rue Henri See, 35700 Rennes, France
+        35700 Rennes, France
         <br />
         Email :{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>

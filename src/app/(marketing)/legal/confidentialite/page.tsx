@@ -16,7 +16,7 @@ export default function ConfidentialitePage() {
       <Section title="1. Responsable du traitement">
         Tom Lefevre Bonzon, Entrepreneur individuel
         <br />
-        SIREN : 103 332 276 — 18 rue Henri See, 35700 Rennes, France
+        SIREN : 103 332 276 — 35700 Rennes, France
         <br />
         Contact :{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>
