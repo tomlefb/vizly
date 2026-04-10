@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Check, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { ScrollReveal } from '@/components/shared/ScrollReveal'
+import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
 
 type BillingInterval = 'monthly' | 'yearly'
 
@@ -131,14 +131,15 @@ export function Pricing() {
 
         {/* Plan cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
-          {plansData.map((plan) => {
+          {plansData.map((plan, i) => {
             const isFree = plan.monthlyPrice === '0'
             const price =
               interval === 'yearly' ? plan.yearlyMonthlyPrice : plan.monthlyPrice
 
             return (
-              <div
+              <StaggerItem
                 key={plan.id}
+                index={i}
                 className={cn(
                   'relative rounded-[var(--radius-lg)] flex flex-col p-7 lg:p-8',
                   plan.featured
@@ -228,7 +229,7 @@ export function Pricing() {
                 >
                   {t(`plans.${plan.id}.cta`)}
                 </Link>
-              </div>
+              </StaggerItem>
             )
           })}
         </div>

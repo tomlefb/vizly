@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server'
-import { ScrollReveal } from '@/components/shared/ScrollReveal'
+import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
 
 const FEATURE_KEYS = ['live', 'form', 'templates', 'customizable', 'unlimited'] as const
 
@@ -26,8 +26,9 @@ export async function FeaturesGrid() {
         {/* Features text grid */}
         <div className="grid grid-cols-2 md:grid-cols-5">
           {FEATURE_KEYS.map((key, i) => (
-            <div
+            <StaggerItem
               key={key}
+              index={i}
               className={`py-4 md:py-0 md:px-5 lg:px-6 ${
                 i > 0 ? 'md:border-l-[0.5px] md:border-border' : ''
               } ${i % 2 !== 0 ? 'max-md:border-l-[0.5px] max-md:border-border' : ''
@@ -39,7 +40,7 @@ export async function FeaturesGrid() {
               <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">
                 {t(`features.${key}.desc`)}
               </p>
-            </div>
+            </StaggerItem>
           ))}
         </div>
       </div>
