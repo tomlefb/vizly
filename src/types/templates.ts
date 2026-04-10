@@ -66,7 +66,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     description: 'Typo bold et oversized, grille volontairement cassée, esthétique brute',
     isPremium: true,
     previewImage: '/images/templates/brutalist.png',
-    idealFor: 'Designers avant-gardistes, artistes',
+    idealFor: 'affirmer un parti pris visuel',
   },
   {
     name: 'elegant',
