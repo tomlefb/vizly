@@ -1,48 +1,29 @@
 import { getTranslations } from 'next-intl/server'
 
-/* ------------------------------------------------------------------ */
-/*  Keys for stats and features                                        */
-/* ------------------------------------------------------------------ */
-
-const STAT_KEYS = ['portfolios', 'time'] as const
-
 const FEATURE_KEYS = ['live', 'form', 'templates', 'customizable', 'unlimited'] as const
-
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
 
 export async function SocialProof() {
   const t = await getTranslations('socialProof')
+  const ft = await getTranslations('features')
 
   return (
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
-        {/* ── Stats row ─────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 max-w-2xl mx-auto">
-          {STAT_KEYS.map((key, i) => (
-            <div
-              key={key}
-              className={`py-6 md:py-0 md:px-8 ${
-                i > 0 ? 'border-l-[0.5px] border-border' : ''
-              }`}
-            >
-              <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-                {t(`stats.${key}.value`)}{t(`stats.${key}.suffix`)}
-              </p>
-              <p className="mt-1.5 text-sm text-muted leading-snug">
-                {t(`stats.${key}.label`)}
-              </p>
-            </div>
-          ))}
+        {/* Header -- matching pricing pattern */}
+        <div className="mb-10 lg:mb-14">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
+            <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
+              {ft('title')} <span className="text-accent">{ft('titleAccent')}</span>
+            </h2>
+            <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
+              {ft('subtitle')}
+            </p>
+          </div>
         </div>
 
-        {/* ── Divider ───────────────────────────────────────────── */}
-        <div className="border-t border-border mt-12 lg:mt-16" />
-
-        {/* ── Features text grid ────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-5 mt-10 lg:mt-12">
+        {/* Features text grid */}
+        <div className="grid grid-cols-2 md:grid-cols-5">
           {FEATURE_KEYS.map((key, i) => (
             <div
               key={key}
