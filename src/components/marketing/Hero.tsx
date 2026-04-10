@@ -18,7 +18,7 @@ const fadeUp = {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24 min-h-[520px] lg:min-h-[600px]">
+    <section className="relative overflow-hidden pt-12 pb-24 lg:pt-20 lg:pb-32 min-h-[520px] lg:min-h-[600px]">
       {/* Scrolling portfolio wall -- right half, behind text on mobile */}
       <HeroPortfolioWall />
 
