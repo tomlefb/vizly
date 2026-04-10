@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { getDemoPortfolio } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
+import { StaggerItem } from '@/components/shared/ScrollReveal'
 
 type Filter = 'all' | 'free' | 'premium'
 
@@ -48,12 +49,12 @@ export function TemplateShowcase() {
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filtered.map((template) => {
+        {filtered.map((template, i) => {
           const demoProps = getDemoPortfolio(template.name, template.isPremium)
 
           return (
+            <StaggerItem key={template.name} index={i}>
             <Link
-              key={template.name}
               href={`/templates/${template.name}`}
               className="group relative rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
             >
@@ -119,6 +120,7 @@ export function TemplateShowcase() {
                 </p>
               </div>
             </Link>
+            </StaggerItem>
           )
         })}
       </div>
