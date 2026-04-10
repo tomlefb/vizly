@@ -83,7 +83,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={locale} className={`${satoshi.variable} ${dmSans.variable}`}>
+    <html lang={locale} className={`${satoshi.variable} ${dmSans.variable} overscroll-none`}>
       <body>
         <script
           type="application/ld+json"
