@@ -60,7 +60,7 @@
     "features": {
       "live": { "title": "Live in 5 min", "desc": "Your username becomes your vizly.fr URL." },
       "form": { "title": "Guided form", "desc": "Profile, projects, skills — in order." },
-      "templates": { "title": "8 pro templates", "desc": "From classic CV to brutalist, eight styles." },
+      "templates": { "title": "8 pro templates", "desc": "Eight styles, from classic CV to brutalist." },
       "customizable": { "title": "Customizable", "desc": "Colors, fonts, section order." },
       "unlimited": { "title": "Unlimited projects", "desc": "No cap, regardless of plan." }
     }

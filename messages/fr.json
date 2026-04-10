@@ -60,7 +60,7 @@
     "features": {
       "live": { "title": "Live en 5 min", "desc": "Ton pseudo devient ton URL sur vizly.fr." },
       "form": { "title": "Formulaire guidé", "desc": "Profil, projets, compétences — dans l'ordre." },
-      "templates": { "title": "8 templates pro", "desc": "Du CV sobre au brutalist, huit styles." },
+      "templates": { "title": "8 templates pro", "desc": "Huit styles, du CV sobre au brutalist." },
       "customizable": { "title": "Personnalisable", "desc": "Couleurs, typo, ordre des sections." },
       "unlimited": { "title": "Projets illimités", "desc": "Pas de plafond, quel que soit le plan." }
     }
