@@ -11,7 +11,7 @@ export default function CGUPage() {
       <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight mb-2">
         Conditions Generales d&apos;Utilisation
       </h1>
-      <p className="text-sm text-muted mb-10">Derniere mise a jour : 30 mars 2026</p>
+      <p className="text-sm text-muted mb-10">Derniere mise a jour : 10 avril 2026</p>
 
       <Section title="1. Objet">
         Les presentes Conditions Generales d&apos;Utilisation (CGU) regissent l&apos;utilisation de la
@@ -20,7 +20,9 @@ export default function CGUPage() {
       </Section>
 
       <Section title="2. Editeur">
-        Vizly est edite par Tom Lefevre-Bonzon, etudiant, joignable a l&apos;adresse{' '}
+        Vizly est edite par Tom Lefevre Bonzon, Entrepreneur individuel,
+        SIREN 103 332 276, 18 rue Henri See, 35700 Rennes, France.
+        Contact :{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>.
       </Section>
 

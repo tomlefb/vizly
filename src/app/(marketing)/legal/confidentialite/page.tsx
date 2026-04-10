@@ -11,9 +11,18 @@ export default function ConfidentialitePage() {
       <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight mb-2">
         Politique de confidentialite
       </h1>
-      <p className="text-sm text-muted mb-10">Derniere mise a jour : 30 mars 2026</p>
+      <p className="text-sm text-muted mb-10">Derniere mise a jour : 10 avril 2026</p>
 
-      <Section title="1. Donnees collectees">
+      <Section title="1. Responsable du traitement">
+        Tom Lefevre Bonzon, Entrepreneur individuel
+        <br />
+        SIREN : 103 332 276 — 18 rue Henri See, 35700 Rennes, France
+        <br />
+        Contact :{' '}
+        <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>
+      </Section>
+
+      <Section title="2. Donnees collectees">
         Vizly collecte les donnees suivantes lors de l&apos;inscription et de l&apos;utilisation du service :
         <ul className="mt-2 list-disc list-inside space-y-1">
           <li>Email et mot de passe (ou identifiants Google OAuth)</li>
@@ -24,7 +33,7 @@ export default function ConfidentialitePage() {
         </ul>
       </Section>
 
-      <Section title="2. Finalite du traitement">
+      <Section title="3. Finalite du traitement">
         Les donnees sont collectees pour :
         <ul className="mt-2 list-disc list-inside space-y-1">
           <li>Fournir le service de creation et hebergement de portfolios</li>
@@ -34,26 +43,26 @@ export default function ConfidentialitePage() {
         </ul>
       </Section>
 
-      <Section title="3. Stockage et hebergement">
+      <Section title="4. Stockage et hebergement">
         Les donnees sont stockees chez <strong>Supabase</strong> (serveurs UE) pour la base de donnees
         et le stockage d&apos;images. L&apos;application est hebergee chez <strong>Vercel</strong>
         (edge global). Les paiements sont traites par <strong>Stripe</strong>. Vizly ne stocke aucune
         information de carte bancaire.
       </Section>
 
-      <Section title="4. Partage des donnees">
+      <Section title="5. Partage des donnees">
         Vizly ne revend ni ne partage les donnees personnelles a des tiers a des fins commerciales.
         Les donnees sont partagees uniquement avec les sous-traitants necessaires au fonctionnement
         du service (Supabase, Vercel, Stripe, Resend).
       </Section>
 
-      <Section title="5. Cookies">
+      <Section title="6. Cookies">
         Vizly utilise uniquement des cookies fonctionnels necessaires au fonctionnement du service
         (session d&apos;authentification). Aucun cookie de tracking, publicitaire ou analytique
         tiers n&apos;est utilise.
       </Section>
 
-      <Section title="6. Droits RGPD">
+      <Section title="7. Droits RGPD">
         Conformement au RGPD, vous disposez des droits suivants :
         <ul className="mt-2 list-disc list-inside space-y-1">
           <li><strong>Acces</strong> : obtenir une copie de vos donnees personnelles</li>
@@ -69,7 +78,7 @@ export default function ConfidentialitePage() {
         </p>
       </Section>
 
-      <Section title="7. Contact">
+      <Section title="8. Contact">
         Pour toute question relative a la protection de vos donnees :{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>
       </Section>

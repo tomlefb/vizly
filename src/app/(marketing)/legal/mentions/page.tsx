@@ -11,12 +11,18 @@ export default function MentionsLegalesPage() {
       <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight mb-2">
         Mentions legales
       </h1>
-      <p className="text-sm text-muted mb-10">Derniere mise a jour : 30 mars 2026</p>
+      <p className="text-sm text-muted mb-10">Derniere mise a jour : 10 avril 2026</p>
 
       <Section title="Editeur du site">
         <strong>Vizly</strong> — vizly.fr
         <br />
-        Editeur : Tom Lefevre-Bonzon, etudiant
+        Tom Lefevre Bonzon, Entrepreneur individuel
+        <br />
+        SIREN : 103 332 276 — SIRET : 103 332 276 00015
+        <br />
+        Code APE : 6201Z (Programmation informatique)
+        <br />
+        18 rue Henri See, 35700 Rennes, France
         <br />
         Email :{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>
