@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 /*  Keys for stats and features                                        */
 /* ------------------------------------------------------------------ */
 
-const STAT_KEYS = ['portfolios', 'time', 'templates', 'price'] as const
+const STAT_KEYS = ['portfolios', 'time'] as const
 
 const FEATURE_KEYS = ['live', 'form', 'templates', 'customizable', 'unlimited'] as const
 
@@ -20,19 +20,16 @@ export async function SocialProof() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* ── Stats row ─────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4">
+        <div className="grid grid-cols-2 max-w-2xl mx-auto">
           {STAT_KEYS.map((key, i) => (
             <div
               key={key}
               className={`py-6 md:py-0 md:px-8 ${
                 i > 0 ? 'border-l-[0.5px] border-border' : ''
-              } ${i >= 2 ? 'max-md:border-t-[0.5px] max-md:border-border' : ''} ${
-                i === 2 ? 'max-md:border-l-0' : ''
               }`}
             >
               <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-                {t(`stats.${key}.value`)}
-                <span className="text-accent">{t(`stats.${key}.suffix`)}</span>
+                {t(`stats.${key}.value`)}{t(`stats.${key}.suffix`)}
               </p>
               <p className="mt-1.5 text-sm text-muted leading-snug">
                 {t(`stats.${key}.label`)}

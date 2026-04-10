@@ -56,8 +56,6 @@
     "stats": {
       "portfolios": { "value": "2k", "suffix": "+", "label": "portfolios créés et publiés" },
       "time": { "value": "4", "suffix": "min", "label": "temps moyen pour être live" },
-      "templates": { "value": "8", "suffix": "", "label": "templates designés par des pros" },
-      "price": { "value": "0", "suffix": "\u202F€", "label": "pour commencer, sans CB requise" }
     },
     "features": {
       "live": { "title": "Live en 5 min", "desc": "Ton pseudo devient ton URL sur vizly.fr." },
