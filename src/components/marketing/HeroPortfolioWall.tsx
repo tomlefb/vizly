@@ -349,11 +349,13 @@ const COL_3 = [2, 5].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : [])    // classi
 /* ------------------------------------------------------------------ */
 
 const RENDER_WIDTH = 1280
+// Slight overscale so templates with internal max-width still fill the card
+const SCALE_BOOST = 1.04
 
 function AutoHeightPreview({ templateName, templateProps }: { templateName: string; templateProps: TemplateProps }) {
   const [Component, setComponent] = useState<ComponentType<TemplateProps> | null>(null)
   const [height, setHeight] = useState(320)
-  const [scale, setScale] = useState(0.18)
+  const [scale, setScale] = useState(0.19)
   const containerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
 
@@ -375,7 +377,7 @@ function AutoHeightPreview({ templateName, templateProps }: { templateName: stri
     const container = containerRef.current
     if (!container) return
     const observer = new ResizeObserver(([entry]) => {
-      if (entry) setScale(entry.contentRect.width / RENDER_WIDTH)
+      if (entry) setScale((entry.contentRect.width / RENDER_WIDTH) * SCALE_BOOST)
     })
     observer.observe(container)
     return () => observer.disconnect()
@@ -399,8 +401,14 @@ function AutoHeightPreview({ templateName, templateProps }: { templateName: stri
     <div ref={containerRef} className="relative overflow-hidden" style={{ height }}>
       <div
         ref={innerRef}
-        className="absolute top-0 left-0 origin-top-left pointer-events-none"
-        style={{ width: `${RENDER_WIDTH}px`, transform: `scale(${scale})` }}
+        className="absolute top-0 pointer-events-none"
+        style={{
+          width: `${RENDER_WIDTH}px`,
+          left: '50%',
+          marginLeft: `${-RENDER_WIDTH / 2}px`,
+          transformOrigin: 'top center',
+          transform: `scale(${scale})`,
+        }}
       >
         <Component {...templateProps} />
       </div>
