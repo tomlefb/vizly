@@ -20,7 +20,7 @@ export default function TemplatesPage() {
             Nos templates
           </h1>
           <p className="mt-4 text-lg text-muted leading-relaxed">
-            Chaque template a sa propre personnalite. Choisis celui qui te ressemble,
+            Chaque template a sa propre personnalité. Choisis celui qui te ressemble,
             personnalise les couleurs et la typo, et publie ton portfolio.
           </p>
         </div>
@@ -36,7 +36,7 @@ export default function TemplatesPage() {
             Essayer gratuitement
           </Link>
           <p className="mt-3 text-xs text-muted-foreground">
-            Cree ton portfolio gratuitement. Tu ne paieras que pour la mise en ligne.
+            Crée ton portfolio gratuitement. Tu ne paieras que pour la mise en ligne.
           </p>
         </div>
       </main>

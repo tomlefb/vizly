@@ -79,7 +79,7 @@ export default async function MesTemplatesPage() {
                     <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">Gratuit</span>
                   </div>
                   <p className="text-xs text-muted leading-relaxed">{template.description}</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">Ideal pour : {template.idealFor}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Idéal pour : {template.idealFor}</p>
                 </div>
               </Link>
             )
@@ -141,7 +141,7 @@ export default async function MesTemplatesPage() {
                     )}
                   </div>
                   <p className="text-xs text-muted leading-relaxed">{template.description}</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">Ideal pour : {template.idealFor}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Idéal pour : {template.idealFor}</p>
                 </div>
               </Link>
             )

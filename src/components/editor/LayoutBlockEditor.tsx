@@ -101,7 +101,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
             Sections en colonnes
           </h2>
           <p className="text-[11px] text-muted-foreground">
-            Cree des sections avec 1, 2 ou 3 colonnes
+            Crée des sections avec 1, 2 ou 3 colonnes
           </p>
         </div>
       </div>

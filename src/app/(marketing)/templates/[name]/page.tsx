@@ -93,7 +93,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
 
               <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-5 mb-6">
                 <p className="text-sm font-medium text-foreground mb-1">
-                  Ideal pour
+                  Idéal pour
                 </p>
                 <p className="text-sm text-muted">
                   {template.idealFor}
@@ -188,7 +188,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         {/* CTA */}
         <section className="py-16 text-center">
           <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight mb-3">
-            Pret a creer ton portfolio ?
+            Prêt à créer ton portfolio ?
           </h2>
           <p className="text-muted mb-6 max-w-md mx-auto text-sm leading-relaxed">
             Inscris-toi gratuitement, choisis le template {template.label} et personnalise-le en quelques minutes.

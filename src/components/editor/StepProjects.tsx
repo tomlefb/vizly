@@ -181,7 +181,7 @@ export function StepProjects({
               {isEditing ? 'Modifier le projet' : 'Nouveau projet'}
             </h2>
             <p className="text-[13px] text-[#6B7280] mt-1">
-              {isEditing ? 'Modifie les informations de ton projet' : 'Ajoute un projet a ton portfolio'}
+              {isEditing ? 'Modifie les informations de ton projet' : 'Ajoute un projet à ton portfolio'}
             </p>
           </div>
 

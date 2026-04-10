@@ -101,7 +101,7 @@ export default async function BlogArticlePage({ params }: Props) {
         {/* Bottom CTA */}
         <div className="mt-16 rounded-[var(--radius-xl)] bg-foreground p-8 sm:p-10 text-center">
           <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold text-background mb-3">
-            Pret a creer ton portfolio ?
+            Prêt à créer ton portfolio ?
           </h2>
           <p className="text-background/60 mb-6 text-sm">
             Gratuit pour commencer. Publication a partir de 4,99 EUR/mois.

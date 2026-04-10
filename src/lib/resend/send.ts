@@ -72,9 +72,9 @@ export async function sendWelcomeEmail(params: {
         Bienvenue sur Vizly, ${displayName} !
       </p>
       <p style="margin:0 0 8px 0;">
-        Ton compte est pret. Tu peux maintenant creer ton portfolio en quelques minutes : choisis un template, ajoute tes projets, et publie-le.
+        Ton compte est prêt. Tu peux maintenant créer ton portfolio en quelques minutes : choisis un template, ajoute tes projets, et publie-le.
       </p>
-      ${ctaButton('Creer mon portfolio', `${APP_URL}/editor`)}
+      ${ctaButton('Créer mon portfolio', `${APP_URL}/editor`)}
       <p style="margin:0;color:#6B6B6B;font-size:14px;">
         Si tu as des questions, reponds simplement a cet email.
       </p>

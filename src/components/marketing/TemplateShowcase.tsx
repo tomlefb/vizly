@@ -124,7 +124,7 @@ export function TemplateShowcase() {
                   {template.description}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Ideal pour : {template.idealFor}
+                  Idéal pour : {template.idealFor}
                 </p>
               </div>
             </Link>

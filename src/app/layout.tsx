@@ -71,7 +71,7 @@ export default async function RootLayout({
     applicationCategory: 'DesignApplication',
     operatingSystem: 'Web',
     description:
-      'Cree un portfolio en ligne professionnel en quelques minutes.',
+      'Crée un portfolio en ligne professionnel en quelques minutes.',
     url: 'https://vizly.fr',
     offers: {
       '@type': 'AggregateOffer',

@@ -144,7 +144,7 @@ export default async function StatistiquesPage() {
         ) : (
           <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
             <p className="text-sm text-muted">
-              Cree et publie un projet pour commencer a voir tes statistiques.
+              Crée et publie un projet pour commencer à voir tes statistiques.
             </p>
           </div>
         )}

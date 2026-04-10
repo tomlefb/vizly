@@ -59,7 +59,7 @@ export default async function DomainesPage() {
       <div className="rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50/50 p-4">
         <p className="text-sm font-medium text-amber-800">Configuration DNS</p>
         <p className="mt-1 text-xs text-amber-700">
-          Pour chaque domaine, cree un enregistrement <span className="font-mono font-semibold">CNAME</span> pointant vers <span className="font-mono font-semibold">cname.vizly.fr</span> chez ton registrar.
+          Pour chaque domaine, crée un enregistrement <span className="font-mono font-semibold">CNAME</span> pointant vers <span className="font-mono font-semibold">cname.vizly.fr</span> chez ton registrar.
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export default async function DomainesPage() {
       ) : (
         <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
           <p className="text-sm text-muted">
-            Cree un projet pour lui assigner un domaine personnalise.
+            Crée un projet pour lui assigner un domaine personnalisé.
           </p>
           <Link
             href="/editor"

@@ -50,10 +50,10 @@ export default function MentionsLegalesPage() {
         donnee de carte bancaire.
       </Section>
 
-      <Section title="Propriete intellectuelle">
+      <Section title="Propriété intellectuelle">
         L&apos;ensemble du contenu du site vizly.fr (textes, design, code source, templates, marque)
-        est la propriete de Vizly, sauf le contenu cree par les utilisateurs sur leurs portfolios.
-        Toute reproduction non autorisee est interdite.
+        est la propriété de Vizly, sauf le contenu créé par les utilisateurs sur leurs portfolios.
+        Toute reproduction non autorisée est interdite.
       </Section>
 
       <Section title="Contact">
