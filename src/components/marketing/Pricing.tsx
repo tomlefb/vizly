@@ -239,7 +239,7 @@ export function Pricing() {
         </div>
 
         {/* Note */}
-        <p className="text-xs text-muted-foreground mt-8">
+        <p className="text-xs text-muted-foreground mt-8 text-center">
           Tous les prix sont en euros, TTC · Annulation possible à tout moment
         </p>
       </div>
