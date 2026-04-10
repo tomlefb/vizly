@@ -33,27 +33,27 @@
     "subtitle": "Un outil simple qui fait une chose et la fait bien : mettre ton travail en valeur.",
     "form": {
       "title": "Formulaire guidé",
-      "description": "Remplis tes infos étape par étape, on s'occupe de la mise en page. Zéro prise de tête."
+      "description": "Tu remplis tes infos dans l'ordre — profil, projets, compétences — et le portfolio se construit en parallèle."
     },
     "templates": {
       "title": "Templates pro",
-      "description": "8 templates uniques, du minimal au brutalist. Chacun avec sa propre personnalité."
+      "description": "8 templates dessinés par des designers. CV classique, grille bento, dark mode, brutalist — il y en a pour chaque métier."
     },
     "live": {
       "title": "Live en 5 min",
-      "description": "Ton site sur pseudo.vizly.fr, instantanément. Pas d'attente, pas de déploiement compliqué."
+      "description": "Ton pseudo devient ton URL : pseudo.vizly.fr. Pas de serveur à configurer ni de DNS à toucher."
     },
     "mobile": {
       "title": "Mobile-first",
-      "description": "Un rendu parfait sur téléphone, tablette et desktop. Tes visiteurs verront toujours le meilleur."
+      "description": "Conçu pour mobile d'abord. Tes recruteurs te liront aussi bien depuis leur téléphone que sur un écran 27 pouces."
     },
     "customizable": {
       "title": "Personnalisable",
-      "description": "Couleurs, typographies, organisation. Mets ta touche personnelle en quelques clics."
+      "description": "Couleurs, typo, ordre des sections — tu ajustes les détails, le template s'adapte."
     },
     "unlimited": {
       "title": "Projets illimités",
-      "description": "Montre tout ton travail, sans aucune limite. Portfolio complet, tout le temps."
+      "description": "Ajoute autant de projets que tu veux. Images, tags, descriptions : pas de plafond, quel que soit ton plan."
     }
   },
   "socialProof": {
@@ -64,12 +64,12 @@
       "price": { "value": "0", "suffix": "\u202F€", "label": "pour commencer, sans CB requise" }
     },
     "features": {
-      "form": { "title": "Formulaire guidé", "desc": "Étape par étape, zéro prise de tête." },
-      "templates": { "title": "8 templates pro", "desc": "Du minimal au bold, chacun son style." },
-      "live": { "title": "Live en 5 min", "desc": "Ton site sur prénom.vizly.fr instantanément." },
-      "mobile": { "title": "Mobile-first", "desc": "Parfait sur tous les écrans." },
-      "customizable": { "title": "Personnalisable", "desc": "Couleurs, typos, sections à ta guise." },
-      "unlimited": { "title": "Projets illimités", "desc": "Montre tout ton travail, sans limite." }
+      "form": { "title": "Formulaire guidé", "desc": "Profil, projets, compétences — dans l'ordre." },
+      "templates": { "title": "8 templates pro", "desc": "Dessinés par des designers, un par métier." },
+      "live": { "title": "Live en 5 min", "desc": "Ton pseudo devient ton URL sur vizly.fr." },
+      "mobile": { "title": "Mobile-first", "desc": "Conçu pour mobile d'abord." },
+      "customizable": { "title": "Personnalisable", "desc": "Couleurs, typo, ordre des sections." },
+      "unlimited": { "title": "Projets illimités", "desc": "Pas de plafond, quel que soit le plan." }
     }
   },
   "pricing": {

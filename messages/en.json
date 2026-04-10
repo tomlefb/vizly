@@ -33,27 +33,27 @@
     "subtitle": "A simple tool that does one thing and does it well: showcase your work.",
     "form": {
       "title": "Guided form",
-      "description": "Fill in your info step by step, we handle the layout. Zero hassle."
+      "description": "Fill in your info in order — profile, projects, skills — and the portfolio builds itself alongside."
     },
     "templates": {
       "title": "Pro templates",
-      "description": "8 unique templates, from minimal to brutalist. Each with its own personality."
+      "description": "8 templates designed by actual designers. Classic CV, bento grid, dark mode, brutalist — one for every field."
     },
     "live": {
       "title": "Live in 5 min",
-      "description": "Your site at username.vizly.fr, instantly. No waiting, no complicated deployment."
+      "description": "Your username becomes your URL: username.vizly.fr. No server to set up, no DNS to touch."
     },
     "mobile": {
       "title": "Mobile-first",
-      "description": "Perfect rendering on phone, tablet, and desktop. Your visitors will always see the best."
+      "description": "Built mobile-first. Recruiters will read your work just as well from their phone as on a 27-inch screen."
     },
     "customizable": {
       "title": "Customizable",
-      "description": "Colors, typography, layout. Add your personal touch in a few clicks."
+      "description": "Colors, fonts, section order — you tweak the details, the template adapts."
     },
     "unlimited": {
       "title": "Unlimited projects",
-      "description": "Show all your work, with no limits. Complete portfolio, all the time."
+      "description": "Add as many projects as you want. Images, tags, descriptions: no cap, regardless of your plan."
     }
   },
   "socialProof": {
@@ -64,12 +64,12 @@
       "price": { "value": "0", "suffix": "\u202F€", "label": "to get started, no card required" }
     },
     "features": {
-      "form": { "title": "Guided form", "desc": "Step by step, zero hassle." },
-      "templates": { "title": "8 pro templates", "desc": "From minimal to bold, find your style." },
-      "live": { "title": "Live in 5 min", "desc": "Your site at username.vizly.fr instantly." },
-      "mobile": { "title": "Mobile-first", "desc": "Perfect on every screen." },
-      "customizable": { "title": "Customizable", "desc": "Colors, fonts, sections your way." },
-      "unlimited": { "title": "Unlimited projects", "desc": "Show all your work, no limits." }
+      "form": { "title": "Guided form", "desc": "Profile, projects, skills — in order." },
+      "templates": { "title": "8 pro templates", "desc": "Designed by designers, one per field." },
+      "live": { "title": "Live in 5 min", "desc": "Your username becomes your vizly.fr URL." },
+      "mobile": { "title": "Mobile-first", "desc": "Built for mobile first." },
+      "customizable": { "title": "Customizable", "desc": "Colors, fonts, section order." },
+      "unlimited": { "title": "Unlimited projects", "desc": "No cap, regardless of plan." }
     }
   },
   "pricing": {
