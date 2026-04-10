@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { Check, X, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -60,38 +63,51 @@ const planFeatures: PlanFeature[] = [
   },
 ]
 
-const plans = [
+type BillingInterval = 'monthly' | 'yearly'
+
+interface PlanDef {
+  name: string
+  monthlyPrice: string
+  yearlyPrice: string
+  description: string
+  cta: string
+  href: string
+  popular: boolean
+  key: 'free' | 'starter' | 'pro'
+}
+
+const plans: PlanDef[] = [
   {
     name: 'Gratuit',
-    price: '0',
-    period: '',
+    monthlyPrice: '0',
+    yearlyPrice: '0',
     description: 'Pour decouvrir et creer ton portfolio.',
     cta: 'Commencer',
     href: '/register',
     popular: false,
-    key: 'free' as const,
+    key: 'free',
   },
   {
     name: 'Starter',
-    price: '4,99',
-    period: '/mois',
+    monthlyPrice: '4,99',
+    yearlyPrice: '50,90',
     description: 'Pour mettre ton portfolio en ligne.',
     cta: 'Choisir Starter',
     href: '/register?plan=starter',
     popular: true,
-    key: 'starter' as const,
+    key: 'starter',
   },
   {
     name: 'Pro',
-    price: '9,99',
-    period: '/mois',
+    monthlyPrice: '9,99',
+    yearlyPrice: '101,90',
     description: 'Pour les pros qui veulent aller plus loin.',
     cta: 'Choisir Pro',
     href: '/register?plan=pro',
     popular: false,
-    key: 'pro' as const,
+    key: 'pro',
   },
-] as const
+]
 
 function FeatureValue({ value }: { value: boolean | string }) {
   if (value === true) {
@@ -116,6 +132,8 @@ function FeatureValue({ value }: { value: boolean | string }) {
 }
 
 export function Pricing() {
+  const [interval, setInterval] = useState<BillingInterval>('monthly')
+
   return (
     <section id="pricing" className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -128,11 +146,44 @@ export function Pricing() {
             Commence gratuitement. Passe a un plan payant uniquement quand tu
             veux publier ton portfolio.
           </p>
+
+          {/* Billing interval toggle */}
+          <div className="mt-8 inline-flex items-center rounded-[var(--radius-md)] border border-border bg-surface p-1 text-sm font-medium">
+            <button
+              type="button"
+              onClick={() => setInterval('monthly')}
+              className={cn(
+                'rounded-[6px] px-4 py-2 transition-colors duration-150',
+                interval === 'monthly'
+                  ? 'bg-foreground text-white'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              Mensuel
+            </button>
+            <button
+              type="button"
+              onClick={() => setInterval('yearly')}
+              className={cn(
+                'rounded-[6px] px-4 py-2 transition-colors duration-150',
+                interval === 'yearly'
+                  ? 'bg-foreground text-white'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              Annuel
+              <span className="ml-1.5 text-xs font-semibold text-accent">-15%</span>
+            </button>
+          </div>
         </div>
 
         {/* Plan cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 max-w-5xl mx-auto">
-          {plans.map((plan) => (
+          {plans.map((plan) => {
+            const price = interval === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice
+            const period = plan.key === 'free' ? '' : interval === 'yearly' ? '/an' : '/mois'
+
+            return (
             <div
               key={plan.name}
               className={cn(
@@ -160,15 +211,20 @@ export function Pricing() {
                 <p className="text-sm text-muted mb-4">{plan.description}</p>
                 <div className="flex items-baseline gap-1">
                   <span className="font-[family-name:var(--font-satoshi)] text-4xl font-extrabold tracking-tight">
-                    {plan.price}
+                    {price}
                   </span>
                   <span className="text-lg font-medium text-foreground">&euro;</span>
-                  {plan.period && (
+                  {period && (
                     <span className="text-sm text-muted ml-0.5">
-                      {plan.period}
+                      {period}
                     </span>
                   )}
                 </div>
+                {interval === 'yearly' && plan.key !== 'free' && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    soit {plan.key === 'starter' ? '4,24' : '8,49'} EUR/mois
+                  </p>
+                )}
               </div>
 
               {/* Features */}
@@ -205,7 +261,8 @@ export function Pricing() {
                 {plan.cta}
               </Link>
             </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Subtle note */}

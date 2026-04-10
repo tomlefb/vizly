@@ -17,6 +17,7 @@ import {
   createBillingPortalAction,
 } from '@/actions/billing'
 import { PLANS } from '@/lib/constants'
+import type { BillingInterval } from '@/lib/stripe/prices'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { TemplateName } from '@/types/templates'
 
@@ -48,6 +49,8 @@ export function BillingClient({
 }: BillingClientProps) {
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null)
   const [error, setError] = useState<string | null>(null)
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly')
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   // ---- Handlers ---------------------------------------------------
 
@@ -56,8 +59,9 @@ export function BillingClient({
       const actionKey = `checkout-${targetPlan}` as LoadingAction
       setLoadingAction(actionKey)
       setError(null)
+      setSuccessMessage(null)
 
-      const result = await createSubscriptionCheckoutAction(targetPlan)
+      const result = await createSubscriptionCheckoutAction(targetPlan, billingInterval)
 
       if (result.error) {
         setError(result.error)
@@ -65,11 +69,19 @@ export function BillingClient({
         return
       }
 
+      // Subscription updated in-place (upgrade/downgrade)
+      if (result.updated) {
+        setSuccessMessage('Abonnement mis a jour. Les changements sont effectifs immediatement.')
+        setLoadingAction(null)
+        return
+      }
+
+      // New checkout session — redirect to Stripe
       if (result.url) {
         window.location.href = result.url
       }
     },
-    []
+    [billingInterval]
   )
 
   const handleBillingPortal = useCallback(async () => {
@@ -154,6 +166,23 @@ export function BillingClient({
         </div>
       )}
 
+      {/* Success banner (subscription updated in-place) */}
+      {successMessage && (
+        <div className="rounded-[var(--radius-lg)] border border-green-200 bg-green-50/80 p-4 flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100">
+            <Check className="h-4 w-4 text-green-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-green-800">
+              Abonnement mis a jour
+            </p>
+            <p className="text-xs text-green-700 mt-0.5">
+              {successMessage}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Error banner */}
       {error && (
         <div className="rounded-[var(--radius-lg)] border border-destructive/20 bg-destructive/5 p-4">
@@ -163,9 +192,42 @@ export function BillingClient({
 
       {/* Current plan card */}
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          Mon abonnement
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            Mon abonnement
+          </h2>
+
+          {/* Billing interval toggle */}
+          {plan === 'free' && (
+            <div className="inline-flex items-center rounded-[var(--radius-md)] border border-border bg-surface p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setBillingInterval('monthly')}
+                className={cn(
+                  'rounded-[5px] px-3 py-1.5 transition-colors duration-150',
+                  billingInterval === 'monthly'
+                    ? 'bg-foreground text-white'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Mensuel
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingInterval('yearly')}
+                className={cn(
+                  'rounded-[5px] px-3 py-1.5 transition-colors duration-150',
+                  billingInterval === 'yearly'
+                    ? 'bg-foreground text-white'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Annuel
+                <span className="ml-1 text-[10px] font-semibold text-accent">-15%</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-6 space-y-5">
           <div className="flex items-center justify-between">
@@ -235,6 +297,8 @@ export function BillingClient({
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Redirection...
                     </>
+                  ) : billingInterval === 'yearly' ? (
+                    'Passer au Starter (50.90 EUR/an)'
                   ) : (
                     'Passer au Starter (4.99 EUR/mois)'
                   )}
@@ -255,6 +319,8 @@ export function BillingClient({
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Redirection...
                     </>
+                  ) : billingInterval === 'yearly' ? (
+                    'Passer au Pro (101.90 EUR/an)'
                   ) : (
                     'Passer au Pro (9.99 EUR/mois)'
                   )}

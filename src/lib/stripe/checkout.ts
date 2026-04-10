@@ -8,7 +8,7 @@ interface CheckoutResult {
 }
 
 /**
- * Create a Stripe Checkout session for a subscription (Starter or Pro plan).
+ * Create a Stripe Checkout session for a NEW subscription (user has no active sub).
  */
 export async function createSubscriptionCheckout(params: {
   customerId: string
@@ -43,6 +43,46 @@ export async function createSubscriptionCheckout(params: {
     const message =
       err instanceof Error ? err.message : 'Erreur lors de la creation du checkout'
     return { url: null, error: message }
+  }
+}
+
+/**
+ * Update an existing subscription to a new price (upgrade, downgrade, or interval change).
+ * Replaces the current subscription item — no stacking.
+ * Proration is applied automatically.
+ */
+export async function updateExistingSubscription(params: {
+  subscriptionId: string
+  newPriceId: string
+}): Promise<{ error: string | null }> {
+  try {
+    const subscription = await stripe.subscriptions.retrieve(params.subscriptionId)
+    const currentItem = subscription.items.data[0]
+
+    if (!currentItem) {
+      return { error: 'Aucun item trouve dans l\'abonnement actuel' }
+    }
+
+    // If already on this price, nothing to do
+    if (currentItem.price.id === params.newPriceId) {
+      return { error: 'Tu es deja sur ce plan' }
+    }
+
+    await stripe.subscriptions.update(params.subscriptionId, {
+      items: [
+        {
+          id: currentItem.id,
+          price: params.newPriceId,
+        },
+      ],
+      proration_behavior: 'create_prorations',
+    })
+
+    return { error: null }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Erreur lors de la mise a jour de l\'abonnement'
+    return { error: message }
   }
 }
 

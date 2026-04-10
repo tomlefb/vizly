@@ -18,8 +18,10 @@ export const PLANS = {
   starter: {
     name: 'Starter',
     price: 4.99,
+    yearlyPrice: 50.90,
     publishLimit: 1,
     priceId: process.env.STRIPE_PRICE_STARTER ?? '',
+    yearlyPriceId: process.env.STRIPE_PRICE_STARTER_YEARLY ?? '',
     features: [
       'Projets illimités',
       '4 templates gratuits',
@@ -31,8 +33,10 @@ export const PLANS = {
   pro: {
     name: 'Pro',
     price: 9.99,
+    yearlyPrice: 101.90,
     publishLimit: Infinity,
     priceId: process.env.STRIPE_PRICE_PRO ?? '',
+    yearlyPriceId: process.env.STRIPE_PRICE_PRO_YEARLY ?? '',
     features: [
       'Projets illimités',
       '4 templates gratuits',

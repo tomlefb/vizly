@@ -2,9 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe/client'
-import { STRIPE_PRICES } from '@/lib/stripe/prices'
+import { getSubscriptionPriceId, type BillingInterval } from '@/lib/stripe/prices'
 import {
   createSubscriptionCheckout,
+  updateExistingSubscription,
   createTemplateCheckout,
   createBillingPortalSession,
 } from '@/lib/stripe/checkout'
@@ -16,6 +17,12 @@ import { TEMPLATES } from '@/lib/constants'
 
 interface CheckoutResult {
   url: string | null
+  error: string | null
+}
+
+interface SubscriptionUpdateResult {
+  url: string | null
+  updated: boolean
   error: string | null
 }
 
@@ -75,11 +82,16 @@ async function getOrCreateCustomerId(
 // ---------------------------------------------------------------------------
 
 /**
- * Create a Stripe Checkout session for subscribing to a plan (Starter or Pro).
+ * Create or update a subscription for the user.
+ *
+ * - If the user has NO active subscription → create a new Checkout session.
+ * - If the user already HAS a subscription → update it in-place (upgrade/downgrade/interval change).
+ *   This ensures only ONE subscription exists at a time.
  */
 export async function createSubscriptionCheckoutAction(
-  plan: 'starter' | 'pro'
-): Promise<CheckoutResult> {
+  plan: 'starter' | 'pro',
+  interval: BillingInterval = 'monthly'
+): Promise<SubscriptionUpdateResult> {
   try {
     const supabase = await createClient()
     const {
@@ -87,14 +99,21 @@ export async function createSubscriptionCheckoutAction(
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return { url: null, error: 'Non authentifie' }
+      return { url: null, updated: false, error: 'Non authentifie' }
     }
 
-    const priceId = plan === 'starter' ? STRIPE_PRICES.starter : STRIPE_PRICES.pro
+    const priceId = getSubscriptionPriceId(plan, interval)
 
     if (!priceId) {
-      return { url: null, error: `Price ID introuvable pour le plan ${plan}` }
+      return { url: null, updated: false, error: `Price ID introuvable pour le plan ${plan} (${interval})` }
     }
+
+    // Check if user already has an active subscription
+    const { data: userData } = await supabase
+      .from('users')
+      .select('stripe_customer_id, stripe_subscription_id')
+      .eq('id', user.id)
+      .single()
 
     const { customerId, error: customerError } = await getOrCreateCustomerId(
       user.id,
@@ -102,18 +121,37 @@ export async function createSubscriptionCheckoutAction(
     )
 
     if (customerError) {
-      return { url: null, error: customerError }
+      return { url: null, updated: false, error: customerError }
     }
 
-    return await createSubscriptionCheckout({
+    // User has an active subscription → update it in-place
+    if (userData?.stripe_subscription_id) {
+      const { error: updateError } = await updateExistingSubscription({
+        subscriptionId: userData.stripe_subscription_id,
+        newPriceId: priceId,
+      })
+
+      if (updateError) {
+        return { url: null, updated: false, error: updateError }
+      }
+
+      // Subscription updated — Stripe fires customer.subscription.updated webhook
+      // which will update the plan in DB
+      return { url: null, updated: true, error: null }
+    }
+
+    // No active subscription → create a new Checkout session
+    const result = await createSubscriptionCheckout({
       customerId,
       priceId,
       userId: user.id,
     })
+
+    return { url: result.url, updated: false, error: result.error }
   } catch (err) {
     const message =
       err instanceof Error ? err.message : 'Erreur lors de la creation du checkout'
-    return { url: null, error: message }
+    return { url: null, updated: false, error: message }
   }
 }
 
