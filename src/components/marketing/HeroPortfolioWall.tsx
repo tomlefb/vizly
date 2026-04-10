@@ -145,9 +145,9 @@ const ENTRIES: WallEntry[] = [
 /*  Distribute across 3 columns                                       */
 /* ------------------------------------------------------------------ */
 
-const COL_1 = [ENTRIES[0], ENTRIES[3], ENTRIES[6]] // minimal, colore, elegant
-const COL_2 = [ENTRIES[1], ENTRIES[4], ENTRIES[7]] // dark, creatif, bento
-const COL_3 = [ENTRIES[2], ENTRIES[5]]             // classique, brutalist
+const COL_1 = [0, 3, 6].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : []) // minimal, colore, elegant
+const COL_2 = [1, 4, 7].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : []) // dark, creatif, bento
+const COL_3 = [2, 5].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : [])    // classique, brutalist
 
 /* ------------------------------------------------------------------ */
 /*  Card: mini browser frame + real template preview                  */
