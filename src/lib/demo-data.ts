@@ -76,6 +76,95 @@ export const DEMO_PORTFOLIO: TemplateProps = {
   isPremium: false,
 }
 
+/** Per-template identity overrides — one persona per template */
+const DEMO_OVERRIDES: Record<string, {
+  title: string
+  bio: string
+  social_links: Record<string, string>
+  contact_email: string | null
+  skills: string[]
+}> = {
+  minimal: {
+    title: 'Thomas Lefèvre',
+    bio: 'Backend engineer, Go & Rust. Trois ans chez Doctolib, maintenant freelance.',
+    social_links: { github: '#', website: '#' },
+    contact_email: null,
+    skills: ['Go', 'Rust', 'PostgreSQL', 'Docker', 'Kubernetes', 'gRPC'],
+  },
+  dark: {
+    title: 'Yacine Kadi',
+    bio: 'Creative developer. Three.js, WebGL, tout ce qui brille dans un navigateur.',
+    social_links: { github: '#', dribbble: '#', website: '#' },
+    contact_email: null,
+    skills: ['Three.js', 'WebGL', 'GSAP', 'React', 'Blender', 'Shader'],
+  },
+  classique: {
+    title: 'Jeanne Marchand',
+    bio: 'Étudiante en Master à l\'ESSEC, spécialisée marketing digital et stratégie produit. En recherche de stage de fin d\'études.',
+    social_links: { linkedin: '#' },
+    contact_email: 'jeanne@example.com',
+    skills: ['Marketing digital', 'SEO', 'Google Ads', 'Canva', 'Excel', 'Analytics'],
+  },
+  colore: {
+    title: 'Kenza Amrani',
+    bio: 'Illustratrice freelance. Éditorial, branding, motion — tant que c\'est en couleur.',
+    social_links: { dribbble: '#', website: '#' },
+    contact_email: 'kenza@example.com',
+    skills: ['Procreate', 'Illustrator', 'After Effects', 'Figma', 'Branding'],
+  },
+  creatif: {
+    title: 'Inès Vieira',
+    bio: 'Photographe et directrice artistique. Collaborations presse et mode.',
+    social_links: { website: '#', dribbble: '#' },
+    contact_email: null,
+    skills: ['Lightroom', 'Photoshop', 'Direction artistique', 'Retouche', 'Vidéo'],
+  },
+  brutalist: {
+    title: 'Studio Noir',
+    bio: 'Direction artistique, identité visuelle, type design.',
+    social_links: { website: '#' },
+    contact_email: 'hello@studionoir.fr',
+    skills: ['Direction artistique', 'Typographie', 'Identité visuelle', 'Print', 'Web'],
+  },
+  elegant: {
+    title: 'Mehdi Bentahar',
+    bio: 'Architecte d\'intérieur. Projets résidentiels haut de gamme, Paris et côte méditerranéenne.',
+    social_links: { linkedin: '#', website: '#' },
+    contact_email: 'mehdi@example.com',
+    skills: ['AutoCAD', '3ds Max', 'SketchUp', 'Matériaux', 'Espace'],
+  },
+  bento: {
+    title: 'Léo Durand',
+    bio: 'Product designer chez une scale-up. Design systems le jour, side projects la nuit.',
+    social_links: { linkedin: '#', dribbble: '#', github: '#', website: '#' },
+    contact_email: null,
+    skills: ['Figma', 'Design System', 'UX Research', 'Prototypage', 'A/B Testing'],
+  },
+}
+
+/** Build a complete TemplateProps with per-template identity + colors */
+export function getDemoPortfolio(templateName: string, isPremium = false): TemplateProps {
+  const colors = DEMO_COLORS[templateName] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
+  const override = DEMO_OVERRIDES[templateName]
+
+  return {
+    ...DEMO_PORTFOLIO,
+    portfolio: {
+      ...DEMO_PORTFOLIO.portfolio,
+      primary_color: colors.primary,
+      secondary_color: colors.secondary,
+      ...(override && {
+        title: override.title,
+        bio: override.bio,
+        social_links: override.social_links,
+        contact_email: override.contact_email,
+      }),
+    },
+    ...(override && { skills: override.skills }),
+    isPremium,
+  }
+}
+
 /** Per-template color overrides for more realistic previews */
 export const DEMO_COLORS: Record<string, { primary: string; secondary: string }> = {
   minimal: { primary: '#1A1A1A', secondary: '#F5F5F5' },

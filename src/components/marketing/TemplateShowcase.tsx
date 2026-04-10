@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
-import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
+import { getDemoPortfolio } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 
 type Filter = 'all' | 'free' | 'premium'
@@ -49,16 +49,7 @@ export function TemplateShowcase() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filtered.map((template) => {
-          const colors = DEMO_COLORS[template.name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
-          const demoProps = {
-            ...DEMO_PORTFOLIO,
-            portfolio: {
-              ...DEMO_PORTFOLIO.portfolio,
-              primary_color: colors.primary,
-              secondary_color: colors.secondary,
-            },
-            isPremium: template.isPremium,
-          }
+          const demoProps = getDemoPortfolio(template.name, template.isPremium)
 
           return (
             <Link

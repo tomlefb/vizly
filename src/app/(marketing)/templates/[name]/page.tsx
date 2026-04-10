@@ -5,7 +5,7 @@ import { Star, ArrowLeft, Check } from 'lucide-react'
 import { Header } from '@/components/marketing/Header'
 import { Footer } from '@/components/marketing/Footer'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
-import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
+import { getDemoPortfolio } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { FullTemplatePreview } from '@/components/shared/FullTemplatePreview'
 
@@ -35,17 +35,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const colors = DEMO_COLORS[template.name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
-
-  const demoProps = {
-    ...DEMO_PORTFOLIO,
-    portfolio: {
-      ...DEMO_PORTFOLIO.portfolio,
-      primary_color: colors.primary,
-      secondary_color: colors.secondary,
-    },
-    isPremium: template.isPremium,
-  }
+  const demoProps = getDemoPortfolio(template.name, template.isPremium)
 
   const features = [
     'Personnalisable (couleurs, typo, contenu)',
