@@ -6,7 +6,7 @@ import { getTranslations } from 'next-intl/server'
 
 const STAT_KEYS = ['portfolios', 'time', 'templates', 'price'] as const
 
-const FEATURE_KEYS = ['form', 'templates', 'live', 'mobile', 'customizable', 'unlimited'] as const
+const FEATURE_KEYS = ['live', 'form', 'templates', 'customizable', 'unlimited'] as const
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -45,17 +45,14 @@ export async function SocialProof() {
         <div className="border-t border-border mt-12 lg:mt-16" />
 
         {/* ── Features text grid ────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mt-10 lg:mt-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 mt-10 lg:mt-12">
           {FEATURE_KEYS.map((key, i) => (
             <div
               key={key}
               className={`py-4 md:py-0 md:px-5 lg:px-6 ${
-                i > 0 ? 'lg:border-l-[0.5px] lg:border-border' : ''
-              } ${i % 2 !== 0 ? 'max-md:border-l-[0.5px] max-md:border-border' : ''} ${
-                i % 3 !== 0 ? 'max-lg:md:border-l-[0.5px] max-lg:md:border-border' : ''
-              } ${i >= 2 ? 'max-md:border-t-[0.5px] max-md:border-border' : ''} ${
-                i >= 3 ? 'max-lg:md:border-t-[0.5px] max-lg:md:border-border' : ''
-              }`}
+                i > 0 ? 'md:border-l-[0.5px] md:border-border' : ''
+              } ${i % 2 !== 0 ? 'max-md:border-l-[0.5px] max-md:border-border' : ''
+              } ${i >= 2 ? 'max-md:border-t-[0.5px] max-md:border-border' : ''}`}
             >
               <p className="text-[15px] font-semibold text-foreground tracking-wide">
                 {t(`features.${key}.title`)}
