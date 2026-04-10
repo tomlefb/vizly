@@ -69,10 +69,10 @@ export function SocialProof() {
                 i >= 3 ? 'max-lg:md:border-t-[0.5px] max-lg:md:border-border' : ''
               }`}
             >
-              <p className="text-xs font-semibold text-foreground tracking-wide">
+              <p className="text-[15px] font-semibold text-foreground tracking-wide">
                 {feat.title}
               </p>
-              <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed">
+              <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">
                 {feat.desc}
               </p>
             </div>
