@@ -66,6 +66,22 @@ body {
   50% { transform: translateY(-6px); }
 }
 
+/* Hero portfolio wall scroll animations */
+@keyframes scroll-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+@keyframes scroll-down {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+.animate-scroll-up {
+  animation: scroll-up linear infinite;
+}
+.animate-scroll-down {
+  animation: scroll-down linear infinite;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
