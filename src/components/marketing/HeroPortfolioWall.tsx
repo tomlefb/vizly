@@ -104,10 +104,10 @@ const ENTRIES: WallEntry[] = [
   /* ── Minimal — dev fullstack, KPIs chiffres clés ─────────────────── */
   {
     template: 'minimal',
-    url: 'hugo.vizly.fr',
+    url: 'mehdi-b.vizly.fr',
     props: makeProps({
       template: 'minimal',
-      name: 'Hugo Bernard',
+      name: 'Mehdi Bentahar',
       bio: 'Developpeur Full-Stack passionne par les architectures clean et les interfaces minimalistes.',
       projects: [
         { title: 'App Bancaire', tags: ['React', 'Node.js'], imgId: 0 },
@@ -127,10 +127,10 @@ const ENTRIES: WallEntry[] = [
   /* ── Dark — creative dev, layout block image + texte ─────────────── */
   {
     template: 'dark',
-    url: 'sara.vizly.fr',
+    url: 'studio-noir.vizly.fr',
     props: makeProps({
       template: 'dark',
-      name: 'Sara Kovac',
+      name: 'Nora Belhaj',
       bio: 'Creative developer specialisee en experiences web immersives et animations 3D.',
       projects: [
         { title: 'WebGL Experience', tags: ['Three.js', 'GLSL'], imgId: 1 },
@@ -155,11 +155,11 @@ const ENTRIES: WallEntry[] = [
   /* ── Classique — etudiant, KPIs parcours + custom bloc ───────────── */
   {
     template: 'classique',
-    url: 'antoine.vizly.fr',
+    url: 'jeanne-m.vizly.fr',
     props: makeProps({
       template: 'classique',
-      name: 'Antoine Leroy',
-      bio: 'Etudiant en ecole de commerce, passionne par le marketing digital et la strategie produit.',
+      name: 'Jeanne Marchand',
+      bio: 'Etudiante en ecole de commerce, passionnee de marketing digital et de strategie produit.',
       projects: [
         { title: 'Etude de marche', desc: 'Analyse concurrentielle pour une startup EdTech.', tags: ['Analyse', 'B2B'], imgId: 3 },
         { title: 'Campagne Social', desc: 'Strategie Meta Ads avec +200% de conversions.', tags: ['Meta Ads', 'KPI'], imgId: 119 },
@@ -180,11 +180,11 @@ const ENTRIES: WallEntry[] = [
   /* ── Colore — community manager, KPIs engagement ─────────────────── */
   {
     template: 'colore',
-    url: 'julie.vizly.fr',
+    url: 'yacine.vizly.fr',
     props: makeProps({
       template: 'colore',
-      name: 'Julie Deschamps',
-      bio: 'Community manager freelance, specialisee en strategie de contenu et social media.',
+      name: 'Yacine Kadi',
+      bio: 'Community manager freelance, specialise en strategie de contenu et social media.',
       projects: [
         { title: 'Campagne Instagram', tags: ['Social Media', 'Contenu'], imgId: 24 },
         { title: 'Refonte Editoriale', tags: ['Copywriting', 'Brand'], imgId: 65 },
@@ -204,10 +204,10 @@ const ENTRIES: WallEntry[] = [
   /* ── Creatif — photographe, layout 2 cols image+image ────────────── */
   {
     template: 'creatif',
-    url: 'lea.vizly.fr',
+    url: 'kenza.vizly.fr',
     props: makeProps({
       template: 'creatif',
-      name: 'Lea Fontaine',
+      name: 'Kenza Amrani',
       bio: 'Photographe et directrice artistique, basee a Paris. Specialisee portrait et mode.',
       projects: [
         { title: 'Serie Portrait', tags: ['Portrait', 'Studio'], imgId: 10 },
@@ -236,10 +236,10 @@ const ENTRIES: WallEntry[] = [
   /* ── Brutalist — graphic designer, KPIs bold + layout ────────────── */
   {
     template: 'brutalist',
-    url: 'nina.vizly.fr',
+    url: 'thomas-l.vizly.fr',
     props: makeProps({
       template: 'brutalist',
-      name: 'Nina Petit',
+      name: 'Thomas Lefèvre',
       bio: 'Graphic designer pushing boundaries with bold typography and raw aesthetics.',
       projects: [
         { title: 'Poster Series', tags: ['Typo', 'Print'], imgId: 42 },
@@ -271,11 +271,11 @@ const ENTRIES: WallEntry[] = [
   /* ── Elegant — architecte, layout image+texte + KPIs ─────────────── */
   {
     template: 'elegant',
-    url: 'alexandre.vizly.fr',
+    url: 'ines-v.vizly.fr',
     props: makeProps({
       template: 'elegant',
-      name: 'Alexandre Morel',
-      bio: 'Architecte d\'interieur, specialise dans les projets residentiels haut de gamme.',
+      name: 'Inès Vieira',
+      bio: 'Architecte d\'interieur, specialisee dans les projets residentiels haut de gamme.',
       projects: [
         { title: 'Loft Marais', desc: 'Renovation complete d\'un loft de 180m2 dans le Marais.', tags: ['Residentiel', 'Luxe'], imgId: 164 },
         { title: 'Villa Cote d\'Azur', desc: 'Villa contemporaine face mer, materiaux nobles.', tags: ['Villa', 'Contemporain'], imgId: 188 },
@@ -304,10 +304,10 @@ const ENTRIES: WallEntry[] = [
   /* ── Bento — product designer, KPIs + layout 3 cols ──────────────── */
   {
     template: 'bento',
-    url: 'camille.vizly.fr',
+    url: 'axl-studio.vizly.fr',
     props: makeProps({
       template: 'bento',
-      name: 'Camille Sorel',
+      name: 'Axel Moreau',
       bio: 'Product designer chez une scale-up, focus sur les design systems et l\'experience utilisateur.',
       projects: [
         { title: 'Design System v2', tags: ['Figma', 'Tokens'], imgId: 26 },
