@@ -2,7 +2,6 @@ import {
   ClipboardList,
   Palette,
   Zap,
-  Smartphone,
   Paintbrush,
   Layers,
 } from 'lucide-react'
@@ -18,11 +17,10 @@ interface FeatureItem {
 }
 
 const featuresMeta: FeatureItem[] = [
-  { icon: ClipboardList, key: 'form', accent: 'bg-accent/8 text-accent', span: 'md:col-span-2' },
+  { icon: Zap, key: 'live', accent: 'bg-[#8B6914]/8 text-[#8B6914]', span: 'md:col-span-2' },
+  { icon: ClipboardList, key: 'form', accent: 'bg-accent/8 text-accent', span: 'md:col-span-1' },
   { icon: Palette, key: 'templates', accent: 'bg-[#2D5A3D]/8 text-[#2D5A3D]', span: 'md:col-span-1' },
-  { icon: Zap, key: 'live', accent: 'bg-[#8B6914]/8 text-[#8B6914]', span: 'md:col-span-1' },
-  { icon: Smartphone, key: 'mobile', accent: 'bg-[#4A3D8F]/8 text-[#4A3D8F]', span: 'md:col-span-1' },
-  { icon: Paintbrush, key: 'customizable', accent: 'bg-[#8F3D6B]/8 text-[#8F3D6B]', span: 'md:col-span-1' },
+  { icon: Paintbrush, key: 'customizable', accent: 'bg-[#8F3D6B]/8 text-[#8F3D6B]', span: 'md:col-span-2' },
   { icon: Layers, key: 'unlimited', accent: 'bg-[#3D6B8F]/8 text-[#3D6B8F]', span: 'md:col-span-2' },
 ]
 

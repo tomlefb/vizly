@@ -37,15 +37,11 @@
     },
     "templates": {
       "title": "Pro templates",
-      "description": "8 templates designed by actual designers. Classic CV, bento grid, dark mode, brutalist — one for every field."
+      "description": "From classic CV to brutalist layout, eight styles to try and customize."
     },
     "live": {
       "title": "Live in 5 min",
       "description": "Your username becomes your URL: username.vizly.fr. No server to set up, no DNS to touch."
-    },
-    "mobile": {
-      "title": "Mobile-first",
-      "description": "Built mobile-first. Recruiters will read your work just as well from their phone as on a 27-inch screen."
     },
     "customizable": {
       "title": "Customizable",
@@ -64,10 +60,9 @@
       "price": { "value": "0", "suffix": "\u202F€", "label": "to get started, no card required" }
     },
     "features": {
-      "form": { "title": "Guided form", "desc": "Profile, projects, skills — in order." },
-      "templates": { "title": "8 pro templates", "desc": "Designed by designers, one per field." },
       "live": { "title": "Live in 5 min", "desc": "Your username becomes your vizly.fr URL." },
-      "mobile": { "title": "Mobile-first", "desc": "Built for mobile first." },
+      "form": { "title": "Guided form", "desc": "Profile, projects, skills — in order." },
+      "templates": { "title": "8 pro templates", "desc": "From classic CV to brutalist, eight styles." },
       "customizable": { "title": "Customizable", "desc": "Colors, fonts, section order." },
       "unlimited": { "title": "Unlimited projects", "desc": "No cap, regardless of plan." }
     }
@@ -172,7 +167,7 @@
   "cta": {
     "title": "Your portfolio,",
     "titleAccent": "live tonight",
-    "description": "Sign up in 30 seconds, first portfolio is free. You only pay to go live.",
+    "description": "Free to start. You only pay when you decide to publish.",
     "primary": "Create my portfolio",
     "secondary": "View pricing"
   },

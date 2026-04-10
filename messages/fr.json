@@ -37,15 +37,11 @@
     },
     "templates": {
       "title": "Templates pro",
-      "description": "8 templates dessinés par des designers. CV classique, grille bento, dark mode, brutalist — il y en a pour chaque métier."
+      "description": "Du CV sobre au layout brutalist, huit styles à tester et personnaliser."
     },
     "live": {
       "title": "Live en 5 min",
       "description": "Ton pseudo devient ton URL : pseudo.vizly.fr. Pas de serveur à configurer ni de DNS à toucher."
-    },
-    "mobile": {
-      "title": "Mobile-first",
-      "description": "Conçu pour mobile d'abord. Tes recruteurs te liront aussi bien depuis leur téléphone que sur un écran 27 pouces."
     },
     "customizable": {
       "title": "Personnalisable",
@@ -64,10 +60,9 @@
       "price": { "value": "0", "suffix": "\u202F€", "label": "pour commencer, sans CB requise" }
     },
     "features": {
-      "form": { "title": "Formulaire guidé", "desc": "Profil, projets, compétences — dans l'ordre." },
-      "templates": { "title": "8 templates pro", "desc": "Dessinés par des designers, un par métier." },
       "live": { "title": "Live en 5 min", "desc": "Ton pseudo devient ton URL sur vizly.fr." },
-      "mobile": { "title": "Mobile-first", "desc": "Conçu pour mobile d'abord." },
+      "form": { "title": "Formulaire guidé", "desc": "Profil, projets, compétences — dans l'ordre." },
+      "templates": { "title": "8 templates pro", "desc": "Du CV sobre au brutalist, huit styles." },
       "customizable": { "title": "Personnalisable", "desc": "Couleurs, typo, ordre des sections." },
       "unlimited": { "title": "Projets illimités", "desc": "Pas de plafond, quel que soit le plan." }
     }
@@ -172,7 +167,7 @@
   "cta": {
     "title": "Ton portfolio,",
     "titleAccent": "live ce soir",
-    "description": "Inscription en 30 secondes, premier portfolio gratuit. Tu paies uniquement pour la mise en ligne.",
+    "description": "Gratuit pour commencer. Tu ne paies que si tu décides de publier.",
     "primary": "Créer mon portfolio",
     "secondary": "Voir les tarifs"
   },
