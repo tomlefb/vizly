@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { HeroPortfolioWall } from './HeroPortfolioWall'
 
@@ -27,24 +27,12 @@ export function Hero() {
 
       <div className="relative z-2 mx-auto max-w-7xl px-6 lg:px-8">
         <div className="max-w-xl md:max-w-[46%] space-y-8">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0}
-          >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-light px-3.5 py-1.5 text-xs font-semibold text-accent tracking-wide">
-              <Sparkles className="h-3.5 w-3.5" />
-              {t('badge')}
-            </span>
-          </motion.div>
-
           <motion.h1
             className="font-[family-name:var(--font-satoshi)] text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl xl:text-[4.25rem]"
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.1}
+            custom={0}
           >
             {t('titleStart')}{' '}
             <span className="relative">
@@ -61,7 +49,7 @@ export function Hero() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.2}
+            custom={0.1}
           >
             {t('description', { domain: 'pseudo.vizly.fr' })}
           </motion.p>
@@ -71,7 +59,7 @@ export function Hero() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.3}
+            custom={0.2}
           >
             <Link
               href="/register"
@@ -93,7 +81,7 @@ export function Hero() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.4}
+            custom={0.3}
           >
             {t('socialProof')}
           </motion.p>
