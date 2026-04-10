@@ -422,7 +422,7 @@ function AutoHeightPreview({ templateName, templateProps }: { templateName: stri
 
 function Card({ entry }: { entry: WallEntry }) {
   return (
-    <div className="w-full rounded-[var(--radius-lg)] border border-border bg-surface overflow-hidden">
+    <div className="w-full rounded-[var(--radius-lg)] ring-1 ring-border bg-surface overflow-hidden">
       {/* Mini browser chrome */}
       <div className="flex items-center gap-1.5 border-b border-border bg-surface-warm px-2.5 py-1.5">
         <div className="flex gap-1">
