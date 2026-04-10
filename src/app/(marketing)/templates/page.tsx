@@ -18,7 +18,7 @@ export default function TemplatesPage() {
       <main className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
         <ScrollReveal className="max-w-2xl mb-12">
           <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Nos templates
+            Nos <span className="text-accent">templates</span>
           </h1>
           <p className="mt-4 text-lg text-muted leading-relaxed">
             Chaque template a sa propre personnalité. Choisis celui qui te ressemble,
