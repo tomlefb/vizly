@@ -18,6 +18,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [acceptTerms, setAcceptTerms] = useState(false)
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -63,6 +64,11 @@ export default function RegisterPage() {
 
   async function handleGoogleLogin() {
     setError(null)
+
+    if (!acceptTerms) {
+      setError('Tu dois accepter les CGU et la Politique de Confidentialité')
+      return
+    }
 
     try {
       const supabase = createClient()
@@ -196,9 +202,29 @@ export default function RegisterPage() {
           />
         </div>
 
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            required
+            checked={acceptTerms}
+            onChange={(e) => setAcceptTerms(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border border-border accent-accent"
+          />
+          <span className="text-xs text-muted leading-relaxed">
+            J&apos;accepte les{' '}
+            <Link href="/legal/cgu" target="_blank" className="underline text-foreground hover:text-accent">
+              Conditions Générales d&apos;Utilisation
+            </Link>{' '}
+            et la{' '}
+            <Link href="/legal/confidentialite" target="_blank" className="underline text-foreground hover:text-accent">
+              Politique de Confidentialité
+            </Link>
+          </span>
+        </label>
+
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !acceptTerms}
           className="flex w-full items-center justify-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
