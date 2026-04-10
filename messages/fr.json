@@ -20,8 +20,8 @@
   },
   "hero": {
     "badge": "100% gratuit pour commencer",
-    "titleStart": "Crée ton portfolio",
-    "titleHighlight": "en 5 minutes",
+    "titleStart": "Crée ton portfolio en",
+    "titleHighlight": "5 minutes",
     "description": "Remplis un formulaire, choisis un template, et ton site portfolio est live sur {domain}. Aucune compétence technique requise.",
     "cta": "Commencer gratuitement",
     "secondary": "Voir les templates",
