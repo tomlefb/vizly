@@ -58,7 +58,7 @@ function StepText({
   }, [isInView, index, onActivate])
 
   return (
-    <div ref={ref} className="min-h-screen flex items-center py-16">
+    <div ref={ref} className="min-h-[70vh] flex items-center py-16">
       <div className="max-w-md">
         <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
           {step.number}. {step.title}
