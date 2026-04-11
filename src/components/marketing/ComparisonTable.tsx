@@ -1,6 +1,5 @@
 'use client'
 
-import { Fragment } from 'react'
 import { Check, X, Minus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
@@ -15,31 +14,16 @@ interface Row {
   pro: CellValue
 }
 
-interface Category {
-  titleKey: string
-  rows: Row[]
-}
-
-const TABLE_DATA: Category[] = [
-  {
-    titleKey: 'publishing',
-    rows: [
-      { labelKey: 'onlinePublish', free: false, starter: 'publishOne', pro: 'publishUnlimited' },
-      { labelKey: 'subdomain', free: false, starter: true, pro: true },
-      { labelKey: 'customDomain', free: false, starter: false, pro: true },
-      { labelKey: 'https', free: false, starter: true, pro: true },
-      { labelKey: 'hosting', free: false, starter: true, pro: true },
-      { labelKey: 'vizlyBadge', free: 'badgePreview', starter: 'badgePresent', pro: 'badgeNone' },
-    ],
-  },
-  {
-    titleKey: 'proTools',
-    rows: [
-      { labelKey: 'contactForm', free: false, starter: false, pro: true },
-      { labelKey: 'analytics', free: false, starter: false, pro: true },
-      { labelKey: 'prioritySupport', free: false, starter: false, pro: true },
-    ],
-  },
+const ROWS: Row[] = [
+  { labelKey: 'onlinePublish', free: false, starter: 'publishOne', pro: 'publishUnlimited' },
+  { labelKey: 'subdomain', free: false, starter: true, pro: true },
+  { labelKey: 'customDomain', free: false, starter: false, pro: true },
+  { labelKey: 'https', free: false, starter: true, pro: true },
+  { labelKey: 'hosting', free: false, starter: true, pro: true },
+  { labelKey: 'contactForm', free: false, starter: false, pro: true },
+  { labelKey: 'analytics', free: false, starter: false, pro: true },
+  { labelKey: 'prioritySupport', free: false, starter: false, pro: true },
+  { labelKey: 'vizlyBadge', free: 'badgePreview', starter: 'badgePresent', pro: 'badgeNone' },
 ]
 
 function CellContent({ value, t }: { value: CellValue; t: (key: string) => string }) {
@@ -66,37 +50,28 @@ function MobilePlanCard({
       <h4 className="font-[family-name:var(--font-satoshi)] text-base font-semibold mb-4">
         {t(`plans.${planKey}`)}
       </h4>
-      <div className="space-y-4">
-        {TABLE_DATA.map((category) => (
-          <div key={category.titleKey}>
-            <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
-              {t(`categories.${category.titleKey}`)}
-            </p>
-            <ul className="space-y-2">
-              {category.rows.map((row) => {
-                const value = row[planKey]
-                return (
-                  <li key={row.labelKey} className="flex items-center gap-2.5 text-sm">
-                    {value === true ? (
-                      <Check className="h-3.5 w-3.5 shrink-0 text-success" strokeWidth={2.5} />
-                    ) : value === false ? (
-                      <Minus className="h-3.5 w-3.5 shrink-0 text-muted-foreground/30" strokeWidth={2} />
-                    ) : (
-                      <Check className="h-3.5 w-3.5 shrink-0 text-success" strokeWidth={2.5} />
-                    )}
-                    <span className={value === false ? 'text-muted-foreground/50' : 'text-foreground'}>
-                      {t(`rows.${row.labelKey}`)}
-                      {typeof value === 'string' && (
-                        <span className="text-muted ml-1">— {t(`values.${value}`)}</span>
-                      )}
-                    </span>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <ul className="space-y-2">
+        {ROWS.map((row) => {
+          const value = row[planKey]
+          return (
+            <li key={row.labelKey} className="flex items-center gap-2.5 text-sm">
+              {value === true ? (
+                <Check className="h-3.5 w-3.5 shrink-0 text-success" strokeWidth={2.5} />
+              ) : value === false ? (
+                <Minus className="h-3.5 w-3.5 shrink-0 text-muted-foreground/30" strokeWidth={2} />
+              ) : (
+                <Check className="h-3.5 w-3.5 shrink-0 text-success" strokeWidth={2.5} />
+              )}
+              <span className={value === false ? 'text-muted-foreground/50' : 'text-foreground'}>
+                {t(`rows.${row.labelKey}`)}
+                {typeof value === 'string' && (
+                  <span className="text-muted ml-1">— {t(`values.${value}`)}</span>
+                )}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
     </div>
   )
 }
@@ -135,41 +110,26 @@ export function ComparisonTable() {
                 </tr>
               </thead>
               <tbody>
-                {TABLE_DATA.map((category, catIdx) => (
-                  <Fragment key={category.titleKey}>
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className={cn(
-                          'pt-8 pb-3 text-xs font-semibold text-muted uppercase tracking-wide',
-                          catIdx > 0 && 'border-t border-border'
-                        )}
-                      >
-                        {t(`categories.${category.titleKey}`)}
-                      </td>
-                    </tr>
-                    {category.rows.map((row, rowIdx) => (
-                      <tr
-                        key={row.labelKey}
-                        className={cn(
-                          rowIdx % 2 === 1 && 'bg-[#FAFAFA]'
-                        )}
-                      >
-                        <td className="py-3 pr-6 text-sm text-foreground">
-                          {t(`rows.${row.labelKey}`)}
-                        </td>
-                        <td className="py-3 px-6 text-center">
-                          <CellContent value={row.free} t={t} />
-                        </td>
-                        <td className="py-3 px-6 text-center">
-                          <CellContent value={row.starter} t={t} />
-                        </td>
-                        <td className="py-3 px-6 text-center">
-                          <CellContent value={row.pro} t={t} />
-                        </td>
-                      </tr>
-                    ))}
-                  </Fragment>
+                {ROWS.map((row, rowIdx) => (
+                  <tr
+                    key={row.labelKey}
+                    className={cn(
+                      rowIdx % 2 === 1 && 'bg-[#FAFAFA]'
+                    )}
+                  >
+                    <td className="py-3 pr-6 text-sm text-foreground">
+                      {t(`rows.${row.labelKey}`)}
+                    </td>
+                    <td className="py-3 px-6 text-center">
+                      <CellContent value={row.free} t={t} />
+                    </td>
+                    <td className="py-3 px-6 text-center">
+                      <CellContent value={row.starter} t={t} />
+                    </td>
+                    <td className="py-3 px-6 text-center">
+                      <CellContent value={row.pro} t={t} />
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
