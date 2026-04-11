@@ -92,8 +92,4 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-
-  /* Storytelling : fallback stacked quand motion réduit */
-  [data-storytelling="desktop"] { display: none !important; }
-  [data-storytelling="mobile"] { display: block !important; }
 }

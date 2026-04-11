@@ -3,7 +3,10 @@ import { Header } from '@/components/marketing/Header'
 import { Footer } from '@/components/marketing/Footer'
 import { CTA } from '@/components/marketing/CTA'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
-import { ScrollStorytelling } from '@/components/marketing/features/ScrollStorytelling'
+import { ProfileMockup } from '@/components/marketing/features/ProfileMockup'
+import { KpiMockup } from '@/components/marketing/features/KpiMockup'
+import { DesignMockup } from '@/components/marketing/features/DesignMockup'
+import { PublishMockup } from '@/components/marketing/features/PublishMockup'
 
 export const metadata: Metadata = {
   title: 'Fonctionnalités',
@@ -54,8 +57,7 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Scroll storytelling (4 étapes) ── */}
-        <ScrollStorytelling />
+        {/* ── Les 4 étapes — placeholder pour commit 2 ── */}
 
         {/* ── Section 6 — Les détails qui changent tout ── */}
         <section className="py-12 lg:py-16">

@@ -6,10 +6,10 @@ export function PublishMockup() {
       <div className="p-5 sm:p-6">
         {/* En-tête dashboard */}
         <div className="text-xs font-semibold text-foreground font-[family-name:var(--font-satoshi)] mb-3">
-          Mes portfolios
+          Mon portfolio
         </div>
 
-        {/* Carte projet — En ligne */}
+        {/* Carte projet */}
         <div className="rounded-[var(--radius-md)] border border-border p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
@@ -38,29 +38,6 @@ export function PublishMockup() {
               Modifier
             </span>
           </div>
-        </div>
-
-        {/* Carte projet — Brouillon */}
-        <div className="rounded-[var(--radius-md)] border border-border p-4 mt-2.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-surface-warm border border-border-light flex items-center justify-center text-[9px] font-semibold text-muted">
-                NE
-              </div>
-              <div>
-                <div className="text-[11px] font-semibold text-foreground">Notes &amp; exp&eacute;rimentations</div>
-                <div className="text-[9px] text-muted-foreground">Modifi&eacute; hier</div>
-              </div>
-            </div>
-            <span className="inline-flex items-center rounded-full bg-surface-warm px-2 py-0.5 text-[9px] font-semibold text-muted">
-              Brouillon
-            </span>
-          </div>
-        </div>
-
-        {/* Placeholder création */}
-        <div className="rounded-[var(--radius-md)] border border-dashed border-border p-3 mt-2.5 flex items-center justify-center">
-          <span className="text-[10px] text-muted-foreground">+ Cr&eacute;er un nouveau portfolio</span>
         </div>
       </div>
     </BrowserFrame>
