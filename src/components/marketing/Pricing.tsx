@@ -208,7 +208,9 @@ export function Pricing({ interval: controlledInterval, onIntervalChange, showHe
                         <Check
                           className={cn(
                             'h-4 w-4 shrink-0',
-                            feature.labelKey === 'noBadge' ? 'text-accent' : 'text-success'
+                            feature.labelKey === 'vizlyBadge'
+                              ? 'text-muted-foreground/40'
+                              : 'text-success'
                           )}
                           strokeWidth={2.5}
                         />
