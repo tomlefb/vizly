@@ -7,6 +7,7 @@ import { ProfileMockup } from '@/components/marketing/features/ProfileMockup'
 import { KpiMockup } from '@/components/marketing/features/KpiMockup'
 import { DesignMockup } from '@/components/marketing/features/DesignMockup'
 import { PublishMockup } from '@/components/marketing/features/PublishMockup'
+import { FeaturesStepperPreview } from '@/components/marketing/features/FeaturesStepperPreview'
 
 export const metadata: Metadata = {
   title: 'Fonctionnalités',
@@ -43,17 +44,22 @@ export default function FonctionnalitesPage() {
       <Header />
       <main>
         {/* ── Section 1 — Hero ── */}
-        <section className="pt-16 pb-8 lg:pt-24 lg:pb-12">
+        <section className="pt-16 pb-4 lg:pt-24 lg:pb-8">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal className="max-w-2xl">
-              <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-                Tout ce qu&apos;il faut pour publier un portfolio qui{' '}
-                <span className="text-accent">te ressemble</span>.
-              </h1>
-              <p className="mt-5 text-lg text-muted leading-relaxed max-w-xl">
-                De l&apos;idée à la mise en ligne, sans rien sacrifier sur la personnalisation.
-              </p>
-            </ScrollReveal>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-16">
+              <ScrollReveal className="max-w-2xl">
+                <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+                  Tout ce qu&apos;il faut pour publier un portfolio qui{' '}
+                  <span className="text-accent">te ressemble</span>.
+                </h1>
+                <p className="mt-5 text-lg text-muted leading-relaxed max-w-xl">
+                  De l&apos;idée à la mise en ligne, sans rien sacrifier sur la personnalisation.
+                </p>
+              </ScrollReveal>
+              <ScrollReveal className="shrink-0 hidden lg:block" delay={0.15}>
+                <FeaturesStepperPreview />
+              </ScrollReveal>
+            </div>
           </div>
         </section>
 
