@@ -4,20 +4,19 @@ import { DEFAULT_SECTIONS } from '@/types/sections'
 /** Realistic demo portfolio used for template previews */
 export const DEMO_PORTFOLIO: TemplateProps = {
   portfolio: {
-    title: 'Marie Dupont',
-    bio: 'Designer UI/UX passionnée par les interfaces élégantes et les expériences utilisateur intuitives. 5 ans d\'expérience en design produit, freelance basée à Lyon.',
+    title: 'Prénom Nom',
+    bio: 'Courte description de ton parcours et de ce que tu fais. Ce texte sera remplacé par le tien.',
     photo_url: null,
     primary_color: '#D4634E',
     secondary_color: '#1A1A1A',
     font: 'default',
     font_body: 'default',
     social_links: {
-      linkedin: 'https://linkedin.com/in/mariedupont',
-      dribbble: 'https://dribbble.com/mariedupont',
-      github: 'https://github.com/mariedupont',
-      website: 'https://mariedupont.fr',
+      linkedin: '#',
+      github: '#',
+      website: '#',
     },
-    contact_email: 'marie@example.com',
+    contact_email: null,
   },
   projects: [
     {
@@ -140,6 +139,18 @@ const DEMO_OVERRIDES: Record<string, {
     contact_email: null,
     skills: ['Figma', 'Design System', 'UX Research', 'Prototypage', 'A/B Testing'],
   },
+}
+
+/** Per-template handle for URL mockups */
+export const DEMO_HANDLES: Record<string, string> = {
+  minimal: 'thomas-l',
+  dark: 'yacine',
+  classique: 'jeanne-m',
+  colore: 'kenza',
+  creatif: 'ines-v',
+  brutalist: 'studio-noir',
+  elegant: 'mehdi-b',
+  bento: 'leo-d',
 }
 
 /** Build a complete TemplateProps with per-template identity + colors */

@@ -5,7 +5,7 @@ import { Star, ArrowLeft, Check } from 'lucide-react'
 import { Header } from '@/components/marketing/Header'
 import { Footer } from '@/components/marketing/Footer'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
-import { getDemoPortfolio } from '@/lib/demo-data'
+import { getDemoPortfolio, DEMO_HANDLES } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { FullTemplatePreview } from '@/components/shared/FullTemplatePreview'
 
@@ -36,12 +36,13 @@ export default async function TemplateDetailPage({ params }: PageProps) {
   }
 
   const demoProps = getDemoPortfolio(template.name, template.isPremium)
+  const handle = DEMO_HANDLES[template.name] ?? 'pseudo'
 
   const features = [
     'Personnalisable (couleurs, typo, contenu)',
     'Responsive mobile + desktop',
-    'Heberge sur pseudo.vizly.fr',
-    'Publie en 5 minutes',
+    'Hébergé sur pseudo.vizly.fr',
+    'Publié en 5 minutes',
   ]
 
   return (
@@ -127,7 +128,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="rounded bg-background border border-border-light px-3 py-0.5 text-[11px] text-muted font-mono">
-                    mariedupont.vizly.fr
+                    {handle}.vizly.fr
                   </div>
                 </div>
               </div>
@@ -145,10 +146,10 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         <section className="border-t border-border bg-surface-warm/30 pt-12 pb-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8 mb-8">
             <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-              Preview complete
+              Preview complète
             </h2>
             <p className="mt-2 text-sm text-muted">
-              Voici a quoi ressemble un portfolio avec le template {template.label} et du contenu realiste.
+              Voici à quoi ressemble un portfolio avec le template {template.label} et du contenu réaliste.
             </p>
           </div>
 
@@ -163,7 +164,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="rounded bg-background border border-border-light px-3 py-0.5 text-[11px] text-muted font-mono">
-                    mariedupont.vizly.fr
+                    {handle}.vizly.fr
                   </div>
                 </div>
               </div>
