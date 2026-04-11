@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Header } from '@/components/marketing/Header'
 import { Footer } from '@/components/marketing/Footer'
 import { TarifsClient } from '@/components/marketing/TarifsClient'
+import { ComparisonTable } from '@/components/marketing/ComparisonTable'
 
 export const metadata: Metadata = {
   title: 'Tarifs',
@@ -15,6 +16,7 @@ export default function TarifsPage() {
       <Header />
       <main>
         <TarifsClient />
+        <ComparisonTable />
       </main>
       <Footer />
     </>
