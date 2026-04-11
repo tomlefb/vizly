@@ -3,10 +3,7 @@ import { Header } from '@/components/marketing/Header'
 import { Footer } from '@/components/marketing/Footer'
 import { CTA } from '@/components/marketing/CTA'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
-import { ProfileMockup } from '@/components/marketing/features/ProfileMockup'
-import { KpiMockup } from '@/components/marketing/features/KpiMockup'
-import { DesignMockup } from '@/components/marketing/features/DesignMockup'
-import { PublishMockup } from '@/components/marketing/features/PublishMockup'
+import { ScrollStorytelling } from '@/components/marketing/features/ScrollStorytelling'
 
 export const metadata: Metadata = {
   title: 'Fonctionnalités',
@@ -57,112 +54,8 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Section 2 — Étape 1 : Profil ── */}
-        <section className="py-16 lg:py-24">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal className="max-w-2xl">
-              <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                1. Tu poses qui tu es.
-              </h2>
-              <p className="mt-4 text-muted leading-relaxed">
-                Nom, bio, photo, contact, réseaux sociaux, compétences. Tout est structuré
-                pour ne rien oublier. Ta bio est limitée à 500 caractères — assez pour te
-                présenter, assez court pour rester percutant.
-              </p>
-            </ScrollReveal>
-            <ScrollReveal className="mt-10 lg:mt-14 mx-auto max-w-3xl">
-              <ProfileMockup />
-            </ScrollReveal>
-          </div>
-        </section>
-
-        {/* ── Section 3 — Étape 2 : Contenu ── */}
-        <section className="py-16 lg:py-24">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            {/* Niveau 1 — KPI hero */}
-            <ScrollReveal className="max-w-2xl">
-              <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                2. Tu construis ton contenu, comme tu veux.
-              </h2>
-              <p className="mt-4 text-muted leading-relaxed">
-                Dix façons de mettre tes chiffres en valeur&nbsp;: compteurs, anneaux de
-                progression, barres, donuts, timelines, étoiles, comparaisons avant/après.
-                Parce qu&apos;un portfolio sans données mesurables, c&apos;est juste un CV.
-              </p>
-            </ScrollReveal>
-            <ScrollReveal className="mt-10 lg:mt-14 mx-auto max-w-3xl">
-              <KpiMockup />
-            </ScrollReveal>
-
-            {/* Niveau 2 — Grille des 3 sous-features */}
-            <div className="mt-16 lg:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12">
-              <StaggerItem index={0}>
-                <h3 className="text-[15px] font-semibold text-foreground mb-1.5">Projets</h3>
-                <p className="text-sm text-muted leading-relaxed">
-                  Ajoute tes projets avec titre, description, jusqu&apos;à cinq images, lien
-                  externe et tags. Réorganise-les dans l&apos;ordre que tu veux.
-                </p>
-              </StaggerItem>
-              <StaggerItem index={1}>
-                <h3 className="text-[15px] font-semibold text-foreground mb-1.5">
-                  Blocs personnalisés
-                </h3>
-                <p className="text-sm text-muted leading-relaxed">
-                  Tu veux ajouter une section qui n&apos;existe nulle part ailleurs&nbsp;?
-                  Crée tes propres blocs texte avec titre, sous-titre et contenu enrichi.
-                </p>
-              </StaggerItem>
-              <StaggerItem index={2}>
-                <h3 className="text-[15px] font-semibold text-foreground mb-1.5">
-                  Blocs layout
-                </h3>
-                <p className="text-sm text-muted leading-relaxed">
-                  Organise ta page en grilles d&apos;une à trois colonnes. Mélange texte,
-                  images et KPIs comme tu veux.
-                </p>
-              </StaggerItem>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Section 4 — Étape 3 : Design ── */}
-        <section className="py-16 lg:py-24">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal className="max-w-2xl">
-              <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                3. Tu personnalises sans coder.
-              </h2>
-              <p className="mt-4 text-muted leading-relaxed">
-                Choisis ton template parmi huit styles, ta palette parmi six presets ou en
-                custom, ta typographie parmi toute la bibliothèque Google Fonts. Active ou
-                désactive chaque section, réorganise-les. Et tu vois tout en direct sur la
-                preview, en desktop, tablette ou mobile.
-              </p>
-            </ScrollReveal>
-            <ScrollReveal className="mt-10 lg:mt-14 mx-auto max-w-4xl">
-              <DesignMockup />
-            </ScrollReveal>
-          </div>
-        </section>
-
-        {/* ── Section 5 — Étape 4 : Publication ── */}
-        <section className="py-16 lg:py-24">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal className="max-w-2xl">
-              <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                4. Tu publies sur ton sous-domaine.
-              </h2>
-              <p className="mt-4 text-muted leading-relaxed">
-                Choisis ton pseudo, vérifie qu&apos;il est disponible en temps réel, et
-                publie. Ton portfolio est live sur pseudo.vizly.fr en un clic. Tu peux le
-                modifier à tout moment depuis ton dashboard.
-              </p>
-            </ScrollReveal>
-            <ScrollReveal className="mt-10 lg:mt-14 mx-auto max-w-3xl">
-              <PublishMockup />
-            </ScrollReveal>
-          </div>
-        </section>
+        {/* ── Scroll storytelling (4 étapes) ── */}
+        <ScrollStorytelling />
 
         {/* ── Section 6 — Les détails qui changent tout ── */}
         <section className="py-12 lg:py-16">
