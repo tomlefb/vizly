@@ -52,7 +52,7 @@ export function TemplateShowcase({ header }: { header?: ReactNode }) {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filtered.map((template, i) => {
           const demoProps = getDemoPortfolio(template.name, template.isPremium)
 
@@ -60,7 +60,7 @@ export function TemplateShowcase({ header }: { header?: ReactNode }) {
             <StaggerItem key={template.name} index={i} stagger={0.05}>
             <Link
               href={`/templates/${template.name}`}
-              className="group relative rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
+              className="block group relative rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
             >
               {/* Premium badge */}
               {template.isPremium && (
@@ -73,9 +73,9 @@ export function TemplateShowcase({ header }: { header?: ReactNode }) {
               )}
 
               {/* Real template preview */}
-              <div className="relative border-b border-border bg-white overflow-hidden">
+              <div className="relative bg-white overflow-hidden">
                 {/* Browser chrome */}
-                <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-1.5">
+                <div className="flex items-center gap-2 bg-surface-warm px-3 py-1.5">
                   <div className="flex gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#FF6259]" />
                     <span className="w-1.5 h-1.5 rounded-full bg-[#FFBF2F]" />
