@@ -9,9 +9,10 @@ interface ScrollRevealProps {
   children: ReactNode
   className?: string
   delay?: number
+  margin?: string
 }
 
-export function ScrollReveal({ children, className, delay = 0 }: ScrollRevealProps) {
+export function ScrollReveal({ children, className, delay = 0, margin = '-15% 0px' }: ScrollRevealProps) {
   const prefersReduced = useReducedMotion()
 
   if (prefersReduced) {
@@ -23,7 +24,7 @@ export function ScrollReveal({ children, className, delay = 0 }: ScrollRevealPro
       className={className}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-15% 0px' }}
+      viewport={{ once: true, margin }}
       transition={{ duration: 0.5, ease: EASE_OUT_EXPO, delay }}
     >
       {children}

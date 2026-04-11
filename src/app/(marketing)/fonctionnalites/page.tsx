@@ -43,7 +43,7 @@ export default function FonctionnalitesPage() {
       <Header />
       <main>
         {/* ── Section 1 — Hero ── */}
-        <section className="pt-20 pb-16 lg:pt-32 lg:pb-24">
+        <section className="min-h-screen flex items-center pt-20 lg:pt-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <ScrollReveal className="max-w-2xl">
               <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
@@ -58,13 +58,13 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 1 — Profil : texte gauche, mockup droite ── */}
-        <section className="py-16 lg:py-20">
+        <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal>
+            <ScrollReveal margin="0% 0px">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div>
                   <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                    1. Tu poses qui tu es.
+                    1. Tu poses qui <span className="text-accent">tu es</span>.
                   </h2>
                   <p className="mt-4 text-muted leading-relaxed">
                     Nom, bio, photo, contact, réseaux sociaux, compétences. Tout est structuré
@@ -84,16 +84,16 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 2 — Contenu : mockup gauche, texte droite ── */}
-        <section className="py-16 lg:py-20">
+        <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal>
+            <ScrollReveal margin="0% 0px">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div className="max-w-xl mx-auto lg:mx-0 order-2 lg:order-1">
                   <KpiMockup />
                 </div>
                 <div className="order-1 lg:order-2">
                   <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                    2. Tu construis ton contenu.
+                    2. Tu construis ton <span className="text-accent">contenu</span>.
                   </h2>
                   <p className="mt-4 text-muted leading-relaxed">
                     Projets avec images et tags, blocs texte personnalisés, et surtout dix types
@@ -109,13 +109,13 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 3 — Design : texte gauche, mockup droite ── */}
-        <section className="py-16 lg:py-20">
+        <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal>
+            <ScrollReveal margin="0% 0px">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div>
                   <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                    3. Tu personnalises sans coder.
+                    3. Tu personnalises sans <span className="text-accent">coder</span>.
                   </h2>
                   <p className="mt-4 text-muted leading-relaxed">
                     Choisis ton template parmi huit styles, ta palette parmi six presets ou en
@@ -134,16 +134,16 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 4 — Publication : mockup gauche, texte droite ── */}
-        <section className="py-16 lg:py-20">
+        <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <ScrollReveal>
+            <ScrollReveal margin="0% 0px">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div className="max-w-xl mx-auto lg:mx-0 order-2 lg:order-1">
                   <PublishMockup />
                 </div>
                 <div className="order-1 lg:order-2">
                   <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                    4. Tu publies sur ton sous-domaine.
+                    4. Tu publies sur ton <span className="text-accent">sous-domaine</span>.
                   </h2>
                   <p className="mt-4 text-muted leading-relaxed">
                     Choisis ton pseudo, vérifie qu&apos;il est disponible en temps réel, et publie
