@@ -43,7 +43,7 @@ export default function FonctionnalitesPage() {
       <Header />
       <main>
         {/* ── Section 1 — Hero ── */}
-        <section className="min-h-screen flex items-center pt-20 lg:pt-32">
+        <section className="pt-16 pb-8 lg:pt-24 lg:pb-12">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <ScrollReveal className="max-w-2xl">
               <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
