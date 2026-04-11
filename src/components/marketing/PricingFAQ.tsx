@@ -67,7 +67,7 @@ export function PricingFAQ() {
 
   return (
     <section className="py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl px-6 lg:px-8">
         <ScrollReveal className="mb-10 lg:mb-14">
           <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
             {t('title')} <span className="text-accent">{t('titleAccent')}</span>
@@ -77,7 +77,7 @@ export function PricingFAQ() {
           </p>
         </ScrollReveal>
 
-        <div className="max-w-3xl">
+        <div>
           {FAQ_KEYS.map((key, i) => (
             <AccordionItem key={key} questionKey={key} index={i} />
           ))}
