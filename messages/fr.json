@@ -204,36 +204,19 @@
     }
   },
   "comparison": {
-    "title": "Tout ce que",
-    "titleAccent": "tu obtiens.",
-    "subtitle": "Compare les plans en détail.",
+    "title": "Ce qui change",
+    "titleAccent": "entre les plans.",
+    "intro": "Toutes les fonctionnalités de création — templates, personnalisation, KPIs, auto-save, blocs personnalisés — sont incluses dans tous les plans, gratuit compris. Voici ce qui change.",
     "plans": {
       "free": "Gratuit",
       "starter": "Starter",
       "pro": "Pro"
     },
     "categories": {
-      "creation": "Création",
-      "customization": "Personnalisation",
-      "content": "Contenu",
       "publishing": "Publication",
-      "proTools": "Pro tools"
+      "proTools": "Outils Pro"
     },
     "rows": {
-      "unlimitedProjects": "Projets illimités",
-      "freeTemplates": "4 templates gratuits",
-      "premiumTemplates": "Templates premium (2,99\u00a0€ l'unité)",
-      "fullPreview": "Prévisualisation complète",
-      "autoSave": "Auto-save permanent",
-      "stepValidation": "Validation à chaque étape",
-      "colorPalettes": "6 palettes de couleurs + custom",
-      "googleFonts": "Toute la bibliothèque Google Fonts",
-      "reorderSections": "Sections réorganisables et activables",
-      "responsivePreview": "Preview responsive (desktop, tablette, mobile)",
-      "kpiTypes": "10 types de KPIs visuels",
-      "textBlocks": "Blocs texte personnalisés",
-      "layoutBlocks": "Blocs layout (grilles 1 à 3 colonnes)",
-      "projectImages": "Projets avec jusqu'à 5 images",
       "onlinePublish": "Publication en ligne",
       "subdomain": "Sous-domaine pseudo.vizly.fr",
       "customDomain": "Domaine personnalisé",
@@ -247,7 +230,7 @@
     "values": {
       "publishOne": "1 portfolio",
       "publishUnlimited": "Illimité",
-      "badgePreview": "Preview",
+      "badgePreview": "Preview uniquement",
       "badgePresent": "Présent",
       "badgeNone": "Pas de badge"
     }

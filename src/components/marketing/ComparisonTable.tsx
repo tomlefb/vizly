@@ -22,35 +22,6 @@ interface Category {
 
 const TABLE_DATA: Category[] = [
   {
-    titleKey: 'creation',
-    rows: [
-      { labelKey: 'unlimitedProjects', free: true, starter: true, pro: true },
-      { labelKey: 'freeTemplates', free: true, starter: true, pro: true },
-      { labelKey: 'premiumTemplates', free: false, starter: true, pro: true },
-      { labelKey: 'fullPreview', free: true, starter: true, pro: true },
-      { labelKey: 'autoSave', free: true, starter: true, pro: true },
-      { labelKey: 'stepValidation', free: true, starter: true, pro: true },
-    ],
-  },
-  {
-    titleKey: 'customization',
-    rows: [
-      { labelKey: 'colorPalettes', free: true, starter: true, pro: true },
-      { labelKey: 'googleFonts', free: true, starter: true, pro: true },
-      { labelKey: 'reorderSections', free: true, starter: true, pro: true },
-      { labelKey: 'responsivePreview', free: true, starter: true, pro: true },
-    ],
-  },
-  {
-    titleKey: 'content',
-    rows: [
-      { labelKey: 'kpiTypes', free: true, starter: true, pro: true },
-      { labelKey: 'textBlocks', free: true, starter: true, pro: true },
-      { labelKey: 'layoutBlocks', free: true, starter: true, pro: true },
-      { labelKey: 'projectImages', free: true, starter: true, pro: true },
-    ],
-  },
-  {
     titleKey: 'publishing',
     rows: [
       { labelKey: 'onlinePublish', free: false, starter: 'publishOne', pro: 'publishUnlimited' },
@@ -140,8 +111,8 @@ export function ComparisonTable() {
           <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
             {t('title')} <span className="text-accent">{t('titleAccent')}</span>
           </h2>
-          <p className="mt-3 text-muted leading-relaxed">
-            {t('subtitle')}
+          <p className="mt-3 text-muted leading-relaxed max-w-2xl">
+            {t('intro')}
           </p>
         </ScrollReveal>
 

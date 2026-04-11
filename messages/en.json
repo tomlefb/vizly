@@ -204,36 +204,19 @@
     }
   },
   "comparison": {
-    "title": "Everything",
-    "titleAccent": "you get.",
-    "subtitle": "Compare plans in detail.",
+    "title": "What changes",
+    "titleAccent": "between plans.",
+    "intro": "All creation features — templates, customization, KPIs, auto-save, custom blocks — are included in every plan, free included. Here's what differs.",
     "plans": {
       "free": "Free",
       "starter": "Starter",
       "pro": "Pro"
     },
     "categories": {
-      "creation": "Creation",
-      "customization": "Customization",
-      "content": "Content",
       "publishing": "Publishing",
       "proTools": "Pro tools"
     },
     "rows": {
-      "unlimitedProjects": "Unlimited projects",
-      "freeTemplates": "4 free templates",
-      "premiumTemplates": "Premium templates (\u20ac2.99 each)",
-      "fullPreview": "Full preview",
-      "autoSave": "Permanent auto-save",
-      "stepValidation": "Step-by-step validation",
-      "colorPalettes": "6 color palettes + custom",
-      "googleFonts": "Full Google Fonts library",
-      "reorderSections": "Reorderable & toggleable sections",
-      "responsivePreview": "Responsive preview (desktop, tablet, mobile)",
-      "kpiTypes": "10 visual KPI types",
-      "textBlocks": "Custom text blocks",
-      "layoutBlocks": "Layout blocks (1 to 3 column grids)",
-      "projectImages": "Projects with up to 5 images",
       "onlinePublish": "Online publishing",
       "subdomain": "Subdomain username.vizly.fr",
       "customDomain": "Custom domain",
@@ -247,7 +230,7 @@
     "values": {
       "publishOne": "1 portfolio",
       "publishUnlimited": "Unlimited",
-      "badgePreview": "Preview",
+      "badgePreview": "Preview only",
       "badgePresent": "Present",
       "badgeNone": "No badge"
     }
