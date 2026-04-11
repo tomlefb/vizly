@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 const STEPS = [
   { label: 'Profil', active: true },
   { label: 'Contenu', active: false },
@@ -7,25 +9,27 @@ const STEPS = [
 
 export function FeaturesStepperPreview() {
   return (
-    <div className="flex flex-col">
+    <div className="flex items-start">
       {STEPS.map((step, i) => (
-        <div key={step.label} className="flex items-start gap-3">
-          <div className="flex flex-col items-center">
+        <Fragment key={step.label}>
+          <div className="flex flex-col items-center gap-1.5">
             <div
-              className={`w-3 h-3 rounded-full shrink-0 ${
+              className={`w-2.5 h-2.5 rounded-full ${
                 step.active ? 'bg-accent' : 'bg-border'
               }`}
             />
-            {i < STEPS.length - 1 && <div className="w-px h-7 bg-border-light" />}
+            <span
+              className={`text-xs font-medium whitespace-nowrap ${
+                step.active ? 'text-foreground' : 'text-muted'
+              }`}
+            >
+              {step.label}
+            </span>
           </div>
-          <span
-            className={`text-sm font-medium -mt-0.5 ${
-              step.active ? 'text-foreground' : 'text-muted'
-            }`}
-          >
-            {step.label}
-          </span>
-        </div>
+          {i < STEPS.length - 1 && (
+            <div className="w-8 h-px bg-border-light mt-[5px]" />
+          )}
+        </Fragment>
       ))}
     </div>
   )
