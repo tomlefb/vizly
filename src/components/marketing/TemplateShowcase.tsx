@@ -60,7 +60,7 @@ export function TemplateShowcase() {
             >
               {/* Premium badge */}
               {template.isPremium && (
-                <div className="absolute top-4 right-4 z-10">
+                <div className="absolute top-3 right-3 z-10">
                   <span className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-3 py-1 text-[11px] font-semibold text-background backdrop-blur-sm">
                     <Star className="h-3 w-3 fill-current" />
                     Premium 2,99&euro;
