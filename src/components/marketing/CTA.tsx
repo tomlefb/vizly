@@ -24,7 +24,7 @@ export async function CTA(props: CTAProps = {}) {
   const primaryLabel = props.primaryLabel ?? t('primary')
   const primaryHref = props.primaryHref ?? '/register'
   const secondaryLabel = props.secondaryLabel ?? t('secondary')
-  const secondaryHref = props.secondaryHref ?? '/#pricing'
+  const secondaryHref = props.secondaryHref ?? '/tarifs'
 
   return (
     <section className="py-16 lg:py-24">

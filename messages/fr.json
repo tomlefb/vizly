@@ -90,7 +90,7 @@
       },
       "pro": {
         "name": "Pro",
-        "description": "Pour publier plusieurs portfolios.",
+        "description": "Pour publier plusieurs portfolios sans limite.",
         "cta": "Choisir Pro"
       }
     },
@@ -108,6 +108,7 @@
       "allStarter": "Tout du Starter",
       "unlimitedOnline": "Portfolios illimités",
       "analyticsStats": "Analytics & stats",
+      "noBadge": "Pas de badge Vizly",
       "prioritySupport": "Support prioritaire"
     }
   },

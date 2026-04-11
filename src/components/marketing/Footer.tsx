@@ -11,7 +11,7 @@ export async function Footer() {
       links: [
         { labelKey: 'produit.features' as const, href: '/fonctionnalites' },
         { labelKey: 'produit.templates' as const, href: '/templates' },
-        { labelKey: 'produit.pricing' as const, href: '/#pricing' },
+        { labelKey: 'produit.pricing' as const, href: '/tarifs' },
         { labelKey: 'produit.changelog' as const, href: '/changelog' },
       ],
     },

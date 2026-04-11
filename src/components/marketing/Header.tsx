@@ -18,7 +18,7 @@ export function Header() {
   const navLinks = [
     { label: t('features'), href: '/fonctionnalites' },
     { label: t('templates'), href: '/templates' },
-    { label: t('pricing'), href: '/#pricing' },
+    { label: t('pricing'), href: '/tarifs' },
     { label: t('blog'), href: '/blog' },
   ]
 

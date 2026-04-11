@@ -185,7 +185,7 @@ export default function FonctionnalitesPage() {
           primaryLabel="Créer mon portfolio"
           primaryHref="/register"
           secondaryLabel="Voir les tarifs"
-          secondaryHref="/#pricing"
+          secondaryHref="/tarifs"
         />
       </main>
       <Footer />

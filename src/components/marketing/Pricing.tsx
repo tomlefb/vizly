@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
 
-type BillingInterval = 'monthly' | 'yearly'
+export type BillingInterval = 'monthly' | 'yearly'
 
 interface PlanFeature {
   labelKey: string
@@ -64,6 +64,7 @@ const plansData: PlanData[] = [
     yearlyTotalPrice: '101,88',
     features: [
       { labelKey: 'allStarter', included: true },
+      { labelKey: 'noBadge', included: true },
       { labelKey: 'unlimitedOnline', included: true },
       { labelKey: 'customDomain', included: true },
       { labelKey: 'analyticsStats', included: true },
@@ -75,59 +76,69 @@ const plansData: PlanData[] = [
   },
 ]
 
-export function Pricing() {
+interface PricingProps {
+  interval?: BillingInterval
+  onIntervalChange?: (interval: BillingInterval) => void
+  showHeader?: boolean
+}
+
+export function Pricing({ interval: controlledInterval, onIntervalChange, showHeader = true }: PricingProps = {}) {
   const t = useTranslations('pricing')
-  const [interval, setInterval] = useState<BillingInterval>('monthly')
+  const [localInterval, setLocalInterval] = useState<BillingInterval>('monthly')
+  const interval = controlledInterval ?? localInterval
+  const setInterval = onIntervalChange ?? setLocalInterval
 
   return (
     <section id="pricing" className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
-        <ScrollReveal className="mb-10 lg:mb-14">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
-            <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
-              {t('title')} <span className="text-accent">{t('titleAccent')}</span>
-            </h2>
-            <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
-              {t('subtitle')}
-            </p>
-          </div>
-
-          {/* Billing interval toggle */}
-          <div className="mt-8 flex items-center gap-3">
-            <div className="inline-flex items-center rounded-full bg-[#f4f4f4] p-1 text-sm font-medium">
-              <button
-                type="button"
-                onClick={() => setInterval('monthly')}
-                className={cn(
-                  'rounded-full px-4 py-2 transition-colors duration-150',
-                  interval === 'monthly'
-                    ? 'bg-white border border-border text-foreground'
-                    : 'text-muted hover:text-foreground'
-                )}
-              >
-                {t('monthly')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setInterval('yearly')}
-                className={cn(
-                  'rounded-full px-4 py-2 transition-colors duration-150',
-                  interval === 'yearly'
-                    ? 'bg-white border border-border text-foreground'
-                    : 'text-muted hover:text-foreground'
-                )}
-              >
-                {t('yearly')}
-              </button>
+        {showHeader && (
+          <ScrollReveal className="mb-10 lg:mb-14">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
+              <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
+                {t('title')} <span className="text-accent">{t('titleAccent')}</span>
+              </h2>
+              <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
+                {t('subtitle')}
+              </p>
             </div>
-            {interval === 'yearly' && (
-              <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
-                {t('yearlyDiscount')}
-              </span>
-            )}
-          </div>
-        </ScrollReveal>
+
+            {/* Billing interval toggle */}
+            <div className="mt-8 flex items-center gap-3">
+              <div className="inline-flex items-center rounded-full bg-[#f4f4f4] p-1 text-sm font-medium">
+                <button
+                  type="button"
+                  onClick={() => setInterval('monthly')}
+                  className={cn(
+                    'rounded-full px-4 py-2 transition-colors duration-150',
+                    interval === 'monthly'
+                      ? 'bg-white border border-border text-foreground'
+                      : 'text-muted hover:text-foreground'
+                  )}
+                >
+                  {t('monthly')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInterval('yearly')}
+                  className={cn(
+                    'rounded-full px-4 py-2 transition-colors duration-150',
+                    interval === 'yearly'
+                      ? 'bg-white border border-border text-foreground'
+                      : 'text-muted hover:text-foreground'
+                  )}
+                >
+                  {t('yearly')}
+                </button>
+              </div>
+              {interval === 'yearly' && (
+                <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
+                  {t('yearlyDiscount')}
+                </span>
+              )}
+            </div>
+          </ScrollReveal>
+        )}
 
         {/* Plan cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
@@ -195,7 +206,10 @@ export function Pricing() {
                     >
                       {feature.included ? (
                         <Check
-                          className="h-4 w-4 shrink-0 text-success"
+                          className={cn(
+                            'h-4 w-4 shrink-0',
+                            feature.labelKey === 'noBadge' ? 'text-accent' : 'text-success'
+                          )}
                           strokeWidth={2.5}
                         />
                       ) : (
@@ -205,11 +219,12 @@ export function Pricing() {
                         />
                       )}
                       <span
-                        className={
+                        className={cn(
                           feature.included
                             ? 'text-foreground'
-                            : 'text-muted-foreground/50'
-                        }
+                            : 'text-muted-foreground/50',
+                          feature.labelKey === 'noBadge' && 'font-semibold'
+                        )}
                       >
                         {t(`features.${feature.labelKey}`)}
                       </span>
