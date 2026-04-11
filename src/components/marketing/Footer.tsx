@@ -9,7 +9,7 @@ export async function Footer() {
     {
       titleKey: 'produit.title' as const,
       links: [
-        { labelKey: 'produit.features' as const, href: '/#features' },
+        { labelKey: 'produit.features' as const, href: '/fonctionnalites' },
         { labelKey: 'produit.templates' as const, href: '/templates' },
         { labelKey: 'produit.pricing' as const, href: '/#pricing' },
         { labelKey: 'produit.changelog' as const, href: '/changelog' },

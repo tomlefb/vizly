@@ -16,7 +16,7 @@ export function Header() {
   const [authReady, setAuthReady] = useState(false)
 
   const navLinks = [
-    { label: t('features'), href: '/#features' },
+    { label: t('features'), href: '/fonctionnalites' },
     { label: t('templates'), href: '/templates' },
     { label: t('pricing'), href: '/#pricing' },
     { label: t('blog'), href: '/blog' },
