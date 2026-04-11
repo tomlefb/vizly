@@ -8,6 +8,7 @@ import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { getDemoPortfolio } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { StaggerItem } from '@/components/shared/ScrollReveal'
+import type { ReactNode } from 'react'
 
 type Filter = 'all' | 'free' | 'premium'
 
@@ -17,7 +18,7 @@ const FILTER_OPTIONS: { value: Filter; label: string }[] = [
   { value: 'premium', label: 'Premium' },
 ]
 
-export function TemplateShowcase() {
+export function TemplateShowcase({ header }: { header?: ReactNode }) {
   const [filter, setFilter] = useState<Filter>('all')
 
   const filtered = TEMPLATE_CONFIGS.filter((t) => {
@@ -28,23 +29,26 @@ export function TemplateShowcase() {
 
   return (
     <div>
-      {/* Filters */}
-      <div className="flex gap-2 mb-8">
-        {FILTER_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setFilter(opt.value)}
-            className={cn(
-              'rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200',
-              filter === opt.value
-                ? 'bg-foreground text-background'
-                : 'border border-border text-muted hover:text-foreground hover:bg-surface-warm'
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
+      {/* Header + Filters */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+        {header}
+        <div className="flex gap-2 shrink-0">
+          {FILTER_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setFilter(opt.value)}
+              className={cn(
+                'rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200',
+                filter === opt.value
+                  ? 'bg-foreground text-background'
+                  : 'border border-border text-muted hover:text-foreground hover:bg-surface-warm'
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Grid */}

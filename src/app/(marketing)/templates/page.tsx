@@ -16,17 +16,19 @@ export default function TemplatesPage() {
     <>
       <Header />
       <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-16 pb-8 lg:pt-24 lg:pb-12">
-        <ScrollReveal className="max-w-2xl mb-12">
-          <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Nos <span className="text-accent">templates</span>
-          </h1>
-          <p className="mt-4 text-lg text-muted leading-relaxed">
-            Chaque template a sa propre personnalité. Choisis celui qui te ressemble,
-            personnalise les couleurs et la typo, et publie ton portfolio.
-          </p>
-        </ScrollReveal>
-
-        <TemplateShowcase />
+        <TemplateShowcase
+          header={
+            <ScrollReveal className="max-w-2xl">
+              <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+                Nos <span className="text-accent">templates</span>
+              </h1>
+              <p className="mt-4 text-lg text-muted leading-relaxed">
+                Chaque template a sa propre personnalité. Choisis celui qui te ressemble,
+                personnalise les couleurs et la typo, et publie ton portfolio.
+              </p>
+            </ScrollReveal>
+          }
+        />
       </main>
       <CTA
         title="Choisis"
