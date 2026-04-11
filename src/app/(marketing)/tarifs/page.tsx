@@ -3,6 +3,7 @@ import { Header } from '@/components/marketing/Header'
 import { Footer } from '@/components/marketing/Footer'
 import { TarifsClient } from '@/components/marketing/TarifsClient'
 import { ComparisonTable } from '@/components/marketing/ComparisonTable'
+import { PricingFAQ } from '@/components/marketing/PricingFAQ'
 
 export const metadata: Metadata = {
   title: 'Tarifs',
@@ -17,6 +18,7 @@ export default function TarifsPage() {
       <main>
         <TarifsClient />
         <ComparisonTable />
+        <PricingFAQ />
       </main>
       <Footer />
     </>
