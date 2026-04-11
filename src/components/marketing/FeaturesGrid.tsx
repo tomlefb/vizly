@@ -8,7 +8,7 @@ export async function FeaturesGrid() {
   const ft = await getTranslations('features')
 
   return (
-    <section className="py-16 lg:py-24">
+    <section id="features" className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header -- matching pricing pattern */}
