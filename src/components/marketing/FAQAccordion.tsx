@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 
 export function FAQAccordion() {
   const t = useTranslations('faq')
-  const items = t.raw('items') as Array<{ q: string; a: string }>
+  const items = t.raw('items') as Array<{ q: string; a: string; section?: string }>
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   const toggle = useCallback((i: number) => {

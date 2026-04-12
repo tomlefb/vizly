@@ -123,6 +123,46 @@
         "a": "Creating and previewing your portfolio is 100% free. Publishing starts at €4.99/month (Starter plan). The Pro plan at €9.99/month adds a custom domain, contact form, and analytics. Premium templates are €2.99 each (one-time purchase)."
       },
       {
+        "section": "pricing",
+        "q": "Can I change my plan at any time?",
+        "a": "Yes, you can upgrade or downgrade your plan whenever you want from your dashboard. The change takes effect immediately, and billing is adjusted pro rata."
+      },
+      {
+        "section": "pricing",
+        "q": "Is there a commitment?",
+        "a": "The monthly plan has no commitment, you can cancel at any time from your dashboard. The yearly plan commits for twelve months in exchange for a fifteen percent discount."
+      },
+      {
+        "section": "pricing",
+        "q": "Can I try before paying?",
+        "a": "Yes, the Free plan lets you create your full portfolio and preview it, without any credit card required. You only pay if you decide to publish it online."
+      },
+      {
+        "section": "pricing",
+        "q": "How does the right of withdrawal work?",
+        "a": "For Starter and Pro subscriptions, you have the legal fourteen-day right of withdrawal after your first subscription, in accordance with French consumer law. For individual premium template purchases (\u20ac2.99), you agree to waive the right of withdrawal at the time of purchase, allowing you to use the template immediately \u2014 these purchases are final."
+      },
+      {
+        "section": "pricing",
+        "q": "What payment methods do you accept?",
+        "a": "Credit card (Visa, Mastercard, American Express), Apple Pay, Google Pay and PayPal. SEPA transfers and installment payments are not available."
+      },
+      {
+        "section": "pricing",
+        "q": "What happens at the end of my yearly subscription if I don't renew?",
+        "a": "Your portfolio remains accessible for thirty days after your subscription ends, giving you time to react. After that, it switches to draft mode and is no longer publicly visible, but all your data is preserved. You can renew at any time to put it back online."
+      },
+      {
+        "section": "pricing",
+        "q": "Can the \"Made with Vizly\" badge be removed?",
+        "a": "Yes, by upgrading to the Pro plan. The badge is present on the Starter plan and remains visible at the bottom of your published portfolio. The Pro plan completely removes the badge."
+      },
+      {
+        "section": "pricing",
+        "q": "What happens if I downgrade from Pro to Starter while I have multiple published portfolios?",
+        "a": "You keep access to all your portfolios but only one remains published online (your choice). The others switch to draft and you can republish them at any time by upgrading back to Pro."
+      },
+      {
         "q": "Can I use my own domain name?",
         "a": "Yes, with the Pro plan (€9.99/month). You buy your domain from the registrar of your choice and point your DNS to Vizly. We provide a step-by-step guide."
       },
@@ -167,41 +207,7 @@
   "pricingFaq": {
     "title": "Frequently asked",
     "titleAccent": "questions.",
-    "subtitle": "Everything you need to know before choosing your plan.",
-    "items": {
-      "changePlan": {
-        "q": "Can I change my plan at any time?",
-        "a": "Yes, you can upgrade or downgrade your plan whenever you want from your dashboard. The change takes effect immediately, and billing is adjusted pro rata."
-      },
-      "commitment": {
-        "q": "Is there a commitment?",
-        "a": "The monthly plan has no commitment, you can cancel at any time from your dashboard. The yearly plan commits for twelve months in exchange for a fifteen percent discount."
-      },
-      "tryBefore": {
-        "q": "Can I try before paying?",
-        "a": "Yes, the Free plan lets you create your full portfolio and preview it, without any credit card required. You only pay if you decide to publish it online."
-      },
-      "retraction": {
-        "q": "How does the right of withdrawal work?",
-        "a": "For Starter and Pro subscriptions, you have the legal fourteen-day right of withdrawal after your first subscription, in accordance with French consumer law. For individual premium template purchases (\u20ac2.99), you agree to waive the right of withdrawal at the time of purchase, allowing you to use the template immediately \u2014 these purchases are final."
-      },
-      "paymentMethods": {
-        "q": "What payment methods do you accept?",
-        "a": "Credit card (Visa, Mastercard, American Express), Apple Pay, Google Pay and PayPal. SEPA transfers and installment payments are not available."
-      },
-      "yearlyEnd": {
-        "q": "What happens at the end of my yearly subscription if I don't renew?",
-        "a": "Your portfolio remains accessible for thirty days after your subscription ends, giving you time to react. After that, it switches to draft mode and is no longer publicly visible, but all your data is preserved. You can renew at any time to put it back online."
-      },
-      "removeBadge": {
-        "q": "Can the \"Made with Vizly\" badge be removed?",
-        "a": "Yes, by upgrading to the Pro plan. The badge is present on the Starter plan and remains visible at the bottom of your published portfolio. The Pro plan completely removes the badge."
-      },
-      "downgrade": {
-        "q": "What happens if I downgrade from Pro to Starter while I have multiple published portfolios?",
-        "a": "You keep access to all your portfolios but only one remains published online (your choice). The others switch to draft and you can republish them at any time by upgrading back to Pro."
-      }
-    }
+    "subtitle": "Everything you need to know before choosing your plan."
   },
   "comparison": {
     "title": "What changes",

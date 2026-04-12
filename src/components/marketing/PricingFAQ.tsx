@@ -6,25 +6,19 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
 
-const FAQ_KEYS = [
-  'changePlan',
-  'commitment',
-  'tryBefore',
-  'retraction',
-  'paymentMethods',
-  'yearlyEnd',
-  'removeBadge',
-  'downgrade',
-] as const
+interface FaqItem {
+  q: string
+  a: string
+  section?: string
+}
 
 function AccordionItem({
-  questionKey,
+  item,
   index,
 }: {
-  questionKey: string
+  item: FaqItem
   index: number
 }) {
-  const t = useTranslations('pricingFaq')
   const [open, setOpen] = useState(false)
 
   return (
@@ -37,7 +31,7 @@ function AccordionItem({
           aria-expanded={open}
         >
           <span className="text-sm font-medium text-foreground pr-4">
-            {t(`items.${questionKey}.q`)}
+            {item.q}
           </span>
           <ChevronDown
             className={cn(
@@ -54,7 +48,7 @@ function AccordionItem({
           )}
         >
           <p className="text-sm text-muted leading-relaxed pr-8">
-            {t(`items.${questionKey}.a`)}
+            {item.a}
           </p>
         </div>
       </div>
@@ -64,6 +58,9 @@ function AccordionItem({
 
 export function PricingFAQ() {
   const t = useTranslations('pricingFaq')
+  const tFaq = useTranslations('faq')
+  const allItems = tFaq.raw('items') as FaqItem[]
+  const pricingItems = allItems.filter((item) => item.section === 'pricing')
 
   return (
     <section className="py-16 lg:py-24">
@@ -78,8 +75,8 @@ export function PricingFAQ() {
         </ScrollReveal>
 
         <div>
-          {FAQ_KEYS.map((key, i) => (
-            <AccordionItem key={key} questionKey={key} index={i} />
+          {pricingItems.map((item, i) => (
+            <AccordionItem key={i} item={item} index={i} />
           ))}
         </div>
       </div>

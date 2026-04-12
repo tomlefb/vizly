@@ -123,6 +123,46 @@
         "a": "Créer et prévisualiser ton portfolio est 100% gratuit. La mise en ligne démarre à 4,99 €/mois (plan Starter). Le plan Pro à 9,99 €/mois ajoute un domaine custom, un formulaire de contact et des analytics. Les templates premium sont à 2,99 € l'unité (achat unique)."
       },
       {
+        "section": "pricing",
+        "q": "Puis-je changer de plan à tout moment\u00a0?",
+        "a": "Oui, tu peux upgrader ou downgrader ton plan quand tu veux depuis ton dashboard. Le changement prend effet immédiatement, et la facturation est ajustée au prorata."
+      },
+      {
+        "section": "pricing",
+        "q": "Y a-t-il un engagement\u00a0?",
+        "a": "Le plan mensuel est sans engagement, tu peux annuler à tout moment depuis ton dashboard. Le plan annuel est engageant pour douze mois en échange d'une réduction de quinze pour cent."
+      },
+      {
+        "section": "pricing",
+        "q": "Puis-je essayer avant de payer\u00a0?",
+        "a": "Oui, le plan Gratuit te permet de créer ton portfolio entièrement et de le prévisualiser, sans aucune carte bancaire demandée. Tu ne paies que si tu décides de le publier en ligne."
+      },
+      {
+        "section": "pricing",
+        "q": "Comment fonctionne le droit de rétractation\u00a0?",
+        "a": "Pour les abonnements Starter et Pro, tu disposes du droit de rétractation légal de quatorze jours après ta première souscription, conformément au Code de la consommation français. Pour les achats de templates premium à l'unité (2,99\u00a0€), tu acceptes le retrait du droit de rétractation au moment de l'achat, ce qui te permet d'utiliser le template immédiatement — ces achats sont donc définitifs."
+      },
+      {
+        "section": "pricing",
+        "q": "Quels moyens de paiement acceptez-vous\u00a0?",
+        "a": "Carte bancaire (Visa, Mastercard, American Express), Apple Pay, Google Pay et PayPal. Le virement SEPA et le paiement en plusieurs fois ne sont pas disponibles."
+      },
+      {
+        "section": "pricing",
+        "q": "Que se passe-t-il à la fin de mon abonnement annuel si je ne renouvelle pas\u00a0?",
+        "a": "Ton portfolio reste accessible pendant trente jours après la fin de ton abonnement, le temps de réagir. Passé ce délai, il bascule en mode brouillon et n'est plus visible publiquement, mais toutes tes données sont conservées. Tu peux renouveler à tout moment pour le remettre en ligne."
+      },
+      {
+        "section": "pricing",
+        "q": "Le badge \"Made with Vizly\" peut-il être retiré\u00a0?",
+        "a": "Oui, en passant au plan Pro. Le badge est présent sur le plan Starter et reste visible en bas de ton portfolio publié. Le plan Pro retire complètement le badge."
+      },
+      {
+        "section": "pricing",
+        "q": "Que se passe-t-il si je downgrade de Pro à Starter alors que j'ai plusieurs portfolios publiés\u00a0?",
+        "a": "Tu gardes l'accès à tous tes portfolios mais un seul reste publié en ligne (celui de ton choix). Les autres basculent en brouillon et tu peux les republier à tout moment en repassant à Pro."
+      },
+      {
         "q": "Je peux utiliser mon propre nom de domaine ?",
         "a": "Oui, avec le plan Pro (9,99 €/mois). Tu achètes ton domaine chez le registrar de ton choix et tu pointes ton DNS vers Vizly. On t'accompagne avec un guide pas à pas."
       },
@@ -167,41 +207,7 @@
   "pricingFaq": {
     "title": "Questions",
     "titleAccent": "fréquentes.",
-    "subtitle": "Tout ce que tu dois savoir avant de choisir ton plan.",
-    "items": {
-      "changePlan": {
-        "q": "Puis-je changer de plan à tout moment\u00a0?",
-        "a": "Oui, tu peux upgrader ou downgrader ton plan quand tu veux depuis ton dashboard. Le changement prend effet immédiatement, et la facturation est ajustée au prorata."
-      },
-      "commitment": {
-        "q": "Y a-t-il un engagement\u00a0?",
-        "a": "Le plan mensuel est sans engagement, tu peux annuler à tout moment depuis ton dashboard. Le plan annuel est engageant pour douze mois en échange d'une réduction de quinze pour cent."
-      },
-      "tryBefore": {
-        "q": "Puis-je essayer avant de payer\u00a0?",
-        "a": "Oui, le plan Gratuit te permet de créer ton portfolio entièrement et de le prévisualiser, sans aucune carte bancaire demandée. Tu ne paies que si tu décides de le publier en ligne."
-      },
-      "retraction": {
-        "q": "Comment fonctionne le droit de rétractation\u00a0?",
-        "a": "Pour les abonnements Starter et Pro, tu disposes du droit de rétractation légal de quatorze jours après ta première souscription, conformément au Code de la consommation français. Pour les achats de templates premium à l'unité (2,99\u00a0€), tu acceptes le retrait du droit de rétractation au moment de l'achat, ce qui te permet d'utiliser le template immédiatement — ces achats sont donc définitifs."
-      },
-      "paymentMethods": {
-        "q": "Quels moyens de paiement acceptez-vous\u00a0?",
-        "a": "Carte bancaire (Visa, Mastercard, American Express), Apple Pay, Google Pay et PayPal. Le virement SEPA et le paiement en plusieurs fois ne sont pas disponibles."
-      },
-      "yearlyEnd": {
-        "q": "Que se passe-t-il à la fin de mon abonnement annuel si je ne renouvelle pas\u00a0?",
-        "a": "Ton portfolio reste accessible pendant trente jours après la fin de ton abonnement, le temps de réagir. Passé ce délai, il bascule en mode brouillon et n'est plus visible publiquement, mais toutes tes données sont conservées. Tu peux renouveler à tout moment pour le remettre en ligne."
-      },
-      "removeBadge": {
-        "q": "Le badge \"Made with Vizly\" peut-il être retiré\u00a0?",
-        "a": "Oui, en passant au plan Pro. Le badge est présent sur le plan Starter et reste visible en bas de ton portfolio publié. Le plan Pro retire complètement le badge."
-      },
-      "downgrade": {
-        "q": "Que se passe-t-il si je downgrade de Pro à Starter alors que j'ai plusieurs portfolios publiés\u00a0?",
-        "a": "Tu gardes l'accès à tous tes portfolios mais un seul reste publié en ligne (celui de ton choix). Les autres basculent en brouillon et tu peux les republier à tout moment en repassant à Pro."
-      }
-    }
+    "subtitle": "Tout ce que tu dois savoir avant de choisir ton plan."
   },
   "comparison": {
     "title": "Ce qui change",
