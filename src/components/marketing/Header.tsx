@@ -7,7 +7,6 @@ import { Menu, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/shared/Logo'
-import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
 import { createClient } from '@/lib/supabase/client'
 
 export function Header() {
@@ -61,7 +60,6 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-5">
-          <LanguageSwitcher />
           {!authReady ? (
             <div className="w-[140px]" />
           ) : isLoggedIn ? (
@@ -127,9 +125,6 @@ export function Header() {
           </ul>
 
           <div className="border-t border-border pt-4 space-y-3">
-            <div className="flex justify-center">
-              <LanguageSwitcher />
-            </div>
             {!authReady ? (
               <div className="h-10" />
             ) : isLoggedIn ? (
