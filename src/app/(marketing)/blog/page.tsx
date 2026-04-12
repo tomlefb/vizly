@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Header } from '@/components/marketing/Header'
-import { Footer } from '@/components/marketing/Footer'
 import { BLOG_POSTS, formatBlogDate } from '@/lib/blog'
 
 export const metadata: Metadata = {
@@ -12,9 +10,7 @@ export const metadata: Metadata = {
 
 export default function BlogPage() {
   return (
-    <>
-      <Header />
-      <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-10 lg:pt-16 pb-16 lg:pb-24">
+    <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-10 lg:pt-16 pb-16 lg:pb-24">
         <div className="max-w-2xl mb-10">
           <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl">
             Blog
@@ -68,9 +64,7 @@ export default function BlogPage() {
             </Link>
           ))}
         </div>
-      </main>
-      <Footer />
-    </>
+    </main>
   )
 }
 

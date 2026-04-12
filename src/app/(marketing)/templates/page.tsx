@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import { Header } from '@/components/marketing/Header'
-import { Footer } from '@/components/marketing/Footer'
 import { TemplateShowcase } from '@/components/marketing/TemplateShowcase'
 import { CTA } from '@/components/marketing/CTA'
 import { ScrollReveal } from '@/components/shared/ScrollReveal'
@@ -14,7 +12,6 @@ export const metadata: Metadata = {
 export default function TemplatesPage() {
   return (
     <>
-      <Header />
       <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-16 pb-8 lg:pt-24 lg:pb-12">
         <TemplateShowcase
           header={
@@ -36,7 +33,6 @@ export default function TemplatesPage() {
         suffix="."
         description="Gratuit pour commencer. Tu ne paies que si tu décides de publier."
       />
-      <Footer />
     </>
   )
 }

@@ -2,8 +2,6 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Star, ArrowLeft, Check } from 'lucide-react'
-import { Header } from '@/components/marketing/Header'
-import { Footer } from '@/components/marketing/Footer'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { getDemoPortfolio, DEMO_HANDLES } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
@@ -46,9 +44,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
   ]
 
   return (
-    <>
-      <Header />
-      <main>
+    <main>
         {/* Hero */}
         <section className="mx-auto max-w-7xl px-6 lg:px-8 pt-12 pb-16">
           <Link
@@ -191,8 +187,6 @@ export default async function TemplateDetailPage({ params }: PageProps) {
             Commencer gratuitement
           </Link>
         </section>
-      </main>
-      <Footer />
-    </>
+    </main>
   )
 }

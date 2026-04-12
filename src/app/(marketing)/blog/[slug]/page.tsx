@@ -2,8 +2,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
-import { Header } from '@/components/marketing/Header'
-import { Footer } from '@/components/marketing/Footer'
 import { BLOG_POSTS, getPost, formatBlogDate } from '@/lib/blog'
 import { getArticleContent } from '@/lib/blog-content'
 
@@ -34,9 +32,7 @@ export default async function BlogArticlePage({ params }: Props) {
   const content = getArticleContent(slug)
 
   return (
-    <>
-      <Header />
-      <main className="mx-auto max-w-3xl px-6 lg:px-8 py-16 lg:py-24">
+    <main className="mx-auto max-w-3xl px-6 lg:px-8 py-16 lg:py-24">
         {/* Back link */}
         <Link
           href="/blog"
@@ -113,8 +109,6 @@ export default async function BlogArticlePage({ params }: Props) {
             Commencer gratuitement
           </Link>
         </div>
-      </main>
-      <Footer />
-    </>
+    </main>
   )
 }

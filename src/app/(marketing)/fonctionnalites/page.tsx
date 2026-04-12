@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import { Header } from '@/components/marketing/Header'
-import { Footer } from '@/components/marketing/Footer'
 import { CTA } from '@/components/marketing/CTA'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
 import { ProfileMockup } from '@/components/marketing/features/ProfileMockup'
@@ -40,9 +38,7 @@ const DETAILS = [
 
 export default function FonctionnalitesPage() {
   return (
-    <>
-      <Header />
-      <main>
+    <main>
         {/* ── Section 1 — Hero ── */}
         <section className="pt-16 pb-4 lg:pt-24 lg:pb-8">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -187,8 +183,6 @@ export default function FonctionnalitesPage() {
           secondaryLabel="Voir les tarifs"
           secondaryHref="/tarifs"
         />
-      </main>
-      <Footer />
-    </>
+    </main>
   )
 }
