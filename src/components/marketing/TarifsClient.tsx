@@ -15,7 +15,7 @@ export function TarifsClient() {
       {/* ── Hero ── */}
       <section className="pt-16 pb-4 lg:pt-24 lg:pb-8">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <ScrollReveal className="max-w-2xl">
               <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
                 {t('title')} <span className="text-accent">{t('titleAccent')}</span>
@@ -25,7 +25,7 @@ export function TarifsClient() {
               </p>
             </ScrollReveal>
 
-            <ScrollReveal className="flex-1 flex justify-center shrink-0" delay={0.15}>
+            <ScrollReveal className="shrink-0" delay={0.15}>
               <div className="flex items-center gap-3">
                 <div className="inline-flex items-center rounded-full bg-[#f4f4f4] p-1 text-sm font-medium">
                   <button
