@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
@@ -11,6 +12,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export function Header() {
   const t = useTranslations('nav')
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [authReady, setAuthReady] = useState(false)
@@ -48,6 +50,7 @@ export function Header() {
             <li key={link.href}>
               <Link
                 href={link.href}
+                onMouseEnter={() => router.prefetch(link.href)}
                 className="text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
               >
                 {link.label}
