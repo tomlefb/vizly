@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
@@ -75,7 +76,7 @@ export default async function SettingsPage() {
             )}
           </div>
           <div className="mt-4">
-            <a
+            <Link
               href="/billing"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
             >
@@ -94,7 +95,7 @@ export default async function SettingsPage() {
                   d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                 />
               </svg>
-            </a>
+            </Link>
           </div>
         </section>
 
