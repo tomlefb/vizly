@@ -9,11 +9,11 @@ import { HeroPortfolioWall } from './HeroPortfolioWall'
 const easeOut = [0, 0, 0.2, 1] as const
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 16 },
   visible: (delay: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay, ease: easeOut },
+    transition: { duration: 0.3, delay, ease: easeOut },
   }),
 }
 
@@ -43,7 +43,7 @@ export function Hero() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.1}
+            custom={0.05}
           >
             {t('description', { domain: 'pseudo.vizly.fr' })}
           </motion.p>
@@ -53,7 +53,7 @@ export function Hero() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.2}
+            custom={0.1}
           >
             <Link
               href="/register"
@@ -75,7 +75,7 @@ export function Hero() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.3}
+            custom={0.15}
           >
             {t('socialProof')}
           </motion.p>
