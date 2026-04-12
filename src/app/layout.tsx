@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import { DM_Sans } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
+import NextTopLoader from 'nextjs-toploader'
 import './globals.css'
 
 const satoshi = localFont({
@@ -85,6 +86,12 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${satoshi.variable} ${dmSans.variable} overscroll-none`}>
       <body>
+        <NextTopLoader
+          color="#D4634E"
+          height={2}
+          showSpinner={false}
+          shadow={false}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
