@@ -204,11 +204,6 @@
       }
     ]
   },
-  "pricingFaq": {
-    "title": "Questions",
-    "titleAccent": "fréquentes.",
-    "subtitle": "Tout ce que tu dois savoir avant de choisir ton plan."
-  },
   "comparison": {
     "title": "Ce qui change",
     "titleAccent": "entre les plans.",
