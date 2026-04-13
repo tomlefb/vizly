@@ -21,7 +21,7 @@ export function Hero() {
   const t = useTranslations('hero')
 
   return (
-    <section className="relative overflow-hidden pt-20 pb-32 lg:pt-32 lg:pb-40 min-h-[560px] lg:min-h-[660px]">
+    <section className="relative overflow-hidden h-dvh min-h-[640px] pt-20">
       {/* Scrolling portfolio wall -- right half, behind text on mobile */}
       <HeroPortfolioWall />
 
