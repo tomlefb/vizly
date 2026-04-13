@@ -348,9 +348,8 @@ const COL_3 = [2, 5].flatMap((i) => ENTRIES[i] ? [ENTRIES[i]] : [])    // classi
 /*  Auto-height template preview (measures real content)              */
 /* ------------------------------------------------------------------ */
 
-const RENDER_WIDTH = 1280
-// Slight overscale so templates with internal max-width still fill the card
-const SCALE_BOOST = 1.06
+const RENDER_WIDTH = 768
+const SCALE_BOOST = 1.0
 
 function AutoHeightPreview({ templateName, templateProps }: { templateName: string; templateProps: TemplateProps }) {
   const [Component, setComponent] = useState<ComponentType<TemplateProps> | null>(null)
@@ -381,7 +380,7 @@ function AutoHeightPreview({ templateName, templateProps }: { templateName: stri
     })
     observer.observe(container)
     return () => observer.disconnect()
-  }, [])
+  }, [Component])
 
   useEffect(() => {
     const el = innerRef.current
