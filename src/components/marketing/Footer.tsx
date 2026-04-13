@@ -12,15 +12,12 @@ export async function Footer() {
         { labelKey: 'produit.features' as const, href: '/fonctionnalites' },
         { labelKey: 'produit.templates' as const, href: '/templates' },
         { labelKey: 'produit.pricing' as const, href: '/tarifs' },
-        { labelKey: 'produit.changelog' as const, href: '/changelog' },
       ],
     },
     {
       titleKey: 'ressources.title' as const,
       links: [
         { labelKey: 'ressources.blog' as const, href: '/blog' },
-        { labelKey: 'ressources.guide' as const, href: '/blog/guide-demarrage' },
-        { labelKey: 'ressources.examples' as const, href: '/exemples' },
         { labelKey: 'ressources.faq' as const, href: '/legal/faq' },
       ],
     },
@@ -40,7 +37,7 @@ export async function Footer() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16">
           {/* Brand column -- wider */}
-          <div className="md:col-span-4 lg:col-span-5">
+          <div className="md:col-span-6">
             <Logo size="md" />
             <p className="mt-4 text-sm text-muted leading-relaxed max-w-xs">
               {t('tagline')}
@@ -51,7 +48,7 @@ export async function Footer() {
           {footerNav.map((section) => (
             <div
               key={section.titleKey}
-              className="md:col-span-2 lg:col-span-2"
+              className="md:col-span-2"
             >
               <h3 className="font-[family-name:var(--font-satoshi)] text-sm font-semibold mb-4">
                 {t(section.titleKey)}
