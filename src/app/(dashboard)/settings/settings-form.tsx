@@ -134,7 +134,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
         <button
           type="submit"
           disabled={isPending || name.trim() === initialName}
-          className="inline-flex items-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center h-10 rounded-lg bg-[#D4634E] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#C05640] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? t('saving') : t('save')}
         </button>

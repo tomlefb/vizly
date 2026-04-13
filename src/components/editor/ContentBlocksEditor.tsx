@@ -209,7 +209,7 @@ export function ContentBlocksEditor({
     return (
       <div className="shrink-0 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-end gap-3">
         <button type="button" onClick={closeModal} className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors">Annuler</button>
-        <button type="button" onClick={onSave} disabled={disabled} className={cn('h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150', disabled ? 'bg-[#E8553D]/50 text-white/60 cursor-not-allowed' : 'bg-[#E8553D] text-white hover:bg-[#D4442E]')}>
+        <button type="button" onClick={onSave} disabled={disabled} className={cn('h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150', disabled ? 'bg-[#D4634E]/50 text-white/60 cursor-not-allowed' : 'bg-[#D4634E] text-white hover:bg-[#C05640]')}>
           {label}
         </button>
       </div>
@@ -225,7 +225,7 @@ export function ContentBlocksEditor({
       <div className="flex items-center justify-between">
         <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">Blocs de contenu</h2>
         <div className="relative" ref={dropdownRef}>
-          <button type="button" onClick={() => setShowDropdown(!showDropdown)} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#E8553D] hover:text-[#D4442E] transition-colors">
+          <button type="button" onClick={() => setShowDropdown(!showDropdown)} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#D4634E] hover:text-[#C05640] transition-colors">
             <Plus className="h-4 w-4" /> Ajouter <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-150', showDropdown && 'rotate-180')} />
           </button>
           {showDropdown && (
@@ -310,7 +310,7 @@ export function ContentBlocksEditor({
                   <div>
                     <label className="block text-sm text-[#6B7280] mb-1.5">Apercu</label>
                     <div className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-6 flex items-center justify-center min-h-[100px]">
-                      <KpiRenderer kpi={editingKpi} primaryColor="#E8553D" />
+                      <KpiRenderer kpi={editingKpi} primaryColor="#D4634E" />
                     </div>
                   </div>
                 </>
@@ -401,7 +401,7 @@ export function ContentBlocksEditor({
                               <input type="text" value={col.kpi.unit} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, unit: e.target.value } })} placeholder="Unite" className={inputClass} />
                             </div>
                             <div className="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-3 flex items-center justify-center min-h-[60px]">
-                              <KpiRenderer kpi={col.kpi} primaryColor="#E8553D" />
+                              <KpiRenderer kpi={col.kpi} primaryColor="#D4634E" />
                             </div>
                           </div>
                         )}

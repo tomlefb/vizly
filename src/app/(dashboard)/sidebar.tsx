@@ -73,7 +73,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
             <Link href="/dashboard" aria-label="Dashboard" className="flex items-baseline">
               <span className="font-[family-name:var(--font-satoshi)] font-bold text-[20px] text-[#111827] select-none whitespace-nowrap">
                 Vizly
-                <span className="inline-block w-[0.3em] h-[0.3em] rounded-full bg-[#E8553D] ml-[0.1em]" />
+                <span className="inline-block w-[0.3em] h-[0.3em] rounded-full bg-[#D4634E] ml-[0.1em]" />
               </span>
             </Link>
             <button

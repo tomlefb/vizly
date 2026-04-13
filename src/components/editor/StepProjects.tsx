@@ -199,8 +199,8 @@ export function StepProjects({
               className={cn(
                 'h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
                 editingProject.title.trim()
-                  ? 'bg-[#E8553D] text-white hover:bg-[#D4442E]'
-                  : 'bg-[#E8553D]/50 text-white/60 cursor-not-allowed'
+                  ? 'bg-[#D4634E] text-white hover:bg-[#C05640]'
+                  : 'bg-[#D4634E]/50 text-white/60 cursor-not-allowed'
               )}
             >
               {isEditing ? 'Enregistrer' : 'Ajouter le projet'}

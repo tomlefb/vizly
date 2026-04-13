@@ -48,7 +48,7 @@ export function DomainAssignmentForm({ portfolioId, currentDomain }: DomainAssig
       <button
         type="submit"
         disabled={isPending || domain.trim() === currentDomain}
-        className="shrink-0 inline-flex items-center h-10 rounded-lg bg-[#E8553D] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#D4442E] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="shrink-0 inline-flex items-center h-10 rounded-lg bg-[#D4634E] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#C05640] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isPending ? 'Enregistrement...' : 'Enregistrer'}
       </button>

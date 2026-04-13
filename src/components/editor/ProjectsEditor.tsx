@@ -87,7 +87,7 @@ export function ProjectsEditor({ projects, onProjectsChange }: ProjectsEditorPro
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">Projets</h2>
-        <button type="button" onClick={openAddProject} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#E8553D] hover:text-[#D4442E] transition-colors">
+        <button type="button" onClick={openAddProject} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#D4634E] hover:text-[#C05640] transition-colors">
           <Plus className="h-4 w-4" /> Ajouter
         </button>
       </div>
@@ -133,7 +133,7 @@ export function ProjectsEditor({ projects, onProjectsChange }: ProjectsEditorPro
             </div>
             <div className="shrink-0 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-end gap-3">
               <button type="button" onClick={closeModal} className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors">Annuler</button>
-              <button type="button" onClick={saveProject} disabled={!editingProject.title.trim()} className={cn('h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150', !editingProject.title.trim() ? 'bg-[#E8553D]/50 text-white/60 cursor-not-allowed' : 'bg-[#E8553D] text-white hover:bg-[#D4442E]')}>
+              <button type="button" onClick={saveProject} disabled={!editingProject.title.trim()} className={cn('h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150', !editingProject.title.trim() ? 'bg-[#D4634E]/50 text-white/60 cursor-not-allowed' : 'bg-[#D4634E] text-white hover:bg-[#C05640]')}>
                 {editingIndex >= 0 ? 'Enregistrer' : 'Ajouter'}
               </button>
             </div>
