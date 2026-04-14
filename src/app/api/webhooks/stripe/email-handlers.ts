@@ -16,7 +16,6 @@
  * experience. Acceptable for FR-only Vizly; revisit on internationalisation.
  */
 
-import { stripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/emails/send'
 import type Stripe from 'stripe'
@@ -318,18 +317,24 @@ export async function sendBillingPeriodChangedEmail(
 
 /**
  * Fetch the user by id and fire payment-succeeded with the price details
- * from the subscription items + optional invoice info.
+ * from the subscription items + invoice info (number, hosted URL).
  *
- * Invoice details (number, hosted_invoice_url) are fetched from the
- * checkout session if present — they're optional in the email template,
- * skipped silently if absent.
+ * Phase 3 refactor: this helper now takes an `Invoice` directly (instead
+ * of a `Checkout.Session` from which we used to retrieve the invoice).
+ * The new caller is `handleInvoicePaid` in route.ts, which gets the
+ * invoice from event.data.object — no extra round-trip needed.
+ *
+ * Old caller (`handleSubscriptionCheckout` in route.ts, mode=subscription
+ * branch) no longer sends this email — sending is centralized here, fired
+ * from `handleInvoicePaid` for both the legacy Checkout flow and the new
+ * Elements flow. See STRIPE_MIGRATION_NOTES.md "Phase 3 — Q1 double email".
  */
 export async function sendPaymentSucceededEmail(
+  invoice: Stripe.Invoice,
   subscription: Stripe.Subscription,
   userId: string,
   plan: 'starter' | 'pro',
   interval: 'monthly' | 'yearly',
-  session: Stripe.Checkout.Session,
   supabase: ReturnType<typeof createAdminClient>,
 ) {
   const { data: user, error: userError } = await supabase
@@ -340,7 +345,7 @@ export async function sendPaymentSucceededEmail(
 
   if (userError || !user) {
     console.error(
-      '[Stripe Webhook] User row not found for payment-succeeded:',
+      '[stripe webhook] User row not found for payment-succeeded:',
       userId,
       userError?.message,
     )
@@ -349,7 +354,7 @@ export async function sendPaymentSucceededEmail(
 
   const item = subscription.items.data[0]
   if (!item) {
-    console.error('[Stripe Webhook] No subscription item for payment-succeeded')
+    console.error('[stripe webhook] No subscription item for payment-succeeded')
     return
   }
 
@@ -358,32 +363,18 @@ export async function sendPaymentSucceededEmail(
   const periodEnd = item.current_period_end
   if (!periodEnd) {
     console.error(
-      '[Stripe Webhook] No current_period_end for payment-succeeded',
+      '[stripe webhook] No current_period_end for payment-succeeded',
     )
     return
   }
 
-  // Fetch invoice details if available — gives the user a hosted invoice
-  // link in the email. If session.invoice is missing or the retrieve fails,
-  // we send the email without invoiceNumber/invoiceUrl (template handles).
-  let invoiceNumber: string | undefined
-  let invoiceUrl: string | undefined
-  const invoiceId =
-    typeof session.invoice === 'string'
-      ? session.invoice
-      : session.invoice?.id
-  if (invoiceId) {
-    try {
-      const invoice = await stripe.invoices.retrieve(invoiceId)
-      invoiceNumber = invoice.number ?? undefined
-      invoiceUrl = invoice.hosted_invoice_url ?? undefined
-    } catch (err) {
-      console.warn(
-        '[Stripe Webhook] Failed to retrieve invoice details for payment-succeeded:',
-        err instanceof Error ? err.message : String(err),
-      )
-    }
-  }
+  // Invoice details are read directly from the invoice object passed in.
+  // Both fields are nullable in Stripe's API: number is null until the
+  // invoice is finalized (which happens before payment), hosted URL is
+  // null for invoices that bypass the hosted page (rare). The template
+  // skips these fields silently if absent.
+  const invoiceNumber = invoice.number ?? undefined
+  const invoiceUrl = invoice.hosted_invoice_url ?? undefined
 
   const result = await sendEmail({
     template: 'payment-succeeded',
@@ -403,13 +394,13 @@ export async function sendPaymentSucceededEmail(
 
   if (!result.ok) {
     console.error(
-      '[Stripe Webhook] payment-succeeded email failed:',
+      '[stripe webhook] payment-succeeded email failed:',
       result.error,
     )
     return
   }
   console.log(
-    `[Stripe Webhook] payment-succeeded sent to ${user.email} (plan=${plan} interval=${interval})`,
+    `[stripe webhook] payment-succeeded sent to ${user.email} (plan=${plan} interval=${interval})`,
   )
 }
 

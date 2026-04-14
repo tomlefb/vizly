@@ -191,21 +191,33 @@ un edge case de cache cross-version.
   crash, indépendamment de la version Next.js (à confirmer si on veut être
   exhaustif, mais probable d'après les symptômes)
 
-**Remédiation conservée** : pin exact `next@15.5.14` dans `package.json`
-maintenu malgré ce nouveau diagnostic, parce que Tom avait verrouillé
-Option A explicitement par philosophie "rien ne bouge mid-chantier", pas
-spécifiquement à cause du bug. La justification du pin glisse de
-"15.5.15 est cassé" → "stabilité chantier verrouillée jusqu'à fin Phase 7".
+**Justification finale du pin (validée par Tom post-diagnostic)** : pin
+exact `next: 15.5.14` conservé pour toute la durée du chantier Stripe,
+**non pas parce que `15.5.15` est cassé** (le diagnostic initial s'est
+révélé être une cache `.next` stale cross-version, pas un bug package),
+mais par **principe de stabilité mid-chantier** : zéro variable parasite
+dans la résolution de dépendances pendant 7 phases. Trois raisons qui
+tiennent indépendamment du bug :
 
-**TODO post-chantier** : retirer le pin exact `next@15.5.14` et remettre
-un caret (`^15.5.14` ou `^15.5.16+` selon ce qui est dispo et validé) à la
-fin du chantier Stripe, hors Phase 7. Tester en cleansheet (`rm -rf .next`)
-et bien valider que le build passe avant de commit ce bump.
+1. **Stabilité par principe** : le fait qu'on ait eu UNE fausse alerte
+   due à une cache stale prouve précisément pourquoi on veut zéro
+   variable parasite pendant le chantier. Un caret auto-upgrade peut
+   déclencher d'autres faux positifs du même genre dans les phases
+   suivantes.
+2. **Reproductibilité cross-machine** : un clone du repo sur un autre
+   laptop ou en CI doit produire exactement le même `node_modules`. Le
+   pin garantit ça, le caret ne le garantit pas à 100 %.
+3. **Coût nul** : c'est un caractère à virer (`^`) à la fin du chantier.
 
-**Leçon retenue** : un build qui crashe à l'init après un `npm install`
-n'est pas forcément un bug du package qu'on vient d'installer. Toujours
-tester le build après `rm -rf .next` avant de pointer du doigt une
-dépendance. Réflexe à adopter dans les phases suivantes du chantier.
+**TODO post-chantier** : retirer le pin exact et revenir au caret
+`^15.5.x` à la fin du chantier Stripe (hors Phase 7), en testant avec
+`rm -rf .next && npm run build` avant de commit ce bump pour éviter de
+retomber dans le piège du faux positif cache stale.
+
+**Règle méthodo retenue pour la suite du chantier** : avant de
+diagnostiquer un build cassé comme étant la faute d'une dépendance,
+toujours faire `rm -rf .next && npm run build` pour exclure la cache.
+30 secondes de coût pour 10+ minutes économisées sur un faux positif.
 
 ### Décisions architecturales (Q1-Q5 du recap pré-Phase 2)
 
@@ -310,3 +322,209 @@ Aucune des fonctions / actions de l'ancien flow Checkout n'a été touchée :
 
 Ces fonctions seront supprimées en Phase 6 quand l'UI sera recâblée vers
 les nouvelles modals.
+
+---
+
+## Phase 3 — webhooks migrés et idempotents
+
+### Vérifications dahlia (faites en bloc avant de coder)
+
+| # | Vérif | Verdict | Path utilisé |
+|---|---|---|---|
+| 1 | `subscription.current_period_*` | ❌ Brief faux (anticipé par Tom) | `subscription.items.data[0].current_period_start/end` (item-level depuis dahlia) |
+| 2 | `invoice.subscription` (top-level) | ❌ Brief faux (anticipé par Tom) | `invoice.parent?.subscription_details?.subscription` |
+| 3 | `Invoice.status_transitions.paid_at` | ✅ Brief correct | `invoice.status_transitions.paid_at` |
+| 4 | `Invoice.BillingReason` enum | ✅ Brief correct | `'subscription_create' \| 'subscription_cycle' \| 'subscription_update'` confirmés |
+
+Les 2 divergences anticipées par Tom ont été appliquées avec commentaires
+inline dans `webhook-helpers.ts` et `route.ts`. Pas de stop intermédiaire,
+conformément à la consigne ("micro-ajustements évidents → applique
+directement").
+
+### Décision Q1 — single source of truth pour `payment-succeeded` (validée par Tom)
+
+Le brief littéral créait un **double email** sur l'ancien flow Checkout
+hosted (les deux handlers `handleCheckoutCompleted` mode=subscription ET
+`handleInvoicePaid` `billing_reason='subscription_create'` envoyaient
+tous les deux `payment-succeeded`). Verdict Tom : **option (a)**.
+Implémenté :
+
+- L'envoi de `sendPaymentSucceededEmail` est **retiré** de la branche
+  `mode='subscription'` de `handleSubscriptionCheckout` (sub-helper de
+  `handleCheckoutCompleted`). Commentaire explicite laissé en place.
+- `handleInvoicePaid` devient le notifier canonique pour les deux flows
+  (legacy Checkout + nouveau Elements), via `billing_reason='subscription_create'`.
+- La signature de `sendPaymentSucceededEmail` a été refactorée pour
+  prendre une `Stripe.Invoice` directement (au lieu d'une
+  `Stripe.Checkout.Session` dont on extrayait l'invoice). Plus de
+  round-trip `stripe.invoices.retrieve` côté email — l'invoice est lue
+  directement depuis l'event.
+
+### Décision Q3 — `UNKNOWN PRICE_ID` (validée par Tom)
+
+Centralisé dans `resolvePlanOrLogUnknown(priceId, context)` dans
+`webhook-helpers.ts`. Comportement :
+
+- `console.error` (pas warn) avec message structuré
+  `[stripe webhook] UNKNOWN PRICE_ID: ${priceId} — skipping local sync. Event: ${eventId}, Subscription: ${subscriptionId}. ...`
+- Return `null` — le caller bail proprement (pas de throw, pas de 500),
+  l'event est consommé légitimement et la DB locale n'est juste pas
+  synchronisée pour cette price.
+- Utilisé par les 3 handlers concernés (`handleSubscriptionCreated`,
+  `handleSubscriptionUpdated` indirectement via `mapStripeSubscriptionToRow`,
+  `handleSubscriptionCheckout` legacy).
+
+**TODO post-chantier** : configurer une alerte Sentry/Logtail sur le
+préfixe `[stripe webhook] UNKNOWN PRICE_ID` pour détecter en prod les
+priceIds manquants de `prices.ts` (legacy ou créés manuellement dans
+le Dashboard Stripe).
+
+### Résolution forcée — `onConflict='user_id'` au lieu du brief
+
+Le brief Phase 3 dit `onConflict: 'stripe_subscription_id'` pour les
+upserts dans la table `subscriptions`. **Incompatible** avec le schéma
+verrouillé en Phase 1 :
+
+```sql
+user_id uuid not null unique references public.users(id) on delete cascade,
+stripe_subscription_id text not null unique,
+```
+
+**Le scénario qui plante** : user A a un sub_old en local
+(status='canceled' après cancellation, conservé pour traçabilité comme
+demandé par le brief section 4). User A re-souscrit → nouveau sub_new.
+`handleSubscriptionCreated` tente d'insérer (user_id=A,
+stripe_subscription_id=sub_new). `onConflict='stripe_subscription_id'`
+ne se déclenche PAS (sub_old ≠ sub_new), donc INSERT — qui plante sur
+`UNIQUE(user_id)` parce que user_id=A existe déjà.
+
+**Résolution** : `onConflict='user_id'` partout (dans
+`handleSubscriptionCreated`, `handleSubscriptionUpdated`,
+`handleSubscriptionCheckout` legacy, `handleInvoicePaid` re-sync).
+Sémantique :
+
+- Une row par user maximum (cohérent avec l'invariant Phase 1)
+- La row reflète l'état du sub courant (active OU canceled)
+- Re-souscription après cancellation = REPLACE complet de la row (le
+  sub_id change, status redevient 'active', etc.)
+- Trade-off : pas d'historique des subs précédents dans la table locale.
+  Stripe Dashboard reste la source de vérité pour l'historique complet.
+
+Documenté en commentaire dans `webhook-helpers.ts` (header) et dans le
+header de chaque handler concerné.
+
+### Idempotence (dette #3)
+
+Implémentée au tout début de la POST entry, juste après `constructEvent` :
+
+```ts
+const { error: insertError } = await supabase.from('webhook_events').insert({
+  stripe_event_id: event.id,
+  event_type: event.type,
+  payload: event as unknown as Json,
+})
+if (insertError) {
+  if (insertError.code === '23505') {
+    // Already processed → 200 immediate, no handler invoked
+    return NextResponse.json({ received: true, skipped: true }, { status: 200 })
+  }
+  return NextResponse.json({ error: 'Failed to log event' }, { status: 500 })
+}
+```
+
+Postgres `23505` = `unique_violation`, code stable. Le payload jsonb
+complet est stocké pour debug post-mortem. Ce single insert est l'unique
+point d'idempotence — aucun handler métier n'est appelé en cas de retry.
+
+### Durcissement handler (dette #9)
+
+L'ancien dispatch retournait toujours 200 (catch swallow). Restructuré
+avec un try/catch global qui retourne 500 sur erreur handler :
+
+```ts
+try {
+  switch (event.type) { /* 7 handlers */ }
+  return NextResponse.json({ received: true }, { status: 200 })
+} catch (err) {
+  console.error(`[stripe webhook] Handler failed for ${event.type} (${event.id}):`, err)
+  return NextResponse.json({ error: 'Handler failed', eventId, eventType }, { status: 500 })
+}
+```
+
+Tous les handlers throw `Error` sur état invalide ou DB write fail. Les
+appels `sendXxxEmail` à l'intérieur restent best-effort (les helpers
+email loggent et ne re-throw pas). Le throw remonte au catch global → 500
+→ Stripe retry avec backoff jusqu'à ~3 jours.
+
+### Fix dette #18 — fallback `detectSubscriptionChange`
+
+Quand Stripe envoie un `previous_attributes` partiel sans `items`, le
+dispatcher tombait en `no-op` et perdait l'event. Fix :
+
+- Lecture de la row locale `subscriptions` AVANT l'upsert dans
+  `handleSubscriptionUpdated` → capture le snapshot OLD (plan + interval)
+- Passage de `localSubscriptionBefore` à `detectSubscriptionChange`
+- Si `previous_attributes.items` est undefined ou non résolvable, fallback
+  sur `localSubscriptionBefore` (uniquement valide si la row locale avait
+  un plan payant — un fallback 'free' indiquerait une transition free→paid
+  qui doit passer par `handleInvoicePaid`)
+
+### Pas de nouveau template email (dette #4 partielle)
+
+Comme convenu : **aucun nouveau template email créé** en Phase 3. Le
+template `renewal-reminder` existant n'est pas touché. Pour les
+renouvellements (`billing_reason='subscription_cycle'`), `handleInvoicePaid`
+synchronise la table `invoices` mais n'envoie aucun email Vizly — Stripe
+envoie automatiquement son receipt natif au customer, ce qui couvre le
+besoin user-facing.
+
+**Dette #4 statut** : *partiellement résolue*. La table `invoices` est
+sync (l'historique est désormais en DB), mais l'email custom de
+renouvellement est reporté hors chantier Stripe. À traiter dans une
+session emails dédiée si on veut un email de renouvellement Vizly en
+plus du receipt Stripe natif.
+
+### Hors périmètre détecté en cours de route (Phase 3)
+
+- **Refactor signature `sendPaymentSucceededEmail`** : techniquement une
+  modif d'un fichier email-handlers.ts. C'était nécessaire pour Q1
+  (single source of truth). N'a touché à AUCUN template email, juste
+  à la signature/body de la fonction qui les déclenche. La règle "pas
+  de nouveau template" est respectée stricto sensu.
+
+- **`updateUserPlanFromSubscription` désormais throw** au lieu de
+  log+return : petit changement de comportement local pour s'aligner
+  avec la rule "errors → 500". Bénéfique : si l'update users.plan rate,
+  on retry au lieu de drift silencieusement.
+
+### Fichiers touchés en Phase 3
+
+- `src/lib/stripe/webhook-helpers.ts` (créé) — `mapStripeSubscriptionToRow`,
+  `resolvePlanOrLogUnknown`, `resolveUserIdForSubscription`
+- `src/app/api/webhooks/stripe/route.ts` (réécrit en grande partie) —
+  idempotence, dispatch durci, 3 nouveaux handlers, 3 handlers modifiés,
+  signature uniformisée `(event, supabase)` partout
+- `src/app/api/webhooks/stripe/email-handlers.ts` (modifié) —
+  `sendPaymentSucceededEmail` refactoré pour prendre une `Invoice` au
+  lieu d'une `Checkout.Session` ; suppression de l'import `stripe`
+  (plus besoin de retrieve l'invoice)
+- `STRIPE_MIGRATION_NOTES.md` (modifié — ce fichier, section Phase 3
+  + absorption des modifs Phase 2 uncommitted : justification pin Next.js)
+
+### Code legacy toujours intact
+
+Toutes les fonctions / actions Lib + Server Action de l'ancien flow
+Checkout sont **inchangées en signature et en effet utilisateur** :
+
+- `createSubscriptionCheckout` ✅
+- `createTemplateCheckout` ✅
+- `createSubscriptionCheckoutAction` ✅
+- `createTemplateCheckoutAction` ✅
+- `createBillingPortalSession`, `updateExistingSubscription` ✅
+
+Le **handler webhook** `handleCheckoutCompleted` mode=subscription a
+été modifié (suppression de l'envoi d'email, ajout de l'upsert local
+`subscriptions`) mais sa fonction métier reste la même : un user qui
+paie via le legacy Checkout reçoit toujours son email
+`payment-succeeded` (envoyé désormais depuis `handleInvoicePaid`) et
+son plan est toujours mis à jour côté DB.
