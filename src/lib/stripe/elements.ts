@@ -153,17 +153,29 @@ export async function createSubscriptionWithPaymentIntent(params: {
     payment_behavior: 'default_incomplete',
     payment_settings: {
       save_default_payment_method: 'on_subscription',
-      // Force card-only at the subscription level. Apple Pay / Google Pay /
-      // Link are wallet wrappers ON TOP of card and are surfaced
-      // automatically by PaymentElement when the merchant has them enabled
-      // in the Stripe Dashboard (Settings → Payment methods). See
-      // STRIPE_MIGRATION_NOTES.md Phase 2 → "Wallets pre-Phase 4 TODO".
-      payment_method_types: ['card'],
+      // payment_method_types intentionnellement omis : on laisse Stripe
+      // utiliser les méthodes activées dans le Dashboard compte via
+      // inference automatique (Dynamic Payment Methods). Active Card,
+      // Link, Apple Pay, Google Pay et toute autre méthode future via
+      // Dashboard → Settings → Payment methods, pas via le code.
+      //
+      // Pourquoi : en Phase 4 (test visuel), l'ancienne config
+      // `payment_method_types: ['card']` restreignait l'affichage au
+      // seul formulaire carte et supprimait la tab Link. Le pattern
+      // moderne Stripe (Dynamic Payment Methods) est explicitement de
+      // NE PAS spécifier payment_method_types pour laisser Stripe
+      // détecter automatiquement via la config compte + le browser.
+      // Commentaire du type TS confirme : "If not set, Stripe attempts
+      // to automatically determine the types to use..."
     },
-    // dahlia: expand only `latest_invoice` to materialize the Invoice
-    // object inline; `confirmation_secret` is then a non-expandable field
-    // on the Invoice itself. See STRIPE_MIGRATION_NOTES.md "Q2".
-    expand: ['latest_invoice'],
+    // dahlia: expand latest_invoice.confirmation_secret explicitly. The
+    // confirmation_secret field is NOT included in the default response
+    // payload despite the TS type declaring it as `?: ... | null` (which
+    // suggests inline). Runtime verified via /tmp/stripe-diag.mjs during
+    // Phase 4 debug: without this explicit expand, confirmation_secret
+    // comes back as `undefined` even for finalized invoices. See
+    // STRIPE_MIGRATION_NOTES.md "Post-mortem Phase 4".
+    expand: ['latest_invoice.confirmation_secret'],
     metadata: {
       userId: params.userId,
       type: 'subscription',

@@ -16,6 +16,8 @@
 // testable and reusable from any client component (including the
 // TemplatePurchaseModal in Phase 5).
 
+import type { StripeError } from '@stripe/stripe-js'
+
 /**
  * Stripe payment error codes returned by stripe.confirmPayment when a card
  * is declined or a payment method fails. Source: Stripe error code reference.
@@ -81,4 +83,49 @@ export function getErrorMessage(
     fallbackMessage ??
     "Le paiement n'a pas pu aboutir. Tu peux réessayer."
   )
+}
+
+// ---------------------------------------------------------------------------
+// Client-side validation error classification
+// ---------------------------------------------------------------------------
+
+/**
+ * Stripe error codes that represent a client-side field validation failure
+ * (user typed incomplete/invalid card data). Stripe's PaymentElement displays
+ * these errors inline under the relevant field natively — we must NOT promote
+ * them to the global error state, which would unmount the form and erase
+ * the user's input mid-typing.
+ *
+ * The `type: 'validation_error'` variant of StripeError already covers most
+ * of these, but some Stripe SDK versions occasionally return these codes
+ * with `type: 'card_error'` or `type: 'invalid_request_error'`, so we also
+ * check the code explicitly as a defense-in-depth.
+ */
+const VALIDATION_ERROR_CODES = new Set<string>([
+  'incomplete_number',
+  'incomplete_cvc',
+  'incomplete_expiry',
+  'incomplete_zip',
+  'invalid_number',
+  'invalid_expiry_month',
+  'invalid_expiry_month_past',
+  'invalid_expiry_year',
+  'invalid_expiry_year_past',
+  'invalid_cvc',
+])
+
+/**
+ * True if the error is a client-side validation error that Stripe's
+ * PaymentElement is already displaying inline under the relevant field.
+ * The caller should bounce the state back to `ready` without unmounting
+ * the form, so the user can fix their input without losing context.
+ *
+ * False for real server-side errors (card_declined, insufficient_funds,
+ * processing_error, api_error, etc.) which warrant the global error state
+ * with a "Réessayer" button and potentially a fresh intent fetch.
+ */
+export function isValidationError(error: StripeError): boolean {
+  if (error.type === 'validation_error') return true
+  if (error.code && VALIDATION_ERROR_CODES.has(error.code)) return true
+  return false
 }

@@ -37,10 +37,15 @@ import {
 } from 'framer-motion'
 import {
   Elements,
+  ExpressCheckoutElement,
   PaymentElement,
   useElements,
   useStripe,
 } from '@stripe/react-stripe-js'
+import type {
+  StripeError,
+  StripeExpressCheckoutElementConfirmEvent,
+} from '@stripe/stripe-js'
 import { Check, Loader2, X } from 'lucide-react'
 import { getStripe } from '@/lib/stripe/client-browser'
 import {
@@ -50,7 +55,7 @@ import {
 import { PLANS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { vizlyAppearance } from './stripeAppearance'
-import { getErrorMessage } from './CheckoutErrorMessage'
+import { getErrorMessage, isValidationError } from './CheckoutErrorMessage'
 
 // ---------------------------------------------------------------------------
 // Animation curve — keep in sync with src/components/shared/ScrollReveal.tsx
@@ -381,6 +386,28 @@ export function SubscriptionCheckoutModal({
     setState({ kind: 'success' })
   }, [])
 
+  /**
+   * Transition from `processing` back to `ready` without unmounting the
+   * form — used when a client-side validation error occurs (user typed
+   * incomplete/invalid card data). Stripe's PaymentElement displays the
+   * error inline under the relevant field, so we just need to re-enable
+   * the submit button and let the user fix their input.
+   *
+   * Functional setState to preserve clientSecret + subscriptionId from
+   * the current `processing` state without explicit type casts.
+   */
+  const handleValidationError = useCallback(() => {
+    setState((current) =>
+      current.kind === 'processing'
+        ? {
+            kind: 'ready',
+            clientSecret: current.clientSecret,
+            subscriptionId: current.subscriptionId,
+          }
+        : current,
+    )
+  }, [])
+
   // -----------------------------------------------------------------------
   // Backdrop click — closes only when not processing
   // -----------------------------------------------------------------------
@@ -524,6 +551,7 @@ export function SubscriptionCheckoutModal({
                         onSubmitStart={handleSubmitStart}
                         onSubmitError={handleSubmitError}
                         onSubmitSuccess={handleSubmitSuccess}
+                        onValidationError={handleValidationError}
                       />
                     </Elements>
                   )}
@@ -786,6 +814,7 @@ function CheckoutForm({
   onSubmitStart,
   onSubmitError,
   onSubmitSuccess,
+  onValidationError,
 }: {
   amountCents: number
   subscriptionId: string
@@ -793,16 +822,57 @@ function CheckoutForm({
   onSubmitStart: () => void
   onSubmitError: (message: string) => void
   onSubmitSuccess: () => void
+  /**
+   * Transition from `processing` back to `ready` without unmounting the
+   * form. Called when Stripe reports a client-side validation error
+   * (incomplete card number, invalid CVC, etc.) — the PaymentElement
+   * already displays the error inline under the relevant field, we just
+   * need to re-enable the submit button. The user's typed input is
+   * preserved because the PaymentElement is never unmounted.
+   */
+  onValidationError: () => void
 }) {
   const stripe = useStripe()
   const elements = useElements()
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault()
-      if (!stripe || !elements || isProcessing) return
+  // Express Checkout availability detection. The ExpressCheckoutElement is
+  // always mounted (so its onReady can fire), but the separator "ou par
+  // carte" and spacing are rendered conditionally. When no wallets are
+  // available (no Apple Pay, no Google Pay, no Link express), Stripe's
+  // ECE iframe renders empty (zero visual noise) and the layout gracefully
+  // degrades to a PaymentElement-only modal.
+  const [hasExpressPayments, setHasExpressPayments] = useState(false)
 
-      onSubmitStart()
+  // Card form completeness. Tracks the PaymentElement's `complete` flag
+  // from its onChange event — true when every field (number, expiry, cvc,
+  // country...) is well-formed. Disables the "Payer" button until the user
+  // has filled the form correctly, so clicking the button can never trigger
+  // a validation error. Starts `false` because the form is empty at mount.
+  const [isCardComplete, setIsCardComplete] = useState(false)
+
+  // Shared core for both Card submit and wallet confirm flows. Factorizing
+  // here saves ~15 lines of duplication and enforces one-point-of-change
+  // on the confirmPayment call shape. The wallet flow passes `onBeforeError`
+  // to dismiss the native sheet via event.paymentFailed() BEFORE the React
+  // state transitions — without that, the wallet sheet can stay open on
+  // top of a new UI state. The Card flow passes nothing.
+  //
+  // Error classification (Phase 4 UX fix): client-side validation errors
+  // (incomplete card number, invalid CVC, etc.) are displayed inline by
+  // Stripe's PaymentElement natively. We must NOT promote them to the
+  // global error state — that would unmount the form and erase the user's
+  // input. We call `onValidationError` instead, which transitions the
+  // parent state from `processing` back to `ready` without touching the
+  // PaymentElement. Real server-side errors (card_declined, insufficient_funds,
+  // processing_error, api_error) still go through `onSubmitError` with
+  // the global error UI + retry button.
+  //
+  // Note: `onBeforeError` fires FIRST in both paths, so the wallet sheet
+  // dismissal happens consistently whether the error is validation or
+  // server-side.
+  const confirmAndHandleResult = useCallback(
+    async (onBeforeError?: (error: StripeError) => void) => {
+      if (!stripe || !elements) return
 
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -813,6 +883,16 @@ function CheckoutForm({
       })
 
       if (error) {
+        onBeforeError?.(error)
+
+        if (isValidationError(error)) {
+          // Inline validation — Stripe has already rendered the field
+          // error under the relevant input. Just re-enable the form.
+          onValidationError()
+          return
+        }
+
+        // Real server-side error — global error state with retry.
         onSubmitError(getErrorMessage(error.code, error.message))
         return
       }
@@ -831,25 +911,119 @@ function CheckoutForm({
         ),
       )
     },
-    [stripe, elements, isProcessing, subscriptionId, onSubmitStart, onSubmitError, onSubmitSuccess],
+    [
+      stripe,
+      elements,
+      subscriptionId,
+      onValidationError,
+      onSubmitError,
+      onSubmitSuccess,
+    ],
+  )
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (!stripe || !elements || isProcessing) return
+      onSubmitStart()
+      await confirmAndHandleResult()
+    },
+    [stripe, elements, isProcessing, onSubmitStart, confirmAndHandleResult],
+  )
+
+  const handleExpressConfirm = useCallback(
+    async (event: StripeExpressCheckoutElementConfirmEvent) => {
+      if (!stripe || !elements) {
+        // Early-dismiss the native wallet sheet so it doesn't hang.
+        event.paymentFailed({ reason: 'fail' })
+        return
+      }
+      onSubmitStart()
+      await confirmAndHandleResult((error) => {
+        // CRITICAL: close the native wallet sheet BEFORE the React state
+        // transitions to error. Without this call, the Apple Pay / Google
+        // Pay sheet stays open on top of the new UI state or dismisses
+        // with a phantom success. Pattern documented in Stripe ECE docs.
+        event.paymentFailed({
+          reason: 'fail',
+          message: error.message,
+        })
+      })
+      // Success path: the wallet sheet dismisses itself when confirmPayment
+      // resolves without error. No explicit call needed.
+    },
+    [stripe, elements, onSubmitStart, confirmAndHandleResult],
   )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Express Checkout — always mounted so onReady fires, separator
+          rendered conditionally once at least one wallet is available. */}
+      <div className={hasExpressPayments ? 'mb-2' : ''}>
+        <ExpressCheckoutElement
+          onReady={({ availablePaymentMethods }) => {
+            if (
+              availablePaymentMethods &&
+              Object.values(availablePaymentMethods).some(Boolean)
+            ) {
+              setHasExpressPayments(true)
+            }
+          }}
+          onConfirm={handleExpressConfirm}
+          options={{
+            buttonType: {
+              applePay: 'plain',
+              googlePay: 'plain',
+            },
+            buttonTheme: {
+              applePay: 'black',
+              googlePay: 'black',
+            },
+            buttonHeight: 48,
+            // Force every available wallet to show inline — no "Afficher
+            // plus" collapse button that would hide Link behind a click.
+            // Stripe's default is `overflow: 'auto'` which groups extra
+            // wallets. We want all visible at once, so: 'never'.
+            layout: { overflow: 'never' },
+          }}
+        />
+        {hasExpressPayments && (
+          <div className="flex items-center gap-4 mt-6 mb-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground">ou par carte</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+        )}
+      </div>
+
       <PaymentElement
         options={{
+          // Revert to the compact 'tabs' layout now that wallets live in
+          // the ExpressCheckoutElement above. With only Card left, Stripe
+          // gracefully degrades to a direct card form with no visible
+          // tab strip.
           layout: 'tabs',
           fields: { billingDetails: 'auto' },
-          wallets: { applePay: 'auto', googlePay: 'auto' },
+          // CRITICAL: disable ALL wallets on the PaymentElement to avoid
+          // double-display. Apple Pay / Google Pay / Link are all surfaced
+          // in the ExpressCheckoutElement above, so the PaymentElement
+          // must be strictly Card-only — no inline wallet addon, no Link
+          // autofill bar, nothing. Link in particular was showing a
+          // "Paiement sécurisé et rapide avec Link" row above the card
+          // form which duplicated the Link express button — confusing.
+          wallets: { applePay: 'never', googlePay: 'never', link: 'never' },
+        }}
+        onChange={(event) => {
+          setIsCardComplete(event.complete)
         }}
       />
 
       <button
         type="submit"
-        disabled={!stripe || !elements || isProcessing}
+        disabled={!stripe || !elements || isProcessing || !isCardComplete}
         className={cn(
           'w-full inline-flex items-center justify-center gap-2 h-12 rounded-[var(--radius-md)] text-sm font-medium text-white transition-colors',
-          isProcessing || !stripe || !elements
+          isProcessing || !stripe || !elements || !isCardComplete
             ? 'bg-accent/50 cursor-not-allowed'
             : 'bg-accent hover:bg-accent-hover',
         )}

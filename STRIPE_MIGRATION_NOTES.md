@@ -27,6 +27,72 @@ auto reste active.
 
 ---
 
+## ⚠️ Règles méthodo du chantier
+
+### Règle Stripe types-vs-runtime (Phase 4 post-mortem)
+
+Les types TypeScript du SDK Stripe reflètent les **formes possibles**
+d'un champ, **pas sa présence garantie dans une response API donnée**.
+Un champ typé `?: Foo | null` peut signifier **trois états runtime
+distincts** :
+
+1. **Absent** du payload par défaut (nécessite un expand explicite)
+2. **Présent et `null`** (le champ est dans le payload mais sa valeur
+   est null — état pré-finalisation, état d'erreur, etc.)
+3. **Présent et populé** avec une valeur réelle
+
+Seule **l'expansion explicite** ou une **lecture de la doc Stripe
+runtime** (hors types TS) garantit l'état (3). Le type TS à lui seul
+ne permet PAS de distinguer (1) de (2)/(3) — c'est ce qui a causé le
+bug de Phase 4 sur `invoice.confirmation_secret`, où le type déclarait
+`?: Invoice.ConfirmationSecret | null` et j'en ai conclu à tort que le
+champ était inline sans besoin d'expand.
+
+**Règle opérationnelle** : quand une extraction de champ Stripe échoue
+en runtime alors que le type TS la rend possible, le premier réflexe
+est (a) d'**ajouter un expand explicite et de re-tester**, avant
+(b) d'hypothéser un bug Stripe, un bug de config prix, ou un bug de
+cycle de vie.
+
+**À appliquer pour le reste du chantier** :
+
+- **Phase 5** (`createTemplatePaymentIntent` → `PaymentIntent` pour
+  templates) : vérifier que `client_secret` est bien accessible sans
+  edge case. `stripe.paymentIntents.create` retourne normalement le
+  client_secret inline sur les PI classiques, mais dahlia pourrait
+  avoir changé ça aussi. Dump runtime avant confiance.
+- **Phase 6** (recâblage UI) : toute lecture de `subscription.items`,
+  `subscription.latest_invoice`, etc. doit être testée runtime si les
+  types TS laissent penser que le champ est inline.
+- **Phase 7** (lecture des `invoices` pour le récap `/billing`) : les
+  champs lus depuis la table locale `invoices` (peuplée par le webhook
+  Phase 3) n'ont pas ce problème — ils viennent de notre DB, pas de
+  Stripe runtime. Mais si on lit des champs Stripe live en fallback,
+  même règle : expand explicite ou dump runtime.
+
+**Réflexe spécifique** : si tu touches à un `expand: [...]` Stripe,
+tu vérifies runtime avant de faire confiance au type TS.
+
+### Règle cache `.next` (Phase 2 post-mortem)
+
+Avant de diagnostiquer un build cassé comme étant la faute d'une
+dépendance, toujours faire `rm -rf .next && npm run build` pour
+exclure la cache. 30 secondes de coût pour 10+ minutes économisées
+sur un faux positif. Cette règle a été établie en Phase 2 après le
+faux positif Next.js `15.5.15` (voir section Phase 2).
+
+**⚠️ Réserve Phase 4** : `rm -rf .next` NE DOIT JAMAIS être fait
+pendant qu'un dev server Next est actif. Le dev server garde en
+mémoire des chunks compilés ; si on supprime le `.next` sur disque,
+les prochaines requêtes retournent 404 sur tous les assets et la
+page se charge en HTML brut sans CSS. Toujours stopper le dev server
+AVANT un clean, OU utiliser `npm run build` sans clean dans un autre
+terminal quand le dev server tourne. Cette sous-règle a été établie
+après le faux positif Phase 4 où j'ai cassé la session de test
+visuel de Tom en cleant pendant que son dev server tournait.
+
+---
+
 ## Phase 1 — fondations DB et dettes bloquantes
 
 ### Décisions documentées
@@ -365,6 +431,27 @@ Les 2 divergences anticipées par Tom ont été appliquées avec commentaires
 inline dans `webhook-helpers.ts` et `route.ts`. Pas de stop intermédiaire,
 conformément à la consigne ("micro-ajustements évidents → applique
 directement").
+
+> ### ⚠️ Post-mortem Phase 4 — correction de cette analyse
+>
+> **L'analyse Phase 3 ci-dessus sur `confirmation_secret` est partiellement
+> fausse.** Mon raisonnement de l'époque était : *« le type TS déclare
+> `confirmation_secret?: Invoice.ConfirmationSecret | null` comme un champ
+> inline non-expandable, donc `expand: ['latest_invoice']` suffit »*. Le
+> runtime sur `2026-03-25.dahlia` a démenti cette conclusion : sans expand
+> explicite `['latest_invoice.confirmation_secret']`, le champ est
+> **absent** du payload retourné par `stripe.subscriptions.create`, pas
+> `null`. Le type TS `?: ... | null` englobe les **3 états runtime**
+> `{ absent, present-null, present-populated }` et ne permet pas de
+> distinguer (1) de (2)/(3). Voir la règle "Stripe types-vs-runtime" en
+> tête de ce fichier.
+>
+> **Fix appliqué en Phase 4** : `src/lib/stripe/elements.ts` ligne 166,
+> `expand: ['latest_invoice']` → `expand: ['latest_invoice.confirmation_secret']`.
+> Preuve runtime dumpée pendant le debug (voir commit de fix Phase 4).
+> L'extraction `invoice.confirmation_secret?.client_secret` reste valide
+> une fois l'expand explicite en place — c'est bien le chemin canonique
+> sur dahlia, mais pas le chemin *inline*.
 
 ### Décision Q1 — single source of truth pour `payment-succeeded` (validée par Tom)
 
@@ -750,3 +837,265 @@ exporté mais **n'est importée nulle part** dans le code existant. Le
 branchement aux 3 points d'entrée (`/billing` → `BillingClient.tsx`,
 `/tarifs` → `TarifsClient.tsx`, `/editor` → `useEditorState.handlePublish`)
 sera fait en Phase 6.
+
+### Post-mortem — bugs découverts lors du test visuel (fixes follow-up)
+
+Deux bugs découverts successivement lors du test visuel de la modal
+en isolation (`/dev-modal-test`). Tous deux absorbés dans un seul
+commit follow-up :
+`fix(stripe): phase 4 - expand confirmation_secret + dynamic payment methods`.
+
+Le commit Phase 4 principal `0ec9249` reste historiquement cohérent
+(modal créée telle quelle à partir du brief), et le follow-up fix
+marque explicitement le moment où les 2 bugs runtime ont été
+découverts et corrigés.
+
+#### Premier fix — `confirmation_secret` absent par défaut sur dahlia
+
+Bug : la modal échouait au fetch de l'intent avec
+`Stripe subscription created but no confirmation_secret returned`.
+
+**Cause racine** : expand incomplet (`['latest_invoice']` au lieu de
+`['latest_invoice.confirmation_secret']`). **Preuve runtime** via dump
+JSON d'un vrai `subscriptions.create` test mode : `confirmation_secret: undefined`
+sans expand, `{ client_secret: "pi_..." }` avec expand. **Fix** : 1
+fragment de chaîne dans `elements.ts` ligne 166. **Temps de debug** :
+~15 min grâce à l'instrumentation structurée (types TS + SDK Stripe
+direct + dump runtime) plutôt qu'un debug à l'aveugle.
+
+**Leçon** : règle "types-vs-runtime" ajoutée en haut des notes pour le
+reste du chantier (voir section `Règles méthodo du chantier`).
+
+#### Second fix — `payment_method_types: ['card']` restreignait les méthodes affichées
+
+Après correction de l'expand `confirmation_secret`, le test visuel a
+révélé un second bug : le PaymentElement affichait seulement le
+formulaire carte (numéro / expiration / CVC / pays) sans la tab Link
+ni les wallets.
+
+**Cause racine** : `payment_method_types: ['card']` dans
+`payment_settings` de la subscription, hérité du brief Phase 0. Cette
+ligne forçait Stripe à n'exposer QUE la méthode `card` sur le
+PaymentElement. Le pattern moderne Stripe documenté est **Dynamic
+Payment Methods** : ne PAS spécifier `payment_method_types` et laisser
+Stripe détecter automatiquement via les méthodes activées dans le
+Dashboard compte + les capabilities du browser.
+
+**Preuve** : le type TS `PaymentSettings.payment_method_types?:` est
+optionnel ET son commentaire inline dit explicitement *"If not set,
+Stripe attempts to automatically determine the types to use..."*. La
+bonne pratique est documentée dans le type lui-même.
+
+**Fix** : retrait de la ligne `payment_method_types: ['card']` dans
+`createSubscriptionWithPaymentIntent`. Commentaire bloc laissé en place
+pour expliquer pourquoi l'omission est intentionnelle et pointer vers
+la leçon retenue.
+
+**Même principe à appliquer en Phase 5** pour
+`createTemplatePaymentIntent` si la même config existe. À vérifier au
+démarrage de Phase 5 par grep rapide sur `payment_method_types`.
+
+**Note Apple Pay dans Chrome desktop** : Apple Pay ne s'affichera
+**jamais** dans Chrome, quelle que soit la config Stripe — c'est une
+limitation browser native (Apple Pay API est uniquement disponible
+dans Safari). Pour valider Apple Pay en test, Tom devra tester dans
+Safari desktop ou iOS Safari séparément. Ce n'est PAS un bug de la
+config Stripe ni du code Vizly.
+
+#### Absorption `.env.example` dans le même commit
+
+Le commit de fix Phase 4 absorbe aussi la mise à jour uncommitted de
+`.env.example` (ajout du commentaire bloc expliquant que
+`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` est REQUIS et pourquoi le préfixe
+`NEXT_PUBLIC_` est obligatoire pour l'inlining côté client). Cette
+modif avait été faite pendant le debug de l'erreur
+`STRIPE_PUBLIC_KEY` mal nommée dans le `.env` de Tom. Elle trainait en
+working tree, elle part dans ce commit puisque c'est la même session
+de debug Phase 4.
+
+#### Troisième fix — abandon du `layout: 'accordion'` pour le pattern ExpressCheckoutElement
+
+Après l'activation de Dynamic Payment Methods (second fix), le test
+visuel a révélé un problème de rendu : avec seulement 2 méthodes
+résolues côté PaymentIntent (`card` + `link`), Stripe rendait soit
+des **tabs compacts asymétriques** (Card en icône seule, Google Pay
+avec label texte) soit un **accordion** avec 1-2 items qui paraissait
+bancal et déséquilibré. Aucune combinaison de `layout` / `radios` /
+`spacedAccordionItems` ne donnait un rendu propre.
+
+**Décision** : abandonner le sélecteur accordion / tabs pour adopter
+le pattern **ExpressCheckoutElement + séparateur + PaymentElement
+Card-only**, qui est celui utilisé par Linear, Resend, Vercel, Framer
+et les SaaS de référence du brief Vizly. Structure finale de la
+modal :
+
+```
+┌─────────────────────────────────┐
+│ Moyen de paiement               │
+│                                 │
+│ [  G Pay  ]   ← ExpressCheckoutElement
+│ [   Link  ]      (wallets en boutons natifs, overflow: 'never')
+│                                 │
+│ ──── ou par carte ────          │   ← séparateur conditionnel
+│                                 │
+│ Numéro de carte                 │   ← PaymentElement Card-only
+│ [                          ]    │      (wallets: { …all 'never' })
+│ Date   CVC                      │
+│ [  ]   [  ]                     │
+│ Pays                            │
+│ [ France      ▼]                │
+│                                 │
+│ [ Payer 4,99 €  ]               │
+│                                 │
+│ Paiement sécurisé par Stripe... │
+└─────────────────────────────────┘
+```
+
+**Détails d'implémentation** :
+
+- `<ExpressCheckoutElement>` est toujours monté (pas dans un
+  `{hasExpressPayments && (...)}`) pour que son event `onReady` fire
+  dans tous les cas. Sans méthodes dispo, Stripe rend l'iframe vide
+  (zéro hauteur visible), donc zéro bruit. Avec méthodes dispo, les
+  boutons apparaissent et `setHasExpressPayments(true)` déclenche
+  l'affichage conditionnel du séparateur "ou par carte".
+- Options ECE : `buttonType: { applePay: 'plain', googlePay: 'plain' }`
+  (logos seuls sans texte — mantra Vizly "moins > plus"),
+  `buttonTheme: { applePay: 'black', googlePay: 'black' }` (Apple Pay
+  noir natif, Google Pay noir pour cohérence),
+  `buttonHeight: 48` (cohérent avec hauteur boutons CTA Vizly),
+  `layout: { overflow: 'never' }` (pas de bouton "Afficher plus" qui
+  masquerait Link derrière un clic supplémentaire — preuve type :
+  `LayoutOption.overflow?: 'auto' | 'never'` ligne 252 de
+  `express-checkout.d.ts`).
+- Options PaymentElement : `layout: 'tabs'` (retour au compact, mais
+  avec seulement Card dispo l'UI dégrade gracieusement en formulaire
+  direct sans tab strip), `wallets: { applePay: 'never', googlePay: 'never', link: 'never' }`
+  (désactivation complète des wallets pour éviter la double-display
+  avec l'ECE — Link en particulier affichait une barre "Paiement
+  sécurisé et rapide avec Link" qui dupliquait le bouton Link
+  express). Preuve type : `PaymentWalletsOption.link?: 'auto' | 'never'`
+  ligne 220 de `payment.d.ts`.
+- Handler `handleExpressConfirm` dédié aux wallets, avec appel
+  critique à `event.paymentFailed({ reason, message })` AVANT la
+  transition d'état React pour fermer proprement la sheet native
+  (pattern Stripe documenté dans `StripeExpressCheckoutElementConfirmEvent`).
+- Factorisation `confirmAndHandleResult(onBeforeError?: (error) => void)`
+  : core partagé entre `handleSubmit` (Card) et `handleExpressConfirm`
+  (wallets). Le callback `onBeforeError` est appelé d'abord côté
+  wallet pour dismiss la sheet, puis la logique d'erreur standard
+  s'applique pareil dans les deux flows.
+
+#### Quatrième fix — classification erreurs validation vs erreurs serveur
+
+Après le test visuel du flow Card, un gros problème UX découvert :
+taper un numéro de carte incomplet → clic "Payer" → la modal passait
+en état `error` global, démontait le formulaire, affichait "Votre
+numéro de carte est incomplet" avec bouton "Réessayer", et le clic
+Réessayer recréait une subscription côté Stripe et rechargeait tout.
+L'user perdait son saisissage à chaque typo.
+
+**Cause racine** : `stripe.confirmPayment` retourne des erreurs de
+deux catégories sémantiques très différentes (documenté dans
+`StripeErrorType` ligne 1464-1501 de `stripe.d.ts`) :
+
+- **Type 1 — `'validation_error'`** : "Errors triggered by our
+  client-side libraries when failing to validate fields (e.g., when
+  a card number or expiration date is invalid or incomplete)". Ces
+  erreurs sont déjà affichées inline sous le champ concerné par le
+  PaymentElement natif — il NE faut PAS les escalader.
+- **Type 2 — `'card_error'` / `'api_error'` / `'authentication_error'`
+  / etc.** : vraies erreurs serveur ou carte (card_declined,
+  insufficient_funds, processing_error...). Celles-ci nécessitent
+  un écran d'erreur global avec retry.
+
+**Fix** : nouveau helper `isValidationError(error: StripeError): boolean`
+dans `CheckoutErrorMessage.ts` qui retourne `true` si
+`error.type === 'validation_error'` OU si `error.code` est dans un
+set `VALIDATION_ERROR_CODES` (9 codes explicites pour defense-in-depth :
+`incomplete_number`, `incomplete_cvc`, `incomplete_expiry`, etc.).
+
+Nouveau state transition `handleValidationError` dans le parent modal,
+qui fait un functional setState `processing → ready` en préservant
+`clientSecret` + `subscriptionId` du state courant sans touche au
+PaymentElement. La classification se fait dans
+`confirmAndHandleResult` : si validation → `onValidationError()`
+(form intact, bouton Payer re-cliquable), sinon → `onSubmitError()`
+(écran d'erreur global). Le callback `onBeforeError` (dismiss wallet
+sheet) est toujours appelé en premier, donc les wallets avec erreur
+de validation (rare) ferment leur sheet ET retournent au state ready.
+
+#### Cinquième fix — bouton "Payer" grisé tant que le formulaire Card n'est pas complet
+
+Pour éviter même d'arriver à l'étape de validation error, le bouton
+"Payer X,XX €" est désormais **disabled tant que le PaymentElement
+n'a pas signalé `complete: true`** via son event `onChange`. Nouveau
+state local `isCardComplete` dans `CheckoutForm`, initialisé à `false`
+(form vide au mount), set via `<PaymentElement onChange={(event) => setIsCardComplete(event.complete)} />`.
+Preuve type : `StripePaymentElementChangeEvent.complete: boolean`
+(ligne 304 de `payment.d.ts`, doc inline : *"true if the every input
+in the Payment Element is well-formed and potentially complete"*).
+
+Le bouton "Payer" étend ses conditions disabled à
+`!stripe || !elements || isProcessing || !isCardComplete`, et les
+classes visuelles reflètent le même : `bg-accent/50 cursor-not-allowed`
+quand disabled, `bg-accent hover:bg-accent-hover` quand cliquable.
+
+Le flow wallets (ECE) n'est **pas affecté** par ce disabled — cliquer
+sur Google Pay continue à marcher même si le form Card est vide (cas
+courant : l'user choisit direct le wallet sans toucher au form Card).
+
+### Test visuel wallets en local — HTTPS obligatoire
+
+Apple Pay et Google Pay nécessitent un **contexte secure (HTTPS)**
+pour apparaître dans le PaymentElement / ExpressCheckoutElement, même
+en localhost. Sans HTTPS, les browser APIs sous-jacentes (Apple Pay JS
+pour Safari, PaymentRequest API pour Chrome Google Pay) sont refusées
+par le navigateur, peu importe la config Stripe.
+
+**Commande de test local HTTPS** : `npx next dev --experimental-https`
+(Next.js 13.5+ génère un cert auto-signé local dans
+`certificates/localhost.pem` qui est réutilisé entre les sessions).
+Au premier load, Chrome affiche un avertissement sur le cert non
+reconnu — cliquer "Avancé → Continuer vers localhost" pour l'accepter
+pendant la session de test.
+
+**Validation en local HTTPS (Chrome)** :
+
+- **Google Pay** : apparaît dans l'ExpressCheckoutElement si le compte
+  Chrome de test a au moins une carte enregistrée dans Google Pay.
+  Validé visuellement en Phase 4.
+- **Link** : apparaît systématiquement dans l'ExpressCheckoutElement
+  (on l'a désactivé dans le PaymentElement pour éviter la duplication).
+  Validé visuellement en Phase 4.
+- **Apple Pay** : reste **invisible** même en HTTPS localhost dans
+  Safari. Cause probable : cert auto-signé Next.js non accepté par
+  Apple Pay JS, ou domaine localhost non dispensé de vérification de
+  domaine contrairement à ce que la doc Stripe laisse entendre. La
+  validation Apple Pay est reportée à **Vercel Preview** (vrai cert
+  Let's Encrypt auto-géré par Vercel) puis à la **production**
+  (`vizly.fr` avec upload du fichier
+  `apple-developer-merchantid-domain-association` sous `/.well-known/`
+  avant le passage live — voir TODO section "Dashboard Stripe LIVE").
+
+**En production** : Apple Pay + Google Pay + Card + Link doivent tous
+apparaître automatiquement via Stripe Dynamic Payment Methods. Aucun
+code supplémentaire requis, la config finale de la modal est complète.
+
+### Leçon méthodo — `rm -rf .next` pendant un dev server qui tourne
+
+Pendant le debug du bug `confirmation_secret` + wallets, j'ai fait à
+tort `rm -rf .next && npm run build` **pendant que le dev server
+HTTPS tournait en background**. Résultat : le dev server gardait en
+mémoire des chunks compilés qui n'existaient plus sur disque, donc
+les prochaines requêtes ont retourné des 404 sur `app-pages-internals.js`,
+`page.js`, `layout.js`, `layout.css`, etc. Tom a vu la page `/dev-modal-test`
+en HTML brut sans CSS, avec la console pleine d'erreurs 404.
+
+**Leçon** : la règle méthodo "rm -rf .next && npm run build" est
+réservée au **diagnostic d'un build cassé**, PAS à la validation
+post-edit. Pendant un dev server actif, faire juste `npm run build`
+dans un autre terminal (ou ne rien faire et laisser HMR gérer). Ou
+stopper le dev server avant le clean. Je l'ajoute à la section
+"Règles méthodo du chantier" en tête de fichier pour que ce soit
+explicite dans les phases suivantes.
