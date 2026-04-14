@@ -592,3 +592,161 @@ Le **handler webhook** `handleCheckoutCompleted` mode=subscription a
 paie via le legacy Checkout reçoit toujours son email
 `payment-succeeded` (envoyé désormais depuis `handleInvoicePaid`) et
 son plan est toujours mis à jour côté DB.
+
+---
+
+## Phase 4 — modal subscription Elements
+
+### Fix Phase 2 découvert en Phase 4
+
+Le defensive check de `createSubscriptionIntentAction` bloquait sur toute
+row `subscriptions` locale, peu importe son `status`. Cela cassait le
+flow d'application d'un code promo (qui nécessite de recréer la sub),
+et aussi le re-try après abandon de modal.
+
+**Fix appliqué** : restreindre le check aux statuses réellement bloquants
+(`active`, `trialing`, `past_due`, `unpaid`), exclure `incomplete`,
+`incomplete_expired`, `canceled`. Aligne le comportement avec la
+sémantique Stripe : une sub `incomplete` est un checkout en cours, pas
+un engagement.
+
+5 lignes de modif dans `src/actions/billing.ts`, périmètre Phase 4 parce
+que le bug n'était détectable qu'en construisant un consommateur (la
+modal). Verdict Q3 de Phase 2 retracé en commentaire inline. Le check
+`hasLegacySub` est aussi raffiné : il ne se déclenche QUE si la table
+locale n'a aucune row pour cet user (sinon la table locale a priorité,
+peu importe son status). Naturellement compatible avec la suppression
+prévue du legacy column en Phase 6.
+
+### Décisions architecture (validées par Tom)
+
+- **Q1 Stripe appearance — hardcode + commentaire de sync** : les
+  couleurs Vizly sont copiées en HEX direct dans
+  `src/components/billing/stripeAppearance.ts` avec un header
+  `// keep in sync with src/app/globals.css` daté. Raison : Tailwind 4
+  `@theme` (Vizly) stocke les couleurs en hex, pas en HSL séparé, donc
+  le pattern `hsl(var(--accent))` shadcn ne s'applique pas. Le
+  PaymentElement vit dans un iframe Stripe et ne peut pas lire les
+  variables CSS du parent.
+
+- **Q2 Pas de `<Input>` partagé** : le projet n'a pas de
+  `src/components/ui/input.tsx`. Le champ code promo utilise un
+  `<input>` HTML brut wrappé dans le pattern de `StepPublish.tsx`
+  (`flex items-center rounded-[var(--radius-md)] border border-border
+  ... focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/15`).
+  Si Phase 5 (`TemplatePurchaseModal`) en a besoin, on extraiera à ce
+  moment-là.
+
+- **Q3 Focus management — option (b) légère** : focus initial sur le
+  bouton X au mount (après ~100 ms pour ne pas fighter avec l'animation),
+  Escape qui ferme, clic backdrop qui ferme, focus rendu à l'élément
+  ayant déclenché l'ouverture au unmount. **Pas** de wrap-around Tab
+  full focus-trap (refusé : nouvelle dépendance). Suffisant pour la
+  plupart des cas modal légers.
+
+### Fermeture pendant `processing` — verrou strict
+
+Pendant `state.kind === 'processing'`, **toutes** les voies de fermeture
+sont désactivées par construction :
+
+- Bouton X : `disabled` + `opacity-40 pointer-events-none`
+- Touche `Escape` : ignorée (le keydown handler check `isProcessing`)
+- Clic sur le backdrop : ignoré (le handler check `isProcessing`)
+
+Raison : si l'user ferme pendant que `stripe.confirmPayment` est en vol,
+le payment peut aboutir côté Stripe sans que l'UI ait pu afficher le
+success → état désynchronisé entre serveur (sub active) et UI (modal
+disparue, user perplexe). Forcer l'attente des 2-3 secondes de traitement
+évite ce piège.
+
+### Abandons de checkout — accepté pour le lancement
+
+La fermeture de la modal en état `ready` (avant payment) ne cancel PAS
+la subscription `incomplete` créée au mount côté Stripe. Conséquence :
+des subs `incomplete` peuvent s'accumuler dans le Stripe Dashboard.
+
+**Pourquoi c'est OK** :
+1. Stripe garbage-collect les `incomplete` après 24 h (passent en
+   `incomplete_expired`).
+2. Le defensive check de `createSubscriptionIntentAction` exclut
+   maintenant `incomplete` et `incomplete_expired`, donc l'user peut
+   réouvrir la modal et créer un nouveau sub sans être bloqué.
+3. Le webhook `customer.subscription.deleted` ne fire pas pour ces
+   subs expirées (Stripe garbage collection silencieuse), donc pas de
+   pollution `webhook_events`.
+
+**TODO post-chantier** : si en prod le taux d'abandon génère trop de
+bruit dans le Dashboard Stripe (visibilité opérateur), on pourra
+appeler `stripe.subscriptions.cancel(subId)` côté client au `onClose`
+quand `state.kind === 'ready'`. Optimisation, pas urgent.
+
+### Animation et accessibilité
+
+- **Animation** : `framer-motion` avec `EASE_OUT_EXPO = [0.16, 1, 0.3, 1]`
+  et durée 0.5 s pour le panel modal, durée 0.25 s pour le backdrop.
+  Cohérent avec `src/components/shared/ScrollReveal.tsx`. `useReducedMotion`
+  désactive les animations pour les users avec `prefers-reduced-motion`.
+- **Accessibilité** :
+  - `role="dialog"` + `aria-modal="true"` sur le panel
+  - `aria-labelledby` (id du H2) + `aria-describedby` (id du sub)
+    via `useId()` React 18+
+  - `document.body.style.overflow = 'hidden'` au mount, restauré au
+    unmount (avec capture de la valeur précédente)
+  - Focus initial sur le bouton X au mount, focus rendu à l'élément
+    précédent au unmount (via `previousFocusRef`)
+  - Escape pour fermer (sauf si processing)
+  - `aria-busy="true"` sur le skeleton du PaymentElement
+  - `role="alert"` sur les blocs d'erreur
+
+### Voix éditoriale Vizly — vérifications
+
+Tous les textes de la modal respectent :
+- Tutoiement systématique
+- Point final aux titres courts ("Passer en Starter.", "Paiement confirmé.")
+- Mot accentué en terracotta dans le titre
+- Pas de "désolé", "malheureusement", "oups"
+- Pas d'emoji, pas de caractères Unicode décoratifs
+- Action claire à la fin des messages d'erreur ("Réessaie", "Essaie une
+  autre carte")
+
+### Anti-patterns DA — vérification stricte
+
+Aucun des 8 antipatterns du brief Phase 4 n'est présent dans les fichiers
+créés (`SubscriptionCheckoutModal.tsx`, `stripeAppearance.ts`,
+`CheckoutErrorMessage.ts`) :
+
+1. ✅ Pas de `shadow-[0_2px_8px_rgba(...)]` ou shadow custom
+2. ✅ Pas d'`active:scale-[0.98]` ni animation de scale
+3. ✅ Pas de `bg-green-50/80`, `bg-amber-100`, `bg-red-100` ou couleurs
+   hors système
+4. ✅ Pas de `rounded-full` sur badges (le tag code promo utilise
+   `rounded-[var(--radius-sm)]`)
+5. ✅ Pas de `bg-accent/[0.03]` ou transparences fantaisistes (j'utilise
+   `bg-accent-light` qui est une variable du système)
+6. ✅ Pas d'emoji
+7. ✅ Pas de centrage horizontal — tout aligné à gauche
+8. ✅ Pas de "⚠️" ni "✓" en Unicode décoratif — le `Check` du success
+   utilise `lucide-react`
+
+### Fichiers touchés en Phase 4
+
+- `src/components/billing/CheckoutErrorMessage.ts` (créé) — constantes
+  + `getErrorMessage(code, fallback)`
+- `src/components/billing/stripeAppearance.ts` (créé) — `vizlyAppearance`
+  hardcodé avec commentaire de sync vers `globals.css`
+- `src/components/billing/SubscriptionCheckoutModal.tsx` (créé) —
+  ~600 lignes, composant principal + sous-composants inline
+  (`CheckoutHeader`, `Recap`, `PromoCodeField`, `PaymentSkeleton`,
+  `ErrorBlock`, `CheckoutForm`, `SuccessHeader`, `SuccessBody`)
+- `src/actions/billing.ts` (modifié) — fix du defensive check dans
+  `createSubscriptionIntentAction` (5 lignes effectives + commentaire
+  bloc)
+- `STRIPE_MIGRATION_NOTES.md` (modifié — section Phase 4)
+
+### Composant non câblé — confirmation
+
+`SubscriptionCheckoutModal` est créée comme composant réutilisable
+exporté mais **n'est importée nulle part** dans le code existant. Le
+branchement aux 3 points d'entrée (`/billing` → `BillingClient.tsx`,
+`/tarifs` → `TarifsClient.tsx`, `/editor` → `useEditorState.handlePublish`)
+sera fait en Phase 6.

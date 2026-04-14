@@ -399,12 +399,43 @@ export async function createSubscriptionIntentAction({
         .single(),
     ])
 
-    const hasLocalSub = localSubResult.data !== null
-    const hasLegacySub =
-      legacyUserResult.data?.stripe_subscription_id !== null &&
-      legacyUserResult.data?.stripe_subscription_id !== undefined
+    // Fix discovered while building Phase 4 modal: an 'incomplete' subscription
+    // is a checkout-in-progress, not an active commitment. Blocking on it would
+    // break legitimate re-entry flows (promo code apply, retry after abandon).
+    // The original Phase 2 check was too strict — this refinement traces back
+    // to the Q3 verdict of Phase 2 and narrows "already active" to statuses
+    // that represent a real user commitment.
+    //
+    // Subscription statuses that indicate a real active commitment from the
+    // user, blocking the creation of a new subscription for this user.
+    //
+    // Excluded on purpose (non-blocking):
+    // - 'incomplete': checkout in progress or abandoned <24h. Stripe will
+    //   garbage-collect automatically. Blocking here would prevent legitimate
+    //   flows like applying a promo code (which recreates the intent) or
+    //   retrying a checkout after closing the modal.
+    // - 'incomplete_expired': checkout abandoned >24h, already expired by Stripe.
+    // - 'canceled': user cancelled, fully allowed to re-subscribe.
+    const BLOCKING_STATUSES = new Set([
+      'active',
+      'trialing',
+      'past_due',
+      'unpaid',
+    ])
 
-    if (hasLocalSub || hasLegacySub) {
+    const localSub = localSubResult.data
+    const hasLocalActiveSub =
+      localSub !== null && BLOCKING_STATUSES.has(localSub.status)
+
+    // Legacy check: only trigger if NO local row exists. If a local row exists
+    // (in any status), it's the source of truth and the legacy column is ignored.
+    // This naturally handles the Phase 2→6 transition and will be cleanly
+    // removed in Phase 6 when the legacy column goes away.
+    const hasLegacySub =
+      localSub === null &&
+      legacyUserResult.data?.stripe_subscription_id != null
+
+    if (hasLocalActiveSub || hasLegacySub) {
       return { ok: false, error: 'subscription_already_active' }
     }
 

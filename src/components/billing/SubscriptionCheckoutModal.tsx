@@ -1,0 +1,910 @@
+'use client'
+
+// =============================================================================
+// SubscriptionCheckoutModal — Vizly checkout modal for Starter/Pro subscriptions
+// =============================================================================
+//
+// Self-contained modal that creates a Stripe subscription in `default_incomplete`
+// mode and confirms it via PaymentElement. Replaces the legacy Checkout hosted
+// redirect. 100 % Vizly design (terracotta accent, Satoshi headings, left-aligned
+// editorial voice). Reusable: takes plan + interval as props, no hard-coded
+// page assumptions. Not wired into any page yet — Phase 6 will plug it into
+// /billing, /tarifs and /editor.
+//
+// State machine — single useState<CheckoutState> drives everything. The
+// discriminated union forces TypeScript to make us handle every case, and
+// keeps related state (clientSecret + subscriptionId) bundled so we never
+// end up with one-without-the-other.
+//
+// PCI / iframe note — the actual card inputs render inside a Stripe-hosted
+// iframe (PaymentElement). We can only style it via the `appearance` prop
+// in stripeAppearance.ts. Some Vizly visual details (grain overlay, exact
+// shadows) cannot cross the iframe boundary. Accepted trade-off.
+//
+// Aborted-checkouts note — closing the modal in `ready` state without paying
+// leaves an `incomplete` subscription on the Stripe side. Stripe garbage-
+// collects after 24h, and createSubscriptionIntentAction's defensive check
+// excludes `incomplete` from blocking statuses (Phase 4 fix), so the user
+// can re-open the modal and try again without issue.
+
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type Easing,
+} from 'framer-motion'
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from '@stripe/react-stripe-js'
+import { Check, Loader2, X } from 'lucide-react'
+import { getStripe } from '@/lib/stripe/client-browser'
+import {
+  createSubscriptionIntentAction,
+  validatePromotionCodeAction,
+} from '@/actions/billing'
+import { PLANS } from '@/lib/constants'
+import { cn } from '@/lib/utils'
+import { vizlyAppearance } from './stripeAppearance'
+import { getErrorMessage } from './CheckoutErrorMessage'
+
+// ---------------------------------------------------------------------------
+// Animation curve — keep in sync with src/components/shared/ScrollReveal.tsx
+// ---------------------------------------------------------------------------
+
+const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const satisfies Easing
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface SubscriptionCheckoutModalProps {
+  open: boolean
+  onClose: () => void
+  plan: 'starter' | 'pro'
+  interval: 'monthly' | 'yearly'
+  /**
+   * Called when the user clicks "Continuer" in the success state.
+   * Optional: the consumer can refresh, navigate, or just rely on onClose.
+   */
+  onSuccess?: () => void
+}
+
+/**
+ * State machine for the checkout flow.
+ *
+ * Note: 'redirectingTo3DS' is intentionally NOT a state — when 3DS is required
+ * Stripe redirects the browser, the React tree unmounts, and we'd never
+ * render that state. We stay in 'processing' until either (a) the resolved
+ * Promise fires success/error, or (b) the page unmounts mid-redirect.
+ *
+ * 'ready' and 'processing' both carry the clientSecret + subscriptionId so
+ * the <Elements> wrapper stays mounted with the same intent throughout
+ * the submission (we never unmount it mid-flight).
+ */
+type CheckoutState =
+  | { kind: 'loadingIntent' }
+  | { kind: 'error'; message: string; canRetry: boolean }
+  | { kind: 'ready'; clientSecret: string; subscriptionId: string }
+  | {
+      kind: 'processing'
+      clientSecret: string
+      subscriptionId: string
+    }
+  | { kind: 'success' }
+
+interface AppliedPromo {
+  code: string
+  percentOff?: number
+  amountOff?: number
+  currency?: string
+}
+
+interface PromoFieldState {
+  expanded: boolean
+  inputValue: string
+  applying: boolean
+  error: string | null
+}
+
+const PROMO_FIELD_INITIAL: PromoFieldState = {
+  expanded: false,
+  inputValue: '',
+  applying: false,
+  error: null,
+}
+
+// ---------------------------------------------------------------------------
+// Pricing helpers
+// ---------------------------------------------------------------------------
+
+function formatEur(cents: number): string {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(cents / 100)
+}
+
+interface PricingBreakdown {
+  baseCents: number
+  discountedCents: number
+  discountCents: number
+  hasDiscount: boolean
+}
+
+function computePricing(
+  plan: 'starter' | 'pro',
+  interval: 'monthly' | 'yearly',
+  appliedPromo: AppliedPromo | null,
+): PricingBreakdown {
+  const planInfo = PLANS[plan]
+  const baseEuros =
+    interval === 'yearly'
+      ? planInfo.yearlyPrice
+      : planInfo.price
+  const baseCents = Math.round(baseEuros * 100)
+
+  let discountedCents = baseCents
+
+  if (appliedPromo) {
+    if (appliedPromo.percentOff !== undefined) {
+      discountedCents = Math.round(baseCents * (1 - appliedPromo.percentOff / 100))
+    } else if (
+      appliedPromo.amountOff !== undefined &&
+      (appliedPromo.currency === undefined || appliedPromo.currency === 'eur')
+    ) {
+      discountedCents = Math.max(0, baseCents - appliedPromo.amountOff)
+    }
+  }
+
+  const discountCents = baseCents - discountedCents
+  return {
+    baseCents,
+    discountedCents,
+    discountCents,
+    hasDiscount: discountCents > 0,
+  }
+}
+
+const PLAN_DESCRIPTIONS: Record<'starter' | 'pro', string> = {
+  starter:
+    'Accès à la publication d\u2019un portfolio en ligne et au formulaire de contact.',
+  pro: 'Portfolios en ligne illimités, domaine personnalisé, analytics et formulaire de contact.',
+}
+
+const INTERVAL_LABELS: Record<'monthly' | 'yearly', string> = {
+  monthly: 'Facturation mensuelle',
+  yearly: 'Facturation annuelle (\u221215\u00a0%)',
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+export function SubscriptionCheckoutModal({
+  open,
+  onClose,
+  plan,
+  interval,
+  onSuccess,
+}: SubscriptionCheckoutModalProps) {
+  const [state, setState] = useState<CheckoutState>({ kind: 'loadingIntent' })
+  const [appliedPromo, setAppliedPromo] = useState<AppliedPromo | null>(null)
+  const [promoField, setPromoField] = useState<PromoFieldState>(
+    PROMO_FIELD_INITIAL,
+  )
+  const [mounted, setMounted] = useState(false)
+
+  const titleId = useId()
+  const subId = useId()
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+
+  const prefersReducedMotion = useReducedMotion()
+  const stripePromise = useMemo(() => getStripe(), [])
+
+  // For the closing handlers: we need to ignore close attempts during
+  // processing to avoid an in-flight stripe.confirmPayment that succeeds
+  // server-side while the modal disappears (confusing UX).
+  const isProcessing = state.kind === 'processing'
+
+  // Pricing depends on the currently applied promo. Recomputed cheaply.
+  const pricing = useMemo(
+    () => computePricing(plan, interval, appliedPromo),
+    [plan, interval, appliedPromo],
+  )
+
+  // -----------------------------------------------------------------------
+  // Mount safety for createPortal (SSR)
+  // -----------------------------------------------------------------------
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // -----------------------------------------------------------------------
+  // Body overflow lock + previous focus capture
+  // -----------------------------------------------------------------------
+
+  useEffect(() => {
+    if (!open) return
+    const previous = document.activeElement
+    if (previous instanceof HTMLElement) {
+      previousFocusRef.current = previous
+    }
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+      const target = previousFocusRef.current
+      if (target) target.focus()
+    }
+  }, [open])
+
+  // -----------------------------------------------------------------------
+  // Initial focus (after mount + when state allows interaction)
+  // -----------------------------------------------------------------------
+
+  useEffect(() => {
+    if (!open) return
+    // Defer focus to after the entry animation so it doesn't fight with
+    // framer-motion's initial transform.
+    const timer = setTimeout(() => {
+      closeButtonRef.current?.focus()
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [open])
+
+  // -----------------------------------------------------------------------
+  // Escape to close (disabled during processing)
+  // -----------------------------------------------------------------------
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isProcessing) {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [open, isProcessing, onClose])
+
+  // -----------------------------------------------------------------------
+  // Fetch / refetch the subscription intent
+  // -----------------------------------------------------------------------
+
+  const fetchIntent = useCallback(
+    async (promoCodeForServer?: string) => {
+      setState({ kind: 'loadingIntent' })
+      const result = await createSubscriptionIntentAction({
+        plan,
+        interval,
+        ...(promoCodeForServer ? { promotionCode: promoCodeForServer } : {}),
+      })
+      if (result.ok) {
+        setState({
+          kind: 'ready',
+          clientSecret: result.clientSecret,
+          subscriptionId: result.subscriptionId,
+        })
+      } else {
+        setState({
+          kind: 'error',
+          message: getErrorMessage(result.error),
+          canRetry: true,
+        })
+      }
+    },
+    [plan, interval],
+  )
+
+  // Initial fetch when the modal opens. Reset everything else.
+  useEffect(() => {
+    if (!open) return
+    setAppliedPromo(null)
+    setPromoField(PROMO_FIELD_INITIAL)
+    void fetchIntent()
+  }, [open, fetchIntent])
+
+  // -----------------------------------------------------------------------
+  // Promo code apply / remove
+  // -----------------------------------------------------------------------
+
+  const handleApplyPromo = useCallback(async () => {
+    const code = promoField.inputValue.trim()
+    if (!code) return
+
+    setPromoField((s) => ({ ...s, applying: true, error: null }))
+
+    const validation = await validatePromotionCodeAction(code)
+    if (!validation.ok) {
+      setPromoField((s) => ({
+        ...s,
+        applying: false,
+        error: getErrorMessage(validation.error),
+      }))
+      return
+    }
+
+    const newPromo: AppliedPromo = {
+      code,
+      ...(validation.discount.percentOff !== undefined
+        ? { percentOff: validation.discount.percentOff }
+        : {}),
+      ...(validation.discount.amountOff !== undefined
+        ? { amountOff: validation.discount.amountOff }
+        : {}),
+      ...(validation.discount.currency !== undefined
+        ? { currency: validation.discount.currency }
+        : {}),
+    }
+    setAppliedPromo(newPromo)
+    setPromoField((s) => ({ ...s, applying: false, error: null }))
+
+    // Recreate the intent on the server with the promo code so the
+    // PaymentElement amount matches what the user will be charged.
+    await fetchIntent(code)
+  }, [promoField.inputValue, fetchIntent])
+
+  const handleRemovePromo = useCallback(async () => {
+    setAppliedPromo(null)
+    setPromoField(PROMO_FIELD_INITIAL)
+    await fetchIntent()
+  }, [fetchIntent])
+
+  // -----------------------------------------------------------------------
+  // Submit callbacks for the inner CheckoutForm
+  // -----------------------------------------------------------------------
+
+  const handleSubmitStart = useCallback(() => {
+    setState((current) =>
+      current.kind === 'ready'
+        ? {
+            kind: 'processing',
+            clientSecret: current.clientSecret,
+            subscriptionId: current.subscriptionId,
+          }
+        : current,
+    )
+  }, [])
+
+  const handleSubmitError = useCallback((message: string) => {
+    setState({ kind: 'error', message, canRetry: true })
+  }, [])
+
+  const handleSubmitSuccess = useCallback(() => {
+    setState({ kind: 'success' })
+  }, [])
+
+  // -----------------------------------------------------------------------
+  // Backdrop click — closes only when not processing
+  // -----------------------------------------------------------------------
+
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (e.target !== e.currentTarget) return
+      if (isProcessing) return
+      onClose()
+    },
+    [isProcessing, onClose],
+  )
+
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
+
+  if (!mounted) return null
+
+  // We need both the clientSecret and subscriptionId for the Elements wrap.
+  // Both 'ready' and 'processing' share them.
+  const elementsState =
+    state.kind === 'ready' || state.kind === 'processing' ? state : null
+
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm"
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          onClick={handleBackdropClick}
+        >
+          <motion.div
+            className="relative w-full sm:max-w-md sm:my-8 max-h-[100vh] sm:max-h-[90vh] overflow-y-auto bg-background sm:rounded-[var(--radius-lg)] border-t sm:border border-border"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
+            transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            aria-describedby={subId}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* ---- Header ---- */}
+            <header className="relative px-8 pt-8 pb-6">
+              <button
+                ref={closeButtonRef}
+                type="button"
+                onClick={onClose}
+                disabled={isProcessing}
+                aria-label="Fermer"
+                className={cn(
+                  'absolute top-6 right-6 text-muted-foreground transition-colors',
+                  isProcessing
+                    ? 'opacity-40 pointer-events-none'
+                    : 'hover:text-foreground',
+                )}
+              >
+                <X className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              </button>
+
+              {state.kind === 'success' ? (
+                <SuccessHeader
+                  titleId={titleId}
+                  subId={subId}
+                  planName={PLANS[plan].name}
+                />
+              ) : (
+                <CheckoutHeader
+                  titleId={titleId}
+                  subId={subId}
+                  plan={plan}
+                />
+              )}
+            </header>
+
+            {/* ---- Body (varies by state) ---- */}
+            {state.kind === 'success' ? (
+              <SuccessBody
+                onContinue={() => {
+                  onSuccess?.()
+                  onClose()
+                }}
+              />
+            ) : (
+              <>
+                <Recap
+                  plan={plan}
+                  interval={interval}
+                  pricing={pricing}
+                  appliedPromo={appliedPromo}
+                />
+
+                <PromoCodeField
+                  state={promoField}
+                  appliedPromo={appliedPromo}
+                  onToggle={() =>
+                    setPromoField((s) => ({ ...s, expanded: !s.expanded }))
+                  }
+                  onChange={(value) =>
+                    setPromoField((s) => ({ ...s, inputValue: value, error: null }))
+                  }
+                  onApply={handleApplyPromo}
+                  onRemove={handleRemovePromo}
+                  disabled={isProcessing}
+                />
+
+                <section className="px-8 py-6 border-t border-border">
+                  <p className="text-sm font-medium text-foreground mb-4">
+                    Moyen de paiement
+                  </p>
+
+                  {state.kind === 'loadingIntent' && <PaymentSkeleton />}
+
+                  {state.kind === 'error' && (
+                    <ErrorBlock
+                      message={state.message}
+                      canRetry={state.canRetry}
+                      onRetry={() => void fetchIntent(appliedPromo?.code)}
+                    />
+                  )}
+
+                  {elementsState && (
+                    <Elements
+                      key={elementsState.clientSecret}
+                      stripe={stripePromise}
+                      options={{
+                        clientSecret: elementsState.clientSecret,
+                        appearance: vizlyAppearance,
+                        locale: 'fr',
+                      }}
+                    >
+                      <CheckoutForm
+                        amountCents={pricing.discountedCents}
+                        subscriptionId={elementsState.subscriptionId}
+                        isProcessing={isProcessing}
+                        onSubmitStart={handleSubmitStart}
+                        onSubmitError={handleSubmitError}
+                        onSubmitSuccess={handleSubmitSuccess}
+                      />
+                    </Elements>
+                  )}
+                </section>
+
+                <footer className="px-8 pb-8 pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Paiement sécurisé par Stripe · Tu peux résilier à tout moment.
+                  </p>
+                </footer>
+              </>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body,
+  )
+}
+
+// ===========================================================================
+// Sub-components — kept inline so the modal lives in a single file. If
+// TemplatePurchaseModal (Phase 5) ends up needing the same building blocks,
+// we'll extract them then. Premature abstraction is worse than duplication.
+// ===========================================================================
+
+function CheckoutHeader({
+  titleId,
+  subId,
+  plan,
+}: {
+  titleId: string
+  subId: string
+  plan: 'starter' | 'pro'
+}) {
+  const planName = PLANS[plan].name
+  return (
+    <div className="pr-10">
+      <h2
+        id={titleId}
+        className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground"
+      >
+        Passer en <span className="text-accent">{planName}</span>.
+      </h2>
+      <p id={subId} className="mt-2 text-sm text-muted leading-relaxed">
+        {PLAN_DESCRIPTIONS[plan]}
+      </p>
+    </div>
+  )
+}
+
+function Recap({
+  plan,
+  interval,
+  pricing,
+  appliedPromo,
+}: {
+  plan: 'starter' | 'pro'
+  interval: 'monthly' | 'yearly'
+  pricing: PricingBreakdown
+  appliedPromo: AppliedPromo | null
+}) {
+  const planName = PLANS[plan].name
+  const intervalSuffix = interval === 'monthly' ? ' / mois' : ' / an'
+
+  return (
+    <section className="px-8 py-6 border-t border-border">
+      <dl className="space-y-3 text-sm">
+        <div className="flex items-baseline justify-between gap-4">
+          <dt className="text-muted">Plan</dt>
+          <dd className="font-medium text-foreground text-right">
+            {planName}
+            <span className="block text-xs text-muted mt-0.5 font-normal">
+              {INTERVAL_LABELS[interval]}
+            </span>
+          </dd>
+        </div>
+
+        {appliedPromo && pricing.hasDiscount && (
+          <>
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-muted">Sous-total</dt>
+              <dd className="text-muted text-right line-through">
+                {formatEur(pricing.baseCents)}
+                {intervalSuffix}
+              </dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-muted">
+                Code promo
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 text-[11px] font-medium text-accent bg-accent-light rounded-[var(--radius-sm)]">
+                  {appliedPromo.code}
+                </span>
+              </dt>
+              <dd className="text-accent font-medium text-right">
+                {`−${formatEur(pricing.discountCents)}`}
+              </dd>
+            </div>
+          </>
+        )}
+
+        <div className="flex items-baseline justify-between gap-4 pt-3 border-t border-border-light">
+          <dt className="font-medium text-foreground">Total</dt>
+          <dd className="font-[family-name:var(--font-satoshi)] text-xl font-bold text-foreground text-right">
+            {formatEur(pricing.discountedCents)}
+            <span className="text-sm font-normal text-muted ml-1">
+              {intervalSuffix}
+            </span>
+          </dd>
+        </div>
+      </dl>
+    </section>
+  )
+}
+
+function PromoCodeField({
+  state,
+  appliedPromo,
+  onToggle,
+  onChange,
+  onApply,
+  onRemove,
+  disabled,
+}: {
+  state: PromoFieldState
+  appliedPromo: AppliedPromo | null
+  onToggle: () => void
+  onChange: (value: string) => void
+  onApply: () => void
+  onRemove: () => void
+  disabled: boolean
+}) {
+  if (appliedPromo) {
+    return (
+      <section className="px-8 py-4 border-t border-border">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm text-muted">
+            Code promo <span className="text-foreground font-medium">{appliedPromo.code}</span> appliqué.
+          </p>
+          <button
+            type="button"
+            onClick={() => void onRemove()}
+            disabled={disabled}
+            className="text-sm text-muted hover:text-foreground underline underline-offset-4 transition-colors disabled:opacity-50"
+          >
+            Retirer
+          </button>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="px-8 py-4 border-t border-border">
+      {!state.expanded ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={disabled}
+          className="text-sm text-muted hover:text-foreground underline underline-offset-4 transition-colors disabled:opacity-50"
+        >
+          Tu as un code promo&nbsp;?
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <label
+            htmlFor="promo-code-input"
+            className="block text-sm font-medium text-foreground"
+          >
+            Code promo
+          </label>
+          <div className="flex gap-2">
+            <div className="flex-1 flex items-center rounded-[var(--radius-md)] border border-border bg-background overflow-hidden transition-colors duration-200 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/15">
+              <input
+                id="promo-code-input"
+                type="text"
+                value={state.inputValue}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder="VIZLY15"
+                disabled={disabled || state.applying}
+                className="flex-1 bg-transparent px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    void onApply()
+                  }
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => void onApply()}
+              disabled={disabled || state.applying || !state.inputValue.trim()}
+              className="rounded-[var(--radius-md)] border border-border px-4 text-sm font-medium text-foreground hover:bg-surface-warm transition-colors disabled:opacity-50 disabled:hover:bg-background"
+            >
+              {state.applying ? (
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+              ) : (
+                'Appliquer'
+              )}
+            </button>
+          </div>
+          {state.error && (
+            <p className="text-xs text-destructive" role="alert">
+              {state.error}
+            </p>
+          )}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function PaymentSkeleton() {
+  return (
+    <div className="space-y-3" aria-busy="true" aria-live="polite">
+      <div className="h-12 rounded-[var(--radius-md)] bg-surface-warm animate-pulse" />
+      <div className="h-12 rounded-[var(--radius-md)] bg-surface-warm animate-pulse" />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="h-12 rounded-[var(--radius-md)] bg-surface-warm animate-pulse" />
+        <div className="h-12 rounded-[var(--radius-md)] bg-surface-warm animate-pulse" />
+      </div>
+      <div className="h-12 rounded-[var(--radius-md)] bg-surface-warm animate-pulse mt-4" />
+    </div>
+  )
+}
+
+function ErrorBlock({
+  message,
+  canRetry,
+  onRetry,
+}: {
+  message: string
+  canRetry: boolean
+  onRetry: () => void
+}) {
+  return (
+    <div
+      className="rounded-[var(--radius-md)] border border-border bg-surface-warm p-4 space-y-3"
+      role="alert"
+    >
+      <p className="text-sm text-foreground">{message}</p>
+      {canRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="text-sm text-foreground hover:text-accent underline underline-offset-4 transition-colors"
+        >
+          Réessayer
+        </button>
+      )}
+    </div>
+  )
+}
+
+function CheckoutForm({
+  amountCents,
+  subscriptionId,
+  isProcessing,
+  onSubmitStart,
+  onSubmitError,
+  onSubmitSuccess,
+}: {
+  amountCents: number
+  subscriptionId: string
+  isProcessing: boolean
+  onSubmitStart: () => void
+  onSubmitError: (message: string) => void
+  onSubmitSuccess: () => void
+}) {
+  const stripe = useStripe()
+  const elements = useElements()
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (!stripe || !elements || isProcessing) return
+
+      onSubmitStart()
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/billing/confirm?subscription_id=${subscriptionId}`,
+        },
+        redirect: 'if_required',
+      })
+
+      if (error) {
+        onSubmitError(getErrorMessage(error.code, error.message))
+        return
+      }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onSubmitSuccess()
+        return
+      }
+
+      // Other paymentIntent statuses (processing, requires_action without
+      // redirect): treat as a soft error — the user can retry.
+      onSubmitError(
+        getErrorMessage(
+          undefined,
+          "Le paiement n'a pas encore été confirmé. Réessaie dans un instant.",
+        ),
+      )
+    },
+    [stripe, elements, isProcessing, subscriptionId, onSubmitStart, onSubmitError, onSubmitSuccess],
+  )
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement
+        options={{
+          layout: 'tabs',
+          fields: { billingDetails: 'auto' },
+          wallets: { applePay: 'auto', googlePay: 'auto' },
+        }}
+      />
+
+      <button
+        type="submit"
+        disabled={!stripe || !elements || isProcessing}
+        className={cn(
+          'w-full inline-flex items-center justify-center gap-2 h-12 rounded-[var(--radius-md)] text-sm font-medium text-white transition-colors',
+          isProcessing || !stripe || !elements
+            ? 'bg-accent/50 cursor-not-allowed'
+            : 'bg-accent hover:bg-accent-hover',
+        )}
+      >
+        {isProcessing ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+            {'Paiement en cours\u2026'}
+          </>
+        ) : (
+          `Payer ${formatEur(amountCents)}`
+        )}
+      </button>
+    </form>
+  )
+}
+
+function SuccessHeader({
+  titleId,
+  subId,
+  planName,
+}: {
+  titleId: string
+  subId: string
+  planName: string
+}) {
+  return (
+    <div className="pr-10">
+      <h2
+        id={titleId}
+        className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground"
+      >
+        Paiement <span className="text-accent">confirmé</span>.
+      </h2>
+      <p id={subId} className="mt-2 text-sm text-muted leading-relaxed">
+        Ton abonnement {planName} est actif.
+      </p>
+    </div>
+  )
+}
+
+function SuccessBody({ onContinue }: { onContinue: () => void }) {
+  return (
+    <section className="px-8 pt-2 pb-8 space-y-6">
+      <div className="flex items-center gap-3 text-sm text-muted">
+        <Check className="h-4 w-4 text-accent" strokeWidth={2.5} />
+        Tu peux maintenant publier ton portfolio.
+      </div>
+      <button
+        type="button"
+        onClick={onContinue}
+        className="w-full inline-flex items-center justify-center h-12 rounded-[var(--radius-md)] bg-accent text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+      >
+        Continuer
+      </button>
+    </section>
+  )
+}
