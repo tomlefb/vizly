@@ -13,6 +13,117 @@ const nameSchema = z
   .min(1, 'Le nom est requis')
   .max(100, 'Le nom ne peut pas depasser 100 caracteres')
 
+const registerSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'Le nom est requis')
+    .max(100, 'Le nom ne peut pas depasser 100 caracteres'),
+  email: z.string().email('Adresse email invalide'),
+  password: z
+    .string()
+    .min(6, 'Le mot de passe doit contenir au moins 6 caracteres'),
+})
+
+// ---------------------------------------------------------------------------
+// Register
+// ---------------------------------------------------------------------------
+
+export interface RegisterInput {
+  name: string
+  email: string
+  password: string
+}
+
+export type RegisterErrorCode =
+  | 'validation'
+  | 'already_registered'
+  | 'unknown'
+
+export type RegisterResult =
+  | { ok: true; userId: string }
+  | { ok: false; error: string; code: RegisterErrorCode }
+
+/**
+ * Register a new user via Supabase Auth.
+ *
+ * Server-side entry point for signup. Validates input defensively,
+ * calls supabase.auth.signUp, and returns a structured result. Used by
+ * src/app/(auth)/register/page.tsx.
+ *
+ * Supabase sends the "Confirm signup" email automatically (template
+ * configured in the Supabase dashboard). The user clicks the link in
+ * that email, which lands on /auth/callback where we exchange the code
+ * for a session (see src/app/(auth)/auth/callback/route.ts).
+ *
+ * NOTE (Bloc 4): this function creates the auth user but does NOT send
+ * the Vizly custom Welcome email. The Welcome email is deferred until
+ * the user has clicked the confirmation link and their email is
+ * actually verified. The trigger point for Welcome is audited in Bloc 2
+ * (route callback vs DB trigger vs auth webhook) and wired in Bloc 4.
+ *
+ * Client-side validation still runs in register/page.tsx for instant
+ * UX feedback with localized messages. The Zod check here is a
+ * defensive safety net in case of a direct server action call that
+ * bypasses the form.
+ */
+export async function registerUser(
+  input: RegisterInput,
+): Promise<RegisterResult> {
+  const parsed = registerSchema.safeParse(input)
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Donnees invalides',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://vizly.fr'
+
+    const { data, error } = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: {
+        data: { full_name: parsed.data.name },
+        emailRedirectTo: `${appUrl}/auth/callback`,
+      },
+    })
+
+    if (error) {
+      // Preserve the existing substring-match behaviour so the client
+      // keeps its localised "already registered" handling.
+      if (error.message.includes('already registered')) {
+        return {
+          ok: false,
+          error: 'Un compte existe deja avec cette adresse',
+          code: 'already_registered',
+        }
+      }
+      console.error('[Auth] Signup error:', error.message)
+      return { ok: false, error: error.message, code: 'unknown' }
+    }
+
+    if (!data.user) {
+      console.error('[Auth] Signup returned no user object')
+      return {
+        ok: false,
+        error: 'Erreur inattendue lors de la creation du compte',
+        code: 'unknown',
+      }
+    }
+
+    console.log(`[Auth] User registered: ${data.user.id}`)
+    return { ok: true, userId: data.user.id }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth] Unexpected signup error:', message)
+    return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Update profile (name)
 // ---------------------------------------------------------------------------

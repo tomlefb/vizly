@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "email": "email dev --dir emails --port 3001"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,8 @@
   "homepage": "https://github.com/tomlefb/vizly#readme",
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.2.8",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.6",
     "@stripe/stripe-js": "^9.0.0",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.100.1",
@@ -43,6 +46,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@playwright/test": "^1.58.2",
+    "@react-email/preview-server": "^5.2.10",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
@@ -51,6 +55,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^15.5.14",
     "postcss": "^8.5.8",
+    "react-email": "^5.2.10",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3"
   }

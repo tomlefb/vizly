@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { registerUser } from '@/actions/auth'
 import { z } from 'zod'
 
 export default function RegisterPage() {
@@ -35,23 +36,17 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const supabase = createClient()
-      const { error: authError } = await supabase.auth.signUp({
+      const result = await registerUser({
+        name: parsed.data.name,
         email: parsed.data.email,
         password: parsed.data.password,
-        options: {
-          data: {
-            full_name: parsed.data.name,
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
       })
 
-      if (authError) {
-        if (authError.message.includes('already registered')) {
+      if (!result.ok) {
+        if (result.code === 'already_registered') {
           setError(t('errors.alreadyRegistered'))
         } else {
-          setError(authError.message)
+          setError(result.error)
         }
         return
       }

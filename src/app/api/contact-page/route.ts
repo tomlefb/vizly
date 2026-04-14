@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
-import { resend, FROM_EMAIL } from '@/lib/resend/client'
+import { sendEmail } from '@/lib/emails/send'
 
 const contactSchema = z.object({
   name: z.string().min(1).max(100),
@@ -23,16 +23,19 @@ export async function POST(request: NextRequest) {
 
     const { name, email, message } = parsed.data
 
-    const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+    const result = await sendEmail({
+      template: 'contact-notification',
       to: 'tom@vizly.fr',
       replyTo: email,
-      subject: `[Vizly Contact] Message de ${name}`,
-      text: `Nom: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      data: {
+        senderName: name,
+        senderEmail: email,
+        message,
+      },
     })
 
-    if (error) {
-      console.error('[Contact Page] Resend error:', error)
+    if (!result.ok) {
+      console.error('[Contact Page] sendEmail error:', result.error)
       return NextResponse.json(
         { error: 'Erreur lors de l\'envoi' },
         { status: 500 }

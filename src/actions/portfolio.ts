@@ -3,8 +3,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { portfolioSchema, slugSchema } from '@/lib/validations'
 import { PLANS, type PlanType } from '@/lib/constants'
+import { sendEmail } from '@/lib/emails/send'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { Portfolio } from '@/types'
+
+const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
 
 interface PortfolioResult {
   data: Portfolio | null
@@ -163,10 +166,10 @@ export async function publishPortfolio(
 
     const validSlug = parsed.data
 
-    // Check plan publish limit
+    // Check plan publish limit + fetch user name for the email payload
     const { data: profile } = await supabase
       .from('users')
-      .select('plan')
+      .select('plan, name')
       .eq('id', user.id)
       .single()
 
@@ -185,9 +188,11 @@ export async function publishPortfolio(
       .eq('published', true)
 
     // Check user has a portfolio
+    // - title + published_at are needed for the portfolio-published email
+    //   (first-publication detection via published_at IS NULL)
     const { data: portfolio, error: fetchError } = await supabase
       .from('portfolios')
-      .select('id, slug, published')
+      .select('id, slug, published, title, published_at')
       .eq('user_id', user.id)
       .limit(1)
       .maybeSingle()
@@ -225,16 +230,63 @@ export async function publishPortfolio(
       }
     }
 
-    // Publish: set slug + published = true
+    // Detect first publication BEFORE the update. Migration 008 added
+    // published_at to portfolios and backfilled it to created_at for
+    // already-published portfolios, so any portfolio with published_at
+    // IS NULL has never been published before. After unpublish+republish,
+    // published_at stays set → no re-fire of the welcome-to-online email.
+    const isFirstPublication = portfolio.published_at === null
+
+    // Publish: set slug + published = true (+ published_at on first publi)
+    const updatePayload: {
+      slug: string
+      published: boolean
+      published_at?: string
+    } = {
+      slug: validSlug,
+      published: true,
+    }
+    if (isFirstPublication) {
+      updatePayload.published_at = new Date().toISOString()
+    }
+
     const { data: updated, error: updateError } = await supabase
       .from('portfolios')
-      .update({ slug: validSlug, published: true })
+      .update(updatePayload)
       .eq('id', portfolio.id)
       .select()
       .single()
 
     if (updateError) {
       return { data: null, error: updateError.message }
+    }
+
+    // Fire portfolio-published email on first publication only.
+    // Failure is logged but doesn't fail the publication itself — the
+    // user has successfully published, the email is a side effect.
+    if (isFirstPublication && user.email) {
+      const portfolioUrl = `https://${validSlug}.${APP_DOMAIN}`
+      const emailResult = await sendEmail({
+        template: 'portfolio-published',
+        to: user.email,
+        data: {
+          name: profile?.name ?? '',
+          portfolioTitle: portfolio.title ?? '',
+          portfolioUrl,
+          portfolioSlug: validSlug,
+        },
+      })
+
+      if (!emailResult.ok) {
+        console.error(
+          `[Portfolio] portfolio-published email failed for ${user.email}:`,
+          emailResult.error,
+        )
+      } else {
+        console.log(
+          `[Portfolio] portfolio-published sent to ${user.email} (slug=${validSlug})`,
+        )
+      }
     }
 
     return { data: updated, error: null }

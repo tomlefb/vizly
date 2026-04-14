@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { contactFormSchema } from '@/lib/validations'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { sendContactNotification } from '@/lib/resend/send'
+import { sendEmail } from '@/lib/emails/send'
 import { z } from 'zod'
 
 /**
@@ -79,15 +79,19 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Send the contact notification email
-    const { error: sendError } = await sendContactNotification({
+    const result = await sendEmail({
+      template: 'contact-notification',
       to: owner.email,
-      portfolioName: portfolio.title,
-      senderName: name,
-      senderEmail: email,
-      message,
+      replyTo: email,
+      data: {
+        portfolioName: portfolio.title,
+        senderName: name,
+        senderEmail: email,
+        message,
+      },
     })
 
-    if (sendError) {
+    if (!result.ok) {
       return NextResponse.json(
         { error: 'Erreur lors de l\'envoi du message' },
         { status: 500 }

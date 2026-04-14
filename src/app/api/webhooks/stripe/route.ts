@@ -1,18 +1,121 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { stripe } from '@/lib/stripe/client'
-import { getPlanFromPriceId } from '@/lib/stripe/prices'
-import { createAdminClient } from '@/lib/supabase/admin'
-import type Stripe from 'stripe'
-
 /**
  * Stripe webhook handler.
  *
- * Handles:
+ * Receives Stripe events (signed via STRIPE_WEBHOOK_SECRET), routes them
+ * to the right handler, and returns 200 always (Stripe re-fires on non-2xx).
+ *
+ * Handlers:
  * - checkout.session.completed (subscription + one-shot template purchases)
- * - customer.subscription.updated (plan changes)
- * - customer.subscription.deleted (cancellation -> unpublish portfolio)
- * - invoice.payment_failed (log for now, email later via Resend)
+ * - customer.subscription.updated (plan changes, period changes, cancel click)
+ *   → dispatched via detectSubscriptionChange()
+ * - customer.subscription.deleted (period-end termination → unpublish portfolios)
+ * - invoice.payment_failed (fire payment-failed email)
+ *
+ * Email side-effects live in ./email-handlers.ts. This file contains only
+ * the webhook routing + DB sync logic + the dispatcher.
  */
+
+import { NextResponse, type NextRequest } from 'next/server'
+import { stripe } from '@/lib/stripe/client'
+import {
+  getPlanFromPriceId,
+  getPlanAndIntervalFromPriceId,
+} from '@/lib/stripe/prices'
+import { createAdminClient } from '@/lib/supabase/admin'
+import {
+  sendCancellationEmail,
+  sendPlanChangedEmail,
+  sendBillingPeriodChangedEmail,
+  sendPaymentSucceededEmail,
+  sendPaymentFailedEmail,
+  type SubscriptionChange,
+} from './email-handlers'
+import type Stripe from 'stripe'
+
+// ---------------------------------------------------------------------------
+// Subscription change detection (dispatcher)
+// ---------------------------------------------------------------------------
+
+/**
+ * Detect what kind of change a customer.subscription.updated event represents.
+ *
+ * Cancel detection takes priority — if the user just clicked Cancel,
+ * we don't care about any other concurrent field change in the same event.
+ *
+ * Plan/period detection requires previous_attributes.items to be defined
+ * (Stripe only sets it when items actually changed). We compare the
+ * previous and new price IDs via getPlanAndIntervalFromPriceId.
+ *
+ * Free → paid transitions return 'no-op' here — they go through
+ * checkout.session.completed instead, which fires payment-succeeded.
+ */
+function detectSubscriptionChange(
+  subscription: Stripe.Subscription,
+  previousAttributes: Partial<Stripe.Subscription> | undefined,
+  userBeforePlan: 'free' | 'starter' | 'pro',
+): SubscriptionChange {
+  // 1. Scheduled cancel — primary path (Vizly portal default)
+  const justScheduledCancel =
+    previousAttributes?.cancel_at_period_end === false &&
+    subscription.cancel_at_period_end === true
+  if (justScheduledCancel) return { kind: 'cancelled-scheduled' }
+
+  // 2. Immediate cancel — defensive (Stripe Dashboard admin action)
+  const justCancelledImmediately =
+    previousAttributes?.status !== undefined &&
+    previousAttributes.status !== 'canceled' &&
+    subscription.status === 'canceled'
+  if (justCancelledImmediately) return { kind: 'cancelled-immediate' }
+
+  // 3. Item change detection — only fires if items actually changed
+  const prevItems = previousAttributes?.items
+  if (!prevItems) return { kind: 'no-op' }
+
+  const newPriceId = subscription.items.data[0]?.price?.id
+  if (!newPriceId) return { kind: 'no-op' }
+
+  const newMapping = getPlanAndIntervalFromPriceId(newPriceId)
+  if (!newMapping) return { kind: 'no-op' }
+
+  // Read previous priceId from previous_attributes.items.data[0].price.id
+  const prevPriceId = prevItems.data?.[0]?.price?.id
+  if (!prevPriceId) return { kind: 'no-op' }
+
+  const prevMapping = getPlanAndIntervalFromPriceId(prevPriceId)
+  if (!prevMapping) return { kind: 'no-op' }
+
+  // 4. Plan change vs billing period change
+  if (prevMapping.plan !== newMapping.plan) {
+    // Defensive: free → paid shouldn't reach here (it goes through
+    // checkout.session.completed). If userBefore is 'free', skip.
+    if (userBeforePlan === 'free') return { kind: 'no-op' }
+
+    return {
+      kind: 'plan-changed',
+      previousPlan: prevMapping.plan === 'pro' ? 'Pro' : 'Starter',
+      newPlan: newMapping.plan === 'pro' ? 'Pro' : 'Starter',
+      changeType: newMapping.plan === 'pro' ? 'upgrade' : 'downgrade',
+      newBillingPeriod: newMapping.interval,
+    }
+  }
+
+  // Same plan, different interval = billing-period-changed
+  if (prevMapping.interval !== newMapping.interval) {
+    return {
+      kind: 'billing-period-changed',
+      previousBillingPeriod: prevMapping.interval,
+      newBillingPeriod: newMapping.interval,
+    }
+  }
+
+  // Same plan, same interval — items changed for some other reason (no-op)
+  return { kind: 'no-op' }
+}
+
+// ---------------------------------------------------------------------------
+// POST entry point
+// ---------------------------------------------------------------------------
+
 export async function POST(request: NextRequest) {
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
@@ -48,7 +151,11 @@ export async function POST(request: NextRequest) {
       }
 
       case 'customer.subscription.updated': {
-        await handleSubscriptionUpdated(event.data.object, supabase)
+        await handleSubscriptionUpdated(
+          event.data.object,
+          event.data.previous_attributes,
+          supabase,
+        )
         break
       }
 
@@ -58,7 +165,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'invoice.payment_failed': {
-        await handlePaymentFailed(event.data.object)
+        await handlePaymentFailed(event.data.object, supabase)
         break
       }
 
@@ -117,8 +224,8 @@ async function handleSubscriptionCheckout(
     return
   }
 
-  const plan = getPlanFromPriceId(priceId)
-  if (!plan) {
+  const planMapping = getPlanAndIntervalFromPriceId(priceId)
+  if (!planMapping) {
     console.error(`[Stripe Webhook] Unknown price ID: ${priceId}`)
     return
   }
@@ -131,7 +238,7 @@ async function handleSubscriptionCheckout(
   const { error } = await supabase
     .from('users')
     .update({
-      plan,
+      plan: planMapping.plan,
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId,
     })
@@ -142,7 +249,18 @@ async function handleSubscriptionCheckout(
     return
   }
 
-  console.log(`[Stripe Webhook] User ${userId} upgraded to ${plan}`)
+  console.log(`[Stripe Webhook] User ${userId} upgraded to ${planMapping.plan}`)
+
+  // Fire payment-succeeded email after the DB update succeeds.
+  // Failure is logged inside the helper but doesn't propagate.
+  await sendPaymentSucceededEmail(
+    subscription,
+    userId,
+    planMapping.plan,
+    planMapping.interval,
+    session,
+    supabase,
+  )
 }
 
 async function handleTemplateCheckout(
@@ -181,29 +299,124 @@ async function handleTemplateCheckout(
   console.log(`[Stripe Webhook] User ${userId} purchased template ${templateId}`)
 }
 
+/**
+ * Resolve the Vizly user ID linked to a Stripe subscription.
+ *
+ * Primary path: subscription.metadata.userId (set at checkout time).
+ * Fallback: DB lookup by stripe_subscription_id (for subs where metadata
+ * is missing — e.g. legacy subs or subs created via Stripe Dashboard).
+ *
+ * Returns null if the user cannot be resolved — the caller should log
+ * and bail out cleanly.
+ */
+async function resolveUserIdFromSubscription(
+  subscription: Stripe.Subscription,
+  supabase: ReturnType<typeof createAdminClient>,
+): Promise<string | null> {
+  const fromMetadata = subscription.metadata?.userId
+  if (fromMetadata) return fromMetadata
+
+  const { data: user } = await supabase
+    .from('users')
+    .select('id')
+    .eq('stripe_subscription_id', subscription.id)
+    .limit(1)
+    .maybeSingle()
+
+  return user?.id ?? null
+}
+
+/**
+ * Handles customer.subscription.updated — the busiest event. Fires for
+ * many reasons (plan change, period change, card update, cancel click,
+ * proration, reactivation…). Uses detectSubscriptionChange() as a
+ * dispatcher to route to the right email helper.
+ *
+ * Order of operations:
+ *   1. Resolve userId from metadata or DB lookup
+ *   2. Read userBefore (plan, email, name) — needed BEFORE updating because
+ *      the dispatcher compares the OLD plan with the NEW price ID
+ *   3. Update user.plan from the new priceId (existing behavior)
+ *   4. Run the dispatcher → SubscriptionChange
+ *   5. Switch on change.kind and call the right email helper
+ *
+ * Email failures are logged but never block the webhook response.
+ */
 async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription,
-  supabase: ReturnType<typeof createAdminClient>
+  previousAttributes: Partial<Stripe.Subscription> | undefined,
+  supabase: ReturnType<typeof createAdminClient>,
 ) {
-  const userId = subscription.metadata?.userId
+  const userId = await resolveUserIdFromSubscription(subscription, supabase)
   if (!userId) {
-    const { data: user } = await supabase
-      .from('users')
-      .select('id')
-      .eq('stripe_subscription_id', subscription.id)
-      .limit(1)
-      .maybeSingle()
-
-    if (!user) {
-      console.error('[Stripe Webhook] Cannot find user for subscription:', subscription.id)
-      return
-    }
-
-    await updateUserPlanFromSubscription(subscription, user.id, supabase)
+    console.error(
+      '[Stripe Webhook] Cannot find user for subscription:',
+      subscription.id,
+    )
     return
   }
 
+  // Read user state BEFORE updating — the dispatcher needs the OLD plan
+  // to detect plan-changed (Starter ↔ Pro) vs billing-period-changed
+  // (same plan, different interval).
+  const { data: userBefore, error: userBeforeError } = await supabase
+    .from('users')
+    .select('email, name, plan')
+    .eq('id', userId)
+    .single()
+
+  if (userBeforeError || !userBefore) {
+    console.error(
+      '[Stripe Webhook] User row not found for subscription update:',
+      userId,
+      userBeforeError?.message,
+    )
+    return
+  }
+
+  // Keep user.plan in sync with the current priceId
   await updateUserPlanFromSubscription(subscription, userId, supabase)
+
+  // Dispatch on what specifically changed
+  const change = detectSubscriptionChange(
+    subscription,
+    previousAttributes,
+    userBefore.plan,
+  )
+
+  console.log(
+    `[Stripe Webhook] subscription.updated → ${change.kind} (userId=${userId})`,
+  )
+
+  switch (change.kind) {
+    case 'no-op':
+      return
+
+    case 'cancelled-scheduled':
+    case 'cancelled-immediate': {
+      // Log cancellation_details.reason for analytics (not decision-making).
+      // 'cancellation_requested' = user clicked in portal, 'payment_failed'
+      // = Smart Retries gave up, 'payment_disputed' = dispute, null = not set.
+      const reason = subscription.cancellation_details?.reason ?? 'unknown'
+      console.log(
+        `[Stripe Webhook] Cancellation reason=${reason} (userId=${userId})`,
+      )
+      await sendCancellationEmail(
+        subscription,
+        userBefore,
+        change.kind === 'cancelled-immediate',
+      )
+      return
+    }
+
+    case 'plan-changed':
+      await sendPlanChangedEmail(subscription, userBefore, change)
+      return
+
+    case 'billing-period-changed':
+      await sendBillingPeriodChangedEmail(subscription, userBefore, change)
+      return
+  }
 }
 
 async function updateUserPlanFromSubscription(
@@ -240,24 +453,22 @@ async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
   supabase: ReturnType<typeof createAdminClient>
 ) {
-  const userId = subscription.metadata?.userId
-
-  let targetUserId = userId
-
+  // Note: the subscription-cancelled EMAIL is NOT sent from here.
+  // It's sent from handleSubscriptionUpdated at the moment the user
+  // clicks Cancel in the portal (transition cancel_at_period_end: false
+  // → true), typically weeks before this event fires. This handler is
+  // strictly responsible for the DB-side downgrade: reset user.plan to
+  // 'free' and unpublish all their portfolios. See Bloc 1.1 notes.
+  const targetUserId = await resolveUserIdFromSubscription(
+    subscription,
+    supabase,
+  )
   if (!targetUserId) {
-    const { data: user } = await supabase
-      .from('users')
-      .select('id')
-      .eq('stripe_subscription_id', subscription.id)
-      .limit(1)
-      .maybeSingle()
-
-    if (!user) {
-      console.error('[Stripe Webhook] Cannot find user for deleted subscription:', subscription.id)
-      return
-    }
-
-    targetUserId = user.id
+    console.error(
+      '[Stripe Webhook] Cannot find user for deleted subscription:',
+      subscription.id,
+    )
+    return
   }
 
   const { error: userError } = await supabase
@@ -286,13 +497,26 @@ async function handleSubscriptionDeleted(
   console.log(`[Stripe Webhook] User ${targetUserId} subscription deleted, portfolio unpublished`)
 }
 
-async function handlePaymentFailed(invoice: Stripe.Invoice) {
+async function handlePaymentFailed(
+  invoice: Stripe.Invoice,
+  supabase: ReturnType<typeof createAdminClient>,
+) {
   const customerId =
     typeof invoice.customer === 'string'
       ? invoice.customer
-      : invoice.customer?.id ?? 'unknown'
+      : invoice.customer?.id ?? null
+
+  if (!customerId) {
+    console.error(
+      '[Stripe Webhook] Cannot resolve customer for failed invoice:',
+      invoice.id,
+    )
+    return
+  }
 
   console.warn(
-    `[Stripe Webhook] Payment failed for customer ${customerId}, invoice ${invoice.id}`
+    `[Stripe Webhook] Payment failed for customer ${customerId}, invoice ${invoice.id}`,
   )
+
+  await sendPaymentFailedEmail(invoice, customerId, supabase)
 }

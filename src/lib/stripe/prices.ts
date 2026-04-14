@@ -53,6 +53,23 @@ export function getPlanFromPriceId(
 }
 
 /**
+ * Determine BOTH the plan name AND the billing interval from a Stripe
+ * price ID. Used by the webhook dispatcher to detect plan-changed vs
+ * billing-period-changed events.
+ *
+ * @returns { plan, interval } or null if the priceId is not a Vizly subscription price
+ */
+export function getPlanAndIntervalFromPriceId(
+  priceId: string
+): { plan: 'starter' | 'pro'; interval: BillingInterval } | null {
+  if (priceId === STRIPE_PRICES.starter) return { plan: 'starter', interval: 'monthly' }
+  if (priceId === STRIPE_PRICES.starter_yearly) return { plan: 'starter', interval: 'yearly' }
+  if (priceId === STRIPE_PRICES.pro) return { plan: 'pro', interval: 'monthly' }
+  if (priceId === STRIPE_PRICES.pro_yearly) return { plan: 'pro', interval: 'yearly' }
+  return null
+}
+
+/**
  * Determine the template ID from a Stripe price ID.
  * @returns The template id (e.g. "creatif") or null.
  */

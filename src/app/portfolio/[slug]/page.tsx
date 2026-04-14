@@ -15,6 +15,20 @@ interface PortfolioPageProps {
   params: Promise<{ slug: string }>
 }
 
+const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
+
+// Truncate a description for the meta description / OG description.
+// Matches the truncation logic used by the OG image so the visible card
+// and the meta text stay aligned.
+function truncateDescription(text: string, max: number): string {
+  const cleaned = text.replace(/\s+/g, ' ').trim()
+  if (cleaned.length <= max) return cleaned
+  const sliced = cleaned.slice(0, max)
+  const lastSpace = sliced.lastIndexOf(' ')
+  const cut = lastSpace > max * 0.6 ? sliced.slice(0, lastSpace) : sliced
+  return `${cut}…`
+}
+
 export async function generateMetadata({
   params,
 }: PortfolioPageProps): Promise<Metadata> {
@@ -23,7 +37,7 @@ export async function generateMetadata({
 
   const { data: portfolio } = await supabase
     .from('portfolios')
-    .select('title, bio, photo_url')
+    .select('title, bio')
     .eq('slug', slug)
     .eq('published', true)
     .maybeSingle()
@@ -32,22 +46,32 @@ export async function generateMetadata({
     return { title: 'Portfolio introuvable' }
   }
 
-  const title = portfolio.title || slug
-  const description =
-    portfolio.bio || `Portfolio de ${title} sur Vizly`
+  const name = portfolio.title?.trim() || slug
+  const fullTitle = `${name} — Portfolio`
+  const description = portfolio.bio?.trim()
+    ? truncateDescription(portfolio.bio, 160)
+    : `Découvre le portfolio de ${name}, créé avec Vizly.`
+  const url = `https://${slug}.${APP_DOMAIN}`
 
+  // Note: og:image and twitter:image are auto-detected by Next.js from the
+  // sibling opengraph-image.tsx file. No need to reference them manually.
   return {
-    title,
+    title: fullTitle,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
-      title,
+      title: fullTitle,
       description,
+      url,
+      siteName: 'Vizly',
+      locale: 'fr_FR',
       type: 'profile',
-      ...(portfolio.photo_url ? { images: [portfolio.photo_url] } : {}),
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: fullTitle,
       description,
     },
   }
