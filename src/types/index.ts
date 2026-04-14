@@ -45,4 +45,10 @@ export interface TemplateProps {
   kpis: KpiItem[]
   layoutBlocks: LayoutBlock[]
   isPremium: boolean
+  // When true, templates render non-interactive previews: anchor tags
+  // become spans so the template can be safely nested inside a parent
+  // <Link> (dashboard cards, /mes-templates grid) without producing a
+  // nested <a> and triggering a DOM validation warning. Live portfolio
+  // renders leave this unset so social and mailto links stay clickable.
+  isPreview?: boolean
 }

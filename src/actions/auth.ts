@@ -98,7 +98,7 @@ export async function registerUser(
       }
     }
 
-    console.log(`[Auth OTP] Signup initiated, OTP sent: ${data.user.id}`)
+    console.info(`[Auth OTP] Signup initiated, OTP sent: ${data.user.id}`)
     return { ok: true, userId: data.user.id }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inattendue'
@@ -198,7 +198,7 @@ export async function verifyUserOtp(
       }
     }
 
-    console.log(`[Auth OTP] Verified: ${data.user.id}`)
+    console.info(`[Auth OTP] Verified: ${data.user.id}`)
 
     // Fire the Welcome email exactly once per user. Guards preserved
     // from the former callback-based implementation: (1) provider must
@@ -229,7 +229,7 @@ async function maybeSendWelcome(
   supabase: Awaited<ReturnType<typeof createClient>>,
 ): Promise<void> {
   if (user.app_metadata?.provider !== 'email') {
-    console.log(
+    console.info(
       `[Auth OTP] Welcome skipped — provider=${user.app_metadata?.provider ?? 'unknown'} (userId=${user.id})`,
     )
     return
@@ -259,7 +259,7 @@ async function maybeSendWelcome(
   }
 
   if (!claimed) {
-    console.log(
+    console.info(
       `[Auth OTP] Welcome already sent, skipping (userId=${user.id})`,
     )
     return
@@ -279,7 +279,7 @@ async function maybeSendWelcome(
     return
   }
 
-  console.log(
+  console.info(
     `[Auth OTP] Welcome fired for ${user.email} (userId=${user.id})`,
   )
 }
@@ -325,7 +325,7 @@ export async function resendSignupOtp(
     if (error) {
       const message = error.message.toLowerCase()
       if (message.includes('rate limit') || message.includes('too many')) {
-        console.log(`[Auth OTP] Resend rate limited for ${parsed.data}`)
+        console.info(`[Auth OTP] Resend rate limited for ${parsed.data}`)
         return {
           ok: false,
           error: 'Trop de demandes, reessaie plus tard',
@@ -336,7 +336,7 @@ export async function resendSignupOtp(
       return { ok: false, error: error.message, code: 'unknown' }
     }
 
-    console.log(`[Auth OTP] Resent OTP to ${parsed.data}`)
+    console.info(`[Auth OTP] Resent OTP to ${parsed.data}`)
     return { ok: true }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inattendue'
@@ -399,13 +399,13 @@ export async function requestPasswordReset(
       }
       // Swallow every other error to avoid leaking whether the email
       // exists in the database. The user sees a generic success screen.
-      console.log(
+      console.info(
         `[Auth OTP Reset] Swallowing non-rate-limit error for anti-enumeration`,
       )
       return { ok: true }
     }
 
-    console.log(`[Auth OTP Reset] Recovery OTP sent to ${parsed.data}`)
+    console.info(`[Auth OTP Reset] Recovery OTP sent to ${parsed.data}`)
     return { ok: true }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inattendue'
@@ -473,7 +473,7 @@ export async function verifyPasswordResetOtp(
       }
     }
 
-    console.log(`[Auth OTP Reset] Recovery verified for ${parsed.data.email}`)
+    console.info(`[Auth OTP Reset] Recovery verified for ${parsed.data.email}`)
     return { ok: true }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inattendue'
@@ -523,7 +523,7 @@ export async function updateUserPassword(
     const supabase = await createClient()
 
     const { data: sessionBefore } = await supabase.auth.getSession()
-    console.log(
+    console.info(
       `[Auth OTP Reset] Session before update: present=${!!sessionBefore.session} userId=${sessionBefore.session?.user?.id ?? 'none'}`,
     )
 
@@ -552,7 +552,7 @@ export async function updateUserPassword(
 
     const { data: sessionAfter } = await supabase.auth.getSession()
     const sessionFullAfterUpdate = !!sessionAfter.session
-    console.log(
+    console.info(
       `[Auth OTP Reset] Session after update: present=${sessionFullAfterUpdate} userId=${sessionAfter.session?.user?.id ?? 'none'}`,
     )
 
@@ -654,7 +654,7 @@ export async function requestEmailChange(
       return { ok: false, error: error.message, code: 'unknown' }
     }
 
-    console.log(
+    console.info(
       `[Auth OTP EmailChange] Change requested ${user.email} -> ${parsed.data}`,
     )
     return { ok: true }
@@ -728,7 +728,7 @@ export async function verifyEmailChangeOtp(
       }
     }
 
-    console.log(
+    console.info(
       `[Auth OTP EmailChange] Stage ${input.stage} verified for ${parsed.data.email}`,
     )
     return { ok: true }

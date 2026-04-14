@@ -57,7 +57,7 @@ export function TemplatePreview({
           transformOrigin: 'top left',
         }}
       >
-        <Component {...templateProps} />
+        <Component {...templateProps} isPreview />
       </div>
     </div>
   )

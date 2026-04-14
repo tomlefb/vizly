@@ -8,7 +8,7 @@ import { TemplateFooter } from './TemplateFooter'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail } from 'lucide-react'
 
-export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
+export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
   const {
     title,
     bio,
@@ -64,20 +64,36 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                 const entry = SOCIAL_ICONS[platform]
                 if (!entry || !url) return null
                 const IconComponent = entry.icon
-                return (
-                  <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Profil ${entry.label}`}
-                    style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
+                const pillStyle = { color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' } as const
+                const content = (
+                  <>
                     <IconComponent size={15} />
                     <span>{entry.label}</span>
+                  </>
+                )
+                return isPreview ? (
+                  <span key={platform} aria-label={`Profil ${entry.label}`} style={pillStyle}>
+                    {content}
+                  </span>
+                ) : (
+                  <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={`Profil ${entry.label}`} style={pillStyle}>
+                    {content}
                   </a>
                 )
               })}
               {contact_email ? (
-                <a href={`mailto:${contact_email}`} aria-label="Envoyer un email"
-                  style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
-                  <Mail size={15} />
-                  <span>Email</span>
-                </a>
+                isPreview ? (
+                  <span aria-label="Email" style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
+                    <Mail size={15} />
+                    <span>Email</span>
+                  </span>
+                ) : (
+                  <a href={`mailto:${contact_email}`} aria-label="Envoyer un email"
+                    style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
+                    <Mail size={15} />
+                    <span>Email</span>
+                  </a>
+                )
               ) : null}
             </div>
           </section>
@@ -173,11 +189,19 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
               <p style={{ color: '#6B6B6B', fontSize: '0.95rem' }} className="mb-6">
                 Interesse par mon profil ? N&apos;hesite pas a me contacter.
               </p>
-              <a href={`mailto:${contact_email}`}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: primary_color, color: '#FFFFFF', padding: '12px 28px', borderRadius: 10, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
-                <Mail size={18} />
-                {contact_email}
-              </a>
+              {isPreview ? (
+                <span aria-label={contact_email}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: primary_color, color: '#FFFFFF', padding: '12px 28px', borderRadius: 10, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
+                  <Mail size={18} />
+                  {contact_email}
+                </span>
+              ) : (
+                <a href={`mailto:${contact_email}`}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: primary_color, color: '#FFFFFF', padding: '12px 28px', borderRadius: 10, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
+                  <Mail size={18} />
+                  {contact_email}
+                </a>
+              )}
             </div>
           </section>
         )
