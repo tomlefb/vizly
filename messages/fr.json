@@ -367,6 +367,34 @@
         "notAuthenticated": "Session expirée. Recommence la procédure depuis le début."
       }
     },
+    "changeEmail": {
+      "startButton": "Changer d'email",
+      "newEmailLabel": "Nouvelle adresse email",
+      "newEmailPlaceholder": "nouveau@email.com",
+      "requestHint": "On va t'envoyer un code à 6 chiffres sur ton adresse actuelle ({email}) et sur la nouvelle adresse. Tu devras entrer les deux pour confirmer le changement.",
+      "requestButton": "Envoyer les codes",
+      "requestLoading": "Envoi...",
+      "cancelButton": "Annuler",
+      "codeLabel": "Code de vérification",
+      "codePlaceholder": "123456",
+      "verifyButton": "Vérifier",
+      "verifyLoading": "Vérification...",
+      "verifyCurrentTitle": "Étape 1 sur 2 — Confirme ton adresse actuelle",
+      "verifyCurrentSubtitle": "Entre le code à 6 chiffres qu'on vient d'envoyer sur ton adresse actuelle {email}.",
+      "verifyNewTitle": "Étape 2 sur 2 — Confirme ta nouvelle adresse",
+      "verifyNewSubtitle": "Entre le code à 6 chiffres qu'on vient d'envoyer sur ta nouvelle adresse {email}.",
+      "resendButton": "Renvoyer les codes",
+      "resending": "Envoi...",
+      "resendSuccess": "Nouveaux codes envoyés",
+      "doneTitle": "Email mis à jour",
+      "doneSubtitle": "Ton email Vizly est maintenant {email}. L'ancienne adresse ne recevra plus de notifications.",
+      "doneAcknowledge": "OK",
+      "errors": {
+        "sameEmail": "La nouvelle adresse est identique à l'ancienne.",
+        "emailTaken": "Cette adresse est déjà utilisée par un autre compte.",
+        "notAuthenticated": "Tu dois être connecté pour changer ton email."
+      }
+    },
     "errors": {
       "invalidEmail": "Adresse email invalide",
       "passwordMin": "Le mot de passe doit contenir au moins 6 caractères",
@@ -470,7 +498,6 @@
     "subtitle": "Gère ton profil et ton compte.",
     "profile": "Profil",
     "email": "Email",
-    "emailHint": "L'email est lié à ton compte et ne peut pas être modifié ici.",
     "name": "Nom",
     "namePlaceholder": "Ton nom complet",
     "save": "Sauvegarder",

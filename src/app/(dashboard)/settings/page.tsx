@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS } from '@/lib/constants'
 import { SettingsForm } from './settings-form'
+import { ChangeEmailForm } from './change-email-form'
 
 export default async function SettingsPage() {
   const t = await getTranslations('settings')
@@ -42,20 +43,7 @@ export default async function SettingsPage() {
           </h2>
 
           <div className="space-y-4">
-            {/* Email (read-only) */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                {t('email')}
-              </label>
-              <div className="rounded-[var(--radius-md)] border border-border bg-surface-warm px-4 py-2.5 text-sm text-muted">
-                {user.email}
-              </div>
-              <p className="mt-1 text-xs text-muted">
-                {t('emailHint')}
-              </p>
-            </div>
-
-            {/* Name (editable) */}
+            <ChangeEmailForm currentEmail={user.email ?? ''} />
             <SettingsForm initialName={profile?.name ?? ''} />
           </div>
         </section>

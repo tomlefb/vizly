@@ -565,6 +565,181 @@ export async function updateUserPassword(
 }
 
 // ---------------------------------------------------------------------------
+// Change email OTP flow (2-step verification)
+// ---------------------------------------------------------------------------
+
+export type EmailChangeErrorCode =
+  | 'validation'
+  | 'same_email'
+  | 'email_taken'
+  | 'not_authenticated'
+  | 'rate_limited'
+  | 'unknown'
+
+export type RequestEmailChangeResult =
+  | { ok: true }
+  | { ok: false; error: string; code: EmailChangeErrorCode }
+
+/**
+ * Trigger an email change. With Supabase's "Secure email change"
+ * setting enabled (required in Vizly), calling updateUser({ email })
+ * sends a 6-digit OTP to BOTH the current email and the new one.
+ * The user must verify both via verifyEmailChangeOtp (current then
+ * new) to commit the change.
+ */
+export async function requestEmailChange(
+  newEmail: string,
+): Promise<RequestEmailChangeResult> {
+  const parsed = emailSchema.safeParse(newEmail)
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Adresse email invalide',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user || !user.email) {
+      return {
+        ok: false,
+        error: 'Non authentifie',
+        code: 'not_authenticated',
+      }
+    }
+
+    if (user.email.toLowerCase() === parsed.data.toLowerCase()) {
+      return {
+        ok: false,
+        error: 'La nouvelle adresse est identique a l\'ancienne',
+        code: 'same_email',
+      }
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      email: parsed.data,
+    })
+
+    if (error) {
+      console.error(
+        `[Auth OTP EmailChange] updateUser raw error for ${user.email} -> ${parsed.data}: "${error.message}"`,
+      )
+      const message = error.message.toLowerCase()
+      if (message.includes('rate limit') || message.includes('too many')) {
+        return {
+          ok: false,
+          error: 'Trop de demandes, reessaie plus tard',
+          code: 'rate_limited',
+        }
+      }
+      if (
+        message.includes('already') ||
+        message.includes('in use') ||
+        message.includes('taken') ||
+        message.includes('registered')
+      ) {
+        return {
+          ok: false,
+          error: 'Cette adresse est deja utilisee',
+          code: 'email_taken',
+        }
+      }
+      return { ok: false, error: error.message, code: 'unknown' }
+    }
+
+    console.log(
+      `[Auth OTP EmailChange] Change requested ${user.email} -> ${parsed.data}`,
+    )
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth OTP EmailChange] Unexpected request error:', message)
+    return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
+export type EmailChangeStage = 'current' | 'new'
+
+export interface VerifyEmailChangeOtpInput {
+  email: string
+  token: string
+  stage: EmailChangeStage
+}
+
+export type VerifyEmailChangeOtpResult =
+  | { ok: true }
+  | { ok: false; error: string; code: VerifyOtpErrorCode }
+
+/**
+ * Verify one of the two OTP codes produced by a secure email change.
+ * The Supabase SDK exposes a single `email_change` type for both the
+ * old-address code and the new-address code; the stage parameter is
+ * used only for logging — the SDK determines which code is which by
+ * matching the `email` field to the token that was sent there.
+ */
+export async function verifyEmailChangeOtp(
+  input: VerifyEmailChangeOtpInput,
+): Promise<VerifyEmailChangeOtpResult> {
+  const parsed = verifyOtpSchema.safeParse({
+    email: input.email,
+    token: input.token,
+  })
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Donnees invalides',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: parsed.data.email,
+      token: parsed.data.token,
+      type: 'email_change',
+    })
+
+    if (error) {
+      console.error(
+        `[Auth OTP EmailChange] verifyOtp raw error for ${parsed.data.email} (stage=${input.stage}): "${error.message}"`,
+      )
+      const message = error.message.toLowerCase()
+      if (message.includes('rate limit') || message.includes('too many')) {
+        return {
+          ok: false,
+          error: 'Trop de tentatives, reessaie plus tard',
+          code: 'rate_limited',
+        }
+      }
+      return {
+        ok: false,
+        error: 'Code invalide ou expire',
+        code: 'invalid_token',
+      }
+    }
+
+    console.log(
+      `[Auth OTP EmailChange] Stage ${input.stage} verified for ${parsed.data.email}`,
+    )
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth OTP EmailChange] Unexpected verify error:', message)
+    return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Update profile (name)
 // ---------------------------------------------------------------------------
 

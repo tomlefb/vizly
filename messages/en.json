@@ -367,6 +367,34 @@
         "notAuthenticated": "Session expired. Start the procedure again."
       }
     },
+    "changeEmail": {
+      "startButton": "Change email",
+      "newEmailLabel": "New email address",
+      "newEmailPlaceholder": "new@email.com",
+      "requestHint": "We'll send a 6-digit code to your current address ({email}) and to the new one. You'll need to enter both to confirm the change.",
+      "requestButton": "Send codes",
+      "requestLoading": "Sending...",
+      "cancelButton": "Cancel",
+      "codeLabel": "Verification code",
+      "codePlaceholder": "123456",
+      "verifyButton": "Verify",
+      "verifyLoading": "Verifying...",
+      "verifyCurrentTitle": "Step 1 of 2 — Confirm your current address",
+      "verifyCurrentSubtitle": "Enter the 6-digit code we just sent to your current address {email}.",
+      "verifyNewTitle": "Step 2 of 2 — Confirm your new address",
+      "verifyNewSubtitle": "Enter the 6-digit code we just sent to your new address {email}.",
+      "resendButton": "Resend codes",
+      "resending": "Sending...",
+      "resendSuccess": "New codes sent",
+      "doneTitle": "Email updated",
+      "doneSubtitle": "Your Vizly email is now {email}. The old address will no longer receive notifications.",
+      "doneAcknowledge": "OK",
+      "errors": {
+        "sameEmail": "The new address is identical to the old one.",
+        "emailTaken": "This address is already used by another account.",
+        "notAuthenticated": "You must be signed in to change your email."
+      }
+    },
     "errors": {
       "invalidEmail": "Invalid email address",
       "passwordMin": "Password must be at least 6 characters",
@@ -470,7 +498,6 @@
     "subtitle": "Manage your profile and account.",
     "profile": "Profile",
     "email": "Email",
-    "emailHint": "Email is linked to your account and cannot be changed here.",
     "name": "Name",
     "namePlaceholder": "Your full name",
     "save": "Save",
