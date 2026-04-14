@@ -18,13 +18,15 @@
 // plan = one price). Verified against node_modules/stripe/esm/resources/
 // SubscriptionItems.d.ts on stripe@22.0.1 / API 2026-03-25.dahlia.
 //
-// onConflict='user_id' note: the local subscriptions table enforces
-// `user_id UNIQUE`, so there's at most one row per user — the row reflects
-// the current state of their latest subscription (active OR canceled).
-// When a user re-subscribes after cancellation, the upsert REPLACES the
-// row entirely. We do NOT keep historical sub rows in this table — Stripe
-// Dashboard is the source of truth for full history. See
-// STRIPE_MIGRATION_NOTES.md "Phase 3 — onConflict resolution".
+// onConflict: 'user_id' (not 'stripe_subscription_id'): the local schema
+// enforces 1 subscription row per user (UNIQUE on user_id). When a user
+// re-subscribes after cancellation, the new sub's row REPLACES the old one.
+// Historical subs remain queryable via Stripe's API and via the `invoices`
+// table (which keeps all invoices, not only the active sub's). The brief
+// initially specified onConflict='stripe_subscription_id', but that strategy
+// would 23505-fail at every re-subscription because the cancelled row's
+// user_id would still be present. See STRIPE_MIGRATION_NOTES.md
+// "Phase 3 — onConflict resolution" for the full rationale.
 
 import type Stripe from 'stripe'
 import type { TablesInsert } from '@/lib/supabase/types'

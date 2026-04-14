@@ -318,9 +318,11 @@ async function handleSubscriptionCreated(
 
   // ---- Rule 2: DB writes first ----
 
-  // 1. Upsert local subscriptions row. onConflict='user_id' replaces any
-  // pre-existing row for this user (e.g. a previously cancelled sub) with
-  // the fresh state. See webhook-helpers.ts header for rationale.
+  // onConflict: 'user_id' (not 'stripe_subscription_id'): the local schema
+  // enforces 1 subscription row per user (UNIQUE on user_id). When a user
+  // re-subscribes after cancellation, the new sub's row REPLACES the old
+  // one. Historical subs remain queryable via Stripe's API and via the
+  // `invoices` table (which keeps all invoices, not only the active sub's).
   const { error: upsertError } = await supabase
     .from('subscriptions')
     .upsert(row, { onConflict: 'user_id' })
@@ -417,7 +419,13 @@ async function handleSubscriptionUpdated(
 
   // ---- Rule 2: DB writes first ----
 
-  // 1. Upsert local subscriptions row with the new state
+  // 1. Upsert local subscriptions row with the new state.
+  //
+  // onConflict: 'user_id' (not 'stripe_subscription_id'): the local schema
+  // enforces 1 subscription row per user (UNIQUE on user_id). When a user
+  // re-subscribes after cancellation, the new sub's row REPLACES the old
+  // one. Historical subs remain queryable via Stripe's API and via the
+  // `invoices` table (which keeps all invoices, not only the active sub's).
   const newRow = mapStripeSubscriptionToRow(subscription, userId, {
     eventId: event.id,
   })
@@ -709,6 +717,11 @@ async function handleInvoicePaid(
 
   // 2. Re-sync local subscriptions row with the fresh subscription state
   // (current_period_end advances on each cycle, status normalizes etc.)
+  // onConflict: 'user_id' (not 'stripe_subscription_id'): the local schema
+  // enforces 1 subscription row per user (UNIQUE on user_id). When a user
+  // re-subscribes after cancellation, the new sub's row REPLACES the old
+  // one. Historical subs remain queryable via Stripe's API and via the
+  // `invoices` table (which keeps all invoices, not only the active sub's).
   const subRow = mapStripeSubscriptionToRow(subscription, userId, {
     eventId: event.id,
   })
@@ -969,6 +982,12 @@ async function handleSubscriptionCheckout(
 
   // 2. Upsert local subscriptions row via the shared helper. Both flows
   // (legacy Checkout and new Elements) converge on the same row shape.
+  //
+  // onConflict: 'user_id' (not 'stripe_subscription_id'): the local schema
+  // enforces 1 subscription row per user (UNIQUE on user_id). When a user
+  // re-subscribes after cancellation, the new sub's row REPLACES the old
+  // one. Historical subs remain queryable via Stripe's API and via the
+  // `invoices` table (which keeps all invoices, not only the active sub's).
   const row = mapStripeSubscriptionToRow(subscription, userId, { eventId })
   if (row) {
     const { error: upsertError } = await supabase

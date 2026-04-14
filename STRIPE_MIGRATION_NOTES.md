@@ -268,18 +268,43 @@ toujours faire `rm -rf .next && npm run build` pour exclure la cache.
 
 ### TODOs explicites pour Tom avant Phase 4
 
-- **TODO Tom — Dashboard Stripe TEST avant Phase 4** : aller sur
+- **TODO Tom — Dashboard Stripe TEST wallets avant Phase 4** : aller sur
   `dashboard.stripe.com` en mode test → Settings → Payment methods →
   activer **Cards** (déjà actif normalement), **Apple Pay**, **Google Pay**,
   **Link**. Désactiver SEPA Direct Debit, Bancontact, iDEAL et tout le reste.
   Sans cette config compte, les wallets ne s'afficheront PAS dans le
   PaymentElement de Phase 4 même avec le code correct.
 
+- **TODO Tom — Dashboard Stripe TEST webhook events avant Phase 4**
+  (ajouté en Phase 3) : s'assurer que l'endpoint webhook Stripe Dashboard
+  (mode test) a bien les **7 events** suivants activés :
+  - `customer.subscription.created`
+  - `customer.subscription.updated`
+  - `customer.subscription.deleted`
+  - `invoice.paid`
+  - `invoice.payment_failed`
+  - `checkout.session.completed`
+  - `payment_intent.succeeded`
+
+  Sans cette config endpoint, la modal Phase 4 semblerait fonctionner
+  côté front (le `confirmPayment` retourne success) mais la DB locale
+  ne serait jamais synchronisée — le webhook `customer.subscription.created`
+  n'arriverait jamais → pas de row dans `subscriptions`, `users.plan`
+  jamais mis à jour, user qui paie sans être crédité.
+
+  Note CLI : `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+  forward TOUS les events par défaut, donc en dev local pur (sans Dashboard
+  config) ça fonctionne si tu as le CLI lancé. Mais le Dashboard endpoint
+  doit être à jour pour les environnements Preview Vercel / Staging /
+  Production où le CLI n'est pas en cours.
+
 - **TODO Tom — Dashboard Stripe LIVE + vérif domaine Apple Pay avant
   passage en mode live** :
   1. Refaire l'activation des wallets (Cards/Apple Pay/Google Pay/Link)
      en mode live sur le Dashboard.
-  2. Vérifier le domaine `vizly.fr` pour Apple Pay : Stripe demande
+  2. Refaire la config endpoint webhook avec les 7 events ci-dessus
+     en mode live.
+  3. Vérifier le domaine `vizly.fr` pour Apple Pay : Stripe demande
      d'uploader un fichier `apple-developer-merchantid-domain-association`
      sous `https://www.vizly.fr/.well-known/`. Tant que le domaine n'est
      pas vérifié, Apple Pay ne s'affichera pas sur Safari en prod, **même
@@ -496,6 +521,45 @@ plus du receipt Stripe natif.
   log+return : petit changement de comportement local pour s'aligner
   avec la rule "errors → 500". Bénéfique : si l'update users.plan rate,
   on retry au lieu de drift silencieusement.
+
+### Vérification post-Phase 3 — `detectSubscriptionChange` au renouvellement
+
+Tom a légitimement demandé : au renouvellement mensuel, Stripe fire
+`customer.subscription.updated` (avec `current_period_*` qui changent) ET
+`invoice.paid`, dans un ordre non garanti. Est-ce que le detector peut
+confondre un renouvellement avec un "billing-period-changed" et déclencher
+un email spurieux à chaque cycle ?
+
+**Verdict : (a) pas de bug, le detector est sûr par construction.**
+
+Le detector compare `plan` et `interval` dérivés du **priceId** de l'item,
+PAS les `current_period_*` timestamps. À un renouvellement, `items` ne
+change pas (même priceId, même plan), donc :
+
+- `previous_attributes.items` est `undefined` (Stripe n'envoie que les
+  champs qui ont changé, et `items` est inchangé)
+- Le primary path `prevMapping` reste null
+- Le fallback dette #18 lit `localSubscriptionBefore = { plan: 'starter',
+  interval: 'monthly' }` (la row locale capturée AVANT l'upsert dans
+  `handleSubscriptionUpdated`)
+- `prevMapping = { plan: 'starter', interval: 'monthly' }`
+- `newMapping = { plan: 'starter', interval: 'monthly' }` (même priceId)
+- `prevMapping.plan === newMapping.plan` → pas plan-changed
+- `prevMapping.interval === newMapping.interval` → pas billing-period-changed
+- Tombe à `return { kind: 'no-op' }` ✓
+
+Les deux branches de cancel detection ne se déclenchent pas non plus :
+`cancelled-scheduled` requiert `cancel_at_period_end` qui ne change pas
+au renouvellement, et `cancelled-immediate` requiert
+`subscription.status === 'canceled'` qui est faux au renouvellement.
+
+**Le seul cas où `billing-period-changed` se déclenche** : un user passe
+explicitement `STRIPE_PRICE_STARTER` (mensuel) → `STRIPE_PRICE_STARTER_YEARLY`
+(annuel) ou inverse. Là, `newPriceId !== anciennePriceId`, le mapping
+change `interval`, et la branche email s'exécute. Comportement attendu.
+
+Pas de fix nécessaire. Le design "comparer le priceId, pas les timestamps"
+est exactement ce qui protège contre ce piège.
 
 ### Fichiers touchés en Phase 3
 
