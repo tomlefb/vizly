@@ -329,14 +329,43 @@
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
-      "subtitle": "Entre ton email pour recevoir un lien de réinitialisation.",
+      "subtitle": "Entre ton email pour recevoir un code de réinitialisation.",
       "email": "Email",
       "emailPlaceholder": "ton@email.com",
-      "submit": "Envoyer le lien",
+      "submit": "Envoyer le code",
       "loading": "Envoi en cours...",
-      "backToLogin": "Retour à la connexion",
-      "successTitle": "Email envoyé",
-      "successMessage": "Si un compte existe pour {email}, tu recevras un lien pour réinitialiser ton mot de passe."
+      "backToLogin": "Retour à la connexion"
+    },
+    "resetPassword": {
+      "otpTitle": "Vérifie ta boîte mail",
+      "otpSubtitle": "Si un compte existe pour {email}, on vient d'envoyer un code à 6 chiffres. Entre-le ci-dessous.",
+      "code": "Code de vérification",
+      "codePlaceholder": "123456",
+      "verifySubmit": "Vérifier le code",
+      "verifyLoading": "Vérification...",
+      "resend": "Renvoyer le code",
+      "resending": "Envoi...",
+      "resendSuccess": "Nouveau code envoyé",
+      "changeEmail": "Utiliser une autre adresse",
+      "passwordTitle": "Nouveau mot de passe",
+      "passwordSubtitle": "Choisis un nouveau mot de passe sécurisé pour ton compte Vizly.",
+      "password": "Nouveau mot de passe",
+      "passwordPlaceholder": "6 caractères minimum",
+      "passwordConfirm": "Confirme le mot de passe",
+      "passwordConfirmPlaceholder": "Retape le mot de passe",
+      "updateSubmit": "Mettre à jour le mot de passe",
+      "updateLoading": "Mise à jour...",
+      "doneTitle": "Mot de passe mis à jour",
+      "doneSubtitleLoggedIn": "Tu es déjà connecté. Tu peux accéder à ton dashboard.",
+      "doneSubtitleLoggedOut": "Reconnecte-toi avec ton nouveau mot de passe.",
+      "goToDashboard": "Aller au dashboard",
+      "goToLogin": "Se connecter",
+      "redirecting": "Connexion en cours…",
+      "errors": {
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "passwordMin": "Le mot de passe doit contenir au moins 6 caractères",
+        "notAuthenticated": "Session expirée. Recommence la procédure depuis le début."
+      }
     },
     "errors": {
       "invalidEmail": "Adresse email invalide",

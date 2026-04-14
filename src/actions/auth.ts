@@ -346,6 +346,225 @@ export async function resendSignupOtp(
 }
 
 // ---------------------------------------------------------------------------
+// Reset password OTP flow
+// ---------------------------------------------------------------------------
+
+export type RequestPasswordResetErrorCode =
+  | 'validation'
+  | 'rate_limited'
+  | 'unknown'
+
+export type RequestPasswordResetResult =
+  | { ok: true }
+  | { ok: false; error: string; code: RequestPasswordResetErrorCode }
+
+/**
+ * Trigger the password recovery email for the given address. In OTP
+ * mode the email carries a 6-digit code ({{ .Token }}) — no link.
+ *
+ * Anti-enumeration: Supabase's resetPasswordForEmail does not reveal
+ * whether the address exists. We preserve that guarantee by returning
+ * ok: true on any non-rate-limit failure (the user sees the generic
+ * "if an account exists, you'll receive a code" screen regardless).
+ */
+export async function requestPasswordReset(
+  email: string,
+): Promise<RequestPasswordResetResult> {
+  const parsed = emailSchema.safeParse(email)
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Adresse email invalide',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data)
+
+    if (error) {
+      console.error(
+        `[Auth OTP Reset] resetPasswordForEmail raw error for ${parsed.data}: "${error.message}"`,
+      )
+      const message = error.message.toLowerCase()
+      if (message.includes('rate limit') || message.includes('too many')) {
+        return {
+          ok: false,
+          error: 'Trop de demandes, reessaie plus tard',
+          code: 'rate_limited',
+        }
+      }
+      // Swallow every other error to avoid leaking whether the email
+      // exists in the database. The user sees a generic success screen.
+      console.log(
+        `[Auth OTP Reset] Swallowing non-rate-limit error for anti-enumeration`,
+      )
+      return { ok: true }
+    }
+
+    console.log(`[Auth OTP Reset] Recovery OTP sent to ${parsed.data}`)
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth OTP Reset] Unexpected request error:', message)
+    // Same anti-enumeration policy on unexpected failures.
+    return { ok: true }
+  }
+}
+
+export interface VerifyPasswordResetOtpInput {
+  email: string
+  token: string
+}
+
+export type VerifyPasswordResetOtpResult =
+  | { ok: true }
+  | { ok: false; error: string; code: VerifyOtpErrorCode }
+
+/**
+ * Verify the 6-digit recovery OTP. On success, Supabase establishes a
+ * recovery session in the cookies of the current request — that
+ * session is what allows updateUser({ password }) in the next step.
+ *
+ * Error mapping mirrors verifyUserOtp: only rate_limited is distinct,
+ * all other failures fold into invalid_token with a unified message.
+ */
+export async function verifyPasswordResetOtp(
+  input: VerifyPasswordResetOtpInput,
+): Promise<VerifyPasswordResetOtpResult> {
+  const parsed = verifyOtpSchema.safeParse(input)
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Donnees invalides',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: parsed.data.email,
+      token: parsed.data.token,
+      type: 'recovery',
+    })
+
+    if (error) {
+      console.error(
+        `[Auth OTP Reset] verifyOtp raw error for ${parsed.data.email}: "${error.message}"`,
+      )
+      const message = error.message.toLowerCase()
+      if (message.includes('rate limit') || message.includes('too many')) {
+        return {
+          ok: false,
+          error: 'Trop de tentatives, reessaie plus tard',
+          code: 'rate_limited',
+        }
+      }
+      return {
+        ok: false,
+        error: 'Code invalide ou expire',
+        code: 'invalid_token',
+      }
+    }
+
+    console.log(`[Auth OTP Reset] Recovery verified for ${parsed.data.email}`)
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth OTP Reset] Unexpected verify error:', message)
+    return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
+const passwordSchema = z
+  .string()
+  .min(6, 'Le mot de passe doit contenir au moins 6 caracteres')
+
+export type UpdatePasswordErrorCode =
+  | 'validation'
+  | 'not_authenticated'
+  | 'unknown'
+
+export type UpdateUserPasswordResult =
+  | { ok: true; sessionFullAfterUpdate: boolean }
+  | { ok: false; error: string; code: UpdatePasswordErrorCode }
+
+/**
+ * Update the current user's password. Must be called right after a
+ * successful verifyPasswordResetOtp so that the recovery session is
+ * present in the cookies.
+ *
+ * Logs getSession() shape before and after the update so we can
+ * empirically determine whether the recovery session is promoted to
+ * a full session automatically or stays restricted. The result flag
+ * sessionFullAfterUpdate is set from that check and drives UX in the
+ * client (auto-login vs. signOut + redirect to /login).
+ */
+export async function updateUserPassword(
+  password: string,
+): Promise<UpdateUserPasswordResult> {
+  const parsed = passwordSchema.safeParse(password)
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Mot de passe invalide',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { data: sessionBefore } = await supabase.auth.getSession()
+    console.log(
+      `[Auth OTP Reset] Session before update: present=${!!sessionBefore.session} userId=${sessionBefore.session?.user?.id ?? 'none'}`,
+    )
+
+    if (!sessionBefore.session) {
+      return {
+        ok: false,
+        error: 'Session expiree, recommence la procedure',
+        code: 'not_authenticated',
+      }
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: parsed.data,
+    })
+
+    if (updateError) {
+      console.error(
+        `[Auth OTP Reset] updateUser raw error: "${updateError.message}"`,
+      )
+      return {
+        ok: false,
+        error: updateError.message,
+        code: 'unknown',
+      }
+    }
+
+    const { data: sessionAfter } = await supabase.auth.getSession()
+    const sessionFullAfterUpdate = !!sessionAfter.session
+    console.log(
+      `[Auth OTP Reset] Session after update: present=${sessionFullAfterUpdate} userId=${sessionAfter.session?.user?.id ?? 'none'}`,
+    )
+
+    return { ok: true, sessionFullAfterUpdate }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth OTP Reset] Unexpected update error:', message)
+    return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Update profile (name)
 // ---------------------------------------------------------------------------
 
