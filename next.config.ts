@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'vizly.fr' }],
+        destination: 'https://www.vizly.fr/:path*',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default withNextIntl(nextConfig)
