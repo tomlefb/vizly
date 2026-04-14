@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendEmail } from '@/lib/emails/send'
 import { z } from 'zod'
 
 // ---------------------------------------------------------------------------
@@ -46,25 +47,11 @@ export type RegisterResult =
 /**
  * Register a new user via Supabase Auth.
  *
- * Server-side entry point for signup. Validates input defensively,
- * calls supabase.auth.signUp, and returns a structured result. Used by
- * src/app/(auth)/register/page.tsx.
- *
- * Supabase sends the "Confirm signup" email automatically (template
- * configured in the Supabase dashboard). The user clicks the link in
- * that email, which lands on /auth/callback where we exchange the code
- * for a session (see src/app/(auth)/auth/callback/route.ts).
- *
- * NOTE (Bloc 4): this function creates the auth user but does NOT send
- * the Vizly custom Welcome email. The Welcome email is deferred until
- * the user has clicked the confirmation link and their email is
- * actually verified. The trigger point for Welcome is audited in Bloc 2
- * (route callback vs DB trigger vs auth webhook) and wired in Bloc 4.
- *
- * Client-side validation still runs in register/page.tsx for instant
- * UX feedback with localized messages. The Zod check here is a
- * defensive safety net in case of a direct server action call that
- * bypasses the form.
+ * OTP flow: Supabase sends the "Confirm signup" email containing a
+ * 6-digit OTP code ({{ .Token }} in the template). The user types that
+ * code into the OTP step of the signup form, which calls verifyUserOtp
+ * below to complete the signup. No confirmation link is sent — the
+ * emailRedirectTo option is intentionally absent.
  */
 export async function registerUser(
   input: RegisterInput,
@@ -81,20 +68,16 @@ export async function registerUser(
 
   try {
     const supabase = await createClient()
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://vizly.fr'
 
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
         data: { full_name: parsed.data.name },
-        emailRedirectTo: `${appUrl}/auth/callback`,
       },
     })
 
     if (error) {
-      // Preserve the existing substring-match behaviour so the client
-      // keeps its localised "already registered" handling.
       if (error.message.includes('already registered')) {
         return {
           ok: false,
@@ -115,11 +98,249 @@ export async function registerUser(
       }
     }
 
-    console.log(`[Auth] User registered: ${data.user.id}`)
+    console.log(`[Auth OTP] Signup initiated, OTP sent: ${data.user.id}`)
     return { ok: true, userId: data.user.id }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inattendue'
     console.error('[Auth] Unexpected signup error:', message)
+    return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Verify signup OTP
+// ---------------------------------------------------------------------------
+
+const verifyOtpSchema = z.object({
+  email: z.string().email('Adresse email invalide'),
+  token: z
+    .string()
+    .regex(/^\d{6}$/, 'Le code doit contenir 6 chiffres'),
+})
+
+export interface VerifyUserOtpInput {
+  email: string
+  token: string
+}
+
+export type VerifyOtpErrorCode =
+  | 'validation'
+  | 'invalid_token'
+  | 'rate_limited'
+  | 'unknown'
+
+export type VerifyUserOtpResult =
+  | { ok: true; userId: string }
+  | { ok: false; error: string; code: VerifyOtpErrorCode }
+
+/**
+ * Verify the 6-digit OTP code sent during signup and activate the
+ * account. On success, also fires the Vizly Welcome custom email
+ * exactly once per user (atomic claim via welcome_sent_at flag).
+ *
+ * Note on OTP type: the Supabase SDK types list 'signup' as deprecated.
+ * The canonical type for verifying an email OTP during sign-up or
+ * sign-in is 'email'.
+ */
+export async function verifyUserOtp(
+  input: VerifyUserOtpInput,
+): Promise<VerifyUserOtpResult> {
+  const parsed = verifyOtpSchema.safeParse(input)
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Donnees invalides',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: parsed.data.email,
+      token: parsed.data.token,
+      type: 'email',
+    })
+
+    if (error) {
+      // Log the raw Supabase error message regardless of mapping so
+      // we can verify empirically how Supabase phrases each failure.
+      console.error(
+        `[Auth OTP] verifyOtp raw error for ${parsed.data.email}: "${error.message}"`,
+      )
+      const message = error.message.toLowerCase()
+      // Rate limiting is reliably distinct — keep it separate.
+      if (message.includes('rate limit') || message.includes('too many')) {
+        return {
+          ok: false,
+          error: 'Trop de tentatives, reessaie plus tard',
+          code: 'rate_limited',
+        }
+      }
+      // Supabase conflates invalid and expired tokens into a single
+      // message ("Token has expired or is invalid") to prevent token
+      // enumeration. Fold both into invalid_token with a unified UX.
+      return {
+        ok: false,
+        error: 'Code invalide ou expire',
+        code: 'invalid_token',
+      }
+    }
+
+    if (!data.user) {
+      console.error('[Auth OTP] verifyOtp returned no user object')
+      return {
+        ok: false,
+        error: 'Erreur inattendue lors de la verification',
+        code: 'unknown',
+      }
+    }
+
+    console.log(`[Auth OTP] Verified: ${data.user.id}`)
+
+    // Fire the Welcome email exactly once per user. Guards preserved
+    // from the former callback-based implementation: (1) provider must
+    // be 'email' to exclude OAuth, (2) atomic UPDATE on welcome_sent_at
+    // to exclude duplicates. Failure is logged, never throws.
+    await maybeSendWelcome(data.user, supabase)
+
+    return { ok: true, userId: data.user.id }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth OTP] Unexpected verifyOtp error:', message)
+    return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
+/**
+ * Fire the Welcome email if this is the first email confirmation for
+ * an email/password signup. Silent on all skip paths (OAuth, missing
+ * email, already sent, send error). Never throws.
+ *
+ * The welcome_sent_at flag is set BEFORE sending the email: spam
+ * protection trumps delivery guarantee. A rare Resend failure leaves
+ * a user without a Welcome (acceptable, logged) but never produces
+ * duplicates.
+ */
+async function maybeSendWelcome(
+  user: { id: string; email?: string; app_metadata?: { provider?: string } },
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<void> {
+  if (user.app_metadata?.provider !== 'email') {
+    console.log(
+      `[Auth OTP] Welcome skipped — provider=${user.app_metadata?.provider ?? 'unknown'} (userId=${user.id})`,
+    )
+    return
+  }
+
+  if (!user.email) {
+    console.error(
+      `[Auth OTP] User has no email, cannot send Welcome (userId=${user.id})`,
+    )
+    return
+  }
+
+  const { data: claimed, error: claimError } = await supabase
+    .from('users')
+    .update({ welcome_sent_at: new Date().toISOString() })
+    .eq('id', user.id)
+    .is('welcome_sent_at', null)
+    .select('name')
+    .maybeSingle()
+
+  if (claimError) {
+    console.error(
+      `[Auth OTP] Welcome claim failed (userId=${user.id}):`,
+      claimError.message,
+    )
+    return
+  }
+
+  if (!claimed) {
+    console.log(
+      `[Auth OTP] Welcome already sent, skipping (userId=${user.id})`,
+    )
+    return
+  }
+
+  const result = await sendEmail({
+    template: 'welcome',
+    to: user.email,
+    data: { name: claimed.name ?? '' },
+  })
+
+  if (!result.ok) {
+    console.error(
+      `[Auth OTP] Welcome email failed for ${user.email} (userId=${user.id}):`,
+      result.error,
+    )
+    return
+  }
+
+  console.log(
+    `[Auth OTP] Welcome fired for ${user.email} (userId=${user.id})`,
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Resend signup OTP
+// ---------------------------------------------------------------------------
+
+const emailSchema = z.string().email('Adresse email invalide')
+
+export type ResendOtpErrorCode = 'validation' | 'rate_limited' | 'unknown'
+
+export type ResendSignupOtpResult =
+  | { ok: true }
+  | { ok: false; error: string; code: ResendOtpErrorCode }
+
+/**
+ * Resend the signup OTP to the given email. Wraps supabase.auth.resend
+ * with type 'signup'. Subject to Supabase rate limiting (typically a
+ * few attempts per hour per email).
+ */
+export async function resendSignupOtp(
+  email: string,
+): Promise<ResendSignupOtpResult> {
+  const parsed = emailSchema.safeParse(email)
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]
+    return {
+      ok: false,
+      error: firstIssue?.message ?? 'Adresse email invalide',
+      code: 'validation',
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: parsed.data,
+    })
+
+    if (error) {
+      const message = error.message.toLowerCase()
+      if (message.includes('rate limit') || message.includes('too many')) {
+        console.log(`[Auth OTP] Resend rate limited for ${parsed.data}`)
+        return {
+          ok: false,
+          error: 'Trop de demandes, reessaie plus tard',
+          code: 'rate_limited',
+        }
+      }
+      console.error('[Auth OTP] Resend error:', error.message)
+      return { ok: false, error: error.message, code: 'unknown' }
+    }
+
+    console.log(`[Auth OTP] Resent OTP to ${parsed.data}`)
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inattendue'
+    console.error('[Auth OTP] Unexpected resend error:', message)
     return { ok: false, error: message, code: 'unknown' }
   }
 }

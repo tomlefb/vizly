@@ -306,10 +306,26 @@
       "google": "Continuer avec Google",
       "hasAccount": "Déjà un compte ?",
       "login": "Se connecter",
-      "successTitle": "Vérifie ta boîte mail",
-      "successMessage": "Un email de confirmation a été envoyé à {email}.",
-      "successHint": "Clique sur le lien pour activer ton compte.",
+      "successTitle": "Bienvenue sur Vizly",
       "backToLogin": "Retour à la connexion"
+    },
+    "verify": {
+      "title": "Vérifie ta boîte mail",
+      "subtitle": "On vient d'envoyer un code à 6 chiffres à {email}. Entre-le ci-dessous pour activer ton compte.",
+      "code": "Code de vérification",
+      "codePlaceholder": "123456",
+      "submit": "Vérifier",
+      "loading": "Vérification...",
+      "resend": "Renvoyer le code",
+      "resending": "Envoi...",
+      "resendSuccess": "Nouveau code envoyé",
+      "changeEmail": "Utiliser une autre adresse",
+      "redirecting": "Connexion en cours…",
+      "errors": {
+        "invalidFormat": "Le code doit contenir 6 chiffres",
+        "invalidToken": "Code invalide ou expiré. Réessaie ou demande un nouveau code.",
+        "rateLimited": "Trop de tentatives, réessaie dans quelques minutes"
+      }
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
