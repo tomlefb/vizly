@@ -9,6 +9,13 @@ import {
   createTemplateCheckout,
   createBillingPortalSession,
 } from '@/lib/stripe/checkout'
+import {
+  createSubscriptionWithPaymentIntent,
+  createTemplatePaymentIntent,
+  validatePromotionCode,
+  type PromotionDiscount,
+} from '@/lib/stripe/elements'
+import { getCustomerInvoiceSettings } from '@/lib/stripe/invoice-metadata'
 import { TEMPLATES } from '@/lib/constants'
 
 // ---------------------------------------------------------------------------
@@ -57,10 +64,27 @@ async function getOrCreateCustomerId(
       return { customerId: user.stripe_customer_id, error: null }
     }
 
-    // Create a new Stripe customer
+    // Create a new Stripe customer.
+    //
+    // The invoice_settings, address.country and preferred_locales fields
+    // below are applied ONLY at creation. Existing customers (created
+    // before Phase 2) will NOT be retroactively updated by this code path.
+    // If we ever need to backfill them, write a one-time admin script
+    // that loops over users.stripe_customer_id and calls
+    // stripe.customers.update with the same fields. See STRIPE_MIGRATION_NOTES.md.
+    //
+    // address.country: 'FR' is a sane default for Vizly's launch market.
+    // The real country can be collected later via a billing form and
+    // updated via stripe.customers.update without breaking anything here.
+    //
+    // preferred_locales: ['fr'] makes Stripe-native emails (e.g. invoice
+    // receipts, dispute notifications) display in French.
     const customer = await stripe.customers.create({
       email,
       metadata: { userId },
+      invoice_settings: getCustomerInvoiceSettings(),
+      address: { country: 'FR' },
+      preferred_locales: ['fr'],
     })
 
     // Persist the customer ID
@@ -298,5 +322,257 @@ export async function createBillingPortalAction(): Promise<CheckoutResult> {
     const message =
       err instanceof Error ? err.message : 'Erreur lors de la creation du portail'
     return { url: null, error: message }
+  }
+}
+
+// ===========================================================================
+// Phase 2 — Stripe Elements server actions (PaymentElement-based)
+// ===========================================================================
+//
+// The three actions below are the new path for the Stripe Elements
+// integration. They run in PARALLEL with the legacy
+// createSubscriptionCheckoutAction / createTemplateCheckoutAction (which
+// redirect to hosted Checkout) until Phase 6 cuts the UI over and the old
+// path is deleted.
+//
+// All three return a discriminated union { ok: true, ... } | { ok: false, error }
+// so consumers MUST handle both branches. We never throw across the
+// Server Action boundary — Stripe error stack traces stay server-side,
+// the client gets a stable string error code that the modal in Phase 4
+// will map to French copy in Vizly's voice.
+
+type SubscriptionIntentResult =
+  | { ok: true; clientSecret: string; subscriptionId: string }
+  | { ok: false; error: string }
+
+type TemplateIntentResult =
+  | { ok: true; clientSecret: string; paymentIntentId: string }
+  | { ok: false; error: string }
+
+type PromotionCodeValidationResult =
+  | {
+      ok: true
+      discount: { percentOff?: number; amountOff?: number; currency?: string }
+    }
+  | { ok: false; error: string }
+
+/**
+ * Create a default_incomplete subscription and return its client_secret
+ * so the frontend can confirm it via PaymentElement.
+ *
+ * Defensive duplicate-sub check: query BOTH the new local subscriptions
+ * table AND the legacy users.stripe_subscription_id column. The local
+ * table is populated starting at Phase 3 (webhook), but during the
+ * Phase 2→6 transition window users with a legacy sub still need to be
+ * blocked from creating a duplicate.
+ *
+ * TODO Phase 6: drop the hasLegacySub check once the legacy column is
+ * retired and all subs live in the local table.
+ */
+export async function createSubscriptionIntentAction({
+  plan,
+  interval,
+  promotionCode,
+}: {
+  plan: 'starter' | 'pro'
+  interval: BillingInterval
+  promotionCode?: string
+}): Promise<SubscriptionIntentResult> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
+
+    // Defensive double-check during Phase 2→6 transition. See note above.
+    const [localSubResult, legacyUserResult] = await Promise.all([
+      supabase
+        .from('subscriptions')
+        .select('id, status')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('users')
+        .select('stripe_subscription_id')
+        .eq('id', user.id)
+        .single(),
+    ])
+
+    const hasLocalSub = localSubResult.data !== null
+    const hasLegacySub =
+      legacyUserResult.data?.stripe_subscription_id !== null &&
+      legacyUserResult.data?.stripe_subscription_id !== undefined
+
+    if (hasLocalSub || hasLegacySub) {
+      return { ok: false, error: 'subscription_already_active' }
+    }
+
+    // Resolve the promotion code (if any) to its Stripe ID before passing
+    // it to the lib helper. The lib expects an ID, not the user-facing
+    // code text — Stripe distinguishes the two.
+    let promotionCodeId: string | undefined
+    if (promotionCode) {
+      const validation = await validatePromotionCode(promotionCode)
+      if (!validation.valid) {
+        return { ok: false, error: 'invalid_promotion_code' }
+      }
+      promotionCodeId = validation.promotionCodeId
+    }
+
+    const { customerId, error: customerError } = await getOrCreateCustomerId(
+      user.id,
+      user.email ?? '',
+    )
+    if (customerError) {
+      return { ok: false, error: 'customer_creation_failed' }
+    }
+
+    const priceId = getSubscriptionPriceId(plan, interval)
+    if (!priceId) {
+      return { ok: false, error: 'price_not_configured' }
+    }
+
+    const { subscriptionId, clientSecret } =
+      await createSubscriptionWithPaymentIntent({
+        userId: user.id,
+        customerId,
+        priceId,
+        promotionCode: promotionCodeId,
+      })
+
+    return { ok: true, clientSecret, subscriptionId }
+  } catch (err) {
+    console.error('[createSubscriptionIntentAction]', err)
+    return { ok: false, error: 'unknown_error' }
+  }
+}
+
+/**
+ * Create a one-shot PaymentIntent for purchasing a premium template.
+ *
+ * Domain-layer checks live in this Server Action (auth, "already
+ * purchased?") to keep the lib helper in src/lib/stripe/elements.ts
+ * pure-Stripe and Supabase-free. See Q1 verdict.
+ */
+export async function createTemplateIntentAction({
+  templateId,
+  promotionCode,
+}: {
+  templateId: string
+  promotionCode?: string
+}): Promise<TemplateIntentResult> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
+
+    // Defensive premium check against the local constants list, in
+    // addition to the same check inside the lib helper. Rejecting early
+    // here saves a Stripe round-trip on bad input.
+    const premiumTemplates: readonly string[] = TEMPLATES.premium
+    if (!premiumTemplates.includes(templateId)) {
+      return { ok: false, error: 'template_not_eligible' }
+    }
+
+    // DB-level check: has this user already purchased this template?
+    // Lives here (not in the lib) because the lib stays Supabase-free.
+    const { data: existingPurchase } = await supabase
+      .from('purchased_templates')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('template_id', templateId)
+      .maybeSingle()
+
+    if (existingPurchase) {
+      return { ok: false, error: 'template_already_purchased' }
+    }
+
+    // Resolve the promo code if provided. We need BOTH the ID (for
+    // metadata on the PI) AND the discount info (for amount math —
+    // PaymentIntents don't apply promo_codes natively).
+    let promotionCodeId: string | undefined
+    let promotionDiscount: PromotionDiscount | undefined
+    if (promotionCode) {
+      const validation = await validatePromotionCode(promotionCode)
+      if (!validation.valid) {
+        return { ok: false, error: 'invalid_promotion_code' }
+      }
+      promotionCodeId = validation.promotionCodeId
+      promotionDiscount = {
+        percentOff: validation.percentOff,
+        amountOff: validation.amountOff,
+        currency: validation.currency,
+      }
+    }
+
+    const { customerId, error: customerError } = await getOrCreateCustomerId(
+      user.id,
+      user.email ?? '',
+    )
+    if (customerError) {
+      return { ok: false, error: 'customer_creation_failed' }
+    }
+
+    try {
+      const { paymentIntentId, clientSecret } = await createTemplatePaymentIntent({
+        userId: user.id,
+        customerId,
+        templateId,
+        promotionCode: promotionCodeId,
+        promotionDiscount,
+      })
+      return { ok: true, clientSecret, paymentIntentId }
+    } catch (libErr) {
+      // Lib throws are domain errors with stable message strings we can
+      // map directly. Anything else falls through to unknown_error.
+      const message = libErr instanceof Error ? libErr.message : ''
+      if (message === 'invalid_promotion_code_currency') {
+        return { ok: false, error: 'invalid_promotion_code_currency' }
+      }
+      if (message === 'discount_too_large') {
+        return { ok: false, error: 'discount_too_large' }
+      }
+      if (message === 'Template not eligible for purchase') {
+        return { ok: false, error: 'template_not_eligible' }
+      }
+      console.error('[createTemplateIntentAction] lib error:', message, libErr)
+      return { ok: false, error: 'unknown_error' }
+    }
+  } catch (err) {
+    console.error('[createTemplateIntentAction]', err)
+    return { ok: false, error: 'unknown_error' }
+  }
+}
+
+/**
+ * Validate a user-facing promo code against Stripe's promotion_codes
+ * catalog. Used by the Phase 4 modal to display the discount preview
+ * BEFORE the user confirms payment.
+ *
+ * Maps the lib's `reason` enum to a stable error string. The Phase 4
+ * modal then maps these strings to French copy in Vizly's voice.
+ */
+export async function validatePromotionCodeAction(
+  code: string,
+): Promise<PromotionCodeValidationResult> {
+  try {
+    const validation = await validatePromotionCode(code)
+    if (!validation.valid) {
+      return { ok: false, error: validation.reason ?? 'unknown_error' }
+    }
+    return {
+      ok: true,
+      discount: {
+        percentOff: validation.percentOff,
+        amountOff: validation.amountOff,
+        currency: validation.currency,
+      },
+    }
+  } catch (err) {
+    console.error('[validatePromotionCodeAction]', err)
+    return { ok: false, error: 'unknown_error' }
   }
 }
