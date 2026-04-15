@@ -103,7 +103,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                   href="/register"
                   className="inline-flex items-center rounded-[var(--radius-md)] bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
                 >
-                  {template.isPremium ? 'Essayer ce template (2,99\u20AC)' : 'Utiliser ce template'}
+                  Créer mon portfolio
                 </Link>
                 <Link
                   href="/templates"
