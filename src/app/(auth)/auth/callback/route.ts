@@ -8,9 +8,20 @@ import { createClient } from '@/lib/supabase/server'
  * /dashboard). Google users don't receive the Vizly Welcome email.
  */
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
   const rawNext = searchParams.get('next') ?? '/dashboard'
+
+  // Derrière le reverse proxy Railway, request.url contient l'URL
+  // interne du container (http://localhost:3000) — inutilisable pour
+  // le redirect final. On reconstruit l'origin public à partir des
+  // en-têtes forwarded, avec fallback sur NEXT_PUBLIC_APP_URL si pour
+  // une raison quelconque aucun en-tête n'est présent.
+  const forwardedHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+  const forwardedProto = request.headers.get('x-forwarded-proto') ?? 'https'
+  const origin = forwardedHost
+    ? `${forwardedProto}://${forwardedHost}`
+    : (process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin)
 
   // Open-redirect protection: only accept same-origin relative paths.
   // Rejects absolute URLs (http://evil.com) and protocol-relative ones
