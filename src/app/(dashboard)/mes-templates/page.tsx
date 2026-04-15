@@ -22,7 +22,7 @@ export default async function MesTemplatesPage() {
     <div className="space-y-10">
       <div>
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-          Vos templates
+          Nos templates
         </h1>
         <p className="mt-1 text-sm text-muted">
           Les templates disponibles pour ton portfolio, et ceux que tu peux encore débloquer.
