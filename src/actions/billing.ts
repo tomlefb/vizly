@@ -31,6 +31,32 @@ interface BillingStatus {
   error: string | null
 }
 
+export interface BillingSubscriptionSummary {
+  status: string
+  interval: 'monthly' | 'yearly'
+  current_period_end: string | null
+  cancel_at_period_end: boolean
+  canceled_at: string | null
+}
+
+export interface BillingInvoiceSummary {
+  id: string
+  number: string | null
+  amount_paid: number
+  currency: string
+  hosted_invoice_url: string | null
+  invoice_pdf: string | null
+  paid_at: string
+}
+
+export interface BillingDetails {
+  plan: 'free' | 'starter' | 'pro'
+  subscription: BillingSubscriptionSummary | null
+  invoices: BillingInvoiceSummary[]
+  purchasedTemplates: string[]
+  error: string | null
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -142,6 +168,120 @@ export async function getBillingStatus(): Promise<BillingStatus> {
     const message =
       err instanceof Error ? err.message : 'Erreur lors de la recuperation du statut'
     return { plan: 'free', purchasedTemplates: [], error: message }
+  }
+}
+
+/**
+ * Read the rich billing snapshot for the authenticated user — plan,
+ * full subscription state (status, interval, periods, cancellation),
+ * paid invoices history, and purchased premium templates.
+ *
+ * 100% local DB, zero Stripe live calls. The `subscriptions` and
+ * `invoices` tables are kept in sync by the webhook handlers
+ * (Phase 3 pipeline). RLS on both tables already restricts SELECT
+ * to the user's own rows, so the request is naturally scoped.
+ *
+ * Used by /billing (Phase 7 rewrite). The lighter `getBillingStatus`
+ * stays around for `useEditorState`, which only needs `plan` +
+ * `purchasedTemplates` and shouldn't pay for the extra round-trips.
+ */
+export async function getBillingDetails(): Promise<BillingDetails> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return {
+        plan: 'free',
+        subscription: null,
+        invoices: [],
+        purchasedTemplates: [],
+        error: 'Non authentifie',
+      }
+    }
+
+    const [userRes, subRes, invoicesRes, templatesRes] = await Promise.all([
+      supabase.from('users').select('plan').eq('id', user.id).single(),
+      supabase
+        .from('subscriptions')
+        .select(
+          'status, interval, current_period_end, cancel_at_period_end, canceled_at',
+        )
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('invoices')
+        .select(
+          'stripe_invoice_id, number, amount_paid, currency, hosted_invoice_url, invoice_pdf, paid_at',
+        )
+        .eq('user_id', user.id)
+        .order('paid_at', { ascending: false }),
+      supabase
+        .from('purchased_templates')
+        .select('template_id')
+        .eq('user_id', user.id),
+    ])
+
+    if (userRes.error) {
+      return {
+        plan: 'free',
+        subscription: null,
+        invoices: [],
+        purchasedTemplates: [],
+        error: userRes.error.message,
+      }
+    }
+
+    const plan = (userRes.data?.plan ?? 'free') as 'free' | 'starter' | 'pro'
+
+    // The `subscriptions` row is only present for users who paid at least
+    // once. A canceled-then-resubscribed user gets the latest row via
+    // onConflict='user_id' upsert in the webhook (see Phase 3 notes).
+    const subRow = subRes.data
+    const subscription: BillingSubscriptionSummary | null =
+      subRow && (subRow.interval === 'monthly' || subRow.interval === 'yearly')
+        ? {
+            status: subRow.status,
+            interval: subRow.interval,
+            current_period_end: subRow.current_period_end,
+            cancel_at_period_end: subRow.cancel_at_period_end,
+            canceled_at: subRow.canceled_at,
+          }
+        : null
+
+    const invoices: BillingInvoiceSummary[] = (invoicesRes.data ?? [])
+      .filter((row) => row.paid_at !== null)
+      .map((row) => ({
+        id: row.stripe_invoice_id,
+        number: row.number,
+        amount_paid: row.amount_paid,
+        currency: row.currency,
+        hosted_invoice_url: row.hosted_invoice_url,
+        invoice_pdf: row.invoice_pdf,
+        paid_at: row.paid_at as string,
+      }))
+
+    const purchasedTemplates = (templatesRes.data ?? []).map((t) => t.template_id)
+
+    return {
+      plan,
+      subscription,
+      invoices,
+      purchasedTemplates,
+      error: null,
+    }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Erreur lors de la recuperation du statut'
+    return {
+      plan: 'free',
+      subscription: null,
+      invoices: [],
+      purchasedTemplates: [],
+      error: message,
+    }
   }
 }
 

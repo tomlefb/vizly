@@ -1554,3 +1554,280 @@ Donc BillingClient.tsx et TarifsClient.tsx contiennent toujours des
 violations du DESIGN-SYSTEM.md (shadows au repos, scale hover, bordures
 colorées, gradients badges "Populaire"). À nettoyer en Phase 7 ou dans
 un chantier UI dédié post-migration Stripe.
+
+→ **Soldé en Phase 7 pour `BillingClient.tsx`** (rewrite complet, voir
+section ci-dessous). `TarifsClient.tsx` reste avec ses antipatterns —
+hors périmètre Phase 7, à traiter dans un chantier UI dédié.
+
+---
+
+## Phase 7 — Récap `/billing` custom + page `/billing/confirm`
+
+### Objectif
+
+Réécriture complète de `BillingClient.tsx` qui lit désormais les tables
+locales `subscriptions` et `invoices` (instantané, zéro appel Stripe live),
+et création de la page `/billing/confirm` qui gère le retour 3DS post-
+`stripe.confirmPayment` quand la carte exige Strong Customer Authentication.
+
+### Architecture data — `getBillingDetails` (option A retenue)
+
+`getBillingStatus` est appelée à 2 endroits :
+- `src/app/(dashboard)/billing/page.tsx` (où Phase 7 a besoin du shape
+  riche)
+- `src/hooks/useEditorState.ts` (où seul `plan` + `purchasedTemplates`
+  est consommé)
+
+Verdict : **option A**. Création d'une nouvelle Server Action
+`getBillingDetails` qui lit les tables riches en parallèle, sans toucher
+à `getBillingStatus` qui reste lean pour `useEditorState`. Pas de
+duplication réelle puisque les deux fonctions ont des shapes différents
+et des consommateurs disjoints.
+
+`getBillingDetails` fait 4 queries en parallèle via `Promise.all` :
+1. `users.plan`
+2. `subscriptions` (single row par user via `.maybeSingle()`)
+3. `invoices` triées `paid_at desc` (filtrées sur `paid_at !== null`
+   pour exclure les rares invoices en draft qui auraient atterri en DB)
+4. `purchased_templates`
+
+Toutes les queries respectent les RLS Phase 1 (le user ne voit que ses
+propres lignes). Aucun appel `stripe.*` côté serveur — c'est le point
+critique de Phase 7.
+
+Les types `BillingSubscriptionSummary`, `BillingInvoiceSummary` et
+`BillingDetails` sont exportés depuis `src/actions/billing.ts` pour
+que le client component les consomme directement (pas de duplication
+de type côté UI).
+
+### Structure du nouveau `BillingClient.tsx`
+
+Bloc par bloc dans l'ordre du JSX :
+
+1. **Bandeau cancel** (visible si `subscription.cancel_at_period_end === true`)
+   — message info sobre `bg-surface-warm` + bordure neutre. Date formatée
+   FR-FR, nom du plan injecté. Disparaît dès que le webhook
+   `customer.subscription.updated` syncera `cancel_at_period_end: false`
+   après une réactivation.
+
+2. **Bandeau success** (auto-clear 5 s) — affiché après
+   `changeSubscriptionPlanAction` réussi. Style identique au cancel
+   banner : `bg-surface-warm`, icône `Check` neutre, pas de vert.
+
+3. **Bandeau erreur** (persistant jusqu'à prochaine action) — `bg-surface-warm`,
+   icône `AlertCircle` en `text-destructive`. Texte foreground.
+
+4. **Bloc "Mon abonnement"** — pour user free : phrase sobre
+   `Tu n'as pas d'abonnement actif.`. Pour user payant : grille `dl/dt/dd`
+   3 colonnes (Plan, Facturation, Prochaine facture). Pas de carte, pas
+   de feature list, pas d'icône Crown. Le badge "Annulation prévue"
+   remplace la date dans la 3e colonne quand `cancel_at_period_end === true`.
+
+5. **Bloc "Choisis ton abonnement" / "Changer de plan"** —
+   contexte-aware :
+   - **Free** : titre `Choisis ton abonnement`, toggle interval visible,
+     2 CTAs (Starter primaire + Pro secondaire) qui ouvrent la modal.
+   - **Starter monthly** : `Passer Pro — 9,99 €/mois` (primaire) +
+     `Passer en facturation annuelle (−15 %)` (secondaire).
+   - **Starter yearly** : `Passer Pro — 101,90 €/an` (primaire) +
+     `Repasser en facturation mensuelle` (secondaire).
+   - **Pro monthly** : `Repasser Starter — 4,99 €/mois` (secondaire,
+     downgrade) + `Passer en facturation annuelle (−15 %)` (secondaire).
+   - **Pro yearly** : `Repasser Starter — 50,90 €/an` (secondaire) +
+     `Repasser en facturation mensuelle` (secondaire).
+   Tous les CTAs paid passent par la même `changeSubscriptionPlanAction`
+   ; seul le shape `{plan, interval}` change. Aucune nouvelle Server
+   Action créée.
+
+6. **Bloc "Factures"** — visible si `invoices.length > 0`. Tableau HTML
+   natif sobre (Date, Numéro, Montant, Documents). Liens `Voir en ligne`
+   (vers `hosted_invoice_url`) et `PDF` (vers `invoice_pdf`) en
+   `text-muted-foreground` avec hover `text-foreground`. Pagination
+   locale : affiche 12 dernières par défaut, bouton `Voir toutes les
+   factures` qui révèle le reste via state local `showAllInvoices`.
+
+7. **Bloc "Templates premium"** — adaptatif (option (c) du récap) :
+   - Si `purchasedPremiumTemplates.length > 0` : section
+     `Tes templates premium` listant uniquement les achetés + lien
+     `Voir tous les templates premium →` vers `/templates`.
+   - Sinon, si `plan !== 'free'` : grille des 4 templates premium avec
+     CTA `Débloquer — 2,99 €` qui ouvre la `TemplatePurchaseModal`.
+   - Sinon (free + 0 templates) : bloc absent.
+
+8. **Bloc "Gérer mon abonnement"** — visible uniquement pour les payants.
+   Description courte + un bouton secondaire `Ouvrir le portail Stripe`
+   qui appelle `createBillingPortalAction()` et redirige.
+
+9. **Modals** — `SubscriptionCheckoutModal` + `TemplatePurchaseModal`
+   rendus conditionnellement en fin de JSX. **Non touchées en Phase 7**
+   (elles restent telles quelles depuis Phase 4/5).
+
+### Sous-composants extraits localement
+
+Le rewrite extrait des sous-composants dans le **même fichier**
+(`BillingClient.tsx`) plutôt que dans des fichiers séparés. Raisons :
+- Aucun de ces sous-composants n'est consommé ailleurs dans l'app.
+- Le fichier monolithique reste lisible (~970 lignes structurées
+  bloc par bloc).
+- Une extraction multi-fichiers serait du polish prématuré.
+
+Sous-composants : `Banner`, `SubscriptionBlock`, `DetailField`,
+`StatusBadge`, `ChangePlanBlock`, `IntervalToggle`, `InvoicesBlock`,
+`TemplatesBlock`, `ManageBlock`, `PrimaryButton`, `SecondaryButton`.
+
+Les boutons primaires et secondaires sont extraits comme composants pour
+éliminer les ~40 lignes de classes Tailwind dupliquées qui existaient
+dans l'ancien `BillingClient`. Ils n'ont volontairement aucune option
+`variant` / `size` — c'est juste un wrapper qui standardise la signature
+et le style. YAGNI strict.
+
+### Antipatterns DA corrigés (vs ancien BillingClient.tsx 535 lignes)
+
+| Avant | Après |
+|---|---|
+| `bg-green-50/80`, `bg-amber-50/80` (bandeaux statut) | `bg-surface-warm` neutre |
+| `border-green-200`, `border-amber-200` | `border-border` neutre |
+| `text-green-600/700/800`, `text-amber-600/700/800` | `text-foreground` + `text-destructive` pour erreurs |
+| `rounded-full` sur disques d'icône bandeaux | Icône inline 16px sans wrapper circulaire |
+| `bg-amber-100 text-amber-800` (badge Pro) | Badge sobre `bg-surface-warm text-foreground` |
+| `text-amber-500` sur Crown icon | Crown supprimé (icône décorative) |
+| `rounded-[var(--radius-full)]` sur badges | `rounded` (radius standard 6px) |
+| `Check` en `text-accent` dans feature list | Feature list supprimée (donnée déjà connue par l'user) |
+| `shadow-[0_2px_8px_rgba(212,99,78,0.2)]` sur CTAs | Aucune shadow au repos |
+| `active:scale-[0.98]` sur tous les CTAs | Aucun scale, transitions colors uniquement |
+| `transition-all duration-200` | `transition-colors duration-150` |
+
+### Page `/billing/confirm`
+
+**Localisation** : `src/app/(dashboard)/billing/confirm/page.tsx`
+(Server Component) + `ConfirmRedirectAfterDelay.tsx` (Client Component).
+
+**Pourquoi sous `(dashboard)`** : le user authentifié hérite du layout
+sidebar et retombe dans son contexte habituel après le retour 3DS.
+
+**Query params lus** :
+- `redirect_status` : `succeeded | failed | undefined` — ajouté
+  automatiquement par Stripe lors du redirect post-3DS
+- `subscription_id` : custom param injecté par `SubscriptionCheckoutModal`
+  via le `return_url` de `confirmPayment` (utilisé pour discriminer
+  le contexte sub vs template — pas pour fetcher Stripe)
+- `payment_intent_id` : custom param injecté par `TemplatePurchaseModal`
+  pour la même raison
+- (`payment_intent`, `payment_intent_client_secret` : présents mais
+  pas lus — pas besoin de re-fetch Stripe)
+
+**Comportement** :
+- `succeeded` → icône Check 32px sobre, titre `Paiement confirmé.`
+  (point final cohérent avec le H1 `Mon abonnement.`), sous-titre adapté
+  au contexte (sub vs template), redirect auto vers `/billing` après 3 s
+  via `<ConfirmRedirectAfterDelay />`. Bouton `Continuer` qui zappe
+  le délai immédiatement (`clearTimeout` + `router.push`).
+- `failed` → icône X sobre, titre `Paiement refusé.`, sous-titre court,
+  bouton primaire `Retour à mes abonnements`.
+- `unknown` → branche défensive si `redirect_status` est absent ou
+  inconnu (cas qui ne devrait jamais survenir mais on n'éclate pas
+  silencieusement). Icône `AlertCircle` neutre, message factuel,
+  bouton retour secondaire.
+
+**Rule clé respectée** : la page **ne touche pas la DB**. Le webhook
+pipeline (`customer.subscription.created`, `invoice.paid`,
+`payment_intent.succeeded`) reste la source de vérité et tourne en
+parallèle. Le `redirect_status=succeeded` dans l'URL n'est qu'un signal
+optimiste pour afficher un message ; le délai de 3 s avant redirect
+laisse au webhook le temps de lander avant le prochain render de
+`/billing`.
+
+**Layout** : centré verticalement (l'EXCEPTION au "alignement gauche
+partout" du DA — c'est une page de confirmation, pattern reconnu).
+
+### Extension `PLANS` dans `src/lib/constants.ts`
+
+Ajout de `priceCents: { monthly: number; yearly: number }` à `starter`
+et `pro`. Permet d'utiliser `formatEur(PLANS[plan].priceCents[interval])`
+partout dans `BillingClient` sans hardcoder les prix en string. Cohérent
+avec le pattern Phase 4/5 des modals.
+
+Vérifié : aucun consommateur de `PLANS` ne lit `price` ni `yearlyPrice`
+en valeur numérique — ces champs restent uniquement pour rétrocompatibilité
+des marketing pages qui les affichent en string formatée. Pas de
+dépréciation forcée en Phase 7.
+
+### Suppression du dead code `?checkout=success/cancel`
+
+L'ancien `billing/page.tsx` lisait `searchParams.checkout` et passait
+un `checkoutStatus` au client pour afficher des bandeaux post-redirect.
+Plus aucune Server Action ne set ces params depuis Phase 6, plus aucun
+`return_url` Stripe ne pointe là-dessus → suppression complète.
+
+Le nouveau `billing/page.tsx` fait `getBillingDetails()` + render direct
+sans lire de query params (les confirmations 3DS atterrissent sur
+`/billing/confirm`, pas sur `/billing` directement).
+
+### Fichiers touchés (Phase 7)
+
+**Créés (3)** :
+- `src/app/(dashboard)/billing/confirm/page.tsx` — Server Component qui
+  lit `searchParams` et branche sur `redirect_status`.
+- `src/app/(dashboard)/billing/confirm/ConfirmRedirectAfterDelay.tsx` —
+  Client Component qui gère le `setTimeout` + bouton `Continuer`.
+- (pas de nouvelle migration Supabase, pas de nouvelle Server Action
+  hors `getBillingDetails` ajoutée à `billing.ts`)
+
+**Modifiés (5)** :
+- `src/components/billing/BillingClient.tsx` — rewrite complet
+  (~970 lignes structurées, vs 535 lignes bordéliques avant).
+- `src/app/(dashboard)/billing/page.tsx` — H1 modifié avec accent
+  terracotta `Mon abonnement.`, suppression du `?checkout=` legacy,
+  passage à `getBillingDetails`.
+- `src/actions/billing.ts` — ajout de `getBillingDetails` et de 3 types
+  exportés (`BillingSubscriptionSummary`, `BillingInvoiceSummary`,
+  `BillingDetails`). `getBillingStatus` non touchée.
+- `src/lib/constants.ts` — ajout `priceCents` sur `starter` et `pro`.
+- `messages/fr.json` + `messages/en.json` — refonte complète du bloc
+  `billing` avec ~50 nouvelles clés (titles, CTAs contextuels, libellés
+  de tableau factures, messages page confirm). Anciennes clés inutilisées
+  supprimées (`paymentConfirmed`, `paymentCancelled`, `pricePerMonth`,
+  `featuresLabel`, `notOnline`, etc.).
+
+### Dette technique identifiée pendant le chantier Stripe
+
+**Rip-out global de la police Satoshi** : Tom m'a explicitement demandé
+de NE PAS toucher à `font-[family-name:var(--font-satoshi)]` sur les
+H1/H2 en Phase 7. Le DA Vizly impose pourtant DM Sans uniquement
+(la `--font-display: var(--font-satoshi)` reste définie dans
+`globals.css` mais n'est plus alignée avec le DA strict). Ce rip-out
+touche TOUS les H1/H2 de l'app (dashboard, settings, marketing,
+templates, billing) et nécessite aussi un update de `CLAUDE.md` qui
+parle encore de "Satoshi" comme police de titre. **Hors périmètre
+Stripe — chantier UI dédié post-migration.**
+
+**Nettoyage `TarifsClient.tsx`** : reste avec ses antipatterns DA
+(shadows custom, scale, badges gradient, couleurs hors système). Phase 6
+les a laissés intacts par décision Tom, Phase 7 ne les touche pas car
+hors périmètre `/billing`. À traiter dans le même chantier UI dédié.
+
+**Sous-composants `BillingClient.tsx` à externaliser** : si la base
+billing devient plus complexe (ex: ajout d'un onglet `Méthodes de
+paiement` ou `Adresse de facturation` post-Stripe Tax), les
+sous-composants `Banner`, `InvoicesBlock`, etc. mériteront leur fichier
+propre. Pas le cas aujourd'hui — gardés en monofile.
+
+### Test visuel attendu (à effectuer par Tom)
+
+Trois flows à tester sur `https://localhost:3000/billing` :
+
+1. **User free** : voit le bloc "Mon abonnement" sobre
+   (`Tu n'as pas d'abonnement actif.`), bloc "Choisis ton abonnement"
+   avec toggle + 2 CTAs. Pas de bloc factures. Pas de bloc gérer.
+   Pas de bloc templates (sauf si l'user a déjà un template acheté
+   par un ancien flow, cas marginal mais géré).
+2. **User Starter active** : voit le bloc "Mon abonnement" avec détails
+   (plan + interval + next billing), bloc "Changer de plan" avec
+   2 CTAs (Pro + toggle interval), bloc factures si `invoices` présent,
+   bloc "Tes templates achetés" si templates achetés OU bloc
+   "Templates premium" achetable, bloc "Gérer mon abonnement".
+3. **Flow 3DS** : clic CTA "Passer Starter" sur un user free → modal
+   s'ouvre → carte `4000 0025 0000 3155` (force 3DS) → popup 3DS →
+   approuver → redirect `/billing/confirm?redirect_status=succeeded` →
+   message "Paiement confirmé." → auto-redirect `/billing` après 3 s
+   avec sub active affichée.
