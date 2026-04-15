@@ -1,12 +1,17 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useLayoutEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
 const EXPANDED_WIDTH = 220
 const COLLAPSED_WIDTH = 56
 export const SIDEBAR_COOKIE = 'vizly-sidebar-expanded'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 // 1 an
+
+// useLayoutEffect throws a warning during SSR ; on bascule sur
+// useEffect côté serveur via ce shim isomorphique standard.
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 function readSidebarCookie(): boolean {
   if (typeof document === 'undefined') return true
@@ -18,12 +23,14 @@ interface SidebarContextValue {
   expanded: boolean
   toggle: () => void
   sidebarWidth: number
+  mounted: boolean
 }
 
 const SidebarContext = createContext<SidebarContextValue>({
   expanded: true,
   toggle: () => {},
   sidebarWidth: EXPANDED_WIDTH,
+  mounted: false,
 })
 
 export function useSidebar() {
@@ -40,18 +47,24 @@ export function SidebarProvider({ children, defaultExpanded = true }: SidebarPro
   const isInEditor = pathname.startsWith('/editor')
 
   const [expanded, setExpanded] = useState(defaultExpanded)
+  const [mounted, setMounted] = useState(false)
 
-  // Réagit aux navigations client-side (pas de F5) : force la sidebar
-  // rétractée à l'entrée en /editor, restaure la préférence cookie à
-  // la sortie. Au F5, le layout a déjà passé la bonne valeur via
-  // defaultExpanded et cet effet produit un résultat identique.
-  useEffect(() => {
+  // Fire synchronously avant le paint du navigateur : re-sync depuis
+  // le cookie côté client si le SSR n'a pas pu le lire (edge cache,
+  // cookie race), pour éviter un flash de transition à l'hydratation.
+  useIsomorphicLayoutEffect(() => {
     if (isInEditor) {
       setExpanded(false)
     } else {
       setExpanded(readSidebarCookie())
     }
   }, [isInEditor])
+
+  // Active les transitions CSS uniquement après le premier paint pour
+  // que l'ajustement d'hydratation ci-dessus ne soit pas animé.
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const toggle = useCallback(() => {
     setExpanded((prev) => {
@@ -68,7 +81,7 @@ export function SidebarProvider({ children, defaultExpanded = true }: SidebarPro
   const sidebarWidth = expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH
 
   return (
-    <SidebarContext.Provider value={{ expanded, toggle, sidebarWidth }}>
+    <SidebarContext.Provider value={{ expanded, toggle, sidebarWidth, mounted }}>
       {children}
     </SidebarContext.Provider>
   )

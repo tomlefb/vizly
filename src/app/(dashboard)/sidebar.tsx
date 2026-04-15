@@ -45,7 +45,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
 
   const pathname = usePathname()
   const router = useRouter()
-  const { expanded, toggle, sidebarWidth } = useSidebar()
+  const { expanded, toggle, sidebarWidth, mounted } = useSidebar()
 
   const initials = userName
     ? userName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
@@ -60,7 +60,10 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
 
   return (
     <aside
-      className="fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-[#E5E7EB] bg-white transition-[width] duration-200 ease-out overflow-hidden"
+      className={cn(
+        'fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-[#E5E7EB] bg-white overflow-hidden',
+        mounted && 'transition-[width] duration-200 ease-out',
+      )}
       style={{ width: sidebarWidth }}
     >
       {/* Logo + toggle */}
