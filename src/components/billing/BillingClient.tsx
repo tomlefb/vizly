@@ -1,21 +1,24 @@
 'use client'
 
 // =============================================================================
-// BillingClient — Vizly /billing custom recap (Phase 7 rewrite)
+// BillingClient — Vizly /billing custom recap (Phase 7 + 7.5 fixup)
 // =============================================================================
 //
-// 100 % data from local Supabase tables (subscriptions + invoices) populated
-// by the Phase 3 webhook pipeline. Zero Stripe live calls per page render.
+// 100 % data from local Supabase tables, populated by the Phase 3 webhook
+// pipeline. Zero Stripe live calls per page render.
+//
+// Source-of-truth contract (Phase 7.5):
+//   - `plan` (from users.plan) is the canonical plan. Always trust it.
+//   - `subscription` row is an OPTIONAL ENRICHMENT. May be null even for
+//     paid users (legacy hydration miss). UI must render a fallback
+//     when paid-plan + null-subscription.
 //
 // Five blocks:
-//   1. "Mon abonnement"      — current plan, interval, next billing date
-//   2. "Changer de plan"     — context-aware CTAs (upgrade, downgrade, switch interval)
-//   3. "Factures"            — local invoice history with hosted/PDF links
-//   4. "Templates premium"   — adaptive: shown only when relevant to user state
+//   1. "Mon abonnement"      — current plan card with features
+//   2. "Choisis ton abonnement" / "Changer de plan" — context-aware
+//   3. "Factures"            — local invoice history
+//   4. "Templates premium"   — adaptive
 //   5. "Gérer mon abonnement"— Stripe Billing Portal redirect (kept hosted)
-//
-// Modals (Phase 4 + 5) are reused as-is — this file only orchestrates state
-// and never touches their internals.
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
@@ -24,6 +27,8 @@ import { useTranslations } from 'next-intl'
 import {
   AlertCircle,
   Check,
+  CreditCard,
+  Crown,
   ExternalLink,
   FileText,
   Sparkles,
@@ -379,84 +384,114 @@ function SubscriptionBlock({
         {t('mySubscription')}
       </h2>
 
-      {plan === 'free' || subscription === null ? (
+      {plan === 'free' ? (
         <p className="text-sm text-muted-foreground">
           {t('noActiveSubscription')}
         </p>
       ) : (
-        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <DetailField label={t('currentPlan')}>
-            <span className="text-sm font-medium text-foreground">
-              {planName(plan as PaidPlan)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {' · '}
-              {formatPlanPriceLabel(
-                planPriceCents(plan as PaidPlan, subscription.interval),
-                subscription.interval,
-              )}
-            </span>
-          </DetailField>
-
-          <DetailField label={t('currentInterval')}>
-            <span className="text-sm text-foreground">
-              {subscription.interval === 'monthly'
-                ? t('billingMonthly')
-                : t('billingYearly')}
-            </span>
-          </DetailField>
-
-          <DetailField label={t('nextBilling')}>
-            <span className="text-sm text-foreground">
-              {subscription.cancel_at_period_end ? (
-                <StatusBadge tone="warning">
-                  {t('statusCancelScheduled')}
-                </StatusBadge>
-              ) : (
-                formatLongDate(subscription.current_period_end)
-              )}
-            </span>
-          </DetailField>
-        </dl>
+        <PlanCard
+          plan={plan as PaidPlan}
+          subscription={subscription}
+          formatPlanPriceLabel={formatPlanPriceLabel}
+        />
       )}
     </section>
   )
 }
 
-function DetailField({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+interface PlanCardProps {
+  plan: PaidPlan
+  subscription: BillingSubscriptionSummary | null
+  formatPlanPriceLabel: (cents: number, interval: BillingInterval) => string
+}
+
+function PlanCard({ plan, subscription, formatPlanPriceLabel }: PlanCardProps) {
+  const t = useTranslations('billing')
+  const planConfig = PLANS[plan]
+  // For legacy users (no subscription row), default to monthly pricing.
+  const interval: BillingInterval = subscription?.interval ?? 'monthly'
+
+  // Crown only on Pro — explicit DA exception validated by Tom: Crown
+  // colored amber is allowed exclusively on this single icon, nowhere
+  // else. CreditCard stays neutral text-foreground for Starter.
+  const PlanIcon = plan === 'pro' ? Crown : CreditCard
+  const iconColor = plan === 'pro' ? 'text-amber-500' : 'text-foreground'
+
   return (
-    <div className="space-y-1">
-      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </dt>
-      <dd>{children}</dd>
+    <div className="rounded-[var(--radius-md)] border border-border bg-background p-6">
+      {/* Header : icône + nom + badge */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <PlanIcon
+            className={cn('h-5 w-5', iconColor)}
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+          <div>
+            <h3 className="text-base font-semibold text-foreground">
+              {t('planLabel', { name: planConfig.name })}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {formatPlanPriceLabel(planConfig.priceCents[interval], interval)}
+            </p>
+          </div>
+        </div>
+        <PlanBadge plan={plan} />
+      </div>
+
+      {/* Liste des features incluses */}
+      {planConfig.features.length > 0 && (
+        <ul
+          className="mt-5 space-y-2"
+          aria-label={t('planFeaturesLabel')}
+        >
+          {planConfig.features.map((feature) => (
+            <li
+              key={feature}
+              className="flex items-center gap-2 text-sm text-foreground"
+            >
+              <Check
+                className="h-3.5 w-3.5 shrink-0 text-foreground"
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+              {feature}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Footer : prochaine facture / cancel scheduled / fallback legacy */}
+      {subscription !== null ? (
+        <div className="mt-5 space-y-1 border-t border-border pt-4">
+          {subscription.current_period_end && (
+            <p className="text-sm text-muted-foreground">
+              {t('nextBilling', {
+                date: formatLongDate(subscription.current_period_end),
+              })}
+            </p>
+          )}
+          {subscription.cancel_at_period_end && (
+            <p className="text-sm text-muted-foreground">
+              {t('cancelScheduledLine', {
+                date: formatLongDate(subscription.current_period_end),
+              })}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="mt-5 border-t border-border pt-4">
+          <p className="text-sm text-muted-foreground">{t('legacyHint')}</p>
+        </div>
+      )}
     </div>
   )
 }
 
-function StatusBadge({
-  tone,
-  children,
-}: {
-  tone: 'active' | 'warning'
-  children: React.ReactNode
-}) {
+function PlanBadge({ plan }: { plan: PaidPlan }) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium',
-        tone === 'active'
-          ? 'bg-surface-warm text-foreground'
-          : 'bg-surface-warm text-foreground',
-      )}
-    >
-      {children}
+    <span className="inline-flex items-center rounded-[var(--radius-sm)] bg-surface-warm px-2 py-0.5 text-xs font-medium uppercase text-foreground">
+      {PLANS[plan].name}
     </span>
   )
 }
@@ -487,8 +522,8 @@ function ChangePlanBlock({
   const t = useTranslations('billing')
   const isLoading = loadingAction === 'change-plan'
 
-  // Free users : show a binary plan picker with an interval toggle
-  if (plan === 'free' || subscription === null) {
+  // ---- Free users : two side-by-side plan cards with features ----
+  if (plan === 'free') {
     return (
       <section className="space-y-4 border-t border-border pt-8">
         <div className="flex items-center justify-between gap-4">
@@ -501,37 +536,51 @@ function ChangePlanBlock({
           />
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <PrimaryButton
-            disabled={isLoading}
-            loading={isLoading}
-            onClick={() => onOpenModal('starter')}
-          >
-            {t('ctaUpgradeStarter', {
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <ChoosePlanCard
+            plan="starter"
+            interval={billingInterval}
+            ctaVariant="primary"
+            ctaLabel={t('ctaUpgradeStarter', {
               price: formatPlanPriceLabel(
                 planPriceCents('starter', billingInterval),
                 billingInterval,
               ),
             })}
-          </PrimaryButton>
-          <SecondaryButton
             disabled={isLoading}
             loading={isLoading}
-            onClick={() => onOpenModal('pro')}
-          >
-            {t('ctaUpgradePro', {
+            onClick={() => onOpenModal('starter')}
+            formatPlanPriceLabel={formatPlanPriceLabel}
+          />
+          <ChoosePlanCard
+            plan="pro"
+            interval={billingInterval}
+            ctaVariant="secondary"
+            ctaLabel={t('ctaUpgradePro', {
               price: formatPlanPriceLabel(
                 planPriceCents('pro', billingInterval),
                 billingInterval,
               ),
             })}
-          </SecondaryButton>
+            disabled={isLoading}
+            loading={isLoading}
+            onClick={() => onOpenModal('pro')}
+            formatPlanPriceLabel={formatPlanPriceLabel}
+          />
         </div>
       </section>
     )
   }
 
-  // Paid users : context-aware CTAs
+  // ---- Paid users with NO subscription row (legacy hydration miss) ----
+  // We can't build context-aware CTAs without the current interval, so we
+  // hide the block entirely. The user is still pushed toward the Stripe
+  // portal via the dedicated ManageBlock at the bottom of the page.
+  if (subscription === null) {
+    return null
+  }
+
+  // ---- Paid users : context-aware CTAs (in-place change) ----
   const currentInterval = subscription.interval
   const otherInterval: BillingInterval =
     currentInterval === 'monthly' ? 'yearly' : 'monthly'
@@ -601,6 +650,72 @@ function ChangePlanBlock({
         })}
       </div>
     </section>
+  )
+}
+
+// ---- ChoosePlanCard : full plan card used in the free-user 2-up grid ----
+
+interface ChoosePlanCardProps {
+  plan: PaidPlan
+  interval: BillingInterval
+  ctaVariant: 'primary' | 'secondary'
+  ctaLabel: string
+  disabled: boolean
+  loading: boolean
+  onClick: () => void
+  formatPlanPriceLabel: (cents: number, interval: BillingInterval) => string
+}
+
+function ChoosePlanCard({
+  plan,
+  interval,
+  ctaVariant,
+  ctaLabel,
+  disabled,
+  loading,
+  onClick,
+  formatPlanPriceLabel,
+}: ChoosePlanCardProps) {
+  const t = useTranslations('billing')
+  const planConfig = PLANS[plan]
+  const Btn = ctaVariant === 'primary' ? PrimaryButton : SecondaryButton
+
+  return (
+    <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-background p-6">
+      <div>
+        <h3 className="text-lg font-semibold text-foreground">
+          {planConfig.name}
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {formatPlanPriceLabel(planConfig.priceCents[interval], interval)}
+        </p>
+      </div>
+
+      <ul
+        className="mt-5 flex-1 space-y-2"
+        aria-label={t('planFeaturesLabel')}
+      >
+        {planConfig.features.map((feature) => (
+          <li
+            key={feature}
+            className="flex items-center gap-2 text-sm text-foreground"
+          >
+            <Check
+              className="h-3.5 w-3.5 shrink-0 text-foreground"
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            {feature}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-6">
+        <Btn disabled={disabled} loading={loading} onClick={onClick}>
+          {ctaLabel}
+        </Btn>
+      </div>
+    </div>
   )
 }
 

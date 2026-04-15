@@ -1831,3 +1831,232 @@ Trois flows à tester sur `https://localhost:3000/billing` :
    approuver → redirect `/billing/confirm?redirect_status=succeeded` →
    message "Paiement confirmé." → auto-redirect `/billing` après 3 s
    avec sub active affichée.
+
+---
+
+## Phase 7.5 — Correctif post-test Tom
+
+Tom a testé Phase 7 après cache clear et a remonté **un bug critique
++ une refonte visuelle**. Pas un nouveau "feat" — c'est un correctif
+sur Phase 7. La numérotation 7.5 est uniquement pour clarté dans ces
+notes ; le commit lui-même est un `fix(stripe):`.
+
+### Bug critique — User Pro affiché comme "Tu n'as pas d'abonnement actif"
+
+**Cause** : le sous-composant `SubscriptionBlock` collapse-ait deux
+conditions distinctes (`plan === 'free' || subscription === null`)
+et tombait dans le branch "free" pour les users payants legacy qui
+ont un `users.plan` correctement renseigné mais aucune row dans
+`subscriptions` (utilisateurs créés avant Phase 1, ou hydratation
+webhook manquée).
+
+**Source-of-truth contract clarifié** (documenté dans le commentaire
+de `getBillingDetails`) :
+- `users.plan` = canonical, toujours présent depuis migration 001
+- `subscriptions` row = enrichissement OPTIONNEL (interval,
+  current_period_end, cancel_at_period_end)
+
+**Fix** :
+- `SubscriptionBlock` ne lit plus que `plan === 'free'` pour basculer
+  sur la phrase sobre `Tu n'as pas d'abonnement actif.`
+- Le nouveau sous-composant `PlanCard` reçoit `plan` + `subscription`
+  et gère le fallback : si `subscription === null`, il affiche le plan,
+  le prix (depuis `PLANS[plan]` constants), les features, et un message
+  discret `Détails complets disponibles dans le portail Stripe.` à la
+  place du bloc "Prochaine facture / Annulation prévue".
+- `ChangePlanBlock` retourne `null` (bloc absent) quand `plan !== 'free'`
+  ET `subscription === null` — on ne peut pas construire des CTAs
+  context-aware sans connaître l'`interval` actuel. Le user est poussé
+  vers le portal Stripe via le bloc séparé `ManageBlock` en bas de page.
+
+### Refonte visuelle — bloc "Mon abonnement" pour user payant
+
+Tom a comparé avec l'ancien design Vizly et préfère l'esprit
+"card avec features détaillées" à la version Phase 7 minimaliste
+(grille `dl/dt/dd` 3 colonnes). Phase 7 était trop austère.
+
+Nouveau pattern `PlanCard` :
+- Card pleine largeur `border border-border rounded-[var(--radius-md)]
+  bg-background p-6` (zéro shadow au repos)
+- Header : icône (Crown jaune `text-amber-500` pour Pro, CreditCard
+  neutre `text-foreground` pour Starter) + nom du plan + prix + badge
+  uppercase sobre `bg-surface-warm text-foreground` (PAS amber)
+- Liste features depuis `PLANS[plan].features` avec `Check` 14px
+  `text-foreground` (PAS text-accent — l'accent terracotta reste
+  réservé aux CTAs, pas aux feature lists)
+- Footer séparé par `border-t border-border` :
+  - `Prochaine facture : Le 15 mai 2026` en `text-muted-foreground`
+  - Si `cancel_at_period_end === true` : ligne supplémentaire
+    `Annulation prévue le {date}` en `text-muted-foreground`
+  - Si `subscription === null` (legacy fallback) : `Détails complets
+    disponibles dans le portail Stripe.`
+- **Pas de bouton "Gérer mon abonnement" dans la card** — Tom a
+  demandé que le bouton portal reste dans le bloc séparé `ManageBlock`
+  en bas. La card affiche l'info, le bloc du bas regroupe les actions.
+
+**Exception DA explicite** : Crown coloré `text-amber-500` est
+**autorisé** sur la card du plan Pro. Validé par Tom comme expressif
+sans être "trop IA". Reste banni partout ailleurs : `bg-amber-*`,
+`border-amber-*`, `text-amber-*` sur badges/bandeaux/cards.
+
+### Refonte visuelle — bloc "Choisis ton abonnement" pour user free
+
+Phase 7 affichait 2 boutons inline. Trop pauvre pour un écran
+d'arbitrage Starter vs Pro où l'user veut comparer les features.
+
+Nouveau pattern `ChoosePlanCard` (sous-composant local) :
+- Layout `grid grid-cols-1 md:grid-cols-2 gap-6` — 2 cards côte à côte
+  desktop, empilées mobile
+- Toggle interval Mensuel/Annuel reste en haut, aligné à droite (à côté
+  du H2 `Choisis ton abonnement`)
+- Chaque card :
+  - Nom du plan en `text-lg font-semibold`
+  - Prix avec suffixe `/mois` ou `/an` en `text-muted-foreground`
+  - Liste features de `PLANS[plan].features` (même style `Check` sobre
+    que `PlanCard`)
+  - Bouton CTA en bas, **PrimaryButton pour Starter** (CTA naturel
+    pour la majorité des users) + **SecondaryButton pour Pro** (cible
+    plus rare, mais visible)
+- **Pas de "card recommandée"** avec border accent ou badge "Populaire"
+  — pas de pression marketing, sobre.
+
+### Refonte visuelle — bloc "Changer de plan" pour user payant
+
+Conservé en CTAs in-place (pas de cards), purifié par rapport à
+Phase 7. Logique contextuelle inchangée :
+- Starter monthly : `Passer Pro — 9,99 €/mois` + `Passer en facturation
+  annuelle (−15 %)`
+- Starter yearly : `Passer Pro — 101,90 €/an` + `Repasser en facturation
+  mensuelle`
+- Pro monthly : `Repasser Starter — 4,99 €/mois` + `Passer en
+  facturation annuelle (−15 %)`
+- Pro yearly : `Repasser Starter — 50,90 €/an` + `Repasser en
+  facturation mensuelle`
+
+Tous les CTAs passent par `changeSubscriptionPlanAction`. Aucun
+nouveau Server Action.
+
+### Investigation lenteur 3-5 s — analyse théorique du code
+
+Tom a observé que la modal s'ouvre vite (titre + récap + CTA visibles
+~immédiat) mais que l'**iframe Stripe Elements** met 3-5 secondes
+à apparaître. Demande d'investigation T1-T4.
+
+**Limitation** : je ne peux pas mesurer T2-T4 en autonomie sans
+contexte browser + auth user actif. J'ai analysé `T1` théoriquement
+en relisant le code de `createSubscriptionIntentAction` +
+`createSubscriptionWithPaymentIntent`. Diagnostic raisonné ci-dessous.
+
+**Décomposition T1 (Server Action côté Vizly)** :
+
+| Étape | Coût estimé |
+|---|---|
+| `auth.getUser()` | ~30-80 ms (Supabase Auth) |
+| `subscriptions.maybeSingle()` (duplicate-check) | ~30-80 ms (Supabase DB) |
+| `getOrCreateCustomerId()` (warm path) | ~30-80 ms (Supabase DB) |
+| `getOrCreateCustomerId()` (cold path, 1ère fois) | ~250-600 ms (Supabase + `stripe.customers.create` + Supabase update) |
+| `stripe.subscriptions.create()` avec expand `latest_invoice.confirmation_secret` | **~800-1500 ms** (Stripe doit créer sub + finaliser invoice + créer PaymentIntent + serializer toute la chaîne expandée) |
+
+**T1 estimé** : ~900-1700 ms warm, ~1100-2200 ms cold. C'est l'écrasante
+majorité du budget temps. `stripe.subscriptions.create` est
+intrinsèquement lent en mode test, c'est connu.
+
+**Décomposition T2-T4 (browser, non mesurable en autonomie)** :
+
+| Symptôme probable | Cause |
+|---|---|
+| T2 ~300-500 ms | Chargement `js.stripe.com/v3` (CDN, incompressible mais cacheable) |
+| T3 = T1 + T2 en série | Le clientSecret n'est dispo qu'après T1, l'iframe ne peut commencer son init qu'après réception du clientSecret |
+| T4 = T3 + 500-1500 ms | `ExpressCheckoutElement` interroge le browser pour les wallets : Apple Pay timeout (domaine non vérifié sur localhost), Google Pay PaymentRequest API resolution, Link availability check |
+| Cold start dev mode | Première ouverture de la modal : Next.js compile le chunk client `SubscriptionCheckoutModal` + wrapper `@stripe/react-stripe-js` — ajoute 500-2000 ms uniquement la première fois |
+
+**Estimation T4 totale** : ~2000-3500 ms warm, jusqu'à 4500 ms en cold
+start dev mode. **Cohérent avec les 3-5 s observés.**
+
+### Recommandation Phase 7.5 — ne pas fixer la lenteur dans cette phase
+
+**Argumentaire** :
+1. La majorité de la latence vient de Stripe lui-même (`subscriptions.create`)
+   et de l'iframe init — non-actionnables côté Vizly.
+2. Le dev mode HTTPS local avec cert auto-signé ajoute un overhead
+   constant qui **disparaîtra en prod sur Railway avec un vrai cert**.
+3. Stripe **mode test** est plus lent que **mode live** sur les
+   créations de subscription (sandbox partagée moins prioritaire).
+4. Le cold start Next.js dev compile une seule fois — en prod le
+   chunk est déjà bundle.
+
+**Action proposée** : Tom mesure en prod après deploy. Si T4 reste
+> 2 s en prod réel, on implémente un **pre-fetch on hover** du
+CTA "Passer Starter" : `onMouseEnter` lance `createSubscriptionIntentAction`,
+le clientSecret est stocké en state local, le clic devient quasi-
+instantané (T1 perçu = 0). Compromis : crée des Stripe subscriptions
+`incomplete` que Stripe garbage-collect en 24 h. Acceptable.
+
+**Pas implémenté en Phase 7.5** parce que :
+- On n'a pas mesuré T4 en prod (data non dispo)
+- Le pre-fetch on hover ajoute du code et crée du déchet Stripe
+- Le problème pourrait disparaître naturellement en prod
+
+→ Décision Tom : on accepte la latence dev local et on remesure en
+prod après le deploy Phase 1-7.
+
+### Warnings console attendus en dev local (à ignorer)
+
+Tom a vu 3 warnings dans la console quand il a testé Phase 7 sur
+`https://localhost:3000/billing`. **Aucun n'est un bug**, tous sont
+du comportement attendu en dev local et disparaîtront ou resteront
+inoffensifs en prod :
+
+1. **`No Listener: tabs:outgoing.message.ready`**
+   — Provient d'une **extension Chrome**, rien à voir avec Vizly ou
+   Stripe. Ignorer.
+
+2. **`[Stripe.js] Link payment method type not activated`**
+   — Faux warning Stripe en mode test. Link **est** activé sur le
+   compte Stripe Vizly côté Dashboard, mais le payload de l'iframe
+   ne le détecte pas correctement en test mode. Comportement attendu,
+   disparaît en mode live.
+
+3. **`[Stripe.js] You have not registered or verified the domain
+   ... apple_pay`**
+   — Apple Pay nécessite une vérification de domaine via
+   `apple-developer-merchantid-domain-association` à la racine du
+   domaine. Cette vérification est **reportée à la session "passage
+   en prod"** sur `vizly.fr`, hors périmètre Stripe Elements. Le
+   warning est inoffensif sur localhost — Apple Pay ne s'affiche
+   simplement pas dans `ExpressCheckoutElement`.
+
+Aucun de ces warnings ne nécessite d'action côté code. Ils sont
+listés ici pour qu'on n'y revienne pas dans une future session
+"j'ai vu un warning en console".
+
+### Fichiers touchés en Phase 7.5
+
+**Modifiés (4)** :
+- `src/components/billing/BillingClient.tsx` — refonte `SubscriptionBlock`
+  + ajout sous-composants `PlanCard`, `PlanBadge`, `ChoosePlanCard` ;
+  refonte `ChangePlanBlock` avec branche grid 2-cards pour user free
+  + branche `null` pour paid+legacy ; suppression des sous-composants
+  morts `DetailField` et `StatusBadge` ; ajout des imports `Crown` et
+  `CreditCard` de lucide.
+- `src/actions/billing.ts` — clarification du commentaire de
+  `getBillingDetails` avec section "Source-of-truth contract (Phase 7.5)"
+  pour rendre explicite la séparation `users.plan` canonical vs
+  `subscriptions` enrichissement.
+- `messages/fr.json` + `messages/en.json` — ajout des clés
+  `planLabel`, `planFeaturesLabel`, `cancelScheduledLine`, `legacyHint`,
+  refonte de `nextBilling` (format `Prochaine facture : {date}` au
+  lieu de juste `Prochaine facture`). Suppression des clés Phase 7
+  inutilisées : `currentPlan`, `currentInterval`, `billingMonthly`,
+  `billingYearly`, `noNextBilling`, `statusActive`,
+  `statusCancelScheduled`.
+- `STRIPE_MIGRATION_NOTES.md` — cette section.
+
+**Pas touché** :
+- `src/actions/billing.ts` côté logique de `getBillingDetails` — la
+  fonction lisait déjà correctement `users.plan` comme source de
+  vérité. Le bug était entièrement dans le client component.
+- Modals Phase 4/5
+- Webhooks Phase 3
+- Schéma Supabase
+- `getBillingStatus` (consommée par `useEditorState`)

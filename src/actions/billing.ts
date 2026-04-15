@@ -181,6 +181,18 @@ export async function getBillingStatus(): Promise<BillingStatus> {
  * (Phase 3 pipeline). RLS on both tables already restricts SELECT
  * to the user's own rows, so the request is naturally scoped.
  *
+ * Source-of-truth contract (Phase 7.5):
+ *
+ *   - `users.plan` is the canonical source for the displayed plan.
+ *     Always present — it has been on the schema since migration 001.
+ *
+ *   - `subscriptions` row is an OPTIONAL ENRICHMENT, not authoritative.
+ *     It carries `interval`, `current_period_end`, `cancel_at_period_end`
+ *     etc. Some legacy users (pre-Phase-1, or webhook hydration miss)
+ *     have `users.plan = 'pro'` with NO `subscriptions` row. The UI
+ *     must handle this fallback gracefully — show the plan + features
+ *     from PLANS constants, hide the "next billing" / cancel state.
+ *
  * Used by /billing (Phase 7 rewrite). The lighter `getBillingStatus`
  * stays around for `useEditorState`, which only needs `plan` +
  * `purchasedTemplates` and shouldn't pay for the extra round-trips.
