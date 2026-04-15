@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Send, Check, Loader2 } from 'lucide-react'
+import { Send, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function ContactForm() {
@@ -39,7 +39,7 @@ export function ContactForm() {
         setMessage('')
       } catch {
         setStatus('error')
-        setErrorMsg('Erreur reseau. Reessaie.')
+        setErrorMsg('Erreur réseau. Réessaie.')
       }
     },
     [name, email, message]
@@ -47,14 +47,23 @@ export function ContactForm() {
 
   if (status === 'sent') {
     return (
-      <div className="rounded-[var(--radius-xl)] border border-success/20 bg-success/5 p-8 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 mx-auto mb-4">
-          <Check className="h-6 w-6 text-success" />
-        </div>
-        <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-1">
-          Message envoye
+      <div className="rounded-[var(--radius-xl)] border border-border bg-background p-10 text-center">
+        <h2 className="font-[family-name:var(--font-satoshi)] text-xl font-semibold tracking-tight">
+          Message envoyé<span className="text-accent">.</span>
         </h2>
-        <p className="text-sm text-muted">On te repond sous 24 heures.</p>
+        <p className="mt-2 text-sm text-muted leading-relaxed">
+          On te répond sous 24 heures.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setStatus('idle')
+            setErrorMsg('')
+          }}
+          className="mt-6 text-sm text-muted underline-offset-4 transition-colors duration-150 hover:text-foreground hover:underline"
+        >
+          Envoyer un autre message
+        </button>
       </div>
     )
   }

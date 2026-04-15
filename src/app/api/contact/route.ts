@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, message: 'Message envoye avec succes' },
+      { success: true, message: 'Message envoyé avec succès' },
       { status: 200 }
     )
   } catch (err) {
