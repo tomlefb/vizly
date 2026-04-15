@@ -6,6 +6,8 @@ import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { getDemoPortfolio, DEMO_HANDLES } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { FullTemplatePreview } from '@/components/shared/FullTemplatePreview'
+import { TemplateDetailCTA } from '@/components/marketing/TemplateDetailCTA'
+import { createClient } from '@/lib/supabase/server'
 
 interface PageProps {
   params: Promise<{ name: string }>
@@ -31,6 +33,22 @@ export default async function TemplateDetailPage({ params }: PageProps) {
 
   if (!template) {
     notFound()
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let alreadyOwned = false
+  if (user && template.isPremium) {
+    const { data: purchase } = await supabase
+      .from('purchased_templates')
+      .select('template_id')
+      .eq('user_id', user.id)
+      .eq('template_id', template.name)
+      .maybeSingle()
+    alreadyOwned = purchase !== null
   }
 
   const demoProps = getDemoPortfolio(template.name, template.isPremium)
@@ -98,20 +116,13 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                 ))}
               </ul>
 
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/register"
-                  className="inline-flex items-center rounded-[var(--radius-md)] bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
-                >
-                  {template.isPremium ? 'Essayer ce template (2,99\u20AC)' : 'Utiliser ce template'}
-                </Link>
-                <Link
-                  href="/templates"
-                  className="inline-flex items-center rounded-[var(--radius-md)] border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-warm"
-                >
-                  Voir les autres templates
-                </Link>
-              </div>
+              <TemplateDetailCTA
+                templateName={template.name}
+                templateLabel={template.label}
+                isPremium={template.isPremium}
+                isAuthenticated={user !== null}
+                alreadyOwned={alreadyOwned}
+              />
             </div>
 
             {/* Mini preview card */}

@@ -13,11 +13,11 @@ export default async function MesTemplatesPage() {
 
   const { data: purchases } = await supabase
     .from('purchased_templates')
-    .select('template_name')
+    .select('template_id')
     .eq('user_id', user.id)
 
   const purchasedNames = new Set(
-    (purchases ?? []).map((p) => p.template_name)
+    (purchases ?? []).map((p) => p.template_id)
   )
 
   const freeTemplates = TEMPLATE_CONFIGS.filter((t) => !t.isPremium)
