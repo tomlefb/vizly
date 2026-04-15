@@ -61,9 +61,9 @@ async function updateSession(request: NextRequest) {
   // interval query params used by getDashboardUrl so a marketing CTA
   // like /login?plan=pro still opens the checkout modal post-redirect.
   if (user && AUTH_ROUTES.includes(request.nextUrl.pathname)) {
-    const target = request.nextUrl.clone()
-    target.pathname = '/dashboard'
-    return NextResponse.redirect(target)
+    const target = new URL('/dashboard', request.url)
+    target.search = request.nextUrl.search
+    return NextResponse.redirect(target, 307)
   }
 
   // Expose pathname to server components via a header so the dashboard
