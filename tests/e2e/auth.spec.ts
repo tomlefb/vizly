@@ -36,4 +36,34 @@ test.describe('Authentification', () => {
     // Should show an error message
     await expect(page.getByText(/erreur|invalide/i)).toBeVisible()
   })
+
+  test('OAuth Google depuis /register préserve plan & interval via next', async ({ page }) => {
+    let capturedAuthorizeUrl: string | null = null
+
+    // Intercept Supabase's OAuth authorize endpoint and inspect the
+    // redirect_to query param (which is what signInWithOAuth sends).
+    // Respond with a no-op 200 to keep the test from hitting Google.
+    await page.route('**/auth/v1/authorize*', async (route) => {
+      capturedAuthorizeUrl = route.request().url()
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/plain',
+        body: 'intercepted',
+      })
+    })
+
+    await page.goto('/register?plan=pro&interval=yearly')
+    await page.getByRole('checkbox').check()
+    await page.getByRole('button', { name: /google/i }).click()
+
+    await expect.poll(() => capturedAuthorizeUrl, { timeout: 5000 }).not.toBeNull()
+
+    const authorizeUrl = new URL(capturedAuthorizeUrl!)
+    const redirectTo = authorizeUrl.searchParams.get('redirect_to')
+    expect(redirectTo).toBeTruthy()
+
+    const callbackUrl = new URL(redirectTo!)
+    expect(callbackUrl.pathname).toBe('/auth/callback')
+    expect(callbackUrl.searchParams.get('next')).toBe('/dashboard?plan=pro&interval=yearly')
+  })
 })

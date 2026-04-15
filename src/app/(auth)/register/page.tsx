@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { registerUser, verifyUserOtp, resendSignupOtp } from '@/actions/auth'
+import { getDashboardUrl } from '@/lib/auth/dashboardUrl'
 import { z } from 'zod'
 
 type Step = 'form' | 'otp' | 'redirecting'
@@ -25,18 +26,10 @@ function RegisterPageInner() {
   const t = useTranslations('auth')
   const searchParams = useSearchParams()
 
-  // Phase 6 — preserve `plan` + `interval` query params from /tarifs
-  // through the OTP flow so /dashboard can auto-open the checkout modal
-  // post-signup. Without this, clicking "Pro" on /tarifs → /register?plan=pro
-  // would lose the plan after OTP verification and the user would land
-  // on /dashboard with no clue why they registered.
-  const planParam = searchParams.get('plan')
-  const intervalParam = searchParams.get('interval')
-  const dashboardUrl = (() => {
-    if (planParam !== 'starter' && planParam !== 'pro') return '/dashboard'
-    const interval = intervalParam === 'yearly' ? 'yearly' : 'monthly'
-    return `/dashboard?plan=${planParam}&interval=${interval}`
-  })()
+  // Preserve plan/interval query params from the pricing CTA through
+  // the OTP flow (and through Google OAuth via the callback's ?next=)
+  // so /dashboard can auto-open the checkout modal post-signup.
+  const dashboardUrl = getDashboardUrl(searchParams)
 
   const registerSchema = z.object({
     name: z.string().min(1, t('errors.nameRequired')).max(100),
@@ -179,7 +172,7 @@ function RegisterPageInner() {
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(dashboardUrl)}`,
         },
       })
 

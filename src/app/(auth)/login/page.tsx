@@ -1,13 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import { getDashboardUrl } from '@/lib/auth/dashboardUrl'
 import { z } from 'zod'
 
 export default function LoginPage() {
+  // Suspense boundary required by Next 15 because LoginPageInner reads
+  // useSearchParams() — without it, the static prerender of /login
+  // bails out with a missing-suspense-with-csr-bailout error.
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
+  )
+}
+
+function LoginPageInner() {
   const t = useTranslations('auth')
+  const searchParams = useSearchParams()
+  const dashboardUrl = getDashboardUrl(searchParams)
 
   const loginSchema = z.object({
     email: z.string().email(t('errors.invalidEmail')),
@@ -49,7 +64,7 @@ export default function LoginPage() {
       }
 
       // Hard redirect to ensure cookies are propagated to the server
-      window.location.href = '/dashboard'
+      window.location.href = dashboardUrl
     } catch {
       setError(t('errors.unexpected'))
     } finally {
@@ -70,7 +85,7 @@ export default function LoginPage() {
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(dashboardUrl)}`,
         },
       })
 
