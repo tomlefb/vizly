@@ -474,7 +474,7 @@ function RegisterPageInner() {
       <p className="mt-8 text-center text-sm text-muted">
         {t('register.hasAccount')}{' '}
         <Link
-          href="/login"
+          href={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
           className="font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
         >
           {t('register.login')}

@@ -230,7 +230,7 @@ function LoginPageInner() {
       <p className="mt-8 text-center text-sm text-muted">
         {t('login.noAccount')}{' '}
         <Link
-          href="/register"
+          href={`/register${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
           className="font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
         >
           {t('login.createAccount')}
