@@ -37,6 +37,22 @@ test.describe('Authentification', () => {
     await expect(page.getByText(/erreur|invalide/i)).toBeVisible()
   })
 
+  test('/login ne contient pas de checkbox CGU et le bouton Google est enabled', async ({ page }) => {
+    await page.goto('/login')
+    // No checkbox anywhere on the login page anymore
+    await expect(page.getByRole('checkbox')).toHaveCount(0)
+    // Google OAuth button is clickable immediately
+    await expect(page.getByRole('button', { name: /google/i })).toBeEnabled()
+  })
+
+  test('/register contient toujours la checkbox CGU et elle est required', async ({ page }) => {
+    await page.goto('/register')
+    const checkbox = page.getByRole('checkbox')
+    await expect(checkbox).toBeVisible()
+    // HTML5 required attribute is still enforced
+    await expect(checkbox).toHaveAttribute('required', '')
+  })
+
   test('OAuth Google depuis /register préserve plan & interval via next', async ({ page }) => {
     let capturedAuthorizeUrl: string | null = null
 

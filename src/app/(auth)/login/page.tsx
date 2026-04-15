@@ -33,7 +33,6 @@ function LoginPageInner() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [acceptTerms, setAcceptTerms] = useState(false)
 
   async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -74,11 +73,6 @@ function LoginPageInner() {
 
   async function handleGoogleLogin() {
     setError(null)
-
-    if (!acceptTerms) {
-      setError(t('errors.acceptTerms'))
-      return
-    }
 
     try {
       const supabase = createClient()
@@ -207,30 +201,10 @@ function LoginPageInner() {
         </div>
       </div>
 
-      <label className="mb-4 flex items-start gap-3 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={acceptTerms}
-          onChange={(e) => setAcceptTerms(e.target.checked)}
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border border-border accent-accent"
-        />
-        <span className="text-xs text-muted leading-relaxed">
-          {t('login.terms')}{' '}
-          <Link href="/legal/cgu" target="_blank" className="underline text-foreground hover:text-accent">
-            {t('login.cgu')}
-          </Link>{' '}
-          {t('login.and')}{' '}
-          <Link href="/legal/confidentialite" target="_blank" className="underline text-foreground hover:text-accent">
-            {t('login.privacy')}
-          </Link>
-        </span>
-      </label>
-
       <button
         type="button"
         onClick={handleGoogleLogin}
-        disabled={!acceptTerms}
-        className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-[#E5E7EB] bg-white px-5 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+        className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-[#E5E7EB] bg-white px-5 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
           <path
