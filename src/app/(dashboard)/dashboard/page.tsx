@@ -9,8 +9,15 @@ import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis } from '@/types/kpis'
 import { parseLayoutBlocks } from '@/types/layout-blocks'
+import { AutoOpenSubscriptionModal } from '@/components/billing/AutoOpenSubscriptionModal'
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
   const t = await getTranslations('dashboard')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -18,6 +25,17 @@ export default async function DashboardPage() {
   if (!user) {
     return null
   }
+
+  // Phase 6 — auto-open the subscription checkout modal when arriving
+  // from /tarifs → /register → /dashboard?plan=X&interval=Y. The modal
+  // strips the query params on close via router.replace.
+  const resolvedSearchParams = await searchParams
+  const planParam = resolvedSearchParams.plan
+  const intervalParam = resolvedSearchParams.interval
+  const autoOpenPlan: 'starter' | 'pro' | null =
+    planParam === 'starter' || planParam === 'pro' ? planParam : null
+  const autoOpenInterval: 'monthly' | 'yearly' =
+    intervalParam === 'yearly' ? 'yearly' : 'monthly'
 
   const { data: portfolios } = await supabase
     .from('portfolios')
@@ -286,6 +304,14 @@ export default async function DashboardPage() {
             {t('emptyCta')}
           </Link>
         </div>
+      )}
+
+      {/* Phase 6 — auto-open the checkout modal when coming from /tarifs */}
+      {autoOpenPlan && (
+        <AutoOpenSubscriptionModal
+          plan={autoOpenPlan}
+          interval={autoOpenInterval}
+        />
       )}
     </>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import {
   Check,
@@ -13,14 +14,15 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  createSubscriptionCheckoutAction,
-  createTemplateCheckoutAction,
+  changeSubscriptionPlanAction,
   createBillingPortalAction,
 } from '@/actions/billing'
 import { PLANS } from '@/lib/constants'
 import type { BillingInterval } from '@/lib/stripe/prices'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { TemplateName } from '@/types/templates'
+import { SubscriptionCheckoutModal } from './SubscriptionCheckoutModal'
+import { TemplatePurchaseModal } from './TemplatePurchaseModal'
 
 // ------------------------------------------------------------------
 // Types
@@ -49,41 +51,59 @@ export function BillingClient({
   checkoutStatus,
 }: BillingClientProps) {
   const t = useTranslations('billing')
+  const router = useRouter()
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null)
   const [error, setError] = useState<string | null>(null)
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly')
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
+  // Phase 6 — Modal state. The subscription modal is opened for the
+  // free → paid flow; the upgrade/downgrade flow goes directly through
+  // changeSubscriptionPlanAction without a modal (no client_secret needed).
+  // The template modal is opened for one-shot premium template purchases.
+  const [subscriptionModalPlan, setSubscriptionModalPlan] = useState<
+    'starter' | 'pro' | null
+  >(null)
+  const [templateModalId, setTemplateModalId] = useState<string | null>(null)
+
   // ---- Handlers ---------------------------------------------------
 
-  const handleSubscriptionCheckout = useCallback(
+  const handleSubscriptionClick = useCallback(
     async (targetPlan: 'starter' | 'pro') => {
-      const actionKey = `checkout-${targetPlan}` as LoadingAction
-      setLoadingAction(actionKey)
       setError(null)
       setSuccessMessage(null)
 
-      const result = await createSubscriptionCheckoutAction(targetPlan, billingInterval)
+      // Free → paid : open the Elements modal. The user confirms via
+      // PaymentElement, then the webhook syncs the local subscriptions
+      // table and we router.refresh() at modal onSuccess.
+      if (plan === 'free') {
+        setSubscriptionModalPlan(targetPlan)
+        return
+      }
 
-      if (result.error) {
+      // Already on a paid plan : direct mutation via Stripe Billing
+      // (no client_secret needed, no modal). The webhook fires
+      // customer.subscription.updated → Phase 3 handler updates DB
+      // and dispatches the plan-changed email.
+      const actionKey = `checkout-${targetPlan}` as LoadingAction
+      setLoadingAction(actionKey)
+
+      const result = await changeSubscriptionPlanAction({
+        plan: targetPlan,
+        interval: billingInterval,
+      })
+
+      if (!result.ok) {
         setError(result.error)
         setLoadingAction(null)
         return
       }
 
-      // Subscription updated in-place (upgrade/downgrade)
-      if (result.updated) {
-        setSuccessMessage(t('subscriptionUpdatedDesc'))
-        setLoadingAction(null)
-        return
-      }
-
-      // New checkout session — redirect to Stripe
-      if (result.url) {
-        window.location.href = result.url
-      }
+      setSuccessMessage(t('subscriptionUpdatedDesc'))
+      setLoadingAction(null)
+      router.refresh()
     },
-    [billingInterval]
+    [plan, billingInterval, t, router],
   )
 
   const handleBillingPortal = useCallback(async () => {
@@ -103,25 +123,18 @@ export function BillingClient({
     }
   }, [])
 
-  const handleTemplatePurchase = useCallback(
-    async (templateId: string) => {
-      setLoadingAction(`template-${templateId}`)
-      setError(null)
+  const handleTemplatePurchase = useCallback((templateId: string) => {
+    setError(null)
+    setTemplateModalId(templateId)
+  }, [])
 
-      const result = await createTemplateCheckoutAction(templateId)
+  const handleSubscriptionModalSuccess = useCallback(() => {
+    router.refresh()
+  }, [router])
 
-      if (result.error) {
-        setError(result.error)
-        setLoadingAction(null)
-        return
-      }
-
-      if (result.url) {
-        window.location.href = result.url
-      }
-    },
-    []
-  )
+  const handleTemplateModalSuccess = useCallback(() => {
+    router.refresh()
+  }, [router])
 
   // ---- Plan display info ------------------------------------------
 
@@ -285,7 +298,7 @@ export function BillingClient({
               <>
                 <button
                   type="button"
-                  onClick={() => void handleSubscriptionCheckout('starter')}
+                  onClick={() => void handleSubscriptionClick('starter')}
                   disabled={loadingAction !== null}
                   className={cn(
                     'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
@@ -307,7 +320,7 @@ export function BillingClient({
                 </button>
                 <button
                   type="button"
-                  onClick={() => void handleSubscriptionCheckout('pro')}
+                  onClick={() => void handleSubscriptionClick('pro')}
                   disabled={loadingAction !== null}
                   className={cn(
                     'inline-flex items-center gap-2 rounded-[var(--radius-md)] border px-5 py-2.5 text-sm font-semibold transition-all duration-200',
@@ -334,7 +347,7 @@ export function BillingClient({
               <>
                 <button
                   type="button"
-                  onClick={() => void handleSubscriptionCheckout('pro')}
+                  onClick={() => void handleSubscriptionClick('pro')}
                   disabled={loadingAction !== null}
                   className={cn(
                     'inline-flex items-center gap-2 rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-semibold transition-all duration-200',
@@ -493,6 +506,30 @@ export function BillingClient({
           })}
         </div>
       </section>
+
+      {/* Phase 6 — modals */}
+      {subscriptionModalPlan && (
+        <SubscriptionCheckoutModal
+          open={subscriptionModalPlan !== null}
+          onClose={() => setSubscriptionModalPlan(null)}
+          plan={subscriptionModalPlan}
+          interval={billingInterval}
+          onSuccess={handleSubscriptionModalSuccess}
+        />
+      )}
+
+      {templateModalId && (
+        <TemplatePurchaseModal
+          open={templateModalId !== null}
+          onClose={() => setTemplateModalId(null)}
+          templateId={templateModalId}
+          templateLabel={
+            TEMPLATE_CONFIGS.find((t) => t.name === templateModalId)?.label ??
+            templateModalId
+          }
+          onSuccess={handleTemplateModalSuccess}
+        />
+      )}
     </div>
   )
 }

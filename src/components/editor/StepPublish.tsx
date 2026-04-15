@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils'
 import { APP_DOMAIN, SLUG_MIN_LENGTH, SLUG_MAX_LENGTH } from '@/lib/constants'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
+import { SubscriptionCheckoutModal } from '@/components/billing/SubscriptionCheckoutModal'
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
 
@@ -23,8 +24,19 @@ interface StepPublishProps {
   projects: ProjectFormData[]
   slug: string
   onSlugChange: (slug: string) => void
-  onPublish: () => void
-  isPublishing?: boolean
+  /**
+   * Persists the current portfolio draft to the database (upsert + sync
+   * projects). Always called BEFORE the modal opens so the user never
+   * loses their work mid-payment.
+   */
+  onSaveDraft: () => Promise<{ error: string | null }>
+  /**
+   * Publishes an already-saved portfolio (sets `published: true` on the
+   * row) and navigates to the public URL. Called either directly when
+   * the user is already on a paid plan, or from the modal's onSuccess
+   * handler after a free user has paid.
+   */
+  onPublishNow: () => Promise<{ error: string | null }>
   isPublished?: boolean
   billingPlan?: 'free' | 'starter' | 'pro'
   selectedTemplateNeedsPurchase?: boolean
@@ -36,13 +48,62 @@ export function StepPublish({
   projects,
   slug,
   onSlugChange,
-  onPublish,
-  isPublishing = false,
+  onSaveDraft,
+  onPublishNow,
   isPublished = false,
   billingPlan = 'free',
   selectedTemplateNeedsPurchase = false,
   className,
 }: StepPublishProps) {
+  // Phase 6 — local orchestration state. The modal is opened only for
+  // free users who clicked "Publier" after the initial saveDraft succeeded.
+  // Paid users skip the modal entirely and go straight to publishNow.
+  const [isPublishing, setIsPublishing] = useState(false)
+  const [publishError, setPublishError] = useState<string | null>(null)
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false)
+
+  const handlePublishClick = useCallback(async () => {
+    setIsPublishing(true)
+    setPublishError(null)
+
+    // Step 1: ALWAYS save the draft first. This protects the user from
+    // losing work if they pay but the publish step fails for any reason.
+    const saveResult = await onSaveDraft()
+    if (saveResult.error) {
+      setPublishError(saveResult.error)
+      setIsPublishing(false)
+      return
+    }
+
+    // Step 2: branch on plan.
+    // Free user → open modal, modal's onSuccess will trigger publishNow.
+    if (billingPlan === 'free') {
+      setIsPublishing(false) // modal owns its own loading state from here
+      setSubscriptionModalOpen(true)
+      return
+    }
+
+    // Paid user → publish directly, no modal.
+    const publishResult = await onPublishNow()
+    if (publishResult.error) {
+      setPublishError(publishResult.error)
+    }
+    setIsPublishing(false)
+  }, [onSaveDraft, onPublishNow, billingPlan])
+
+  const handleModalSuccess = useCallback(async () => {
+    // The webhook will sync the new plan into the local DB asynchronously.
+    // We don't need to wait for it — the publishPortfolio call below
+    // works as long as the user has an active subscription, which Stripe
+    // guarantees once the PaymentIntent has succeeded.
+    setIsPublishing(true)
+    const publishResult = await onPublishNow()
+    if (publishResult.error) {
+      setPublishError(publishResult.error)
+    }
+    setIsPublishing(false)
+  }, [onPublishNow])
+
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
   const [slugError, setSlugError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -339,7 +400,7 @@ export function StepPublish({
         <button
           type="button"
           data-testid="publish-btn"
-          onClick={onPublish}
+          onClick={() => void handlePublishClick()}
           disabled={!canPublish}
           className={cn(
             'w-full flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-8 py-3.5 text-[15px] font-semibold transition-all duration-200',
@@ -352,21 +413,36 @@ export function StepPublish({
           {isPublishing ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              {isFreeUser ? 'Redirection vers le paiement...' : 'Publication en cours...'}
+              Publication en cours...
             </>
           ) : isFreeUser ? (
-            "S'abonner pour publier (4.99 EUR/mois)"
+            "S'abonner pour publier (4,99 €/mois)"
           ) : (
             'Publier mon portfolio'
           )}
         </button>
 
+        {publishError && (
+          <p className="text-[11px] text-destructive text-center" role="alert">
+            {publishError}
+          </p>
+        )}
+
         <p className="text-[11px] text-muted-foreground text-center">
           {isFreeUser
-            ? "Tu seras redirige vers Stripe pour souscrire un abonnement Starter."
+            ? "Sauvegarde, puis paiement, puis mise en ligne. Tout en restant dans l'éditeur."
             : "Ton portfolio sera accessible publiquement."}
         </p>
       </div>
+
+      {/* Phase 6 — checkout modal for free users publishing for the first time */}
+      <SubscriptionCheckoutModal
+        open={subscriptionModalOpen}
+        onClose={() => setSubscriptionModalOpen(false)}
+        plan="starter"
+        interval="monthly"
+        onSuccess={handleModalSuccess}
+      />
     </div>
   )
 }

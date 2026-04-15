@@ -1,55 +1,41 @@
+// =============================================================================
+// checkout.ts — Subscription management helpers
+// =============================================================================
+//
+// Phase 6 cleanup: this file used to host `createSubscriptionCheckout` and
+// `createTemplateCheckout` which created Stripe-hosted Checkout Sessions and
+// returned a redirect URL. Both have been removed — Phase 4 / Phase 5 modals
+// (SubscriptionCheckoutModal, TemplatePurchaseModal) now collect the payment
+// in-app via PaymentElement, no Checkout Session involved.
+//
+// What remains:
+//   - updateExistingSubscription: in-place plan/interval change for users who
+//     already have an active subscription. Used by changeSubscriptionPlanAction
+//     in src/actions/billing.ts. Doesn't need a client-side confirmation step
+//     because no new payment method is collected.
+//   - createBillingPortalSession: creates a Stripe-hosted Billing Portal
+//     session for "manage my subscription" actions (update card, cancel,
+//     download invoices). Used by createBillingPortalAction. The portal
+//     stays hosted by design — the Phase 7 /billing rewrite custom-renders
+//     the recap, but invoice management / cancellation flows stay in the
+//     official Stripe Portal for now.
+//
+// The file name `checkout.ts` is preserved despite the content shift to
+// avoid touching imports across the codebase. A rename to e.g.
+// `subscription-management.ts` would be polish-only and is deferred to
+// Phase 7 if the /billing rewrite touches the imports anyway.
+
 import { stripe } from './client'
-import { getTemplatePriceId } from './prices'
 import { APP_URL } from '@/lib/constants'
 
-interface CheckoutResult {
-  url: string | null
-  error: string | null
-}
-
 /**
- * Create a Stripe Checkout session for a NEW subscription (user has no active sub).
- */
-export async function createSubscriptionCheckout(params: {
-  customerId: string
-  priceId: string
-  userId: string
-}): Promise<CheckoutResult> {
-  try {
-    const session = await stripe.checkout.sessions.create({
-      customer: params.customerId,
-      mode: 'subscription',
-      line_items: [
-        {
-          price: params.priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: `${APP_URL}/dashboard?checkout=success`,
-      cancel_url: `${APP_URL}/editor`,
-      metadata: {
-        userId: params.userId,
-        type: 'subscription',
-      },
-      subscription_data: {
-        metadata: {
-          userId: params.userId,
-        },
-      },
-    })
-
-    return { url: session.url, error: null }
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Erreur lors de la creation du checkout'
-    return { url: null, error: message }
-  }
-}
-
-/**
- * Update an existing subscription to a new price (upgrade, downgrade, or interval change).
- * Replaces the current subscription item — no stacking.
- * Proration is applied automatically.
+ * Update an existing subscription to a new price (upgrade, downgrade, or
+ * interval change). Replaces the current subscription item — no stacking.
+ * Proration is applied automatically by Stripe Billing.
+ *
+ * Returns the (French) error message verbatim so the calling Server Action
+ * can surface it to the modal — including the "Tu es deja sur ce plan"
+ * idempotency check, which the UI uses to disable the current-plan CTA.
  */
 export async function updateExistingSubscription(params: {
   subscriptionId: string
@@ -86,53 +72,20 @@ export async function updateExistingSubscription(params: {
   }
 }
 
-/**
- * Create a Stripe Checkout session for a one-shot template purchase.
- */
-export async function createTemplateCheckout(params: {
-  customerId: string
-  templateId: string
-  userId: string
-}): Promise<CheckoutResult> {
-  const priceId = getTemplatePriceId(params.templateId)
-
-  if (!priceId) {
-    return { url: null, error: `Template "${params.templateId}" introuvable ou pas de prix associe` }
-  }
-
-  try {
-    const session = await stripe.checkout.sessions.create({
-      customer: params.customerId,
-      mode: 'payment',
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: `${APP_URL}/editor?template_purchased=${params.templateId}`,
-      cancel_url: `${APP_URL}/editor`,
-      metadata: {
-        userId: params.userId,
-        templateId: params.templateId,
-        type: 'template',
-      },
-    })
-
-    return { url: session.url, error: null }
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Erreur lors de la creation du checkout'
-    return { url: null, error: message }
-  }
+interface BillingPortalResult {
+  url: string | null
+  error: string | null
 }
 
 /**
- * Create a Stripe Billing Portal session so the user can manage their subscription.
+ * Create a Stripe Billing Portal session so the user can manage their
+ * subscription — update card, cancel, download past invoices. The portal
+ * stays Stripe-hosted by design. Phase 7 may custom-render some of these
+ * surfaces in /billing, but cancellation + card update flows stay here.
  */
 export async function createBillingPortalSession(params: {
   customerId: string
-}): Promise<CheckoutResult> {
+}): Promise<BillingPortalResult> {
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: params.customerId,

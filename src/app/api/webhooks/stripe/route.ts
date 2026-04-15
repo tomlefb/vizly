@@ -30,8 +30,14 @@
  *   - customer.subscription.deleted       → handleSubscriptionDeleted
  *   - invoice.paid                        → handleInvoicePaid
  *   - invoice.payment_failed              → handlePaymentFailed
- *   - checkout.session.completed          → handleCheckoutCompleted (legacy)
  *   - payment_intent.succeeded            → handlePaymentIntentSucceeded
+ *
+ * checkout.session.completed is NOT handled — Phase 6 retired the legacy
+ * Stripe Checkout flow in favour of in-app Elements. Before deploying Phase 6,
+ * the event MUST be disabled in the Stripe Dashboard endpoint config (let
+ * Stripe stop firing it) — otherwise this handler will return 200 (unknown
+ * event type branch) and Stripe will mark them as processed. See the
+ * "Checklist déploiement Phase 6" section in STRIPE_MIGRATION_NOTES.md.
  *
  * Email side-effects live in ./email-handlers.ts. This file contains the
  * webhook routing, idempotence, DB sync logic, and the dispatcher.
@@ -244,10 +250,6 @@ export async function POST(request: NextRequest) {
         await handlePaymentFailed(event, supabase)
         break
 
-      case 'checkout.session.completed':
-        await handleCheckoutCompleted(event, supabase)
-        break
-
       case 'payment_intent.succeeded':
         await handlePaymentIntentSucceeded(event, supabase)
         break
@@ -274,18 +276,13 @@ export async function POST(request: NextRequest) {
 // ---------------------------------------------------------------------------
 
 /**
- * Fires when Stripe creates a subscription, for both flows:
- *   - Legacy Checkout: fires alongside checkout.session.completed
- *   - New Elements: fires immediately after stripe.subscriptions.create with
- *     status=incomplete (the user will confirm payment client-side via
- *     PaymentElement, then status flips to active and invoice.paid fires)
+ * Fires immediately after stripe.subscriptions.create with status=incomplete.
+ * The user then confirms payment client-side via PaymentElement; once the
+ * PaymentIntent succeeds, Stripe flips status to active and invoice.paid
+ * fires (which is where the first-payment email is sent from).
  *
- * The handler is idempotent w.r.t. handleCheckoutCompleted via the
- * `subscriptions` table upsert — both can sync the same row without harm.
- *
- * No email sent here. The first-payment email is fired from handleInvoicePaid
- * on billing_reason='subscription_create' to avoid duplication on the legacy
- * flow (where checkout.session.completed used to send it independently).
+ * No email sent here — first-payment email lives in handleInvoicePaid
+ * (billing_reason='subscription_create').
  */
 async function handleSubscriptionCreated(
   event: Stripe.Event,
@@ -824,12 +821,8 @@ async function handlePaymentFailed(
  * Fires for every PaymentIntent that succeeds, including subscription
  * invoice PIs created automatically by Stripe. We early-bail unless the
  * PI was created by Vizly's createTemplatePaymentIntent helper, identified
- * by metadata.type === 'template'.
- *
- * Coexists with handleCheckoutCompleted mode='payment' until Phase 6
- * removes the legacy template Checkout path. Both write to the same
- * purchased_templates table with the same upsert key (user_id, template_id)
- * so duplicate writes are no-ops.
+ * by metadata.type === 'template'. This is the single entrypoint for
+ * template purchases since Phase 6 retired the legacy template Checkout path.
  */
 async function handlePaymentIntentSucceeded(
   event: Stripe.Event,
@@ -873,176 +866,5 @@ async function handlePaymentIntentSucceeded(
 
   console.log(
     `[stripe webhook] ${handlerName} done: ${event.id} user ${userId} template ${templateId}`,
-  )
-}
-
-// ---------------------------------------------------------------------------
-// handleCheckoutCompleted — modified in Phase 3
-// ---------------------------------------------------------------------------
-
-/**
- * Legacy handler for the hosted Stripe Checkout flow. Two branches:
- *
- *   - mode='subscription': legacy first-checkout for subs. Phase 3
- *     changes: still updates legacy users columns AND now also upserts
- *     the local subscriptions row via the shared mapStripeSubscriptionToRow
- *     helper. The payment-succeeded email used to be sent from here is
- *     now sent from handleInvoicePaid to avoid double-sending. See Q1
- *     verdict in STRIPE_MIGRATION_NOTES.md.
- *
- *   - mode='payment': legacy template one-shot. Unchanged from Phase 1.
- *     Coexists with handlePaymentIntentSucceeded (which handles the new
- *     Elements flow). Both write to purchased_templates with the same
- *     upsert key, so duplicate writes are no-ops.
- *
- * Phase 6 will delete this entire handler when the legacy Checkout flow
- * is retired.
- */
-async function handleCheckoutCompleted(
-  event: Stripe.Event,
-  supabase: ReturnType<typeof createAdminClient>,
-) {
-  const handlerName = 'handleCheckoutCompleted'
-  console.log(`[stripe webhook] ${handlerName} start: ${event.id}`)
-
-  const session = event.data.object as Stripe.Checkout.Session
-
-  if (session.mode === 'subscription') {
-    await handleSubscriptionCheckout(session, supabase, event.id)
-  } else if (session.mode === 'payment') {
-    await handleTemplateCheckout(session, supabase)
-  }
-
-  console.log(`[stripe webhook] ${handlerName} done: ${event.id}`)
-}
-
-async function handleSubscriptionCheckout(
-  session: Stripe.Checkout.Session,
-  supabase: ReturnType<typeof createAdminClient>,
-  eventId: string,
-) {
-  const userId = session.metadata?.userId
-  if (!userId) {
-    throw new Error(
-      'handleSubscriptionCheckout: missing userId in session metadata',
-    )
-  }
-
-  const subscriptionId =
-    typeof session.subscription === 'string'
-      ? session.subscription
-      : session.subscription?.id
-
-  if (!subscriptionId) {
-    throw new Error(
-      'handleSubscriptionCheckout: missing subscription ID in checkout session',
-    )
-  }
-
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-  const priceId = subscription.items.data[0]?.price.id
-
-  if (!priceId) {
-    throw new Error(
-      'handleSubscriptionCheckout: no price found in subscription items',
-    )
-  }
-
-  const planMapping = resolvePlanOrLogUnknown(priceId, {
-    eventId,
-    subscriptionId,
-  })
-  if (!planMapping) {
-    // Unknown price — already logged. Bail without throwing so the event
-    // is consumed (we can't credit a non-Vizly plan, but we shouldn't
-    // retry indefinitely either).
-    return
-  }
-
-  const customerId =
-    typeof session.customer === 'string'
-      ? session.customer
-      : (session.customer?.id ?? null)
-
-  // 1. Update legacy users columns
-  const { error: userError } = await supabase
-    .from('users')
-    .update({
-      plan: planMapping.plan,
-      stripe_customer_id: customerId,
-      stripe_subscription_id: subscriptionId,
-    })
-    .eq('id', userId)
-
-  if (userError) {
-    throw new Error(
-      `handleSubscriptionCheckout: failed to update user plan: ${userError.message}`,
-    )
-  }
-
-  // 2. Upsert local subscriptions row via the shared helper. Both flows
-  // (legacy Checkout and new Elements) converge on the same row shape.
-  //
-  // onConflict: 'user_id' (not 'stripe_subscription_id'): the local schema
-  // enforces 1 subscription row per user (UNIQUE on user_id). When a user
-  // re-subscribes after cancellation, the new sub's row REPLACES the old
-  // one. Historical subs remain queryable via Stripe's API and via the
-  // `invoices` table (which keeps all invoices, not only the active sub's).
-  const row = mapStripeSubscriptionToRow(subscription, userId, { eventId })
-  if (row) {
-    const { error: upsertError } = await supabase
-      .from('subscriptions')
-      .upsert(row, { onConflict: 'user_id' })
-    if (upsertError) {
-      throw new Error(
-        `handleSubscriptionCheckout: failed to upsert local subscription row: ${upsertError.message}`,
-      )
-    }
-  }
-
-  console.log(
-    `[stripe webhook] handleSubscriptionCheckout: user ${userId} upgraded to ${planMapping.plan} ${planMapping.interval} via legacy Checkout (sub ${subscriptionId})`,
-  )
-
-  // Email is now sent from handleInvoicePaid (billing_reason='subscription_create')
-  // to avoid double-email on legacy Checkout flow. This branch will be
-  // fully removed in Phase 6.
-}
-
-async function handleTemplateCheckout(
-  session: Stripe.Checkout.Session,
-  supabase: ReturnType<typeof createAdminClient>,
-) {
-  const userId = session.metadata?.userId
-  const templateId = session.metadata?.templateId
-
-  if (!userId || !templateId) {
-    throw new Error(
-      'handleTemplateCheckout: missing userId or templateId in session metadata',
-    )
-  }
-
-  const paymentIntentId =
-    typeof session.payment_intent === 'string'
-      ? session.payment_intent
-      : (session.payment_intent?.id ?? session.id)
-
-  const { error } = await supabase.from('purchased_templates').upsert(
-    {
-      user_id: userId,
-      template_id: templateId,
-      stripe_payment_id: paymentIntentId,
-    },
-    { onConflict: 'user_id,template_id' },
-  )
-
-  if (error) {
-    throw new Error(
-      `handleTemplateCheckout: failed to record template purchase: ${error.message}`,
-    )
-  }
-
-  console.log(
-    `[stripe webhook] handleTemplateCheckout: user ${userId} purchased template ${templateId}`,
   )
 }

@@ -151,8 +151,8 @@ export function EditorClient({
             projects={editor.projectsForUI}
             slug={editor.slug}
             onSlugChange={editor.setSlug}
-            onPublish={editor.handlePublish}
-            isPublishing={editor.isPublishing}
+            onSaveDraft={editor.saveDraft}
+            onPublishNow={editor.publishNow}
             billingPlan={editor.billingPlan}
             selectedTemplateNeedsPurchase={editor.selectedTemplateNeedsPurchase}
           />

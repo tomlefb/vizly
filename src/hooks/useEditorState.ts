@@ -11,11 +11,7 @@ import {
   updateProject,
   deleteProject,
 } from '@/actions/projects'
-import {
-  getBillingStatus,
-  createSubscriptionCheckoutAction,
-  createTemplateCheckoutAction,
-} from '@/actions/billing'
+import { getBillingStatus } from '@/actions/billing'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
@@ -422,9 +418,18 @@ export function useEditorState({
   )
 
   // ---- Template purchase ------------------------------------------
-
+  //
+  // Phase 6: the actual checkout has moved into TemplatePurchaseModal
+  // (PaymentElement-based, opened from StepCustomization or the editor's
+  // template picker). This helper now ONLY saves the current portfolio
+  // draft so the modal can open with a known portfolio_id. The modal's
+  // onSuccess will refresh billing status separately.
+  //
+  // Marked `templateId` as unused — the parameter is kept on the signature
+  // for backward-compat with callers that still pass it (StepCustomization
+  // passes templateId for analytics/logging). We don't use it here.
   const handleTemplatePurchase = useCallback(
-    async (templateId: TemplateName) => {
+    async (_templateId: TemplateName) => {
       setCheckoutLoading(true)
       setSaveError(null)
 
@@ -434,20 +439,9 @@ export function useEditorState({
           setPortfolioId(saveResult.data.id)
           await syncProjectsWithId(saveResult.data.id)
         }
-
-        const result = await createTemplateCheckoutAction(templateId)
-
-        if (result.error) {
-          setSaveError(result.error)
-          setCheckoutLoading(false)
-          return
-        }
-
-        if (result.url) {
-          window.location.href = result.url
-        }
       } catch {
-        setSaveError("Erreur lors de la redirection vers le paiement")
+        setSaveError('Erreur lors de la sauvegarde du portfolio')
+      } finally {
         setCheckoutLoading(false)
       }
     },
@@ -466,8 +460,23 @@ export function useEditorState({
   }, [selectedTemplateConfig, purchasedTemplates])
 
   // ---- Publish ---------------------------------------------------
+  //
+  // Phase 6: split into two actions exposed to StepPublish, which
+  // orchestrates the modal-or-direct flow:
+  //
+  //   - saveDraft()  → persists the portfolio + syncs projects, no publish.
+  //                    Always called BEFORE checking the plan, so a paid
+  //                    user's portfolio is never lost mid-payment.
+  //   - publishNow() → publishes an already-saved portfolio + navigates
+  //                    to the public URL. Called either directly (paid
+  //                    user) or from the modal's onSuccess (free user
+  //                    who just paid).
+  //
+  // The legacy `handlePublish` that branched between checkout-redirect
+  // and direct-publish is gone — checkout is the modal's responsibility,
+  // not the hook's.
 
-  const handlePublish = useCallback(async () => {
+  const saveDraft = useCallback(async (): Promise<{ error: string | null }> => {
     setIsPublishing(true)
     setSaveError(null)
 
@@ -477,7 +486,7 @@ export function useEditorState({
       if (result.error) {
         setSaveError(result.error)
         setIsPublishing(false)
-        return
+        return { error: result.error }
       }
 
       if (result.data) {
@@ -489,36 +498,41 @@ export function useEditorState({
         await syncProjectsWithId(pId)
       }
 
-      if (billingPlan === 'free') {
-        const checkoutResult = await createSubscriptionCheckoutAction('starter')
+      setIsPublishing(false)
+      return { error: null }
+    } catch {
+      const message = 'Erreur lors de la sauvegarde du brouillon'
+      setSaveError(message)
+      setIsPublishing(false)
+      return { error: message }
+    }
+  }, [portfolioData, portfolioId, syncProjectsWithId, setSaveError])
 
-        if (checkoutResult.error) {
-          setSaveError(checkoutResult.error)
-          setIsPublishing(false)
-          return
-        }
+  const publishNow = useCallback(async (): Promise<{ error: string | null }> => {
+    setIsPublishing(true)
+    setSaveError(null)
 
-        if (checkoutResult.url) {
-          window.location.href = checkoutResult.url
-          return
-        }
-      }
-
+    try {
       const publishResult = await publishPortfolio(slug)
 
       if (publishResult.error) {
         setSaveError(publishResult.error)
         setIsPublishing(false)
-        return
+        return { error: publishResult.error }
       }
 
       router.push(`/portfolio/${slug}`)
+      // Note: we don't reset isPublishing on the success path — the
+      // navigation unmounts this component, so the loading state visually
+      // persists until the new page paints (which is the desired UX).
+      return { error: null }
     } catch {
-      setSaveError('Erreur lors de la publication')
-    } finally {
+      const message = 'Erreur lors de la publication'
+      setSaveError(message)
       setIsPublishing(false)
+      return { error: message }
     }
-  }, [billingPlan, portfolioData, portfolioId, router, slug, syncProjectsWithId, setSaveError])
+  }, [slug, router, setSaveError])
 
   // ---- Derived data for step components --------------------------
 
@@ -554,6 +568,7 @@ export function useEditorState({
     handlePrevious,
     handleStepChange,
     handleTemplatePurchase,
-    handlePublish,
+    saveDraft,
+    publishNow,
   }
 }

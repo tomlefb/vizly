@@ -1,9 +1,8 @@
 // =============================================================================
 // webhook-helpers.ts — Stripe webhook DB sync helpers
 // =============================================================================
-// Pure helpers shared by handleSubscriptionCreated, handleSubscriptionUpdated,
-// handleCheckoutCompleted (legacy mode=subscription branch) and
-// handleInvoicePaid in src/app/api/webhooks/stripe/route.ts. Centralizes:
+// Pure helpers shared by handleSubscriptionCreated, handleSubscriptionUpdated
+// and handleInvoicePaid in src/app/api/webhooks/stripe/route.ts. Centralizes:
 //
 //   - mapStripeSubscriptionToRow: Stripe.Subscription → subscriptions row
 //   - resolvePlanOrLogUnknown: priceId → plan/interval, with a structured
@@ -142,16 +141,15 @@ export function mapStripeSubscriptionToRow(
  * Find the Vizly user ID associated with a Stripe Subscription via 3
  * cascading lookups:
  *
- *   1. subscription.metadata.userId — the canonical path. Set by both the
- *      legacy createSubscriptionCheckout and the new
- *      createSubscriptionWithPaymentIntent helpers.
+ *   1. subscription.metadata.userId — the canonical path. Set by the
+ *      createSubscriptionWithPaymentIntent helper on every new sub.
  *
  *   2. Local subscriptions table by stripe_subscription_id — populated
- *      starting at Phase 3 by the webhook handlers themselves. Used when
- *      metadata is missing (e.g. subs created manually in Stripe Dashboard).
+ *      by the webhook handlers themselves. Used when metadata is missing
+ *      (e.g. subs created manually in Stripe Dashboard).
  *
- *   3. Legacy users.stripe_subscription_id — still set by the old flow
- *      until Phase 6 cuts it over. Removed in Phase 6 cleanup.
+ *   3. Legacy users.stripe_subscription_id — still queried as an
+ *      ultimate fallback for users created before Phase 3.
  *
  * Returns null if all three layers fail. The caller should throw to
  * trigger a 500 retry by Stripe — losing track of a user means we can't

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { registerUser, verifyUserOtp, resendSignupOtp } from '@/actions/auth'
@@ -10,7 +11,32 @@ import { z } from 'zod'
 type Step = 'form' | 'otp' | 'redirecting'
 
 export default function RegisterPage() {
+  // Suspense boundary required by Next 15 because RegisterPageInner reads
+  // useSearchParams() — without it, the static prerender of /register
+  // bails out with a missing-suspense-with-csr-bailout error.
+  return (
+    <Suspense fallback={null}>
+      <RegisterPageInner />
+    </Suspense>
+  )
+}
+
+function RegisterPageInner() {
   const t = useTranslations('auth')
+  const searchParams = useSearchParams()
+
+  // Phase 6 — preserve `plan` + `interval` query params from /tarifs
+  // through the OTP flow so /dashboard can auto-open the checkout modal
+  // post-signup. Without this, clicking "Pro" on /tarifs → /register?plan=pro
+  // would lose the plan after OTP verification and the user would land
+  // on /dashboard with no clue why they registered.
+  const planParam = searchParams.get('plan')
+  const intervalParam = searchParams.get('interval')
+  const dashboardUrl = (() => {
+    if (planParam !== 'starter' && planParam !== 'pro') return '/dashboard'
+    const interval = intervalParam === 'yearly' ? 'yearly' : 'monthly'
+    return `/dashboard?plan=${planParam}&interval=${interval}`
+  })()
 
   const registerSchema = z.object({
     name: z.string().min(1, t('errors.nameRequired')).max(100),
@@ -102,7 +128,7 @@ export default function RegisterPage() {
       // back to the default 'form' screen during the transition.
       setStep('redirecting')
       setTimeout(() => {
-        window.location.href = '/dashboard'
+        window.location.href = dashboardUrl
       }, 100)
     } catch {
       setError(t('errors.unexpected'))

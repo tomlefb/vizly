@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Check, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
@@ -20,7 +19,6 @@ interface PlanData {
   yearlyMonthlyPrice: string
   yearlyTotalPrice: string
   features: PlanFeature[]
-  href: string
   featured: boolean
 }
 
@@ -38,7 +36,6 @@ const plansData: PlanData[] = [
       { labelKey: 'customDomain', included: false },
       { labelKey: 'analytics', included: false },
     ],
-    href: '/register',
     featured: false,
   },
   {
@@ -54,7 +51,6 @@ const plansData: PlanData[] = [
       { labelKey: 'analytics', included: false },
       { labelKey: 'contactForm', included: false },
     ],
-    href: '/register?plan=starter',
     featured: true,
   },
   {
@@ -71,7 +67,6 @@ const plansData: PlanData[] = [
       { labelKey: 'contactForm', included: true },
       { labelKey: 'prioritySupport', included: true },
     ],
-    href: '/register?plan=pro',
     featured: false,
   },
 ]
@@ -80,9 +75,26 @@ interface PricingProps {
   interval?: BillingInterval
   onIntervalChange?: (interval: BillingInterval) => void
   showHeader?: boolean
+  /**
+   * Called when the user clicks one of the 3 plan CTAs. The parent
+   * (TarifsClient) decides what to do based on auth state:
+   *   - anonymous → router.push('/register?plan=...&interval=...')
+   *   - authenticated free user → open SubscriptionCheckoutModal
+   *   - authenticated paid user → call changeSubscriptionPlanAction
+   *
+   * If `onPlanClick` is not provided, the buttons fall back to the
+   * legacy anonymous-only behavior of pushing to /register (handled
+   * inside the component via useRouter).
+   */
+  onPlanClick?: (planId: 'free' | 'starter' | 'pro') => void
 }
 
-export function Pricing({ interval: controlledInterval, onIntervalChange, showHeader = true }: PricingProps = {}) {
+export function Pricing({
+  interval: controlledInterval,
+  onIntervalChange,
+  showHeader = true,
+  onPlanClick,
+}: PricingProps = {}) {
   const t = useTranslations('pricing')
   const [localInterval, setLocalInterval] = useState<BillingInterval>('monthly')
   const interval = controlledInterval ?? localInterval
@@ -235,17 +247,18 @@ export function Pricing({ interval: controlledInterval, onIntervalChange, showHe
                 </ul>
 
                 {/* CTA */}
-                <Link
-                  href={plan.href}
+                <button
+                  type="button"
+                  onClick={() => onPlanClick?.(plan.id)}
                   className={cn(
-                    'mt-8 block text-center rounded-[var(--radius-md)] px-6 py-3 text-sm font-semibold transition-colors duration-150',
+                    'mt-8 block w-full text-center rounded-[var(--radius-md)] px-6 py-3 text-sm font-semibold transition-colors duration-150',
                     plan.featured
                       ? 'bg-accent text-white hover:bg-accent-hover'
                       : 'border border-border text-foreground hover:bg-surface-warm'
                   )}
                 >
                   {t(`plans.${plan.id}.cta`)}
-                </Link>
+                </button>
               </StaggerItem>
             )
           })}

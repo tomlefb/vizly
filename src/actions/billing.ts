@@ -4,9 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe/client'
 import { getSubscriptionPriceId, type BillingInterval } from '@/lib/stripe/prices'
 import {
-  createSubscriptionCheckout,
   updateExistingSubscription,
-  createTemplateCheckout,
   createBillingPortalSession,
 } from '@/lib/stripe/checkout'
 import {
@@ -24,12 +22,6 @@ import { TEMPLATES } from '@/lib/constants'
 
 interface CheckoutResult {
   url: string | null
-  error: string | null
-}
-
-interface SubscriptionUpdateResult {
-  url: string | null
-  updated: boolean
   error: string | null
 }
 
@@ -104,139 +96,6 @@ async function getOrCreateCustomerId(
 // ---------------------------------------------------------------------------
 // Server Actions
 // ---------------------------------------------------------------------------
-
-/**
- * Create or update a subscription for the user.
- *
- * - If the user has NO active subscription → create a new Checkout session.
- * - If the user already HAS a subscription → update it in-place (upgrade/downgrade/interval change).
- *   This ensures only ONE subscription exists at a time.
- */
-export async function createSubscriptionCheckoutAction(
-  plan: 'starter' | 'pro',
-  interval: BillingInterval = 'monthly'
-): Promise<SubscriptionUpdateResult> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { url: null, updated: false, error: 'Non authentifie' }
-    }
-
-    const priceId = getSubscriptionPriceId(plan, interval)
-
-    if (!priceId) {
-      return { url: null, updated: false, error: `Price ID introuvable pour le plan ${plan} (${interval})` }
-    }
-
-    // Check if user already has an active subscription
-    const { data: userData } = await supabase
-      .from('users')
-      .select('stripe_customer_id, stripe_subscription_id')
-      .eq('id', user.id)
-      .single()
-
-    const { customerId, error: customerError } = await getOrCreateCustomerId(
-      user.id,
-      user.email ?? ''
-    )
-
-    if (customerError) {
-      return { url: null, updated: false, error: customerError }
-    }
-
-    // User has an active subscription → update it in-place
-    if (userData?.stripe_subscription_id) {
-      const { error: updateError } = await updateExistingSubscription({
-        subscriptionId: userData.stripe_subscription_id,
-        newPriceId: priceId,
-      })
-
-      if (updateError) {
-        return { url: null, updated: false, error: updateError }
-      }
-
-      // Subscription updated — Stripe fires customer.subscription.updated webhook
-      // which will update the plan in DB
-      return { url: null, updated: true, error: null }
-    }
-
-    // No active subscription → create a new Checkout session
-    const result = await createSubscriptionCheckout({
-      customerId,
-      priceId,
-      userId: user.id,
-    })
-
-    return { url: result.url, updated: false, error: result.error }
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Erreur lors de la creation du checkout'
-    return { url: null, updated: false, error: message }
-  }
-}
-
-/**
- * Create a Stripe Checkout session for purchasing a premium template.
- */
-export async function createTemplateCheckoutAction(
-  templateId: string
-): Promise<CheckoutResult> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { url: null, error: 'Non authentifie' }
-    }
-
-    // Validate that this is a valid premium template
-    const premiumTemplates: readonly string[] = TEMPLATES.premium
-    if (!premiumTemplates.includes(templateId)) {
-      return {
-        url: null,
-        error: `"${templateId}" n'est pas un template premium valide`,
-      }
-    }
-
-    // Check if user already purchased this template
-    const { data: existing } = await supabase
-      .from('purchased_templates')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('template_id', templateId)
-      .limit(1)
-      .maybeSingle()
-
-    if (existing) {
-      return { url: null, error: 'Ce template a deja ete achete' }
-    }
-
-    const { customerId, error: customerError } = await getOrCreateCustomerId(
-      user.id,
-      user.email ?? ''
-    )
-
-    if (customerError) {
-      return { url: null, error: customerError }
-    }
-
-    return await createTemplateCheckout({
-      customerId,
-      templateId,
-      userId: user.id,
-    })
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Erreur lors de la creation du checkout'
-    return { url: null, error: message }
-  }
-}
 
 /**
  * Get the current billing status for the authenticated user:
@@ -326,20 +185,20 @@ export async function createBillingPortalAction(): Promise<CheckoutResult> {
 }
 
 // ===========================================================================
-// Phase 2 — Stripe Elements server actions (PaymentElement-based)
+// Stripe Elements server actions (PaymentElement-based)
 // ===========================================================================
 //
-// The three actions below are the new path for the Stripe Elements
-// integration. They run in PARALLEL with the legacy
-// createSubscriptionCheckoutAction / createTemplateCheckoutAction (which
-// redirect to hosted Checkout) until Phase 6 cuts the UI over and the old
-// path is deleted.
+// The three actions below are the single path for starting a Stripe
+// payment flow from the client. Phase 6 removed the legacy
+// createSubscriptionCheckoutAction / createTemplateCheckoutAction which
+// used to redirect to the hosted Stripe Checkout — everything now runs
+// in-app via PaymentElement.
 //
 // All three return a discriminated union { ok: true, ... } | { ok: false, error }
 // so consumers MUST handle both branches. We never throw across the
 // Server Action boundary — Stripe error stack traces stay server-side,
-// the client gets a stable string error code that the modal in Phase 4
-// will map to French copy in Vizly's voice.
+// the client gets a stable string error code that the modals map to
+// French copy in Vizly's voice.
 
 type SubscriptionIntentResult =
   | { ok: true; clientSecret: string; subscriptionId: string }
@@ -371,14 +230,9 @@ type PromotionCodeValidationResult =
  * Create a default_incomplete subscription and return its client_secret
  * so the frontend can confirm it via PaymentElement.
  *
- * Defensive duplicate-sub check: query BOTH the new local subscriptions
- * table AND the legacy users.stripe_subscription_id column. The local
- * table is populated starting at Phase 3 (webhook), but during the
- * Phase 2→6 transition window users with a legacy sub still need to be
- * blocked from creating a duplicate.
- *
- * TODO Phase 6: drop the hasLegacySub check once the legacy column is
- * retired and all subs live in the local table.
+ * Defensive duplicate-sub check: query the local subscriptions table
+ * (Phase 3 source of truth, populated by the webhook). The legacy
+ * users.stripe_subscription_id fallback was removed in Phase 6.
  */
 export async function createSubscriptionIntentAction({
   plan,
@@ -396,37 +250,22 @@ export async function createSubscriptionIntentAction({
     } = await supabase.auth.getUser()
     if (!user) return { ok: false, error: 'not_authenticated' }
 
-    // Defensive double-check during Phase 2→6 transition. See note above.
-    const [localSubResult, legacyUserResult] = await Promise.all([
-      supabase
-        .from('subscriptions')
-        .select('id, status')
-        .eq('user_id', user.id)
-        .maybeSingle(),
-      supabase
-        .from('users')
-        .select('stripe_subscription_id')
-        .eq('id', user.id)
-        .single(),
-    ])
-
-    // Fix discovered while building Phase 4 modal: an 'incomplete' subscription
-    // is a checkout-in-progress, not an active commitment. Blocking on it would
-    // break legitimate re-entry flows (promo code apply, retry after abandon).
-    // The original Phase 2 check was too strict — this refinement traces back
-    // to the Q3 verdict of Phase 2 and narrows "already active" to statuses
-    // that represent a real user commitment.
+    // Defensive duplicate-sub check using the local subscriptions table
+    // (Phase 3 source of truth, populated by the webhook). Phase 6 removed
+    // the legacy users.stripe_subscription_id fallback that existed during
+    // the Phase 2→6 transition — by Phase 6, all active subs live in the
+    // local table, the legacy column is no longer authoritative.
     //
     // Subscription statuses that indicate a real active commitment from the
-    // user, blocking the creation of a new subscription for this user.
-    //
-    // Excluded on purpose (non-blocking):
-    // - 'incomplete': checkout in progress or abandoned <24h. Stripe will
-    //   garbage-collect automatically. Blocking here would prevent legitimate
-    //   flows like applying a promo code (which recreates the intent) or
-    //   retrying a checkout after closing the modal.
-    // - 'incomplete_expired': checkout abandoned >24h, already expired by Stripe.
-    // - 'canceled': user cancelled, fully allowed to re-subscribe.
+    // user, blocking the creation of a new subscription. Excluded on purpose
+    // (non-blocking):
+    //   - 'incomplete': checkout in progress or abandoned <24h. Stripe will
+    //     garbage-collect automatically. Blocking here would prevent
+    //     legitimate flows like applying a promo code (which recreates the
+    //     intent) or retrying a checkout after closing the modal.
+    //   - 'incomplete_expired': checkout abandoned >24h, already expired
+    //     by Stripe.
+    //   - 'canceled': user cancelled, fully allowed to re-subscribe.
     const BLOCKING_STATUSES = new Set([
       'active',
       'trialing',
@@ -434,19 +273,13 @@ export async function createSubscriptionIntentAction({
       'unpaid',
     ])
 
-    const localSub = localSubResult.data
-    const hasLocalActiveSub =
-      localSub !== null && BLOCKING_STATUSES.has(localSub.status)
+    const { data: localSub } = await supabase
+      .from('subscriptions')
+      .select('id, status')
+      .eq('user_id', user.id)
+      .maybeSingle()
 
-    // Legacy check: only trigger if NO local row exists. If a local row exists
-    // (in any status), it's the source of truth and the legacy column is ignored.
-    // This naturally handles the Phase 2→6 transition and will be cleanly
-    // removed in Phase 6 when the legacy column goes away.
-    const hasLegacySub =
-      localSub === null &&
-      legacyUserResult.data?.stripe_subscription_id != null
-
-    if (hasLocalActiveSub || hasLegacySub) {
+    if (localSub !== null && BLOCKING_STATUSES.has(localSub.status)) {
       return { ok: false, error: 'subscription_already_active' }
     }
 
@@ -616,6 +449,94 @@ export async function validatePromotionCodeAction(
     }
   } catch (err) {
     console.error('[validatePromotionCodeAction]', err)
+    return { ok: false, error: 'unknown_error' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// changeSubscriptionPlanAction (Phase 6 — upgrade/downgrade flow)
+// ---------------------------------------------------------------------------
+
+type ChangeSubscriptionPlanResult =
+  | { ok: true; message: string }
+  | { ok: false; error: string }
+
+/**
+ * Change the plan of an EXISTING active subscription (upgrade/downgrade
+ * Starter ↔ Pro, or interval switch monthly ↔ yearly). This is a direct
+ * Stripe mutation via `updateExistingSubscription` — it does NOT need a
+ * client-side PaymentElement confirmation because no new payment method
+ * is being collected. The new charge (with proration) happens server-side
+ * via Stripe Billing.
+ *
+ * Distinct from `createSubscriptionIntentAction` which is for the
+ * "no sub yet → create one and confirm via PaymentElement" flow.
+ *
+ * Sync side-effects:
+ *   - Stripe fires `customer.subscription.updated` webhook → Phase 3
+ *     handler updates the local `subscriptions` table + dispatches the
+ *     `plan-changed` or `billing-period-changed` email
+ *   - This action returns immediately without waiting — UI shows a
+ *     success message and the user sees the updated plan after a refresh
+ */
+export async function changeSubscriptionPlanAction({
+  plan,
+  interval,
+}: {
+  plan: 'starter' | 'pro'
+  interval: BillingInterval
+}): Promise<ChangeSubscriptionPlanResult> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
+
+    // Read the local subscriptions table (Phase 3 source of truth) to find
+    // the user's active stripe_subscription_id. Fallback on the legacy
+    // users.stripe_subscription_id column for the Phase 6 cleanup window
+    // — to be removed once Phase 7 confirms the legacy column is unused.
+    const { data: localSub } = await supabase
+      .from('subscriptions')
+      .select('stripe_subscription_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    let subscriptionId = localSub?.stripe_subscription_id ?? null
+
+    if (!subscriptionId) {
+      const { data: legacyUser } = await supabase
+        .from('users')
+        .select('stripe_subscription_id')
+        .eq('id', user.id)
+        .single()
+      subscriptionId = legacyUser?.stripe_subscription_id ?? null
+    }
+
+    if (!subscriptionId) {
+      return { ok: false, error: 'no_active_subscription' }
+    }
+
+    const newPriceId = getSubscriptionPriceId(plan, interval)
+    if (!newPriceId) {
+      return { ok: false, error: 'price_not_configured' }
+    }
+
+    const { error: updateError } = await updateExistingSubscription({
+      subscriptionId,
+      newPriceId,
+    })
+
+    if (updateError) {
+      // updateExistingSubscription returns a French message like
+      // "Tu es deja sur ce plan" — pass it through for the modal to display.
+      return { ok: false, error: updateError }
+    }
+
+    return { ok: true, message: 'Plan mis à jour.' }
+  } catch (err) {
+    console.error('[changeSubscriptionPlanAction]', err)
     return { ok: false, error: 'unknown_error' }
   }
 }

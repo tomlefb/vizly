@@ -1295,3 +1295,262 @@ l'infrastructure de déploiement de Vizly.
 Le vrai hosting est Railway. Hors périmètre Phase 5 (c'est un fix doc
 projet global, pas lié à Stripe), mais à faire pour éviter que le
 prochain Claude de session hérite de la même mauvaise info.
+
+---
+
+## Phase 6 — recâblage UI et nettoyage ancien code
+
+### Objectif
+
+Brancher les deux modals Elements (Phase 4 + Phase 5) sur tous les points
+d'entrée UI qui utilisaient encore l'ancien redirect `createCheckoutSession`,
+puis **supprimer tout le code legacy** (Server Actions, lib helpers,
+handler webhook, env vars, route scratch). Plus de coexistence : après
+Phase 6, Stripe Checkout hosté n'existe plus côté Vizly.
+
+### Architecture du flow subscription après Phase 6
+
+Il y a désormais **trois points d'entrée** pour s'abonner, qui convergent
+tous sur `SubscriptionCheckoutModal` :
+
+1. **`/billing`** (utilisateur loggé, plan courant = free)
+   - Clic sur CTA d'un plan → `BillingClient` ouvre la modal directement
+     (state `subscriptionModalPlan`).
+   - Clic sur un plan quand l'utilisateur est déjà sur un plan payant →
+     pas de modal, appel direct `changeSubscriptionPlanAction({ plan, interval })`
+     qui fait un `stripe.subscriptions.update` in-place (proration auto).
+     Feedback local via `feedback` state.
+
+2. **`/tarifs`** (page marketing, anonyme OU loggé)
+   - Anonyme → `router.push('/register?plan=…&interval=…')`.
+   - Loggé free → ouvre la modal.
+   - Loggé paid → appelle `changeSubscriptionPlanAction` directement
+     (même path que `/billing`).
+   - Le server component `tarifs/page.tsx` fait un `getUser()` +
+     `.select('plan')` sur `users` pour passer `isAuthenticated` et
+     `currentPlan` au client component.
+
+3. **`/editor` (Step 4 — Publier)**
+   - Clic sur "Publier maintenant" → `StepPublish.handlePublishClick`
+     sauvegarde le draft d'abord (`onSaveDraft`), PUIS branche :
+     - Si `billingPlan === 'free'` → ouvre la modal `SubscriptionCheckoutModal`
+       avec `plan='starter'` + `interval='monthly'`.
+     - Sinon → appelle `onPublishNow` directement.
+   - À la fermeture de la modal avec succès, `handleModalSuccess` appelle
+     `onPublishNow` qui déclenche `publishPortfolio` + redirect vers l'URL
+     publique.
+
+4. **`/register?plan=starter&interval=yearly`** (cas spécifique tarifs → anon)
+   - `register/page.tsx` lit `useSearchParams()` et construit un
+     `dashboardUrl` qui préserve `plan` + `interval` comme query params,
+     utilisé dans `window.location.href = dashboardUrl` à la fin du flow
+     signup Google.
+   - Sur `/dashboard`, `page.tsx` lit `searchParams.plan` / `searchParams.interval`
+     et rend conditionnellement `<AutoOpenSubscriptionModal>`.
+   - `AutoOpenSubscriptionModal` est un tiny client wrapper avec un
+     `hasAutoOpenedRef` guard pour protéger contre le double-mount de
+     React StrictMode en dev, et appelle `router.replace('/dashboard')`
+     sur `onClose` pour stripper les query params une fois la modal vue.
+
+### Refactor `useEditorState` / `StepPublish` — split `handlePublish`
+
+Avant Phase 6, le hook `useEditorState` exposait un seul `handlePublish()`
+qui : (1) sauvait le brouillon, (2) créait un checkout Stripe, (3) faisait
+un redirect vers `checkout.stripe.com`. `StepPublish` consommait
+ce pipeline atomique via un `onPublish={handlePublish}` et un
+`isPublishing` prop.
+
+Avec le move modal in-app, ce pipeline atomique casse : la modal est
+un composant React qui vit dans `StepPublish`, donc la branche "paywall"
+doit être gérée **dans** `StepPublish`, pas dans le hook. J'ai donc
+splitté :
+
+- `useEditorState.saveDraft()` : upsert portfolio + sync projets, pas
+  de publication ni de checkout. Retourne `{ error }`.
+- `useEditorState.publishNow()` : appelle `publishPortfolio(slug)` qui
+  fait `published=true` + redirect vers l'URL publique. Retourne
+  `{ error }`.
+
+Côté `StepPublish.tsx`, `handlePublishClick` orchestre :
+
+```
+handlePublishClick = async () => {
+  const { error } = await onSaveDraft()
+  if (error) return setPublishError(error)
+
+  if (billingPlan === 'free') {
+    setSubscriptionModalOpen(true)  // modal prend le relais
+  } else {
+    await onPublishNow()            // publication directe
+  }
+}
+```
+
+`StepPublish` gère aussi son propre `publishError` state et un modal
+local `subscriptionModalOpen`. Le prop `isPublishing` a été retiré
+— le loading state est géré localement dans `StepPublish`.
+
+### Refactor `BillingClient.tsx` — upgrade/downgrade in-place via `changeSubscriptionPlanAction`
+
+Avant Phase 6, BillingClient appelait `createSubscriptionCheckoutAction`
+pour TOUT changement de plan (free → paid, mais aussi starter → pro,
+monthly → yearly, etc.). Stripe créait alors une **nouvelle** subscription,
+ce qui est incorrect pour un changement de plan : il faut un
+`stripe.subscriptions.update` in-place qui préserve le `subscription_id`,
+applique la proration, et ne créé pas de double-billing.
+
+Nouvelle Server Action `changeSubscriptionPlanAction({ plan, interval })`
+dans `src/actions/billing.ts` :
+
+- Lit `subscriptions.stripe_subscription_id` (fallback sur
+  `users.stripe_subscription_id` pendant la transition).
+- Résout le nouveau `priceId` via `getSubscriptionPriceId(plan, interval)`.
+- Appelle `updateExistingSubscription({ subscriptionId, newPriceId })` qui
+  était déjà dans `src/lib/stripe/checkout.ts` (non touché en Phase 2 parce
+  que déjà correct — il vérifie l'idempotence via `currentItem.price.id ===
+  newPriceId` qui retourne "Tu es deja sur ce plan").
+- Retourne `{ ok: true, message }` ou `{ ok: false, error }`.
+
+**Trois modes de changement** dans `BillingClient.handleSubscriptionClick` :
+
+```
+free → paid    : ouvre la modal (SubscriptionCheckoutModal)
+paid → paid    : changeSubscriptionPlanAction (update in-place)
+déjà sur plan  : error "Tu es deja sur ce plan" du helper, géré en feedback
+```
+
+### Règles `Pricing.tsx` — Link → button avec `onPlanClick`
+
+Le composant `marketing/Pricing.tsx` était structuré avec des `<Link href>`
+pointant vers `/register?plan=…` (hard-coded dans `plansData.href`). Pour
+le rendre polymorphe (réutilisable par `/tarifs` loggé ET anon), j'ai :
+
+- Retiré le champ `href` de `PlanData` et des entries.
+- Ajouté un prop optionnel `onPlanClick?: (planId: string) => void`.
+- Converti tous les CTAs de `<Link>` à `<button type="button" onClick={() => onPlanClick?.(plan.id)}>`.
+
+Le composant reste utilisable sans handler (si aucun `onPlanClick` n'est
+passé, les boutons sont juste no-op — utile pour une éventuelle landing
+publique où le user doit finir par s'inscrire avant de choisir, mais
+actuellement tous les consommateurs passent un handler).
+
+### Fichiers créés
+
+- `src/components/billing/AutoOpenSubscriptionModal.tsx` — tiny client
+  wrapper de `SubscriptionCheckoutModal` qui auto-open au mount (guard
+  `hasAutoOpenedRef` pour StrictMode) et strippe les query params au close.
+
+### Fichiers modifiés (14)
+
+- `src/actions/billing.ts` — ajout `changeSubscriptionPlanAction`, retrait
+  `createSubscriptionCheckoutAction` / `createTemplateCheckoutAction` /
+  `SubscriptionUpdateResult` / import de `createSubscriptionCheckout` /
+  `createTemplateCheckout` / check `hasLegacySub` (TODO Phase 4 soldé).
+- `src/lib/stripe/checkout.ts` — rewrite en-tête + suppression des 2 helpers
+  legacy ; seul `updateExistingSubscription` + `createBillingPortalSession`
+  restent. Nom de fichier conservé (rename reporté Phase 7 si
+  réécriture `/billing` touche les imports).
+- `src/app/api/webhooks/stripe/route.ts` — retrait `handleCheckoutCompleted`
+  + sous-helpers `handleSubscriptionCheckout` / `handleTemplateCheckout`
+  + case `'checkout.session.completed'` du switch + mise à jour des
+  commentaires headers qui référençaient le flow legacy.
+- `src/lib/stripe/webhook-helpers.ts` — retrait mention
+  `handleCheckoutCompleted` du commentaire d'en-tête.
+- `src/app/api/webhooks/stripe/email-handlers.ts` — retrait mention
+  `handleSubscriptionCheckout` du commentaire de `sendPaymentSucceededEmail`.
+- `src/components/billing/BillingClient.tsx` — recâblage complet :
+  remplacement des calls `createSubscriptionCheckoutAction` /
+  `createTemplateCheckoutAction` par state `subscriptionModalPlan` +
+  `templateModalId` ; handleSubscriptionClick branche free/paid ;
+  rendu conditionnel de `SubscriptionCheckoutModal` + `TemplatePurchaseModal`
+  en fin de JSX.
+- `src/components/marketing/Pricing.tsx` — conversion Link → button,
+  ajout prop `onPlanClick`, retrait champ `href`.
+- `src/components/marketing/TarifsClient.tsx` — rewrite avec props
+  `isAuthenticated` + `currentPlan`, `handlePlanClick` (anon/free/paid),
+  rendu conditionnel modal, feedback state.
+- `src/app/(marketing)/tarifs/page.tsx` — conversion en async Server
+  Component avec `getUser()` + lecture `users.plan`.
+- `src/app/(dashboard)/dashboard/page.tsx` — ajout `searchParams` prop
+  (Promise en Next 15), rendu conditionnel `<AutoOpenSubscriptionModal>`.
+- `src/app/(auth)/register/page.tsx` — lecture `useSearchParams()`,
+  construction `dashboardUrl` préservant `plan` + `interval`, redirect
+  final vers `dashboardUrl`.
+- `src/hooks/useEditorState.ts` — split `handlePublish` en `saveDraft`
+  + `publishNow` ; retrait imports `createSubscriptionCheckoutAction` /
+  `createTemplateCheckoutAction` ; refactor `handleTemplatePurchase` pour
+  ne faire que la sauvegarde du draft.
+- `src/components/editor/EditorClient.tsx` — update props passés à
+  `StepPublish` (`onSaveDraft` + `onPublishNow` au lieu de `onPublish`,
+  retrait `isPublishing`).
+- `src/components/editor/StepPublish.tsx` — ajout import
+  `SubscriptionCheckoutModal`, state local `subscriptionModalOpen` +
+  `publishError` + `isPublishing`, orchestration `handlePublishClick`
+  (save puis branche), `handleModalSuccess` qui appelle `onPublishNow`.
+
+### Fichiers supprimés
+
+- `src/app/dev-modal-test/page.tsx` — route scratch de développement
+  utilisée pour itérer sur l'appearance Stripe Elements en Phase 4.
+  N'a jamais été linkée depuis l'app et était cachée derrière un
+  check NODE_ENV. Plus utile en Phase 6.
+- `STRIPE_SUCCESS_URL` + `STRIPE_CANCEL_URL` dans `.env.example` —
+  jamais lues depuis le code (URLs hardcodées via `APP_URL`), dette
+  documentée en Phase 1 et soldée ici comme prévu.
+
+### Code supprimé (récap)
+
+Summary des suppressions fonctionnelles opérées en Phase 6 (pour mémoire
+diff-level — voir git log Phase 6 pour les lignes exactes) :
+
+1. **`createSubscriptionCheckout`** (legacy helper, `src/lib/stripe/checkout.ts`)
+   — créait une Stripe Checkout Session hostée.
+2. **`createTemplateCheckout`** (legacy helper, idem) — idem pour les
+   templates one-shot.
+3. **`createSubscriptionCheckoutAction`** (Server Action, `src/actions/billing.ts`)
+   — wrapper du helper ci-dessus pour UI.
+4. **`createTemplateCheckoutAction`** (Server Action, idem).
+5. **`SubscriptionUpdateResult`** interface (plus consommée).
+6. **`handleCheckoutCompleted`** + ses 2 sous-helpers dans le webhook route.
+7. **Check `hasLegacySub`** défensif dans `billing.ts` (TODO Phase 4
+   marqué "à retirer Phase 6" — soldé).
+
+### Checklist déploiement Phase 6 (⚠️ à faire AVANT de merger en prod)
+
+Le webhook `checkout.session.completed` n'est plus handled dans le code :
+le switch retourne implicitement dans la branche "default" qui log et
+retourne 200. Si Stripe continue à firer cet event en prod après deploy,
+on risque une fenêtre pendant laquelle un paiement hostedmalgré-tout
+(cas extrême : un retry de vieille session en attente) laisse un user
+crédité côté Stripe mais PAS côté Vizly DB. Les handlers
+`customer.subscription.created` et `invoice.paid` le rattrapent dans 99%
+des cas (c'est justement la raison d'être de la Phase 3), mais pour être
+100% propre :
+
+**Avant le merge en prod :**
+
+1. Aller dans Stripe Dashboard → Developers → Webhooks → endpoint Railway
+   production.
+2. Cliquer "Listen to events" / "Select events".
+3. **Décocher** `checkout.session.completed` de la liste.
+4. Sauvegarder.
+5. Attendre ~1h que les éventuelles Checkout Sessions en cours expirent
+   (TTL par défaut Stripe = 24h pour les Checkout Sessions, mais les
+   utilisateurs actifs cliquent en < 10 min dans 99% des cas).
+6. **Puis** merger + deploy Phase 6.
+
+**Optionnel post-deploy :** supprimer les Products legacy "Starter" /
+"Pro" / templates du Dashboard Stripe ? **NON** — les `price_id` restent
+utilisés par `src/lib/stripe/prices.ts` pour créer les subscriptions et
+payment intents. Les Products Stripe sont toujours actifs, seul le mode
+Checkout Hosted est retiré côté code Vizly.
+
+### Note sur les anti-patterns design system dans `BillingClient.tsx`
+
+Tom m'a explicitement dit pendant Phase 6 : "ne touche pas aux
+`shadow-sm`, aux `scale-`, aux `bg-green-50`, aux `rounded-full` que
+tu vois passer dans ces fichiers. Ce n'est pas le périmètre Phase 6."
+Donc BillingClient.tsx et TarifsClient.tsx contiennent toujours des
+violations du DESIGN-SYSTEM.md (shadows au repos, scale hover, bordures
+colorées, gradients badges "Populaire"). À nettoyer en Phase 7 ou dans
+un chantier UI dédié post-migration Stripe.

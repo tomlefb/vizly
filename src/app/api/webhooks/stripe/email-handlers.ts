@@ -319,15 +319,11 @@ export async function sendBillingPeriodChangedEmail(
  * Fetch the user by id and fire payment-succeeded with the price details
  * from the subscription items + invoice info (number, hosted URL).
  *
- * Phase 3 refactor: this helper now takes an `Invoice` directly (instead
- * of a `Checkout.Session` from which we used to retrieve the invoice).
- * The new caller is `handleInvoicePaid` in route.ts, which gets the
- * invoice from event.data.object — no extra round-trip needed.
- *
- * Old caller (`handleSubscriptionCheckout` in route.ts, mode=subscription
- * branch) no longer sends this email — sending is centralized here, fired
- * from `handleInvoicePaid` for both the legacy Checkout flow and the new
- * Elements flow. See STRIPE_MIGRATION_NOTES.md "Phase 3 — Q1 double email".
+ * Called from handleInvoicePaid in route.ts on billing_reason='subscription_create',
+ * which is fired automatically after the PaymentElement confirms the
+ * subscription's first invoice. See STRIPE_MIGRATION_NOTES.md "Phase 3 —
+ * Q1 double email" for why this is the single entrypoint for the first-
+ * payment email.
  */
 export async function sendPaymentSucceededEmail(
   invoice: Stripe.Invoice,
