@@ -45,12 +45,17 @@ test.describe('Authentification', () => {
     await expect(page.getByRole('button', { name: /google/i })).toBeEnabled()
   })
 
-  test('/register contient toujours la checkbox CGU et elle est required', async ({ page }) => {
+  test('/register affiche la mention légale et les liens CGU/confidentialité', async ({ page }) => {
     await page.goto('/register')
-    const checkbox = page.getByRole('checkbox')
-    await expect(checkbox).toBeVisible()
-    // HTML5 required attribute is still enforced
-    await expect(checkbox).toHaveAttribute('required', '')
+    // No more CGU checkbox — replaced by a textual notice covering both flows
+    await expect(page.getByRole('checkbox')).toHaveCount(0)
+    // The legal notice paragraph is visible
+    await expect(page.getByText(/en créant un compte/i)).toBeVisible()
+    // Both legal links are present and open the right pages in new tabs
+    const cguLink = page.getByRole('link', { name: /conditions générales/i })
+    const privacyLink = page.getByRole('link', { name: /politique de confidentialité/i })
+    await expect(cguLink).toHaveAttribute('href', '/legal/cgu')
+    await expect(privacyLink).toHaveAttribute('href', '/legal/confidentialite')
   })
 
   test('OAuth Google depuis /register préserve plan & interval via next', async ({ page }) => {

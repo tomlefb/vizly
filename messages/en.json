@@ -456,7 +456,7 @@
       "emailPlaceholder": "you@email.com",
       "password": "Password",
       "passwordPlaceholder": "6 characters minimum",
-      "terms": "I accept the",
+      "legalNotice": "By creating an account, you accept the",
       "cgu": "Terms of Service",
       "and": "and the",
       "privacy": "Privacy Policy",
@@ -562,7 +562,6 @@
       "invalidData": "Invalid data",
       "invalidCredentials": "Incorrect email or password",
       "alreadyRegistered": "An account already exists with this email",
-      "acceptTerms": "You must accept the Terms of Service and Privacy Policy",
       "unexpected": "An unexpected error occurred"
     }
   },

@@ -456,7 +456,7 @@
       "emailPlaceholder": "ton@email.com",
       "password": "Mot de passe",
       "passwordPlaceholder": "6 caractères minimum",
-      "terms": "J'accepte les",
+      "legalNotice": "En créant un compte, tu acceptes les",
       "cgu": "Conditions Générales d'Utilisation",
       "and": "et la",
       "privacy": "Politique de Confidentialité",
@@ -562,7 +562,6 @@
       "invalidData": "Données invalides",
       "invalidCredentials": "Email ou mot de passe incorrect",
       "alreadyRegistered": "Un compte existe déjà avec cet email",
-      "acceptTerms": "Tu dois accepter les CGU et la Politique de Confidentialité",
       "unexpected": "Une erreur inattendue est survenue"
     }
   },

@@ -49,7 +49,6 @@ function RegisterPageInner() {
   const [resendInfo, setResendInfo] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
-  const [acceptTerms, setAcceptTerms] = useState(false)
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -161,11 +160,6 @@ function RegisterPageInner() {
 
   async function handleGoogleLogin() {
     setError(null)
-
-    if (!acceptTerms) {
-      setError(t('errors.acceptTerms'))
-      return
-    }
 
     try {
       const supabase = createClient()
@@ -396,29 +390,9 @@ function RegisterPageInner() {
           />
         </div>
 
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            required
-            checked={acceptTerms}
-            onChange={(e) => setAcceptTerms(e.target.checked)}
-            className="mt-0.5 h-4 w-4 shrink-0 rounded border border-border accent-accent"
-          />
-          <span className="text-xs text-muted leading-relaxed">
-            {t('register.terms')}{' '}
-            <Link href="/legal/cgu" target="_blank" className="underline text-foreground hover:text-accent">
-              {t('register.cgu')}
-            </Link>{' '}
-            {t('register.and')}{' '}
-            <Link href="/legal/confidentialite" target="_blank" className="underline text-foreground hover:text-accent">
-              {t('register.privacy')}
-            </Link>
-          </span>
-        </label>
-
         <button
           type="submit"
-          disabled={loading || !acceptTerms}
+          disabled={loading}
           className="flex w-full items-center justify-center h-10 rounded-lg bg-[#D4634E] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#C05640] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
@@ -485,6 +459,17 @@ function RegisterPageInner() {
         </svg>
         {t('register.google')}
       </button>
+
+      <p className="mt-4 text-center text-xs text-muted leading-relaxed">
+        {t('register.legalNotice')}{' '}
+        <Link href="/legal/cgu" target="_blank" className="underline text-foreground hover:text-accent">
+          {t('register.cgu')}
+        </Link>{' '}
+        {t('register.and')}{' '}
+        <Link href="/legal/confidentialite" target="_blank" className="underline text-foreground hover:text-accent">
+          {t('register.privacy')}
+        </Link>.
+      </p>
 
       <p className="mt-8 text-center text-sm text-muted">
         {t('register.hasAccount')}{' '}
