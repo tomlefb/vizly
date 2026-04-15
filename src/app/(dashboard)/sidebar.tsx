@@ -13,9 +13,7 @@ import {
   User,
   LogOut,
   ChevronLeft,
-  Languages,
 } from 'lucide-react'
-import { useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useSidebar } from './sidebar-context'
@@ -29,30 +27,29 @@ interface SidebarProps {
 export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
   const t = useTranslations('sidebar')
 
-  const NAV_MAIN = [
+  const NAV_PORTFOLIO = [
     { href: '/dashboard', icon: Home, label: t('dashboard') },
     { href: '/mes-templates', icon: LayoutGrid, label: t('templates') },
-    { href: '/billing', icon: CreditCard, label: t('billing') },
-  ] as const
+    ...(isPro
+      ? [
+          { href: '/domaines', icon: Globe, label: t('domains') },
+          { href: '/statistiques', icon: BarChart3, label: t('stats') },
+        ]
+      : []),
+  ]
 
-  const NAV_PRO = [
-    { href: '/statistiques', icon: BarChart3, label: t('stats') },
-    { href: '/domaines', icon: Globe, label: t('domains') },
-  ] as const
+  const NAV_ACCOUNT = [
+    { href: '/settings', icon: User, label: t('account') },
+    { href: '/billing', icon: CreditCard, label: t('billing') },
+  ]
+
   const pathname = usePathname()
   const router = useRouter()
   const { expanded, toggle, sidebarWidth } = useSidebar()
-  const locale = useLocale()
 
   const initials = userName
     ? userName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
     : userEmail.slice(0, 2).toUpperCase()
-
-  function handleSwitchLocale() {
-    const next = locale === 'fr' ? 'en' : 'fr'
-    document.cookie = `NEXT_LOCALE=${next};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`
-    window.location.reload()
-  }
 
   async function handleLogout() {
     const supabase = createClient()
@@ -100,7 +97,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 py-3 px-2 overflow-y-auto overflow-x-hidden" aria-label="Navigation principale">
         <div className="space-y-0.5">
-          {NAV_MAIN.map(({ href, icon: Icon, label }) => (
+          {NAV_PORTFOLIO.map(({ href, icon: Icon, label }) => (
             <NavItem
               key={href}
               href={href}
@@ -112,7 +109,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
           ))}
         </div>
         <div className="space-y-0.5 mt-3 pt-3 border-t border-[#E5E7EB]/40">
-          {NAV_PRO.map(({ href, icon: Icon, label }) => (
+          {NAV_ACCOUNT.map(({ href, icon: Icon, label }) => (
             <NavItem
               key={href}
               href={href}
@@ -120,7 +117,6 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
               label={label}
               active={pathname === href || pathname.startsWith(`${href}/`)}
               expanded={expanded}
-              proBadge={!isPro}
             />
           ))}
         </div>
@@ -128,25 +124,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
 
       {/* Bottom links */}
       <div className="shrink-0 border-t border-[#E5E7EB]/40 py-1.5 px-2 space-y-0.5">
-        <button
-          type="button"
-          onClick={handleSwitchLocale}
-          title={expanded ? undefined : (locale === 'fr' ? 'English' : 'Français')}
-          className={cn(
-            'group relative flex items-center w-full h-9 rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors duration-150',
-            expanded ? 'pl-3' : 'justify-center',
-          )}
-        >
-          <Languages className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
-          {expanded && <span className="text-[13px] whitespace-nowrap ml-3">{locale === 'fr' ? 'Français' : 'English'}</span>}
-          {!expanded && (
-            <span className="absolute left-full ml-2 z-50 rounded-[6px] bg-[#111827]/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150">
-              {locale === 'fr' ? 'English' : 'Français'}
-            </span>
-          )}
-        </button>
         <NavItem href="/" icon={ArrowLeft} label={t('home')} active={false} expanded={expanded} />
-        <NavItem href="/settings" icon={User} label={t('account')} active={pathname === '/settings'} expanded={expanded} />
         <button
           type="button"
           onClick={() => void handleLogout()}
@@ -191,14 +169,12 @@ function NavItem({
   label,
   active,
   expanded,
-  proBadge,
 }: {
   href: string
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
   label: string
   active: boolean
   expanded: boolean
-  proBadge?: boolean
 }) {
   return (
     <Link
@@ -220,16 +196,9 @@ function NavItem({
         strokeWidth={1.5}
       />
       {expanded && (
-        <>
-          <span className={cn('text-[13px] whitespace-nowrap ml-3', active && 'font-medium')}>
-            {label}
-          </span>
-          {proBadge && (
-            <span className="ml-auto mr-3 rounded-[4px] bg-[#F3F4F6] px-1.5 py-px text-[9px] font-semibold text-[#6B7280] leading-tight uppercase">
-              Pro
-            </span>
-          )}
-        </>
+        <span className={cn('text-[13px] whitespace-nowrap ml-3', active && 'font-medium')}>
+          {label}
+        </span>
       )}
       {!expanded && (
         <span className="absolute left-full ml-2 z-50 rounded-[6px] bg-[#111827]/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150">

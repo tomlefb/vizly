@@ -662,6 +662,8 @@
     "save": "Sauvegarder",
     "saving": "Sauvegarde...",
     "nameSuccess": "Nom mis à jour avec succès.",
+    "language": "Langue",
+    "languageDescription": "Choisis la langue de ton tableau de bord.",
     "currentPlan": "Plan actuel",
     "upgradePlan": "Passe à un plan payant pour publier ton portfolio.",
     "manageSubscription": "Gérer mon abonnement",

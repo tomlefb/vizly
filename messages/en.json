@@ -662,6 +662,8 @@
     "save": "Save",
     "saving": "Saving...",
     "nameSuccess": "Name updated successfully.",
+    "language": "Language",
+    "languageDescription": "Choose the language of your dashboard.",
     "currentPlan": "Current plan",
     "upgradePlan": "Upgrade to a paid plan to publish your portfolio.",
     "manageSubscription": "Manage subscription",

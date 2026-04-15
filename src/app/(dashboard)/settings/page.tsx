@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PLANS } from '@/lib/constants'
 import { SettingsForm } from './settings-form'
 import { ChangeEmailForm } from './change-email-form'
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
 
 export default async function SettingsPage() {
   const t = await getTranslations('settings')
@@ -46,6 +47,17 @@ export default async function SettingsPage() {
             <ChangeEmailForm currentEmail={user.email ?? ''} />
             <SettingsForm initialName={profile?.name ?? ''} />
           </div>
+        </section>
+
+        {/* Language section */}
+        <section className="rounded-[var(--radius-lg)] border border-border bg-surface p-6">
+          <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-1">
+            {t('language')}
+          </h2>
+          <p className="text-sm text-muted mb-4">
+            {t('languageDescription')}
+          </p>
+          <LanguageSwitcher />
         </section>
 
         {/* Plan section */}
