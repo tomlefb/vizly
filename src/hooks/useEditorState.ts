@@ -127,6 +127,7 @@ export function useEditorState({
   const [billingLoading, setBillingLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const [purchaseModalTemplate, setPurchaseModalTemplate] = useState<TemplateName | null>(null)
 
   const previousProjectsRef = useRef<LocalProject[]>(
     initialProjects.map(projectToLocal)
@@ -423,13 +424,10 @@ export function useEditorState({
   // (PaymentElement-based, opened from StepCustomization or the editor's
   // template picker). This helper now ONLY saves the current portfolio
   // draft so the modal can open with a known portfolio_id. The modal's
-  // onSuccess will refresh billing status separately.
-  //
-  // Marked `templateId` as unused — the parameter is kept on the signature
-  // for backward-compat with callers that still pass it (StepCustomization
-  // passes templateId for analytics/logging). We don't use it here.
+  // onSuccess refreshes the billing status so the purchased template
+  // unlocks immediately in the editor.
   const handleTemplatePurchase = useCallback(
-    async (_templateId: TemplateName) => {
+    async (templateId: TemplateName) => {
       setCheckoutLoading(true)
       setSaveError(null)
 
@@ -439,6 +437,7 @@ export function useEditorState({
           setPortfolioId(saveResult.data.id)
           await syncProjectsWithId(saveResult.data.id)
         }
+        setPurchaseModalTemplate(templateId)
       } catch {
         setSaveError('Erreur lors de la sauvegarde du portfolio')
       } finally {
@@ -447,6 +446,17 @@ export function useEditorState({
     },
     [portfolioData, syncProjectsWithId, setSaveError]
   )
+
+  const handlePurchaseModalClose = useCallback(() => {
+    setPurchaseModalTemplate(null)
+  }, [])
+
+  const handlePurchaseModalSuccess = useCallback(async () => {
+    const result = await getBillingStatus()
+    setBillingPlan(result.plan)
+    setPurchasedTemplates(result.purchasedTemplates as TemplateName[])
+    setPurchaseModalTemplate(null)
+  }, [])
 
   const selectedTemplateConfig = useMemo(
     () => TEMPLATE_CONFIGS.find((t) => t.name === portfolioData.template),
@@ -562,12 +572,15 @@ export function useEditorState({
     canGoNext,
     selectedTemplateConfig,
     selectedTemplateNeedsPurchase,
+    purchaseModalTemplate,
     handleFieldChange,
     handleProjectsChange,
     handleNext,
     handlePrevious,
     handleStepChange,
     handleTemplatePurchase,
+    handlePurchaseModalClose,
+    handlePurchaseModalSuccess,
     saveDraft,
     publishNow,
   }

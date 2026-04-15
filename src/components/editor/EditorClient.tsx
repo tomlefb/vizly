@@ -12,6 +12,8 @@ import { StepPersonalInfo } from './StepPersonalInfo'
 import { StepContent } from './StepContent'
 import { StepCustomization } from './StepCustomization'
 import { StepPublish } from './StepPublish'
+import { TemplatePurchaseModal } from '@/components/billing/TemplatePurchaseModal'
+import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { KpiItem } from '@/types/kpis'
 import type { LayoutBlock } from '@/types/layout-blocks'
 import type { Portfolio, Project } from '@/types'
@@ -159,6 +161,19 @@ export function EditorClient({
         )}
       </EditorLayout>
     </div>
+    {editor.purchaseModalTemplate && (
+      <TemplatePurchaseModal
+        open={editor.purchaseModalTemplate !== null}
+        onClose={editor.handlePurchaseModalClose}
+        templateId={editor.purchaseModalTemplate}
+        templateLabel={
+          TEMPLATE_CONFIGS.find((tpl) => tpl.name === editor.purchaseModalTemplate)?.label ??
+          editor.purchaseModalTemplate
+        }
+        onSuccess={() => void editor.handlePurchaseModalSuccess()}
+        onAlreadyOwned={() => void editor.handlePurchaseModalSuccess()}
+      />
+    )}
     </>
   )
 }

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { portfolioSchema, slugSchema } from '@/lib/validations'
 import { PLANS, type PlanType } from '@/lib/constants'
 import { sendEmail } from '@/lib/emails/send'
+import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { Portfolio } from '@/types'
 
@@ -70,10 +71,29 @@ export async function upsertPortfolio(
     // Check if user already has a portfolio
     const { data: existing } = await supabase
       .from('portfolios')
-      .select('id')
+      .select('id, template')
       .eq('user_id', user.id)
       .limit(1)
       .maybeSingle()
+
+    // Garde-fou premium : un user ne peut persister un template premium
+    // que s'il l'a acheté. Sans ça, l'auto-save de l'editor écrirait en
+    // DB n'importe quel template premium prévisualisé. Si l'utilisateur
+    // envoie un template premium non acheté, on retombe silencieusement
+    // sur le template précédent (update) ou sur 'classique' (insert).
+    const templateConfig = TEMPLATE_CONFIGS.find((t) => t.name === validData.template)
+    let safeTemplate = validData.template
+    if (templateConfig?.isPremium) {
+      const { data: owned } = await supabase
+        .from('purchased_templates')
+        .select('template_id')
+        .eq('user_id', user.id)
+        .eq('template_id', validData.template)
+        .maybeSingle()
+      if (!owned) {
+        safeTemplate = existing?.template ?? 'classique'
+      }
+    }
 
     if (existing) {
       // UPDATE existing portfolio
@@ -83,7 +103,7 @@ export async function upsertPortfolio(
           title: validData.title,
           bio: validData.bio ?? null,
           photo_url: validData.photo_url || null,
-          template: validData.template,
+          template: safeTemplate,
           primary_color: validData.primary_color,
           secondary_color: validData.secondary_color,
           font: validData.font,
@@ -115,7 +135,7 @@ export async function upsertPortfolio(
         title: validData.title,
         bio: validData.bio ?? null,
         photo_url: validData.photo_url || null,
-        template: validData.template,
+        template: safeTemplate,
         primary_color: validData.primary_color,
         secondary_color: validData.secondary_color,
         font: validData.font,
