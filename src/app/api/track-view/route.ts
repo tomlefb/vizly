@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     const { portfolio_id } = parsed.data
 
-    // Get IP from headers (Vercel sets x-forwarded-for)
+    // Get IP from headers (x-forwarded-for is set by the reverse proxy)
     const forwardedFor = request.headers.get('x-forwarded-for')
     const ip = forwardedFor ? forwardedFor.split(',')[0]?.trim() : 'unknown'
     const dedupKey = `${ip ?? 'unknown'}:${portfolio_id}`

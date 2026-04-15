@@ -32,7 +32,7 @@
 //
 // Apple Pay validation reminder: same as SubscriptionCheckoutModal, Apple Pay
 // is invisible in Safari local HTTPS (cert auto-signé Next.js non accepté
-// par Apple Pay JS). Validation reportée à Vercel Preview puis prod. Google
+// par Apple Pay JS). Validation reportée au déploiement de preview puis prod. Google
 // Pay et Link sont eux testables en local HTTPS Chrome.
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'

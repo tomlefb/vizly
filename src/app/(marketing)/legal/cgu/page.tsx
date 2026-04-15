@@ -1,26 +1,26 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Conditions Generales d'Utilisation",
-  description: "CGU de la plateforme Vizly · creation de portfolios en ligne.",
+  title: "Conditions Générales d'Utilisation",
+  description: "CGU de la plateforme Vizly · création de portfolios en ligne.",
 }
 
 export default function CGUPage() {
   return (
     <article className="prose-legal">
       <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight mb-2">
-        Conditions Generales d&apos;Utilisation
+        Conditions Générales d&apos;Utilisation
       </h1>
-      <p className="text-sm text-muted mb-10">Derniere mise a jour : 10 avril 2026</p>
+      <p className="text-sm text-muted mb-10">Dernière mise à jour : 10 avril 2026</p>
 
       <Section title="1. Objet">
-        Les presentes Conditions Generales d&apos;Utilisation (CGU) regissent l&apos;utilisation de la
-        plateforme Vizly, accessible a l&apos;adresse <strong>vizly.fr</strong>, qui permet aux
-        utilisateurs de creer et publier des portfolios en ligne.
+        Les présentes Conditions Générales d&apos;Utilisation (CGU) régissent l&apos;utilisation de la
+        plateforme Vizly, accessible à l&apos;adresse <strong>vizly.fr</strong>, qui permet aux
+        utilisateurs de créer et publier des portfolios en ligne.
       </Section>
 
-      <Section title="2. Editeur">
-        Vizly est edite par Tom Lefevre Bonzon, Entrepreneur individuel,
+      <Section title="2. Éditeur">
+        Vizly est édité par Tom Lefevre Bonzon, Entrepreneur individuel,
         SIREN 103 332 276, 35700 Rennes, France.
         Contact :{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>.
@@ -28,55 +28,55 @@ export default function CGUPage() {
 
       <Section title="3. Inscription et compte">
         L&apos;inscription est gratuite et accessible via email/mot de passe ou Google OAuth.
-        L&apos;utilisateur s&apos;engage a fournir des informations exactes et a ne pas creer plusieurs
-        comptes. Vizly se reserve le droit de suspendre tout compte en cas de violation des presentes CGU.
+        L&apos;utilisateur s&apos;engage à fournir des informations exactes et à ne pas créer plusieurs
+        comptes. Vizly se réserve le droit de suspendre tout compte en cas de violation des présentes CGU.
       </Section>
 
       <Section title="4. Service gratuit et payant">
-        Le plan gratuit permet de creer un portfolio et d&apos;en voir l&apos;apercu. La mise en ligne
-        necessite un abonnement payant (Starter a 4,99 EUR/mois ou Pro a 9,99 EUR/mois). Les templates
-        premium sont vendus a l&apos;unite (2,99 EUR) et restent accessibles a vie. Les paiements sont
-        geres par Stripe. L&apos;abonnement est renouvelable mensuellement et annulable a tout moment.
+        Le plan gratuit permet de créer un portfolio et d&apos;en voir l&apos;aperçu. La mise en ligne
+        nécessite un abonnement payant (Starter à 4,99&nbsp;€/mois ou Pro à 9,99&nbsp;€/mois). Les templates
+        premium sont vendus à l&apos;unité (2,99&nbsp;€) et restent accessibles à vie. Les paiements sont
+        gérés par Stripe. L&apos;abonnement est renouvelable mensuellement et annulable à tout moment.
       </Section>
 
-      <Section title="5. Droit de retractation">
-        Conformement a l&apos;article L221-18 du Code de la consommation, vous disposez d&apos;un delai
-        de 14 jours a compter de la souscription pour exercer votre droit de retractation et obtenir
-        un remboursement integral de votre abonnement. Pour les templates premium (contenus numeriques
-        fournis immediatement apres achat), vous acceptez expressement lors de l&apos;achat a renoncer
-        a votre droit de retractation conformement a l&apos;article L221-28 du Code de la consommation.
-        Pour exercer votre droit de retractation, contactez-nous a{' '}
+      <Section title="5. Droit de rétractation">
+        Conformément à l&apos;article L221-18 du Code de la consommation, vous disposez d&apos;un délai
+        de 14 jours à compter de la souscription pour exercer votre droit de rétractation et obtenir
+        un remboursement intégral de votre abonnement. Pour les templates premium (contenus numériques
+        fournis immédiatement après achat), vous acceptez expressément lors de l&apos;achat à renoncer
+        à votre droit de rétractation conformément à l&apos;article L221-28 du Code de la consommation.
+        Pour exercer votre droit de rétractation, contactez-nous à{' '}
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>.
       </Section>
 
-      <Section title="6. Propriete intellectuelle">
-        L&apos;utilisateur reste entierement proprietaire du contenu qu&apos;il publie sur son portfolio
-        (textes, images, projets). Vizly detient les droits sur la plateforme, les templates, le code
-        source et la marque. Les templates ne peuvent pas etre redistribues ou revendus.
+      <Section title="6. Propriété intellectuelle">
+        L&apos;utilisateur reste entièrement propriétaire du contenu qu&apos;il publie sur son portfolio
+        (textes, images, projets). Vizly détient les droits sur la plateforme, les templates, le code
+        source et la marque. Les templates ne peuvent pas être redistribués ou revendus.
       </Section>
 
-      <Section title="7. Responsabilite">
-        Vizly heberge les portfolios mais ne modere pas le contenu publie par les utilisateurs.
+      <Section title="7. Responsabilité">
+        Vizly héberge les portfolios mais ne modère pas le contenu publié par les utilisateurs.
         L&apos;utilisateur est seul responsable du contenu de son portfolio et garantit qu&apos;il ne
         viole aucun droit de tiers. Vizly pourra supprimer tout contenu manifestement illicite sur
         signalement.
       </Section>
 
-      <Section title="8. Resiliation et suppression">
-        L&apos;utilisateur peut supprimer son compte et ses donnees a tout moment depuis les parametres.
-        En cas d&apos;arret de l&apos;abonnement, le portfolio est mis hors ligne sous 24 heures.
-        Les donnees sont conservees 30 jours avant suppression definitive.
+      <Section title="8. Résiliation et suppression">
+        L&apos;utilisateur peut supprimer son compte et ses données à tout moment depuis les paramètres.
+        En cas d&apos;arrêt de l&apos;abonnement, le portfolio est mis hors ligne sous 24 heures.
+        Les données sont conservées 30 jours avant suppression définitive.
       </Section>
 
       <Section title="9. Modifications des CGU">
-        Vizly se reserve le droit de modifier les presentes CGU. Les utilisateurs seront informes
+        Vizly se réserve le droit de modifier les présentes CGU. Les utilisateurs seront informés
         par email de toute modification substantielle. L&apos;utilisation continue du service
-        apres notification vaut acceptation des nouvelles conditions.
+        après notification vaut acceptation des nouvelles conditions.
       </Section>
 
       <Section title="10. Droit applicable">
-        Les presentes CGU sont soumises au droit francais. En cas de litige, les tribunaux de Rennes
-        seront seuls competents.
+        Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux de Rennes
+        seront seuls compétents.
       </Section>
     </article>
   )

@@ -120,7 +120,7 @@
       },
       {
         "q": "Combien ça coûte ?",
-        "a": "Créer et prévisualiser ton portfolio est 100% gratuit. La mise en ligne démarre à 4,99 €/mois (plan Starter). Le plan Pro à 9,99 €/mois ajoute un domaine custom, un formulaire de contact et des analytics. Les templates premium sont à 2,99 € l'unité (achat unique)."
+        "a": "Créer et prévisualiser ton portfolio est 100% gratuit. La mise en ligne démarre à 4,99\u00a0€/mois (plan Starter). Le plan Pro à 9,99\u00a0€/mois ajoute un domaine custom, un formulaire de contact et des analytics. Les templates premium sont à 2,99\u00a0€ l'unité (achat unique)."
       },
       {
         "section": "pricing",
@@ -164,7 +164,7 @@
       },
       {
         "q": "Je peux utiliser mon propre nom de domaine ?",
-        "a": "Oui, avec le plan Pro (9,99 €/mois). Tu achètes ton domaine chez le registrar de ton choix et tu pointes ton DNS vers Vizly. On t'accompagne avec un guide pas à pas."
+        "a": "Oui, avec le plan Pro (9,99\u00a0€/mois). Tu achètes ton domaine chez le registrar de ton choix et tu pointes ton DNS vers Vizly. On t'accompagne avec un guide pas à pas."
       },
       {
         "q": "Que se passe-t-il si j'arrête de payer ?",
@@ -184,7 +184,7 @@
       },
       {
         "q": "Les templates premium sont-ils un abonnement ?",
-        "a": "Non, c'est un achat unique à 2,99 €. Tu achètes un template une fois et tu le gardes pour toujours."
+        "a": "Non, c'est un achat unique à 2,99\u00a0€. Tu achètes un template une fois et tu le gardes pour toujours."
       },
       {
         "q": "Comment supprimer mon compte ?",
@@ -490,7 +490,7 @@
       "noTemplate": "Aucun template sélectionné"
     },
     "templatePremium": "Template \u00ab {label} \u00bb est premium",
-    "buyTemplate": "Acheter (2.99 €)",
+    "buyTemplate": "Acheter (2,99\u00a0€)",
     "redirecting": "Redirection..."
   },
   "settings": {

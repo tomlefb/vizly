@@ -1,19 +1,19 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Mentions legales',
-  description: 'Mentions legales du site vizly.fr.',
+  title: 'Mentions légales',
+  description: 'Mentions légales du site vizly.fr.',
 }
 
 export default function MentionsLegalesPage() {
   return (
     <article className="prose-legal">
       <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight mb-2">
-        Mentions legales
+        Mentions légales
       </h1>
-      <p className="text-sm text-muted mb-10">Derniere mise a jour : 10 avril 2026</p>
+      <p className="text-sm text-muted mb-10">Dernière mise à jour : 10 avril 2026</p>
 
-      <Section title="Editeur du site">
+      <Section title="Éditeur du site">
         <strong>Vizly</strong> — vizly.fr
         <br />
         Tom Lefevre Bonzon, Entrepreneur individuel
@@ -28,26 +28,26 @@ export default function MentionsLegalesPage() {
         <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>
       </Section>
 
-      <Section title="Hebergeur">
-        <strong>Vercel Inc.</strong>
+      <Section title="Hébergeur">
+        <strong>Railway Corporation</strong>
         <br />
-        340 S Lemon Ave #4133, Walnut, CA 91789, USA
+        2261 Market Street #4382, San Francisco, CA 94114, USA
         <br />
         Site :{' '}
-        <a href="https://vercel.com" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
-          vercel.com
+        <a href="https://railway.com" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
+          railway.com
         </a>
       </Section>
 
-      <Section title="Base de donnees">
+      <Section title="Base de données">
         <strong>Supabase Inc.</strong>
         <br />
-        Serveurs heberges dans l&apos;Union Europeenne.
+        Serveurs hébergés dans l&apos;Union Européenne.
       </Section>
 
       <Section title="Paiement">
-        Les paiements sont traites par <strong>Stripe Inc.</strong> Vizly ne stocke aucune
-        donnee de carte bancaire.
+        Les paiements sont traités par <strong>Stripe Inc.</strong> Vizly ne stocke aucune
+        donnée de carte bancaire.
       </Section>
 
       <Section title="Propriété intellectuelle">
