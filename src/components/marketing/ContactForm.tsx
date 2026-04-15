@@ -49,10 +49,10 @@ export function ContactForm() {
     return (
       <div className="rounded-[var(--radius-xl)] border border-border bg-background p-10 text-center">
         <h2 className="font-[family-name:var(--font-satoshi)] text-xl font-semibold tracking-tight">
-          Message envoyé<span className="text-accent">.</span>
+          Message <span className="text-accent">envoyé</span>.
         </h2>
         <p className="mt-2 text-sm text-muted leading-relaxed">
-          On te répond sous 24 heures.
+          On te répond au plus vite !
         </p>
         <button
           type="button"
@@ -60,7 +60,7 @@ export function ContactForm() {
             setStatus('idle')
             setErrorMsg('')
           }}
-          className="mt-6 text-sm text-muted underline-offset-4 transition-colors duration-150 hover:text-foreground hover:underline"
+          className="mt-6 text-sm font-medium text-accent underline underline-offset-4 transition-colors duration-150 hover:text-accent-hover"
         >
           Envoyer un autre message
         </button>
