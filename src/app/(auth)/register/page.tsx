@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -49,6 +49,21 @@ function RegisterPageInner() {
   const [resendInfo, setResendInfo] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
+
+  // Defensive client-side redirect. The middleware already bounces
+  // authenticated users away from /register, but prefetch caching or
+  // a stale RSC payload can occasionally slip through. Only runs on
+  // the form step so we don't cut off the OTP step where the user's
+  // session is being established.
+  useEffect(() => {
+    if (step !== 'form') return
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = dashboardUrl
+      }
+    })
+  }, [step, dashboardUrl])
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -33,6 +33,20 @@ function LoginPageInner() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // Defensive client-side redirect. The middleware already bounces
+  // authenticated users away from /login, but prefetch caching or a
+  // stale RSC payload can occasionally slip through. If we find a
+  // session here, hard-redirect to the dashboard URL (which preserves
+  // plan/interval query params from the pricing CTAs).
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = dashboardUrl
+      }
+    })
+  }, [dashboardUrl])
 
   async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
