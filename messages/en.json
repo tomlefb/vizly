@@ -267,6 +267,170 @@
       "contact": "Contact"
     }
   },
+  "legal": {
+    "shared": {
+      "updatedAtLabel": "Last updated",
+      "updatedAt": "April 10, 2026",
+      "editor": {
+        "name": "Tom Lefevre Bonzon",
+        "status": "Entrepreneur individuel",
+        "siren": "103 332 276",
+        "siret": "103 332 276 00015",
+        "codeApe": "6201Z (Computer programming)",
+        "city": "35700 Rennes, France",
+        "email": "tom@vizly.fr"
+      },
+      "domain": "vizly.fr"
+    },
+    "cgu": {
+      "title": "Terms of Service",
+      "objet": {
+        "title": "1. Purpose",
+        "body": "These Terms of Service (ToS) govern the use of the Vizly platform, available at vizly.fr, which allows users to create and publish online portfolios."
+      },
+      "editeur": {
+        "title": "2. Publisher",
+        "body": "Vizly is published by {name}, {status}, SIREN {siren}, {city}.",
+        "contactLabel": "Contact:"
+      },
+      "inscription": {
+        "title": "3. Registration and account",
+        "body": "Registration is free and available via email/password or Google OAuth. Users agree to provide accurate information and not to create multiple accounts. Vizly reserves the right to suspend any account in case of violation of these Terms."
+      },
+      "service": {
+        "title": "4. Free and paid service",
+        "body": "The free plan lets you create a portfolio and preview it. Publishing online requires a paid subscription (Starter at €4.99/month or Pro at €9.99/month). Premium templates are sold individually (€2.99) and remain accessible for life. Payments are handled by Stripe. Subscriptions renew monthly and can be cancelled at any time."
+      },
+      "retractation": {
+        "title": "5. Right of withdrawal",
+        "body": "In accordance with article L221-18 of the French Consumer Code, you have a 14-day withdrawal period from the subscription date to exercise your right of withdrawal and obtain a full refund of your subscription. For premium templates (digital content delivered immediately after purchase), you expressly waive your right of withdrawal at the time of purchase, in accordance with article L221-28 of the French Consumer Code.",
+        "contactPrompt": "To exercise your right of withdrawal, contact us at"
+      },
+      "propriete": {
+        "title": "6. Intellectual property",
+        "body": "Users retain full ownership of the content they publish on their portfolio (text, images, projects). Vizly owns the rights to the platform, templates, source code and brand. Templates may not be redistributed or resold."
+      },
+      "responsabilite": {
+        "title": "7. Liability",
+        "body": "Vizly hosts portfolios but does not moderate user-published content. Users are solely responsible for the content of their portfolio and warrant that it does not infringe any third-party rights. Vizly may remove any manifestly illegal content upon notice."
+      },
+      "resiliation": {
+        "title": "8. Termination and deletion",
+        "body": "Users may delete their account and data at any time from the settings. If the subscription ends, the portfolio is taken offline within 24 hours. Data is retained for 30 days before permanent deletion."
+      },
+      "modifications": {
+        "title": "9. Changes to the Terms",
+        "body": "Vizly reserves the right to modify these Terms of Service. Users will be notified by email of any material changes. Continued use of the service after notification constitutes acceptance of the new terms."
+      },
+      "droitApplicable": {
+        "title": "10. Governing law",
+        "body": "These Terms of Service are governed by French law. In case of dispute, the courts of Rennes shall have exclusive jurisdiction."
+      }
+    },
+    "mentions": {
+      "title": "Legal Notice",
+      "editorSite": {
+        "title": "Publisher",
+        "brand": "Vizly",
+        "sirenLabel": "SIREN",
+        "siretLabel": "SIRET",
+        "codeApeLabel": "Code APE",
+        "emailLabel": "Email:"
+      },
+      "host": {
+        "title": "Host",
+        "name": "Railway Corporation",
+        "address": "2261 Market Street #4382, San Francisco, CA 94114, USA",
+        "siteLabel": "Website:",
+        "website": "railway.com",
+        "url": "https://railway.com"
+      },
+      "database": {
+        "title": "Database",
+        "name": "Supabase Inc.",
+        "location": "Servers hosted in the European Union."
+      },
+      "payment": {
+        "title": "Payment",
+        "body": "Payments are processed by Stripe Inc. Vizly does not store any credit card information."
+      },
+      "ipRights": {
+        "title": "Intellectual property",
+        "body": "All content on vizly.fr (text, design, source code, templates, brand) is the property of Vizly, except for content created by users on their portfolios. Any unauthorised reproduction is prohibited."
+      },
+      "contactSection": {
+        "title": "Contact",
+        "prompt": "For any question:"
+      }
+    },
+    "confidentialite": {
+      "title": "Privacy Policy",
+      "responsable": {
+        "title": "1. Data controller",
+        "identity": "{name}, {status}",
+        "sirenCity": "SIREN {siren} — {city}",
+        "contactLabel": "Contact:"
+      },
+      "donneesCollectees": {
+        "title": "2. Data collected",
+        "intro": "Vizly collects the following data during registration and service use:",
+        "items": [
+          "Email and password (or Google OAuth credentials)",
+          "First and last name",
+          "Profile picture",
+          "Portfolio content (bio, projects, images, links)",
+          "Payment data (processed by Stripe, never stored by Vizly)"
+        ]
+      },
+      "finalite": {
+        "title": "3. Purpose of processing",
+        "intro": "Data is collected to:",
+        "items": [
+          "Provide the portfolio creation and hosting service",
+          "Send transactional emails (welcome, contact, expiration)",
+          "Manage subscriptions and payments",
+          "Improve the service (anonymised statistics)"
+        ]
+      },
+      "stockage": {
+        "title": "4. Storage and hosting",
+        "body": "Data is stored at Supabase (EU servers) for the database and image storage. The application is hosted at Railway. Payments are processed by Stripe. Vizly does not store any credit card information."
+      },
+      "partage": {
+        "title": "5. Data sharing",
+        "body": "Vizly does not sell or share personal data with third parties for commercial purposes. Data is only shared with the subprocessors necessary for the service (Supabase, Railway, Stripe, Resend)."
+      },
+      "cookies": {
+        "title": "6. Cookies",
+        "body": "Vizly only uses functional cookies necessary for the service (authentication session). No tracking, advertising or third-party analytics cookies are used."
+      },
+      "rgpd": {
+        "title": "7. GDPR rights",
+        "intro": "In accordance with the GDPR, you have the following rights:",
+        "rights": [
+          { "label": "Access", "description": "obtain a copy of your personal data" },
+          { "label": "Rectification", "description": "correct inaccurate data" },
+          { "label": "Erasure", "description": "request the deletion of your data" },
+          { "label": "Portability", "description": "receive your data in a standard format" },
+          { "label": "Objection", "description": "object to the processing of your data" }
+        ],
+        "contactPrompt": "To exercise these rights, contact us at",
+        "contactSuffix": "We will respond within 30 days."
+      },
+      "contactSection": {
+        "title": "8. Contact",
+        "prompt": "For any question regarding the protection of your data:"
+      }
+    },
+    "contact": {
+      "title": "Contact us",
+      "subtitle": "A question, a bug, a suggestion? We respond within 24 hours."
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Everything you need to know about Vizly."
+    }
+  },
   "auth": {
     "login": {
       "title": "Log in",

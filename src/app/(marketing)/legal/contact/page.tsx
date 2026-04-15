@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { ContactForm } from '@/components/marketing/ContactForm'
 
 export const metadata: Metadata = {
@@ -6,15 +7,17 @@ export const metadata: Metadata = {
   description: 'Contacte l\'équipe Vizly · on répond sous 24 heures.',
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const t = await getTranslations('legal.contact')
+
   return (
     <div className="max-w-xl mx-auto">
       <div className="mb-10 text-center">
         <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight">
-          Contacte-nous
+          {t('title')}
         </h1>
         <p className="mt-3 text-muted">
-          Une question, un bug, une suggestion ? On répond sous 24 heures.
+          {t('subtitle')}
         </p>
       </div>
       <ContactForm />

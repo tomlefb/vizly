@@ -267,6 +267,170 @@
       "contact": "Contact"
     }
   },
+  "legal": {
+    "shared": {
+      "updatedAtLabel": "Dernière mise à jour",
+      "updatedAt": "10 avril 2026",
+      "editor": {
+        "name": "Tom Lefevre Bonzon",
+        "status": "Entrepreneur individuel",
+        "siren": "103 332 276",
+        "siret": "103 332 276 00015",
+        "codeApe": "6201Z (Programmation informatique)",
+        "city": "35700 Rennes, France",
+        "email": "tom@vizly.fr"
+      },
+      "domain": "vizly.fr"
+    },
+    "cgu": {
+      "title": "Conditions Générales d'Utilisation",
+      "objet": {
+        "title": "1. Objet",
+        "body": "Les présentes Conditions Générales d'Utilisation (CGU) régissent l'utilisation de la plateforme Vizly, accessible à l'adresse vizly.fr, qui permet aux utilisateurs de créer et publier des portfolios en ligne."
+      },
+      "editeur": {
+        "title": "2. Éditeur",
+        "body": "Vizly est édité par {name}, {status}, SIREN {siren}, {city}.",
+        "contactLabel": "Contact :"
+      },
+      "inscription": {
+        "title": "3. Inscription et compte",
+        "body": "L'inscription est gratuite et accessible via email/mot de passe ou Google OAuth. L'utilisateur s'engage à fournir des informations exactes et à ne pas créer plusieurs comptes. Vizly se réserve le droit de suspendre tout compte en cas de violation des présentes CGU."
+      },
+      "service": {
+        "title": "4. Service gratuit et payant",
+        "body": "Le plan gratuit permet de créer un portfolio et d'en voir l'aperçu. La mise en ligne nécessite un abonnement payant (Starter à 4,99\u00a0€/mois ou Pro à 9,99\u00a0€/mois). Les templates premium sont vendus à l'unité (2,99\u00a0€) et restent accessibles à vie. Les paiements sont gérés par Stripe. L'abonnement est renouvelable mensuellement et annulable à tout moment."
+      },
+      "retractation": {
+        "title": "5. Droit de rétractation",
+        "body": "Conformément à l'article L221-18 du Code de la consommation, vous disposez d'un délai de 14 jours à compter de la souscription pour exercer votre droit de rétractation et obtenir un remboursement intégral de votre abonnement. Pour les templates premium (contenus numériques fournis immédiatement après achat), vous acceptez expressément lors de l'achat à renoncer à votre droit de rétractation conformément à l'article L221-28 du Code de la consommation.",
+        "contactPrompt": "Pour exercer votre droit de rétractation, contactez-nous à"
+      },
+      "propriete": {
+        "title": "6. Propriété intellectuelle",
+        "body": "L'utilisateur reste entièrement propriétaire du contenu qu'il publie sur son portfolio (textes, images, projets). Vizly détient les droits sur la plateforme, les templates, le code source et la marque. Les templates ne peuvent pas être redistribués ou revendus."
+      },
+      "responsabilite": {
+        "title": "7. Responsabilité",
+        "body": "Vizly héberge les portfolios mais ne modère pas le contenu publié par les utilisateurs. L'utilisateur est seul responsable du contenu de son portfolio et garantit qu'il ne viole aucun droit de tiers. Vizly pourra supprimer tout contenu manifestement illicite sur signalement."
+      },
+      "resiliation": {
+        "title": "8. Résiliation et suppression",
+        "body": "L'utilisateur peut supprimer son compte et ses données à tout moment depuis les paramètres. En cas d'arrêt de l'abonnement, le portfolio est mis hors ligne sous 24 heures. Les données sont conservées 30 jours avant suppression définitive."
+      },
+      "modifications": {
+        "title": "9. Modifications des CGU",
+        "body": "Vizly se réserve le droit de modifier les présentes CGU. Les utilisateurs seront informés par email de toute modification substantielle. L'utilisation continue du service après notification vaut acceptation des nouvelles conditions."
+      },
+      "droitApplicable": {
+        "title": "10. Droit applicable",
+        "body": "Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux de Rennes seront seuls compétents."
+      }
+    },
+    "mentions": {
+      "title": "Mentions légales",
+      "editorSite": {
+        "title": "Éditeur du site",
+        "brand": "Vizly",
+        "sirenLabel": "SIREN",
+        "siretLabel": "SIRET",
+        "codeApeLabel": "Code APE",
+        "emailLabel": "Email :"
+      },
+      "host": {
+        "title": "Hébergeur",
+        "name": "Railway Corporation",
+        "address": "2261 Market Street #4382, San Francisco, CA 94114, USA",
+        "siteLabel": "Site :",
+        "website": "railway.com",
+        "url": "https://railway.com"
+      },
+      "database": {
+        "title": "Base de données",
+        "name": "Supabase Inc.",
+        "location": "Serveurs hébergés dans l'Union Européenne."
+      },
+      "payment": {
+        "title": "Paiement",
+        "body": "Les paiements sont traités par Stripe Inc. Vizly ne stocke aucune donnée de carte bancaire."
+      },
+      "ipRights": {
+        "title": "Propriété intellectuelle",
+        "body": "L'ensemble du contenu du site vizly.fr (textes, design, code source, templates, marque) est la propriété de Vizly, sauf le contenu créé par les utilisateurs sur leurs portfolios. Toute reproduction non autorisée est interdite."
+      },
+      "contactSection": {
+        "title": "Contact",
+        "prompt": "Pour toute question :"
+      }
+    },
+    "confidentialite": {
+      "title": "Politique de confidentialité",
+      "responsable": {
+        "title": "1. Responsable du traitement",
+        "identity": "{name}, {status}",
+        "sirenCity": "SIREN {siren} — {city}",
+        "contactLabel": "Contact :"
+      },
+      "donneesCollectees": {
+        "title": "2. Données collectées",
+        "intro": "Vizly collecte les données suivantes lors de l'inscription et de l'utilisation du service :",
+        "items": [
+          "Email et mot de passe (ou identifiants Google OAuth)",
+          "Nom et prénom",
+          "Photo de profil",
+          "Contenu du portfolio (bio, projets, images, liens)",
+          "Données de paiement (traitées par Stripe, jamais stockées par Vizly)"
+        ]
+      },
+      "finalite": {
+        "title": "3. Finalité du traitement",
+        "intro": "Les données sont collectées pour :",
+        "items": [
+          "Fournir le service de création et hébergement de portfolios",
+          "Envoyer des emails transactionnels (bienvenue, contact, expiration)",
+          "Gérer les abonnements et paiements",
+          "Améliorer le service (statistiques anonymisées)"
+        ]
+      },
+      "stockage": {
+        "title": "4. Stockage et hébergement",
+        "body": "Les données sont stockées chez Supabase (serveurs UE) pour la base de données et le stockage d'images. L'application est hébergée chez Railway. Les paiements sont traités par Stripe. Vizly ne stocke aucune information de carte bancaire."
+      },
+      "partage": {
+        "title": "5. Partage des données",
+        "body": "Vizly ne revend ni ne partage les données personnelles à des tiers à des fins commerciales. Les données sont partagées uniquement avec les sous-traitants nécessaires au fonctionnement du service (Supabase, Railway, Stripe, Resend)."
+      },
+      "cookies": {
+        "title": "6. Cookies",
+        "body": "Vizly utilise uniquement des cookies fonctionnels nécessaires au fonctionnement du service (session d'authentification). Aucun cookie de tracking, publicitaire ou analytique tiers n'est utilisé."
+      },
+      "rgpd": {
+        "title": "7. Droits RGPD",
+        "intro": "Conformément au RGPD, vous disposez des droits suivants :",
+        "rights": [
+          { "label": "Accès", "description": "obtenir une copie de vos données personnelles" },
+          { "label": "Rectification", "description": "corriger vos données inexactes" },
+          { "label": "Suppression", "description": "demander la suppression de vos données" },
+          { "label": "Portabilité", "description": "recevoir vos données dans un format standard" },
+          { "label": "Opposition", "description": "vous opposer au traitement de vos données" }
+        ],
+        "contactPrompt": "Pour exercer ces droits, contactez-nous à",
+        "contactSuffix": "Nous répondrons sous 30 jours."
+      },
+      "contactSection": {
+        "title": "8. Contact",
+        "prompt": "Pour toute question relative à la protection de vos données :"
+      }
+    },
+    "contact": {
+      "title": "Contacte-nous",
+      "subtitle": "Une question, un bug, une suggestion ? On répond sous 24 heures."
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "subtitle": "Tout ce que tu dois savoir sur Vizly."
+    }
+  },
   "auth": {
     "login": {
       "title": "Connexion",

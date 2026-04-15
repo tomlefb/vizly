@@ -1,74 +1,75 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
+import { Section } from '@/components/legal/Section'
 
 export const metadata: Metadata = {
   title: 'Mentions légales',
   description: 'Mentions légales du site vizly.fr.',
 }
 
-export default function MentionsLegalesPage() {
+export default async function MentionsLegalesPage() {
+  const t = await getTranslations('legal.mentions')
+  const tShared = await getTranslations('legal.shared')
+  const email = tShared('editor.email')
+
   return (
     <article className="prose-legal">
       <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight mb-2">
-        Mentions légales
+        {t('title')}
       </h1>
-      <p className="text-sm text-muted mb-10">Dernière mise à jour : 10 avril 2026</p>
+      <p className="text-sm text-muted mb-10">
+        {tShared('updatedAtLabel')} : {tShared('updatedAt')}
+      </p>
 
-      <Section title="Éditeur du site">
-        <strong>Vizly</strong> — vizly.fr
+      <Section title={t('editorSite.title')}>
+        <strong>{t('editorSite.brand')}</strong> — {tShared('domain')}
         <br />
-        Tom Lefevre Bonzon, Entrepreneur individuel
+        {tShared('editor.name')}, {tShared('editor.status')}
         <br />
-        SIREN : 103 332 276 — SIRET : 103 332 276 00015
+        {t('editorSite.sirenLabel')} : {tShared('editor.siren')} — {t('editorSite.siretLabel')} : {tShared('editor.siret')}
         <br />
-        Code APE : 6201Z (Programmation informatique)
+        {t('editorSite.codeApeLabel')} : {tShared('editor.codeApe')}
         <br />
-        35700 Rennes, France
+        {tShared('editor.city')}
         <br />
-        Email :{' '}
-        <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>
+        {t('editorSite.emailLabel')}{' '}
+        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>
       </Section>
 
-      <Section title="Hébergeur">
-        <strong>Railway Corporation</strong>
+      <Section title={t('host.title')}>
+        <strong>{t('host.name')}</strong>
         <br />
-        2261 Market Street #4382, San Francisco, CA 94114, USA
+        {t('host.address')}
         <br />
-        Site :{' '}
-        <a href="https://railway.com" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
-          railway.com
+        {t('host.siteLabel')}{' '}
+        <a
+          href={t('host.url')}
+          className="text-accent hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t('host.website')}
         </a>
       </Section>
 
-      <Section title="Base de données">
-        <strong>Supabase Inc.</strong>
+      <Section title={t('database.title')}>
+        <strong>{t('database.name')}</strong>
         <br />
-        Serveurs hébergés dans l&apos;Union Européenne.
+        {t('database.location')}
       </Section>
 
-      <Section title="Paiement">
-        Les paiements sont traités par <strong>Stripe Inc.</strong> Vizly ne stocke aucune
-        donnée de carte bancaire.
+      <Section title={t('payment.title')}>
+        {t('payment.body')}
       </Section>
 
-      <Section title="Propriété intellectuelle">
-        L&apos;ensemble du contenu du site vizly.fr (textes, design, code source, templates, marque)
-        est la propriété de Vizly, sauf le contenu créé par les utilisateurs sur leurs portfolios.
-        Toute reproduction non autorisée est interdite.
+      <Section title={t('ipRights.title')}>
+        {t('ipRights.body')}
       </Section>
 
-      <Section title="Contact">
-        Pour toute question :{' '}
-        <a href="mailto:tom@vizly.fr" className="text-accent hover:underline">tom@vizly.fr</a>
+      <Section title={t('contactSection.title')}>
+        {t('contactSection.prompt')}{' '}
+        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>
       </Section>
     </article>
-  )
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="mb-8">
-      <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-3">{title}</h2>
-      <div className="text-sm text-muted leading-relaxed">{children}</div>
-    </section>
   )
 }
