@@ -52,6 +52,10 @@ async function updateSession(request: NextRequest) {
 
   await supabase.auth.getUser()
 
+  // Expose pathname to server components via a header so the dashboard
+  // layout can compute route-specific defaults (e.g., collapsed sidebar
+  // for /editor) without a client-side flicker at F5.
+  response.headers.set('x-pathname', request.nextUrl.pathname)
   return response
 }
 
