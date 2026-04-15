@@ -361,8 +361,8 @@ toujours faire `rm -rf .next && npm run build` pour exclure la cache.
   Note CLI : `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
   forward TOUS les events par défaut, donc en dev local pur (sans Dashboard
   config) ça fonctionne si tu as le CLI lancé. Mais le Dashboard endpoint
-  doit être à jour pour les environnements Preview Vercel / Staging /
-  Production où le CLI n'est pas en cours.
+  doit être à jour pour les environnements Staging / Production Railway où
+  le CLI n'est pas en cours.
 
 - **TODO Tom — Dashboard Stripe LIVE + vérif domaine Apple Pay avant
   passage en mode live** :
@@ -1072,8 +1072,8 @@ pendant la session de test.
   Safari. Cause probable : cert auto-signé Next.js non accepté par
   Apple Pay JS, ou domaine localhost non dispensé de vérification de
   domaine contrairement à ce que la doc Stripe laisse entendre. La
-  validation Apple Pay est reportée à **Vercel Preview** (vrai cert
-  Let's Encrypt auto-géré par Vercel) puis à la **production**
+  validation Apple Pay est reportée à l'**environnement Railway staging**
+  (vrai cert TLS auto-géré par Railway) puis à la **production**
   (`vizly.fr` avec upload du fichier
   `apple-developer-merchantid-domain-association` sous `/.well-known/`
   avant le passage live — voir TODO section "Dashboard Stripe LIVE").
@@ -1099,3 +1099,199 @@ dans un autre terminal (ou ne rien faire et laisser HMR gérer). Ou
 stopper le dev server avant le clean. Je l'ajoute à la section
 "Règles méthodo du chantier" en tête de fichier pour que ce soit
 explicite dans les phases suivantes.
+
+---
+
+## Phase 5 — modal template purchase
+
+### Décision architecturale — duplication contrôlée (validée par Tom)
+
+`TemplatePurchaseModal.tsx` est créée par **duplication contrôlée** de
+`SubscriptionCheckoutModal.tsx`, pas par extraction d'un `CheckoutShell`
+générique partagé. Verdict Tom + argumentaire YAGNI :
+
+- Les briques vraiment partagées (codes d'erreur, appearance Stripe,
+  `getStripe()` singleton, helper `formatEur`) sont **déjà partagées
+  via imports** — on n'a pas besoin d'un shell générique pour ça.
+- Les deux modals diffèrent sur ~15-20 % de leur surface (state machine
+  shape, Server Action appelée, textes, récap, absence de promo code
+  côté template). Un shell générique aurait nécessité un système de
+  props de configuration complexe avec TypeScript generics, ~400 lignes
+  de plumbing abstrait peu lisible.
+- **Coût accepté** : ~350 lignes de duplication entre les 2 fichiers.
+  Contrepartie : lisibilité, indépendance d'évolution, zéro risque
+  d'abstraction fragile qui se révèlerait problématique en Phase 6/7.
+- **Si un besoin d'extraction émerge** lors de la réécriture de
+  `/billing` en Phase 7 (où les 2 modals sont utilisées côte à côte),
+  on fera l'extraction à ce moment-là avec le contexte complet des
+  deux consommateurs.
+
+### Extension de `createTemplateIntentAction` avec un objet `pricing`
+
+Modification Phase 2 effectuée dans le commit Phase 5 (même pattern que
+`isValidationError` en Phase 4 — l'extension est justifiée par un besoin
+UX Phase 5). La Server Action retourne désormais un objet `pricing`
+structuré plutôt qu'un simple `amountCents` top-level :
+
+```ts
+// Avant (Phase 2)
+type TemplateIntentResult =
+  | { ok: true; clientSecret: string; paymentIntentId: string }
+  | { ok: false; error: string }
+
+// Après (Phase 5)
+type TemplateIntentResult =
+  | {
+      ok: true
+      clientSecret: string
+      paymentIntentId: string
+      pricing: { amountCents: number; currency: string }
+    }
+  | { ok: false; error: string }
+```
+
+**Pourquoi un objet `pricing` plutôt qu'un `amountCents` top-level** :
+
+- **Future-proof** : si Phase 7 ou un chantier ultérieur a besoin de
+  surfacer `subtotalCents`, `discountCents`, `taxCents` (au cas où
+  Stripe Tax serait activé un jour pour la franchise base TVA qui
+  pourrait évoluer), on a déjà un objet pour les accueillir sans
+  changer la signature top-level.
+- **Cohérent avec les conventions Stripe** : Stripe retourne toujours
+  les montants en cents + currency ensemble, jamais isolés. Un champ
+  `amountCents` seul sans `currency` est techniquement ambigu (même
+  si on sait que Vizly est 'eur' uniquement aujourd'hui).
+- **Explicite à la lecture** : `result.pricing.amountCents` est plus
+  lisible dans le code consommateur que `result.amountCents` qui
+  pourrait être confondu avec un autre champ amount (par exemple
+  `amount_received`, `amount_due`, etc.).
+
+Le helper lib `createTemplatePaymentIntent` retourne maintenant aussi
+`pricing: { amountCents, currency }` — valeur dérivée du Stripe Price
+live via `stripe.prices.retrieve(priceId)` (source de vérité), pas d'une
+constante locale. Si un jour Tom change le prix dans le Dashboard, le
+modal affiche le nouveau prix sans redéploiement.
+
+### Pas de code promo pour les templates (validé)
+
+La modal `TemplatePurchaseModal` n'a **pas** de champ code promo,
+contrairement à `SubscriptionCheckoutModal`. Raisons :
+
+1. Un template à 2,99 € + promo = réductions en centimes, peu de sens
+   métier.
+2. Les promos Stripe sont naturellement câblées sur les subscriptions
+   (via `discounts: [{ promotion_code }]` natif). Pour les one-shot
+   PaymentIntents, on doit calculer manuellement le discount côté
+   serveur et passer un `amount` réduit (pattern fragile, documenté
+   dans le verdict Q4 Phase 2).
+3. Simplification drastique de la modal : pas de `PromoCodeField`,
+   pas de recalcul de pricing au runtime, pas de re-fetch d'intent
+   au changement de code promo.
+4. Si un jour on veut une offre "Pack 4 templates premium -50 %",
+   ce sera un nouveau produit Stripe (un price dédié), pas un code
+   promo sur un template individuel.
+
+**Note** : le helper lib `createTemplatePaymentIntent` supporte toujours
+les paramètres `promotionCode` + `promotionDiscount` (héritage de Phase 2
+où on avait prévu le support). La Server Action `createTemplateIntentAction`
+les accepte aussi. Mais la modal `TemplatePurchaseModal` ne les utilise
+simplement pas. Pas de code mort — le support serveur reste en place au
+cas où on veut ré-activer la feature plus tard depuis un autre endroit
+(admin script, future pack UI, etc.).
+
+### Gestion du cas `template_already_purchased`
+
+Le flow :
+
+1. Modal mount → `createTemplateIntentAction({ templateId })` appelée
+2. Server Action check `purchased_templates` via Supabase → si déjà
+   acheté, retourne `{ ok: false, error: 'template_already_purchased' }`
+3. Modal reçoit l'erreur → state passe à `{ kind: 'error', message,
+   canRetry: false, alreadyOwned: true }`
+4. `ErrorBlock` détecte `alreadyOwned && onAlreadyOwned` et rend un
+   bouton **"Accéder au template"** au lieu de "Réessayer"
+5. Clic → appelle le prop `onAlreadyOwned?.()` (le consommateur
+   Phase 6 navigue typiquement vers `/editor?template=${templateId}`)
+
+**Dégradation gracieuse** : si `onAlreadyOwned` n'est pas fourni (cas
+d'un consommateur minimaliste qui ne veut pas gérer la redirection),
+l'ErrorBlock affiche juste le message sans bouton. Pas de crash, pas
+de bouton "Réessayer" qui serait absurde sur une erreur d'idempotence.
+
+Le message exact dans `SERVER_ACTION_ERROR_MESSAGES` (dans
+`CheckoutErrorMessage.ts`) a été mis à jour : `'Tu as déjà acheté ce
+template.'` → `'Tu as déjà débloqué ce template.'` pour cohérence
+lexicale avec le titre de la modal "Débloquer ce template.".
+
+### Skeleton sur la ligne prix pendant `loadingIntent`
+
+La modal affiche un skeleton `bg-surface-warm animate-pulse` sur la
+ligne "Total" pendant que `createTemplateIntentAction` fetch le prix
+authoritative depuis Stripe. Le reste du récap (label template,
+"Paiement unique") s'affiche immédiatement avec la prop `templateLabel`
+sans dépendre de la Server Action.
+
+Raison du skeleton plutôt qu'une constante de fallback : la source de
+vérité pour le prix est **Stripe Price live** (via le helper lib), pas
+`constants.ts`. Afficher une constante en fallback risquerait d'afficher
+un prix obsolète si Tom change le prix dans le Dashboard sans mettre
+à jour `constants.ts`. Le skeleton accepte un délai de ~500 ms-1 s
+pour garantir que le prix affiché est toujours le bon.
+
+### Extraction `formatEur` vers `src/lib/utils.ts`
+
+Helper de formatage EUR (Intl.NumberFormat `fr-FR` currency) extrait de
+`SubscriptionCheckoutModal.tsx` vers `src/lib/utils.ts` pour réutilisation
+par `TemplatePurchaseModal.tsx`. Petit refacto trivial (< 2 min) fait
+dans le même commit Phase 5. Aligné avec la convention existante de
+`utils.ts` qui contient déjà `formatDate`, `slugify`, `cn`, `getBaseUrl`.
+
+### Fichiers touchés en Phase 5
+
+- `src/components/billing/TemplatePurchaseModal.tsx` (créé, ~700 lignes —
+  structure self-contained, sous-composants inline comme
+  `SubscriptionCheckoutModal`)
+- `src/actions/billing.ts` (modifié) — `TemplateIntentResult` étendu
+  avec `pricing`, `createTemplateIntentAction` pass-through du pricing
+  depuis le lib
+- `src/lib/stripe/elements.ts` (modifié) — `createTemplatePaymentIntent`
+  retourne `pricing: { amountCents, currency }` en plus de ses champs
+  existants
+- `src/lib/utils.ts` (modifié) — extraction de `formatEur` depuis
+  `SubscriptionCheckoutModal.tsx` vers le module utils partagé
+- `src/components/billing/SubscriptionCheckoutModal.tsx` (modifié) —
+  import de `formatEur` depuis `@/lib/utils` au lieu de la définition
+  locale, définition locale supprimée (5 lignes)
+- `src/components/billing/CheckoutErrorMessage.ts` (modifié) — message
+  de `template_already_purchased` affiné de "acheté" à "débloqué"
+- `STRIPE_MIGRATION_NOTES.md` (modifié — section Phase 5)
+- `src/app/dev-modal-test/page.tsx` (modifié mais **toujours uncommitted**,
+  route scratch) — ajout d'un second bouton pour tester
+  `TemplatePurchaseModal` avec un dropdown de sélection du template
+
+### Composant non câblé — confirmation
+
+`TemplatePurchaseModal` est créée comme composant réutilisable exporté
+mais **n'est importée dans aucune page de prod** (seulement dans la
+route scratch `dev-modal-test/page.tsx` qui reste uncommitted). Le
+branchement aux points d'entrée de prod (typiquement depuis la section
+"Premium templates" de `/billing` ou depuis une page `/templates/[id]`
+marketing) sera fait en Phase 6.
+
+### Infrastructure — serveur Railway, pas Vercel (correction de session)
+
+Tom m'a corrigé pendant Phase 5 : le serveur Vizly tourne sur **Railway**,
+pas Vercel (malgré ce que dit le `CLAUDE.md` outdated). Mentions
+corrigées dans ce fichier aux lignes Dashboard Stripe endpoint config
+(Staging/Production Railway au lieu de Preview Vercel) et validation
+Apple Pay (Railway staging au lieu de Vercel Preview). La référence
+"Linear, Resend, Vercel, Framer" dans la décision design du pattern
+ExpressCheckout reste inchangée — c'est une référence au style de
+leurs billing UIs (Vercel en tant que SaaS de référence), pas à
+l'infrastructure de déploiement de Vizly.
+
+**TODO post-chantier** : mettre à jour `CLAUDE.md` qui déclare toujours
+`**Vercel** — hosting, wildcard *.vizly.fr` dans sa section Stack.
+Le vrai hosting est Railway. Hors périmètre Phase 5 (c'est un fix doc
+projet global, pas lié à Stripe), mais à faire pour éviter que le
+prochain Claude de session hérite de la même mauvaise info.

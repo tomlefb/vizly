@@ -258,7 +258,18 @@ export async function createTemplatePaymentIntent(params: {
   templateId: string
   promotionCode?: string
   promotionDiscount?: PromotionDiscount
-}): Promise<{ paymentIntentId: string; clientSecret: string }> {
+}): Promise<{
+  paymentIntentId: string
+  clientSecret: string
+  /**
+   * The final charged amount (post-discount if a promo was applied)
+   * and its currency. Surfaced so the Server Action and UI can display
+   * the authoritative price without re-querying Stripe. Currency is
+   * always 'eur' today — the lib throws earlier if the price's currency
+   * isn't EUR — but the field is typed as `string` to stay future-proof.
+   */
+  pricing: { amountCents: number; currency: string }
+}> {
   // 1. Constants check — is this template in the premium list?
   const premiumTemplates = TEMPLATES.premium as readonly string[]
   if (!premiumTemplates.includes(params.templateId)) {
@@ -354,5 +365,9 @@ export async function createTemplatePaymentIntent(params: {
   return {
     paymentIntentId: pi.id,
     clientSecret: pi.client_secret,
+    pricing: {
+      amountCents: amount,
+      currency: price.currency,
+    },
   }
 }

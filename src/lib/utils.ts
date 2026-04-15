@@ -13,6 +13,21 @@ export function formatDate(date: string | Date): string {
   }).format(new Date(date))
 }
 
+/**
+ * Format an amount in cents as a French-locale EUR currency string.
+ * Example: formatEur(299) → "2,99 €"
+ *
+ * Shared between SubscriptionCheckoutModal and TemplatePurchaseModal,
+ * and reusable anywhere a Stripe-style cents-integer amount needs to
+ * be displayed as French currency.
+ */
+export function formatEur(cents: number): string {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(cents / 100)
+}
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()

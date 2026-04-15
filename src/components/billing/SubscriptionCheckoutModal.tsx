@@ -53,7 +53,7 @@ import {
   validatePromotionCodeAction,
 } from '@/actions/billing'
 import { PLANS } from '@/lib/constants'
-import { cn } from '@/lib/utils'
+import { cn, formatEur } from '@/lib/utils'
 import { vizlyAppearance } from './stripeAppearance'
 import { getErrorMessage, isValidationError } from './CheckoutErrorMessage'
 
@@ -126,13 +126,6 @@ const PROMO_FIELD_INITIAL: PromoFieldState = {
 // ---------------------------------------------------------------------------
 // Pricing helpers
 // ---------------------------------------------------------------------------
-
-function formatEur(cents: number): string {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(cents / 100)
-}
 
 interface PricingBreakdown {
   baseCents: number

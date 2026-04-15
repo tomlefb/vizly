@@ -346,7 +346,18 @@ type SubscriptionIntentResult =
   | { ok: false; error: string }
 
 type TemplateIntentResult =
-  | { ok: true; clientSecret: string; paymentIntentId: string }
+  | {
+      ok: true
+      clientSecret: string
+      paymentIntentId: string
+      /**
+       * Final charged amount + currency from the Stripe Price (post any
+       * promo discount). Surfaced so the TemplatePurchaseModal can display
+       * the authoritative price in the recap and the "Payer X,XX €" CTA
+       * without a separate round-trip or a stale constants lookup.
+       */
+      pricing: { amountCents: number; currency: string }
+    }
   | { ok: false; error: string }
 
 type PromotionCodeValidationResult =
@@ -548,14 +559,15 @@ export async function createTemplateIntentAction({
     }
 
     try {
-      const { paymentIntentId, clientSecret } = await createTemplatePaymentIntent({
-        userId: user.id,
-        customerId,
-        templateId,
-        promotionCode: promotionCodeId,
-        promotionDiscount,
-      })
-      return { ok: true, clientSecret, paymentIntentId }
+      const { paymentIntentId, clientSecret, pricing } =
+        await createTemplatePaymentIntent({
+          userId: user.id,
+          customerId,
+          templateId,
+          promotionCode: promotionCodeId,
+          promotionDiscount,
+        })
+      return { ok: true, clientSecret, paymentIntentId, pricing }
     } catch (libErr) {
       // Lib throws are domain errors with stable message strings we can
       // map directly. Anything else falls through to unknown_error.

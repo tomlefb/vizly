@@ -47,7 +47,7 @@ export const STRIPE_ERROR_MESSAGES: Record<string, string> = {
 export const SERVER_ACTION_ERROR_MESSAGES: Record<string, string> = {
   not_authenticated: 'Tu dois être connecté pour continuer.',
   subscription_already_active: 'Tu as déjà un abonnement actif.',
-  template_already_purchased: 'Tu as déjà acheté ce template.',
+  template_already_purchased: 'Tu as déjà débloqué ce template.',
   template_not_eligible: "Ce template n'est pas disponible à l'achat.",
   invalid_promotion_code: "Ce code promo n'est pas valide.",
   invalid_promotion_code_currency: "Ce code promo n'est pas applicable à cet achat.",
