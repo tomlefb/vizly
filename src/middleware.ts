@@ -26,6 +26,8 @@ export async function middleware(request: NextRequest) {
   return NextResponse.rewrite(url)
 }
 
+const AUTH_ROUTES = ['/login', '/register', '/forgot-password']
+
 async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
 
@@ -50,7 +52,19 @@ async function updateSession(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Already-authenticated users landing on /login, /register or
+  // /forgot-password are bounced to /dashboard. Preserves the plan /
+  // interval query params used by getDashboardUrl so a marketing CTA
+  // like /login?plan=pro still opens the checkout modal post-redirect.
+  if (user && AUTH_ROUTES.includes(request.nextUrl.pathname)) {
+    const target = request.nextUrl.clone()
+    target.pathname = '/dashboard'
+    return NextResponse.redirect(target)
+  }
 
   // Expose pathname to server components via a header so the dashboard
   // layout can compute route-specific defaults (e.g., collapsed sidebar
