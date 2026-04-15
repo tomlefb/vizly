@@ -2060,3 +2060,235 @@ listés ici pour qu'on n'y revienne pas dans une future session
 - Webhooks Phase 3
 - Schéma Supabase
 - `getBillingStatus` (consommée par `useEditorState`)
+
+---
+
+## Clôture du sprint Stripe Elements
+
+Le sprint **Stripe Checkout hosté → Stripe Elements in-app** est
+clôturé sur le **fonctionnel + API + backend**. Le polish design de
+`/billing` est explicitement reporté à un chantier UI/UX dédié
+post-chantier. Tom valide cette ligne : on shippe ce qui marche, on
+re-design plus tard quand le backend est solide.
+
+### A — Bilan du sprint Stripe
+
+**Phases 1 → 7 + 7.5 toutes complétées en local.** Tout le code est
+sur la branche `main`, **non poussé en remote** (règle du chantier
+respectée jusqu'au bout, le push final viendra dans une session
+déploiement dédiée).
+
+**Liste des 10 commits du chantier** (de Phase 1 au correctif final) :
+
+| # | Hash | Phase | Stat |
+|---|---|---|---|
+| 1 | `6f189e0` | feat(stripe): phase 1 — fondations DB et dettes bloquantes | +712 / −98 (7 fichiers) |
+| 2 | `775fac8` | feat(stripe): phase 2 — lib elements serveur | +1 013 / −57 (7 fichiers) |
+| 3 | `d8a17b0` | feat(stripe): phase 3 — webhooks migrés et idempotents | +1 186 / −289 (4 fichiers) |
+| 4 | `6d178e8` | docs(stripe): phase 3 — expliciter choix `onConflict='user_id'` | +98 / −13 (3 fichiers) |
+| 5 | `0ec9249` | feat(stripe): phase 4 — modal subscription elements | +1 302 / −4 (5 fichiers) |
+| 6 | `44ee989` | fix(stripe): phase 4 — expand + dynamic PM + ExpressCheckout + validation errors | +608 / −21 (5 fichiers) |
+| 7 | `69e9f64` | feat(stripe): phase 5 — modal template purchase | +1 055 / −23 (7 fichiers) |
+| 8 | `2bd4d2d` | feat(stripe): phase 6 — recâblage UI et nettoyage ancien code | +943 / −611 (17 fichiers) |
+| 9 | `3919a9f` | feat(stripe): phase 7 — récap billing custom et page confirm | +1 570 / −486 (9 fichiers) |
+| 10 | `a3b6416` | fix(stripe): phase 7.5 — `users.plan` source de vérité + refonte visuelle billing | +455 / −105 (5 fichiers) |
+
+**Total chantier** : ~**+8 942 / −1 707** (∼+7 235 lignes nettes,
+~70 fichiers touchés avec doublons inter-commits).
+
+**Confirmations fonctionnelles** (toutes validées en local par Tom) :
+- ✅ Modals `SubscriptionCheckoutModal` et `TemplatePurchaseModal` en
+  place, fonctionnelles, avec PaymentElement Card + ExpressCheckoutElement
+  wallets, validation errors UX correcte
+- ✅ Webhooks Stripe **idempotents** via `webhook_events` keyed by
+  `stripe_event_id`, errors → 500 pour retry, dispatch correct par
+  `event.type`
+- ✅ Backend migré : `getBillingDetails` lit les tables locales
+  `subscriptions` + `invoices` (zéro appel Stripe live par render),
+  `users.plan` reste source de vérité canonical avec fallback gracieux
+  pour les users payants legacy
+- ✅ UI câblée sur tous les points d'entrée : `/billing`, `/tarifs`
+  (anon + loggé), `/editor` Step 4 Publier, `/register?plan=X` avec
+  AutoOpenSubscriptionModal côté `/dashboard`
+- ✅ Page `/billing/confirm` en place pour le retour 3DS, ne touche
+  pas la DB (webhook = source de vérité), redirect auto + bouton
+  Continuer
+- ✅ Code legacy Stripe Checkout entièrement retiré (Server Actions,
+  helpers lib, handler webhook, env vars, route scratch)
+- ✅ Migration Supabase `012_stripe_elements_foundations.sql`
+  appliquée : 3 nouvelles tables (`subscriptions`, `invoices`,
+  `webhook_events`), RLS sur 100% d'entre elles
+
+### B — Dette technique post-chantier identifiée
+
+Tout ce qui est connu, listé, et **explicitement hors périmètre**
+de ce sprint Stripe. À traiter dans des chantiers séparés ou des
+sessions de polish.
+
+1. **Polish visuel `/billing`** — la structure Phase 7.5 est
+   fonctionnelle mais l'esthétique mérite une session UI/UX dédiée.
+   Cards plus détaillées, hiérarchie visuelle, possibles éléments
+   graphiques type icônes plan custom, illustrations, animations
+   subtiles. Tom préfère shipper du fonctionnel propre et redesigner
+   après. **Chantier "polish billing UI" séparé** post-déploiement
+   prod.
+
+2. **Lenteur 3-5 s wallets en local** — diagnostiquée en Phase 7.5,
+   non fixée. À **mesurer en prod** après deploy Railway. Si T4 reste
+   > 2 s en prod réel (cert légitime + Stripe live + chunks bundle),
+   implémenter un **pre-fetch on hover** du CTA "Passer Starter" :
+   `onMouseEnter` lance `createSubscriptionIntentAction`, le
+   clientSecret est stocké en state local, le clic devient quasi-
+   instantané. Compromis : crée des Stripe subs `incomplete` que
+   Stripe garbage-collect en 24 h. Acceptable.
+
+3. **Rip-out Satoshi global** — le DA Vizly impose **DM Sans** sur
+   tous les titres, mais l'app utilise encore `font-[family-name:var(--font-satoshi)]`
+   sur la totalité des H1/H2 (dashboard, settings, marketing, editor,
+   billing, templates). Le rip-out nécessite :
+   - Update de `CLAUDE.md` qui cite encore Satoshi comme police de titre
+   - Remplacement de tous les usages de `--font-satoshi` dans le code
+   - Suppression de la définition `--font-display` dans `globals.css`
+   - Suppression de l'import de la font Satoshi
+   **Hors périmètre Stripe — chantier UI dédié.**
+
+4. **Mise à jour `CLAUDE.md` Vercel → Railway** — `CLAUDE.md`
+   déclare encore `**Vercel** — hosting, wildcard *.vizly.fr` dans
+   sa section Stack. Le vrai hosting est Railway depuis l'origine,
+   ce qui a été corrigé à la volée pendant Phase 5 quand Tom me l'a
+   signalé. **À faire dans une passe doc** post-chantier pour que
+   le prochain Claude de session hérite de la bonne info.
+
+5. **Backfill `subscriptions` table pour les users legacy** —
+   **OPTIONNEL**. Les users payants pré-Phase-1 (créés avant le
+   webhook handler Phase 3) peuvent avoir `users.plan = 'pro'` mais
+   pas de row dans `subscriptions`. Le fallback `PlanCard` de
+   Phase 7.5 gère ce cas gracieusement (affiche le plan + features
+   + un message `Détails complets disponibles dans le portail Stripe.`).
+   Si Tom veut une expérience uniforme avec `next billing` et toutes
+   les infos riches pour ces users, il faudra écrire un script de
+   backfill qui :
+   - Liste tous les `users` avec `plan != 'free'` ET pas de row
+     `subscriptions`
+   - Pour chacun, récupère le `stripe_subscription_id` legacy
+     (`users.stripe_subscription_id`) et fait un `stripe.subscriptions.retrieve`
+   - Insert dans `subscriptions` via le helper
+     `mapStripeSubscriptionToRow` existant
+   **Pas critique** — la fallback UI est suffisante pour la majorité
+   des cas. À faire si Tom décide d'unifier l'expérience.
+
+6. **Test end-to-end flow `/register?plan=X` → OTP → `/dashboard?plan=X`
+   → auto-open modal** — non validé en intégration complète pendant
+   Phase 6 (validation Tom basée sur les flows individuels uniquement).
+   Le risque : si les query params se perdent dans le redirect post-OTP
+   verification, l'utilisateur arriverait sur `/dashboard` sans
+   l'auto-open de la modal. Le code est en place
+   (`AutoOpenSubscriptionModal` + lecture `useSearchParams` dans
+   `register/page.tsx` Suspense-wrapped), mais à valider sur un vrai
+   flow OTP. **Session test post-chantier dédiée.**
+
+### C — Checklist déploiement prod (consolidée)
+
+Tout ce qui doit être fait **avant** ou **pendant** le merge en prod.
+Réuni en une seule liste actionnable depuis ce qui était éparpillé
+dans les notes Phase 1-7.
+
+**À faire ~1 semaine avant le launch (KYC)** :
+
+1. ☐ **Activer le compte Stripe en mode live** (KYC business côté
+   Dashboard Stripe — peut prendre plusieurs jours d'instruction
+   selon les pièces fournies)
+
+**À faire avant le merge prod** :
+
+2. ☐ **Créer l'endpoint webhook mode live** sur le Stripe Dashboard
+   prod en sélectionnant les **6 events suivants** (et SEULEMENT
+   ces 6) :
+   - `customer.subscription.created`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+   - `invoice.paid`
+   - `invoice.payment_failed`
+   - `payment_intent.succeeded`
+
+   ⚠️ **NE PAS sélectionner `checkout.session.completed`** — Phase 6
+   a retiré le handler de ce event. Si on l'active sur l'endpoint
+   prod, le webhook handler Vizly retombera silencieusement dans la
+   branche `default` (200 unknown event type), Stripe le marquera
+   comme processed et on ratera potentiellement des paiements legacy
+   en vol (rare mais possible).
+
+3. ☐ Récupérer les clés `sk_live_...` et `pk_live_...` depuis le
+   Stripe Dashboard, ajouter dans Railway prod env vars :
+   - `STRIPE_SECRET_KEY=sk_live_...`
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...`
+   - `STRIPE_WEBHOOK_SECRET=whsec_...` (fourni au moment de la
+     création de l'endpoint webhook live)
+
+4. ☐ **Recréer les Products + Prices Stripe en mode live** (les IDs
+   `price_xxx` du mode test ne fonctionnent PAS en mode live — il
+   faut recréer les Products côté Dashboard Stripe en prod et
+   réutiliser les nouveaux IDs). Update les env vars Railway prod :
+   - `STRIPE_PRICE_STARTER=price_live_...`
+   - `STRIPE_PRICE_STARTER_YEARLY=price_live_...`
+   - `STRIPE_PRICE_PRO=price_live_...`
+   - `STRIPE_PRICE_PRO_YEARLY=price_live_...`
+   - `STRIPE_PRICE_TEMPLATE_CREATIF=price_live_...`
+   - `STRIPE_PRICE_TEMPLATE_BRUTALIST=price_live_...`
+   - `STRIPE_PRICE_TEMPLATE_ELEGANT=price_live_...`
+   - `STRIPE_PRICE_TEMPLATE_BENTO=price_live_...`
+
+5. ☐ **Apple Pay domain verification** — upload du fichier
+   `apple-developer-merchantid-domain-association` (fourni par
+   Stripe Dashboard) dans `public/.well-known/` du repo Vizly avant
+   le deploy. Doit être servi à l'URL exacte
+   `https://vizly.fr/.well-known/apple-developer-merchantid-domain-association`
+   avec `Content-Type: text/plain`.
+
+6. ☐ **Ajouter `vizly.fr` dans Stripe Dashboard → Settings → Payment
+   methods → Apple Pay → Configure domains** (mode live) après que
+   le fichier ci-dessus soit en ligne.
+
+7. ☐ **Activer explicitement Card, Apple Pay, Google Pay, Link en
+   mode live** dans Stripe Dashboard → Settings → Payment methods.
+   La config est **indépendante du mode test** — ce qui est activé
+   en test n'est PAS automatiquement activé en live.
+
+8. ☐ **Cutover Phase 6** : si l'endpoint webhook prod existait avant
+   et avait `checkout.session.completed` activé, le **désactiver
+   d'abord** dans le Stripe Dashboard, **attendre ~1 h** que les
+   éventuelles Checkout Sessions hosted en vol expirent (rare mais
+   possible si des users legacy sont dans le flow), **puis** merger
+   et déployer Phase 6+. Si l'endpoint est créé from scratch en mode
+   live (point 2), ce cutover est sans objet.
+
+9. ☐ **Test end-to-end en prod** avec une vraie carte (Tom) :
+   - User free → `/billing` → "Passer Starter" → modal → vraie carte
+     → confirmation → vérifier que `users.plan` passe à `starter` et
+     que la row `subscriptions` est créée
+   - User Starter → `/billing` → "Passer Pro" (changeSubscriptionPlanAction
+     in-place) → vérifier que la sub est upgradée sans nouvelle
+     subscription, que la facture proratée arrive
+   - Achat template → `/editor` Step 3 → "Acheter Bento" → modal →
+     vraie carte → vérifier que `purchased_templates` est rempli
+   - Vérifier que les emails Resend partent correctement
+     (welcome, payment-succeeded, plan-changed)
+
+10. ☐ **Mesurer T4 (latence wallets) en prod** dans Chrome DevTools
+    Network. Si T4 reste > 2 s, implémenter le pre-fetch on hover du
+    CTA (cf. dette technique #2). Si T4 < 1.5 s, on laisse tel quel.
+
+### Prochaines étapes (hors sprint Stripe)
+
+Quand Tom décidera de partir en prod :
+
+- Créer une session **"déploiement prod Stripe Vizly"** dédiée
+- Suivre la checklist (C) point par point
+- Push final de la branche `main` vers le remote (le seul push de
+  tout le chantier)
+- Deploy Railway via la CI normale
+- Smoke test live avec une carte personnelle Tom
+- Si T4 > 2 s mesuré → ouvrir une session courte pour le pre-fetch
+- Une fois stable en prod, **clôturer ce fichier** STRIPE_MIGRATION_NOTES.md
+  (l'archiver ou le supprimer selon préférence — il a fait son boulot,
+  les décisions sont commit dans git pour la postérité)
