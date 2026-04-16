@@ -39,69 +39,61 @@ export default async function SettingsPage() {
         <p className="mt-1.5 text-sm text-muted">{t('subtitle')}</p>
       </header>
 
-      <div className="divide-y divide-border-light">
-        {/* Profile section */}
-        <section className="space-y-5 pb-10">
+      <div className="grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-2">
+        {/* Left column — Profil */}
+        <section className="space-y-5">
           <div>
             <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
               {t('profile')}
             </h2>
             <p className="mt-1 text-sm text-muted">{t('profileDescription')}</p>
           </div>
-          <div className="space-y-5">
+          <div className="space-y-4">
             <ChangeEmailForm currentEmail={user.email ?? ''} />
             <SettingsForm initialName={profile?.name ?? ''} />
           </div>
         </section>
 
-        {/* Language section */}
-        <section className="space-y-5 py-10">
-          <div>
-            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
-              {t('language')}
-            </h2>
-            <p className="mt-1 text-sm text-muted">{t('languageDescription')}</p>
-          </div>
-          <LanguageSwitcher />
-        </section>
+        {/* Right column — Langue + Plan */}
+        <div className="space-y-10">
+          <section className="space-y-4">
+            <div>
+              <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
+                {t('language')}
+              </h2>
+              <p className="mt-1 text-sm text-muted">{t('languageDescription')}</p>
+            </div>
+            <LanguageSwitcher />
+          </section>
 
-        {/* Plan section */}
-        <section className="space-y-5 py-10">
-          <div>
-            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
-              {t('currentPlan')}
-            </h2>
-            <p className="mt-1 text-sm text-muted">{t('currentPlanDescription')}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">
-              {planLabel}
-            </span>
-            {plan === 'free' && (
-              <span className="text-sm text-muted">{t('upgradePlan')}</span>
-            )}
-            <Link
-              href="/billing"
-              className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
-            >
-              {t('manageSubscription')}
-              <ArrowRight className="h-4 w-4" strokeWidth={2} />
-            </Link>
-          </div>
-        </section>
+          <section className="space-y-4">
+            <div>
+              <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
+                {t('currentPlan')}
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                {t('currentPlanDescription')}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">
+                {planLabel}
+              </span>
+              <Link
+                href="/billing"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
+              >
+                {t('manageSubscription')}
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
+              </Link>
+            </div>
+          </section>
+        </div>
+      </div>
 
-        {/* Danger zone */}
-        <section className="space-y-4 pt-10">
-          <div>
-            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-destructive">
-              {t('dangerZone')}
-            </h2>
-            <p className="mt-1 max-w-2xl text-sm text-muted">
-              {t('dangerDescription')}
-            </p>
-          </div>
-          <SettingsForm initialName={profile?.name ?? ''} showDeleteOnly />
-        </section>
+      {/* Delete account — discreet link at the bottom, no "danger zone" framing */}
+      <div className="mt-16 border-t border-border-light pt-6">
+        <SettingsForm initialName={profile?.name ?? ''} showDeleteOnly />
       </div>
     </div>
   )

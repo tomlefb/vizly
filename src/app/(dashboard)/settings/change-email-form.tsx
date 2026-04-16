@@ -380,17 +380,17 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-foreground mb-1.5">
+      <label className="mb-1.5 block text-sm font-medium text-foreground">
         {tSettings('email')}
       </label>
-      <div className="flex items-center gap-3">
-        <div className="flex-1 rounded-[var(--radius-md)] border border-border bg-surface-warm px-4 py-2.5 text-sm text-muted">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="h-10 min-w-0 flex-1 truncate rounded-[var(--radius-md)] border border-border bg-surface-warm px-3 text-sm leading-[38px] text-muted">
           {currentEmail}
         </div>
         <button
           type="button"
           onClick={handleStart}
-          className="inline-flex h-10 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+          className="inline-flex h-10 min-w-[140px] items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
         >
           {t('changeEmail.startButton')}
         </button>

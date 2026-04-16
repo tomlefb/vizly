@@ -61,48 +61,52 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
   }
 
   // ---------------------------------------------------------------------------
-  // Render: delete-only mode (for danger zone section)
+  // Render: delete-only mode — discreet link with inline confirmation.
+  // No "danger zone" framing: just a plain text link at the bottom of the
+  // page, like Linear / Stripe do.
   // ---------------------------------------------------------------------------
   if (showDeleteOnly) {
-    return (
-      <div>
-        {!showConfirm ? (
+    if (!showConfirm) {
+      return (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
-            className="inline-flex items-center rounded-[var(--radius-md)] border border-destructive/20 bg-surface px-4 py-2 text-sm font-semibold text-destructive transition-colors duration-150 hover:bg-destructive/5"
+            className="text-sm font-medium text-destructive transition-colors hover:text-destructive/80 hover:underline"
           >
             {t('deleteAccount')}
           </button>
-        ) : (
-          <div className="rounded-[var(--radius-md)] border border-destructive/20 bg-surface p-4">
-            <p className="mb-3 text-sm font-medium text-destructive">
-              {t('deleteConfirm')}
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="inline-flex items-center rounded-[var(--radius-md)] bg-destructive px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-destructive/90 disabled:opacity-50"
-              >
-                {isDeleting ? t('deleting') : t('deleteConfirmBtn')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowConfirm(false)}
-                disabled={isDeleting}
-                className="inline-flex items-center rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm disabled:opacity-50"
-              >
-                {t('cancel')}
-              </button>
-            </div>
-            {deleteError && (
-              <p className="mt-3 text-sm text-destructive" role="alert">
-                {deleteError}
-              </p>
-            )}
-          </div>
+          <p className="text-xs text-muted">{t('dangerDescription')}</p>
+        </div>
+      )
+    }
+    return (
+      <div className="rounded-[var(--radius-md)] border border-destructive/20 bg-destructive/5 p-4">
+        <p className="mb-3 text-sm font-medium text-destructive">
+          {t('deleteConfirm')}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="inline-flex h-9 items-center rounded-[var(--radius-md)] bg-destructive px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-destructive/90 disabled:opacity-50"
+          >
+            {isDeleting ? t('deleting') : t('deleteConfirmBtn')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowConfirm(false)}
+            disabled={isDeleting}
+            className="inline-flex h-9 items-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm disabled:opacity-50"
+          >
+            {t('cancel')}
+          </button>
+        </div>
+        {deleteError && (
+          <p className="mt-3 text-sm text-destructive" role="alert">
+            {deleteError}
+          </p>
         )}
       </div>
     )
@@ -119,7 +123,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
       >
         {t('name')}
       </label>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2">
         <input
           id="settings-name"
           type="text"
@@ -131,12 +135,12 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
           }}
           placeholder={t('namePlaceholder')}
           maxLength={100}
-          className="h-10 flex-1 rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
+          className="h-10 min-w-0 flex-1 rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
         />
         <button
           type="submit"
           disabled={isPending || name.trim() === initialName}
-          className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-10 min-w-[140px] items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? t('saving') : t('save')}
         </button>
