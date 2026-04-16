@@ -56,6 +56,7 @@ export function EditorClient({
   useEditorAutoSave({
     portfolioData: editor.portfolioData,
     setPortfolioData: editor.setPortfolioData,
+    portfolioId: editor.portfolioId,
     setPortfolioId: editor.setPortfolioId,
     uploadImage,
     pendingPhotoFileRef,

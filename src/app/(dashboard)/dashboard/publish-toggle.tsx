@@ -16,6 +16,7 @@ interface PublishToggleProps {
 }
 
 export function PublishToggle({
+  portfolioId,
   slug,
   published,
   canPublish,
@@ -32,7 +33,7 @@ export function PublishToggle({
     if (published) {
       // Unpublish
       startTransition(async () => {
-        const result = await unpublishPortfolio()
+        const result = await unpublishPortfolio(portfolioId)
         if (result.error) {
           setError(result.error)
         } else {
@@ -46,7 +47,7 @@ export function PublishToggle({
         return
       }
       startTransition(async () => {
-        const result = await publishPortfolio(slug)
+        const result = await publishPortfolio(portfolioId, slug)
         if (result.error) {
           setError(result.error)
         } else {

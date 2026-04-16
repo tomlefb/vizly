@@ -373,6 +373,7 @@ export function useEditorState({
         const result = await upsertPortfolio(portfolioData)
         if (result.data) {
           setPortfolioId(result.data.id)
+          router.replace(`/editor?id=${result.data.id}`)
           await syncProjectsWithId(result.data.id)
         }
         setSaveStatus(result.error ? 'error' : 'saved')
@@ -381,7 +382,7 @@ export function useEditorState({
       return
     }
     await syncProjectsWithId(portfolioId)
-  }, [portfolioId, portfolioData, syncProjectsWithId, setSaveStatus, setSaveError])
+  }, [portfolioId, portfolioData, syncProjectsWithId, setSaveStatus, setSaveError, router])
 
   // ---- Navigation ------------------------------------------------
 
@@ -432,9 +433,12 @@ export function useEditorState({
       setSaveError(null)
 
       try {
-        const saveResult = await upsertPortfolio(portfolioData)
+        const saveResult = await upsertPortfolio(portfolioData, portfolioId ?? undefined)
         if (saveResult.data) {
-          setPortfolioId(saveResult.data.id)
+          if (!portfolioId) {
+            setPortfolioId(saveResult.data.id)
+            router.replace(`/editor?id=${saveResult.data.id}`)
+          }
           await syncProjectsWithId(saveResult.data.id)
         }
         setPurchaseModalTemplate(templateId)
@@ -444,7 +448,7 @@ export function useEditorState({
         setCheckoutLoading(false)
       }
     },
-    [portfolioData, syncProjectsWithId, setSaveError]
+    [portfolioData, portfolioId, syncProjectsWithId, setSaveError, router]
   )
 
   const handlePurchaseModalClose = useCallback(() => {
@@ -491,7 +495,7 @@ export function useEditorState({
     setSaveError(null)
 
     try {
-      const result = await upsertPortfolio({ ...portfolioData })
+      const result = await upsertPortfolio({ ...portfolioData }, portfolioId ?? undefined)
 
       if (result.error) {
         setSaveError(result.error)
@@ -499,8 +503,9 @@ export function useEditorState({
         return { error: result.error }
       }
 
-      if (result.data) {
+      if (result.data && !portfolioId) {
         setPortfolioId(result.data.id)
+        router.replace(`/editor?id=${result.data.id}`)
       }
 
       const pId = result.data?.id ?? portfolioId
@@ -516,14 +521,20 @@ export function useEditorState({
       setIsPublishing(false)
       return { error: message }
     }
-  }, [portfolioData, portfolioId, syncProjectsWithId, setSaveError])
+  }, [portfolioData, portfolioId, syncProjectsWithId, setSaveError, router])
 
   const publishNow = useCallback(async (): Promise<{ error: string | null }> => {
+    if (!portfolioId) {
+      const message = 'Sauvegarde le brouillon avant de publier'
+      setSaveError(message)
+      return { error: message }
+    }
+
     setIsPublishing(true)
     setSaveError(null)
 
     try {
-      const publishResult = await publishPortfolio(slug)
+      const publishResult = await publishPortfolio(portfolioId, slug)
 
       if (publishResult.error) {
         setSaveError(publishResult.error)
@@ -542,7 +553,7 @@ export function useEditorState({
       setIsPublishing(false)
       return { error: message }
     }
-  }, [slug, router, setSaveError])
+  }, [portfolioId, slug, router, setSaveError])
 
   // ---- Derived data for step components --------------------------
 

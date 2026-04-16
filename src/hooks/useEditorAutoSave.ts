@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react'
+import { useRouter } from 'next/navigation'
 import { useDebounce } from '@/hooks/useDebounce'
 import { upsertPortfolio } from '@/actions/portfolio'
 import type { PortfolioFormData } from '@/lib/validations'
@@ -11,6 +12,7 @@ export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 interface UseEditorAutoSaveOptions {
   portfolioData: PortfolioFormData
   setPortfolioData: Dispatch<SetStateAction<PortfolioFormData>>
+  portfolioId: string | null
   setPortfolioId: Dispatch<SetStateAction<string | null>>
   uploadImage: (file: File) => Promise<{ url: string | null; error: string | null }>
   pendingPhotoFileRef: MutableRefObject<File | null>
@@ -21,14 +23,22 @@ interface UseEditorAutoSaveOptions {
 export function useEditorAutoSave({
   portfolioData,
   setPortfolioData,
+  portfolioId,
   setPortfolioId,
   uploadImage,
   pendingPhotoFileRef,
   setSaveStatus,
   setSaveError,
 }: UseEditorAutoSaveOptions) {
+  const router = useRouter()
   const isInitialMountRef = useRef(true)
   const debouncedPortfolio = useDebounce(portfolioData, 1500)
+  // Ref pour lire le portfolioId courant depuis l'effect sans retrigger
+  // l'auto-save à chaque changement d'id (sinon boucle après le 1er INSERT).
+  const portfolioIdRef = useRef(portfolioId)
+  useEffect(() => {
+    portfolioIdRef.current = portfolioId
+  }, [portfolioId])
 
   // Auto-save on debounced portfolio changes
   useEffect(() => {
@@ -67,7 +77,8 @@ export function useEditorAutoSave({
         }
       }
 
-      const result = await upsertPortfolio(debouncedPortfolio)
+      const currentId = portfolioIdRef.current
+      const result = await upsertPortfolio(debouncedPortfolio, currentId ?? undefined)
 
       if (cancelled) return
 
@@ -78,7 +89,13 @@ export function useEditorAutoSave({
         setSaveStatus('saved')
         setSaveError(null)
         if (result.data) {
-          setPortfolioId(result.data.id)
+          // Au premier INSERT (currentId null), on met l'id en URL pour
+          // que F5 recharge ce portfolio précis — sinon l'editor se
+          // retrouverait sans id et créerait un 2ᵉ portfolio.
+          if (!currentId) {
+            setPortfolioId(result.data.id)
+            router.replace(`/editor?id=${result.data.id}`)
+          }
         }
       }
     }
@@ -96,15 +113,19 @@ export function useEditorAutoSave({
     if (!portfolioData.title.trim()) return
     setSaveStatus('saving')
     setSaveError(null)
-    const result = await upsertPortfolio(portfolioData)
+    const currentId = portfolioIdRef.current
+    const result = await upsertPortfolio(portfolioData, currentId ?? undefined)
     if (result.error) {
       setSaveStatus('error')
       setSaveError(result.error)
     } else {
       setSaveStatus('saved')
-      if (result.data) setPortfolioId(result.data.id)
+      if (result.data && !currentId) {
+        setPortfolioId(result.data.id)
+        router.replace(`/editor?id=${result.data.id}`)
+      }
     }
-  }, [portfolioData, setSaveStatus, setSaveError, setPortfolioId])
+  }, [portfolioData, setSaveStatus, setSaveError, setPortfolioId, router])
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

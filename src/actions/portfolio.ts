@@ -44,7 +44,8 @@ export async function getPortfolio(): Promise<PortfolioResult> {
 }
 
 export async function upsertPortfolio(
-  formData: PortfolioFormData
+  formData: PortfolioFormData,
+  portfolioId?: string
 ): Promise<PortfolioResult> {
   try {
     const supabase = await createClient()
@@ -68,13 +69,22 @@ export async function upsertPortfolio(
 
     const validData = parsed.data
 
-    // Check if user already has a portfolio
-    const { data: existing } = await supabase
-      .from('portfolios')
-      .select('id, template')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle()
+    // Si un portfolioId est fourni, on cible ce portfolio précis (update).
+    // Sans id, on crée un nouveau portfolio — permet à un user d'avoir
+    // plusieurs portfolios simultanés (listés au dashboard).
+    let existing: { id: string; template: string } | null = null
+    if (portfolioId) {
+      const { data } = await supabase
+        .from('portfolios')
+        .select('id, template')
+        .eq('id', portfolioId)
+        .eq('user_id', user.id)
+        .maybeSingle()
+      if (!data) {
+        return { data: null, error: 'Portfolio introuvable' }
+      }
+      existing = data
+    }
 
     // Garde-fou premium : un user ne peut persister un template premium
     // que s'il l'a acheté. Sans ça, l'auto-save de l'editor écrirait en
@@ -144,6 +154,9 @@ export async function upsertPortfolio(
         contact_email: validData.contact_email || null,
         skills: validData.skills ?? [],
         sections: validData.sections ?? null,
+        custom_blocks: validData.custom_blocks ?? [],
+        kpis: validData.kpis ?? [],
+        layout_blocks: validData.layout_blocks ?? [],
       })
       .select()
       .single()
@@ -162,6 +175,7 @@ export async function upsertPortfolio(
 }
 
 export async function publishPortfolio(
+  portfolioId: string,
   slug: string
 ): Promise<PortfolioResult> {
   try {
@@ -207,14 +221,14 @@ export async function publishPortfolio(
       .eq('user_id', user.id)
       .eq('published', true)
 
-    // Check user has a portfolio
-    // - title + published_at are needed for the portfolio-published email
-    //   (first-publication detection via published_at IS NULL)
+    // Fetch the specific portfolio to publish + verify ownership.
+    // title + published_at are needed for the portfolio-published email
+    // (first-publication detection via published_at IS NULL).
     const { data: portfolio, error: fetchError } = await supabase
       .from('portfolios')
       .select('id, slug, published, title, published_at')
+      .eq('id', portfolioId)
       .eq('user_id', user.id)
-      .limit(1)
       .maybeSingle()
 
     if (fetchError) {
@@ -222,7 +236,7 @@ export async function publishPortfolio(
     }
 
     if (!portfolio) {
-      return { data: null, error: 'Aucun portfolio trouvé' }
+      return { data: null, error: 'Portfolio introuvable' }
     }
 
     // Check slug uniqueness — allow if the user already owns this slug
@@ -318,9 +332,9 @@ export async function publishPortfolio(
   }
 }
 
-export async function unpublishPortfolio(): Promise<{
-  error: string | null
-}> {
+export async function unpublishPortfolio(
+  portfolioId: string
+): Promise<{ error: string | null }> {
   try {
     const supabase = await createClient()
     const {
@@ -331,9 +345,13 @@ export async function unpublishPortfolio(): Promise<{
       return { error: 'Non authentifié' }
     }
 
+    // Filtre sur id + user_id : garantit qu'on ne dépublie que le bon
+    // portfolio et que l'user en est bien propriétaire (défense en
+    // profondeur, RLS gère déjà l'isolation).
     const { error } = await supabase
       .from('portfolios')
       .update({ published: false })
+      .eq('id', portfolioId)
       .eq('user_id', user.id)
 
     if (error) {
