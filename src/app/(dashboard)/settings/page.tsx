@@ -39,10 +39,10 @@ export default async function SettingsPage() {
         <p className="mt-1.5 text-sm text-muted">{t('subtitle')}</p>
       </header>
 
-      <div className="grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-2">
-        {/* Left column — Profil */}
-        <section className="space-y-5">
-          <div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        {/* Left — Profil (wider : 3/5) */}
+        <section className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-6 lg:col-span-3 lg:p-7">
+          <div className="mb-5">
             <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
               {t('profile')}
             </h2>
@@ -54,10 +54,10 @@ export default async function SettingsPage() {
           </div>
         </section>
 
-        {/* Right column — Langue + Plan */}
-        <div className="space-y-10">
-          <section className="space-y-4">
-            <div>
+        {/* Right stack — Langue + Plan (2/5) */}
+        <div className="flex flex-col gap-6 lg:col-span-2">
+          <section className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-6 lg:p-7">
+            <div className="mb-5">
               <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
                 {t('language')}
               </h2>
@@ -66,8 +66,8 @@ export default async function SettingsPage() {
             <LanguageSwitcher />
           </section>
 
-          <section className="space-y-4">
-            <div>
+          <section className="flex flex-1 flex-col rounded-[var(--radius-lg)] border border-border-light bg-surface p-6 lg:p-7">
+            <div className="mb-5">
               <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
                 {t('currentPlan')}
               </h2>
@@ -75,13 +75,13 @@ export default async function SettingsPage() {
                 {t('currentPlanDescription')}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="mt-auto flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">
                 {planLabel}
               </span>
               <Link
                 href="/billing"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
+                className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
               >
                 {t('manageSubscription')}
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
@@ -89,11 +89,11 @@ export default async function SettingsPage() {
             </div>
           </section>
         </div>
-      </div>
 
-      {/* Delete account — discreet link at the bottom, no "danger zone" framing */}
-      <div className="mt-16 border-t border-border-light pt-6">
-        <SettingsForm initialName={profile?.name ?? ''} showDeleteOnly />
+        {/* Footer card — delete account, full-width, horizontal layout */}
+        <section className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-6 lg:col-span-5 lg:p-7">
+          <SettingsForm initialName={profile?.name ?? ''} showDeleteOnly />
+        </section>
       </div>
     </div>
   )
