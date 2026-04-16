@@ -244,20 +244,20 @@ export default async function DashboardPage({
           })}
         </ul>
       ) : (
-        /* Empty state — condensed, Linear-style */
-        <div className="mx-auto flex max-w-md flex-col items-center rounded-[var(--radius-lg)] border border-dashed border-border bg-surface px-8 py-14 text-center">
+        /* Empty state — no container, content floating centered (Linear-style) */
+        <div className="mx-auto flex max-w-md flex-col items-center py-24 text-center">
           <FolderPlus
-            className="h-8 w-8 text-muted-foreground/60"
+            className="h-9 w-9 text-muted-foreground/50"
             strokeWidth={1.5}
             aria-hidden="true"
           />
-          <h2 className="mt-4 font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+          <h2 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
             {t('emptyTitleDefault')}
           </h2>
-          <p className="mt-1.5 text-sm text-muted">{t('emptyDescription')}</p>
+          <p className="mt-2 text-sm text-muted">{t('emptyDescription')}</p>
           <Link
             href="/editor"
-            className="mt-6 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+            className="mt-7 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
           >
             <Plus className="h-4 w-4" strokeWidth={2} />
             {t('emptyCta')}

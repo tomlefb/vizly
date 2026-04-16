@@ -131,26 +131,28 @@ i18n correspondant (fragment à insérer dans `messages/*.json`) :
 // sections séparées par pb-10 border-b border-border-light + pt-10 sur la suivante
 ```
 
-### Empty state sobre (style Linear/Vercel)
+### Empty state sobre (style Linear)
 
-**Condensé et centré** — jamais full-width, sinon effet "grande boîte vide".
+**Pas de card, pas de border.** Juste le contenu centré qui flotte dans le main.
 
 ```tsx
-<div className="mx-auto flex max-w-md flex-col items-center rounded-[var(--radius-lg)] border border-dashed border-border bg-surface px-8 py-14 text-center">
-  <Icon className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.5} />
-  <h3 className="mt-4 font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+<div className="mx-auto flex max-w-md flex-col items-center py-24 text-center">
+  <Icon className="h-9 w-9 text-muted-foreground/50" strokeWidth={1.5} />
+  <h3 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
     {title}
   </h3>
-  <p className="mt-1.5 text-sm text-muted">{description}</p>
-  {cta && <div className="mt-6">{cta}</div>}
+  <p className="mt-2 text-sm text-muted">{description}</p>
+  {cta && <div className="mt-7">{cta}</div>}
 </div>
 ```
 
 Règles :
-- **`max-w-md mx-auto`** obligatoire (pas full-width).
-- `bg-surface` (blanc), pas `bg-surface-warm` si le main est déjà warm — sinon la card se noie.
-- Titre court et neutre ("Crée ton premier projet") — éviter le prénom, ça alourdit.
-- Une seule icône Lucide muted, pas de cercle coloré derrière.
+- **AUCUNE card** : ni border, ni bg, ni radius. Le contenu flotte dans le main.
+- **`max-w-md mx-auto py-24`** pour contraindre la largeur et donner un padding vertical généreux (simule un centrage).
+- Icône Lucide 36px (`h-9 w-9`), `text-muted-foreground/50`, stroke 1.5. Jamais de cercle coloré derrière.
+- Titre neutre et court ("Crée ton premier projet") — pas de prénom, pas de point d'exclamation.
+- Description 1-2 lignes factuelles. Pas de copie marketing.
+- Un seul CTA primaire accent.
 
 ### Liste de lignes (invoices, projets, domaines)
 
