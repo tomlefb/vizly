@@ -219,8 +219,10 @@ function TemplateCard({
     <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
       <div className="group relative">
         {chrome}
-        {/* Desktop hover overlay — reveals buy button on top of the preview */}
-        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-surface/90 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100 md:flex">
+        {/* Desktop hover overlay — reveals buy button on top of the preview.
+            has-[:focus-visible] keeps it a11y for keyboard users without
+            getting stuck after a mouse click (which leaves focus on the button). */}
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-surface-warm/80 opacity-0 backdrop-blur-md transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 has-[:focus-visible]:pointer-events-auto has-[:focus-visible]:opacity-100 md:flex">
           {buyButton}
         </div>
       </div>
