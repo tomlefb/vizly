@@ -9,21 +9,20 @@ export default async function BillingPage() {
   ])
 
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
-        {t('titlePrefix')}{' '}
-        <span className="text-accent">{t('titleAccent')}</span>.
-      </h1>
-      <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+    <div>
+      <header className="mb-10">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {t('titlePrefix')} <span className="text-accent">{t('titleAccent')}</span>.
+        </h1>
+        <p className="mt-1.5 text-sm text-muted">{t('subtitle')}</p>
+      </header>
 
-      <div className="pt-6">
-        <BillingClient
-          plan={billing.plan}
-          subscription={billing.subscription}
-          invoices={billing.invoices}
-          purchasedTemplates={billing.purchasedTemplates}
-        />
-      </div>
+      <BillingClient
+        plan={billing.plan}
+        subscription={billing.subscription}
+        invoices={billing.invoices}
+        purchasedTemplates={billing.purchasedTemplates}
+      />
     </div>
   )
 }

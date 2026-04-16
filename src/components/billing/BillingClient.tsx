@@ -295,15 +295,18 @@ export function BillingClient({
         </Banner>
       )}
 
-      {/* ─── Bloc 1 : Mon abonnement (avec actions de gestion in-card) ─ */}
-      <SubscriptionBlock
-        plan={plan}
-        subscription={subscription}
-        formatPlanPriceLabel={formatPlanPriceLabel}
-        onUpdateCard={handleOpenUpdateCard}
-        onCancel={handleOpenCancel}
-        onReactivate={handleOpenReactivate}
-      />
+      {/* ─── Bloc 1 : Mon abonnement — masqué pour les free users, le ────
+          Bloc 2 juste en dessous joue déjà le rôle d'accueil. ───────── */}
+      {plan !== 'free' && (
+        <SubscriptionBlock
+          plan={plan}
+          subscription={subscription}
+          formatPlanPriceLabel={formatPlanPriceLabel}
+          onUpdateCard={handleOpenUpdateCard}
+          onCancel={handleOpenCancel}
+          onReactivate={handleOpenReactivate}
+        />
+      )}
 
       {/* ─── Bloc 2 : Changer de plan / Choisis ton abonnement ───────── */}
       <ChangePlanBlock
@@ -446,15 +449,11 @@ function Banner({ variant, title, children }: BannerProps) {
     variant === 'error' ? 'text-destructive' : 'text-foreground'
 
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border bg-surface-warm px-4 py-3">
-      <Icon className={cn('mt-0.5 h-4 w-4 shrink-0', iconColor)} />
+    <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-border bg-surface-warm px-4 py-3">
+      <Icon className={cn('mt-0.5 h-4 w-4 shrink-0', iconColor)} strokeWidth={2} />
       <div className="text-sm">
-        {title && (
-          <p className="font-medium text-foreground">{title}</p>
-        )}
-        <p className={cn(title ? 'mt-0.5' : '', 'text-foreground')}>
-          {children}
-        </p>
+        {title && <p className="font-medium text-foreground">{title}</p>}
+        <p className={cn(title ? 'mt-0.5' : '', 'text-foreground')}>{children}</p>
       </div>
     </div>
   )
@@ -682,9 +681,9 @@ function ChangePlanBlock({
   // ---- Free users : two side-by-side plan cards with features ----
   if (plan === 'free') {
     return (
-      <section className="space-y-4 border-t border-border pt-8">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+      <section className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
             {t('choosePlan')}
           </h2>
           <IntervalToggle
@@ -693,17 +692,13 @@ function ChangePlanBlock({
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 pt-2 md:grid-cols-2">
           <ChoosePlanCard
             plan="starter"
             interval={billingInterval}
+            featured
             ctaVariant="primary"
-            ctaLabel={t('ctaUpgradeStarter', {
-              price: formatPlanPriceLabel(
-                planPriceCents('starter', billingInterval),
-                billingInterval,
-              ),
-            })}
+            ctaLabel={t('ctaPickStarter')}
             disabled={isLoading}
             loading={isLoading}
             onClick={() => onOpenModal('starter')}
@@ -713,12 +708,7 @@ function ChangePlanBlock({
             plan="pro"
             interval={billingInterval}
             ctaVariant="secondary"
-            ctaLabel={t('ctaUpgradePro', {
-              price: formatPlanPriceLabel(
-                planPriceCents('pro', billingInterval),
-                billingInterval,
-              ),
-            })}
+            ctaLabel={t('ctaPickPro')}
             disabled={isLoading}
             loading={isLoading}
             onClick={() => onOpenModal('pro')}
@@ -822,6 +812,7 @@ function ChangePlanBlock({
 interface ChoosePlanCardProps {
   plan: PaidPlan
   interval: BillingInterval
+  featured?: boolean
   ctaVariant: 'primary' | 'secondary'
   ctaLabel: string
   disabled: boolean
@@ -833,6 +824,7 @@ interface ChoosePlanCardProps {
 function ChoosePlanCard({
   plan,
   interval,
+  featured = false,
   ctaVariant,
   ctaLabel,
   disabled,
@@ -845,18 +837,34 @@ function ChoosePlanCard({
   const Btn = ctaVariant === 'primary' ? PrimaryButton : SecondaryButton
 
   return (
-    <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-background p-6">
+    <div
+      className={cn(
+        'relative flex flex-col rounded-[var(--radius-lg)] bg-surface p-6 transition-all duration-200',
+        featured
+          ? 'border-[1.5px] border-accent md:-translate-y-2'
+          : 'border border-border-light hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]',
+      )}
+    >
+      {featured && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
+            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+            {t('popular')}
+          </span>
+        </div>
+      )}
+
       <div>
-        <h3 className="text-lg font-semibold text-foreground">
+        <h3 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
           {planConfig.name}
         </h3>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-sm text-muted">
           {formatPlanPriceLabel(planConfig.priceCents[interval], interval)}
         </p>
       </div>
 
       <ul
-        className="mt-5 flex-1 space-y-2"
+        className="mt-5 flex-1 space-y-2.5"
         aria-label={t('planFeaturesLabel')}
       >
         {planConfig.features.map((feature) => (
@@ -865,8 +873,8 @@ function ChoosePlanCard({
             className="flex items-center gap-2 text-sm text-foreground"
           >
             <Check
-              className="h-3.5 w-3.5 shrink-0 text-foreground"
-              strokeWidth={2}
+              className="h-4 w-4 shrink-0 text-success"
+              strokeWidth={2.5}
               aria-hidden="true"
             />
             {feature}
@@ -874,8 +882,8 @@ function ChoosePlanCard({
         ))}
       </ul>
 
-      <div className="mt-6">
-        <Btn disabled={disabled} loading={loading} onClick={onClick}>
+      <div className="mt-7">
+        <Btn fullWidth disabled={disabled} loading={loading} onClick={onClick}>
           {ctaLabel}
         </Btn>
       </div>
@@ -892,34 +900,38 @@ function IntervalToggle({
 }) {
   const t = useTranslations('billing')
   return (
-    <div className="inline-flex items-center rounded-md border border-border p-0.5 text-xs font-medium">
-      <button
-        type="button"
-        onClick={() => onChange('monthly')}
-        className={cn(
-          'rounded px-3 py-1.5 transition-colors duration-150',
-          value === 'monthly'
-            ? 'bg-foreground text-background'
-            : 'text-muted-foreground hover:text-foreground',
-        )}
-      >
-        {t('monthly')}
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange('yearly')}
-        className={cn(
-          'rounded px-3 py-1.5 transition-colors duration-150',
-          value === 'yearly'
-            ? 'bg-foreground text-background'
-            : 'text-muted-foreground hover:text-foreground',
-        )}
-      >
-        {t('yearly')}{' '}
-        <span className="ml-0.5 text-muted-foreground">
+    <div className="flex items-center gap-3">
+      <div className="inline-flex items-center rounded-full bg-[#f4f4f4] p-1 text-sm font-medium">
+        <button
+          type="button"
+          onClick={() => onChange('monthly')}
+          className={cn(
+            'rounded-full px-4 py-1.5 transition-colors duration-150',
+            value === 'monthly'
+              ? 'border border-border bg-white text-foreground'
+              : 'text-muted hover:text-foreground',
+          )}
+        >
+          {t('monthly')}
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange('yearly')}
+          className={cn(
+            'rounded-full px-4 py-1.5 transition-colors duration-150',
+            value === 'yearly'
+              ? 'border border-border bg-white text-foreground'
+              : 'text-muted hover:text-foreground',
+          )}
+        >
+          {t('yearly')}
+        </button>
+      </div>
+      {value === 'yearly' && (
+        <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
           {t('yearlyDiscount')}
         </span>
-      </button>
+      )}
     </div>
   )
 }
@@ -1166,7 +1178,17 @@ interface ButtonProps {
   loading?: boolean
 }
 
-function PrimaryButton({ children, onClick, disabled, loading }: ButtonProps) {
+interface BillingButtonProps extends ButtonProps {
+  fullWidth?: boolean
+}
+
+function PrimaryButton({
+  children,
+  onClick,
+  disabled,
+  loading,
+  fullWidth = false,
+}: BillingButtonProps) {
   const t = useTranslations('billing')
   return (
     <button
@@ -1174,9 +1196,10 @@ function PrimaryButton({ children, onClick, disabled, loading }: ButtonProps) {
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'inline-flex h-10 items-center gap-2 rounded-md px-5 text-sm font-medium transition-colors duration-150',
+        'inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] px-5 text-sm font-semibold transition-colors duration-150',
         'bg-accent text-white hover:bg-accent-hover',
         'disabled:cursor-not-allowed disabled:bg-accent/40',
+        fullWidth && 'w-full',
       )}
     >
       {loading ? t('ctaLoading') : children}
@@ -1184,7 +1207,13 @@ function PrimaryButton({ children, onClick, disabled, loading }: ButtonProps) {
   )
 }
 
-function SecondaryButton({ children, onClick, disabled, loading }: ButtonProps) {
+function SecondaryButton({
+  children,
+  onClick,
+  disabled,
+  loading,
+  fullWidth = false,
+}: BillingButtonProps) {
   const t = useTranslations('billing')
   return (
     <button
@@ -1192,9 +1221,10 @@ function SecondaryButton({ children, onClick, disabled, loading }: ButtonProps) 
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'inline-flex h-10 items-center gap-2 rounded-md border border-border bg-background px-5 text-sm font-medium text-foreground transition-colors duration-150',
+        'inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-5 text-sm font-semibold text-foreground transition-colors duration-150',
         'hover:bg-surface-warm',
         'disabled:cursor-not-allowed disabled:text-muted-foreground',
+        fullWidth && 'w-full',
       )}
     >
       {loading ? t('ctaLoading') : children}

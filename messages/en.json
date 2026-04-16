@@ -692,7 +692,11 @@
   "billing": {
     "titlePrefix": "My",
     "titleAccent": "subscription",
-    "subtitle": "Manage your subscription, invoices and premium templates.",
+    "subtitle": "Plan, invoices and payments.",
+    "popular": "Popular",
+    "ctaPickStarter": "Choose Starter",
+    "ctaPickPro": "Choose Pro",
+    "seeMyPremiumTemplates": "View my premium templates",
     "noActiveSubscription": "You don't have an active subscription.",
     "mySubscription": "My subscription",
     "planLabel": "{name} plan",
