@@ -8,7 +8,7 @@ Builder de portfolios en ligne. Formulaire guidé → choix template → site li
 - **Supabase** — PostgreSQL, Auth (email + Google OAuth), Storage (images)
 - **Stripe** — subscriptions (Starter 4.99€/Pro 9.99€) + one-shot templates premium (2.99€)
 - **Resend** — emails transactionnels (noreply@vizly.fr)
-- **Vercel** — hosting, wildcard `*.vizly.fr`
+- **Railway** — hosting, wildcard `*.vizly.fr`
 - **Tailwind CSS + shadcn/ui** — styling (toujours personnaliser shadcn)
 - **Framer Motion** — animations
 - **Playwright** — tests E2E
@@ -16,7 +16,7 @@ Builder de portfolios en ligne. Formulaire guidé → choix template → site li
 ## MCPs
 
 - **Supabase** : tables, migrations, RLS, storage, auth, SQL
-- **Vercel** : deploy, domaines, env vars
+- **Railway** : deploy, services, variables, logs
 
 ## Conventions
 
@@ -27,447 +27,501 @@ Builder de portfolios en ligne. Formulaire guidé → choix template → site li
 - RLS sur 100% des tables Supabase
 - Commits : `type(scope): description` (feat, fix, refactor, style, test)
 
-# DESIGN-SYSTEM.md — Vizly
+---
+
+# DESIGN-SYSTEM — Vizly
 
 > Ce fichier est la source de vérité pour tout le design de Vizly.
-> Claude Code DOIT lire ce fichier avant de toucher à n'importe quel composant UI.
-> En cas de doute, la règle est : MOINS > PLUS.
+> Claude Code DOIT le lire avant de toucher à n'importe quel composant UI.
+> En cas de doute, la règle est : **MOINS > PLUS**.
+>
+> La source de vérité tokenisée est `src/app/globals.css`. Toujours utiliser
+> les tokens (`bg-accent`, `text-muted`, `border-border`, `rounded-[var(--radius-md)]`).
+> **Jamais** de hex hardcodé (`bg-[#D4634E]`, `border-[#E5E7EB]`) dans le code.
 
 ---
 
 ## PHILOSOPHIE
 
 Vizly doit ressembler à un SaaS conçu par une vraie équipe produit, pas à un side project vibe-coded.
-Références visuelles : Apollo, Maze, Neon, Remote, Sprig.
-ADN commun de ces apps : fond blanc, très peu de couleurs, beaucoup de whitespace,
-inputs simples sans décoration, hiérarchie typographique claire, zéro effet superflu.
+Références visuelles : Apollo, Maze, Neon, Remote, Sprig, Linear, Framer.
+
+ADN Vizly :
+- Fond blanc + surfaces crème chaleureuses (terracotta-compatible, pas gris froid)
+- Une seule couleur vive : le terracotta `#D4634E`
+- Typographie à deux familles : Satoshi (display) + DM Sans (body)
+- Beaucoup de whitespace, hiérarchie typo claire
+- Zéro effet superflu : pas de gradients, pas de shadows lourdes, pas de bounce
+- Grain texture subtle sur tout le site (opacity 0.035) → matière
+- Animations Framer Motion discrètes à l'apparition (fade-up 16px, ScrollReveal)
 
 Mantra : **"Si tu hésites à ajouter quelque chose, ne l'ajoute pas."**
 
 ---
 
-## COULEURS
+## TOKENS CSS (source : `src/app/globals.css`)
+
+Les couleurs, fonts et radius sont déclarées en CSS variables consommées par Tailwind v4 via `@theme`. **Ne jamais dupliquer ces valeurs en hex dans le code** — toujours passer par les classes (`bg-accent`, `text-muted`, `rounded-[var(--radius-md)]`).
+
+### Couleurs
 
 ```
---color-bg:              #FFFFFF        /* Fond principal, toujours blanc pur */
---color-bg-subtle:       #F9FAFB        /* Fond secondaire (sections alternées, sidebar) */
---color-bg-muted:        #F3F4F6        /* Fond inputs désactivés, hover léger */
---color-border:          #E5E7EB        /* Bordures par défaut — gris très léger */
---color-border-focus:    #D1D5DB        /* Bordures en focus — un cran plus foncé */
+--color-background         #FFFFFF    Fond principal (pages, app)
+--color-foreground         #1A1A1A    Texte principal (presque noir)
 
---color-text-primary:    #111827        /* Titres et texte principal — presque noir */
---color-text-secondary:  #6B7280        /* Texte secondaire, labels, descriptions */
---color-text-tertiary:   #9CA3AF        /* Placeholders, texte désactivé */
+--color-surface            #FFFFFF    Surface neutre (cards, inputs)
+--color-surface-warm       #FAF8F6    Surface crème chaleureuse (hover, sections alternées, sidebar dashboard)
+--color-surface-elevated   #FFFFFF    Surfaces surélevées (modales)
 
---color-accent:          #E8553D        /* Accent Vizly (le corail/rouge actuel) — UNIQUE couleur vive */
---color-accent-hover:    #D4442E        /* Hover sur accent */
---color-accent-light:    #FEF2F0        /* Background très léger pour badges/tags accent */
+--color-muted              #6B6560    Texte secondaire (descriptions, labels, nav inactive)
+--color-muted-foreground   #9C958E    Texte tertiaire (placeholders, meta, captions)
 
---color-success:         #059669        /* Vert validation — utilisé avec parcimonie */
---color-error:           #DC2626        /* Rouge erreur uniquement */
---color-warning:         #D97706        /* Orange warning uniquement */
+--color-border             #E8E3DE    Bordure par défaut (cards, inputs, dividers)
+--color-border-light       #F0EBE6    Bordure discrète (cards au repos, avant hover)
+
+--color-accent             #D4634E    Terracotta — UNIQUE couleur vive (CTA, focus, badges actifs, stepper)
+--color-accent-hover       #C05640    Terracotta hover
+--color-accent-light       #FDF2EF    Fond très léger pour badges/tags accent
+
+--color-success            #16A34A    Vert validation (checkmarks pricing, toasts OK)
+--color-destructive        #DC2626    Rouge erreur (UNIQUEMENT pour erreurs / destructive actions)
 ```
 
 ### Règles couleurs
-- L'accent corail (#E8553D) est utilisé UNIQUEMENT pour : le bouton CTA principal, le stepper actif, les liens d'action importants
-- Maximum 1 élément accent visible à l'écran en même temps (hors stepper)
-- Pas de gradients. Jamais. Nulle part.
-- Pas de couleurs de fond colorées sur les sections (pas de bg-blue-50, bg-purple-50, etc.)
-- Les icônes sont en --color-text-secondary (#6B7280), jamais en couleur
+
+- L'accent terracotta (`bg-accent`) est utilisé UNIQUEMENT pour : CTA primaire, stepper actif, dot badges "Popular/Pro", focus-visible ring, liens d'action importants.
+- **Max 1 élément accent visible à la fois** (hors stepper multi-step).
+- **Pas de gradients.** Jamais. Nulle part. (`bg-gradient-to-*` interdit.)
+- **Pas de backgrounds Tailwind gris froids** (`bg-gray-50/100`, `bg-slate-*`, `bg-zinc-*`). Utiliser `bg-surface-warm` ou `bg-surface`.
+- **Pas de hex inline** : `bg-[#E5E7EB]` → `border-border`. `bg-[#F3F4F6]` → `bg-surface-warm`.
+- Icônes Lucide : couleur `text-muted` par défaut, `text-foreground` si actif, `text-accent` UNIQUEMENT dans CTA avec label.
+- Tags catégoriels : autorisés en tons sourdis à 8% opacity (`bg-[#8B6914]/8 text-[#8B6914]`) mais limités aux cartes de features marketing — **jamais dans le dashboard**.
 
 ---
 
 ## TYPOGRAPHIE
 
 ```
---font-family:           'DM Sans', system-ui, sans-serif
+--font-display    Satoshi  (variable, headlines)
+--font-body       DM Sans  (Google Font, corps de texte)
 ```
 
-DM Sans pour tout. Pas de deuxième police. Pas de serif. Pas de monospace sauf code.
+### Règle d'usage
 
-### Échelle typographique (stricte, pas d'autres tailles)
+- **Tous les headings (`h1`-`h3`)** : `font-[family-name:var(--font-satoshi)]` avec `font-bold` ou `font-extrabold`.
+- **Corps de texte, labels, boutons** : DM Sans (hérité du `body`, pas besoin de le préciser).
+- Pas de serif. Pas de monospace sauf code inline/blocks.
 
-| Token             | Taille  | Poids | Line-height | Usage                           |
-|--------------------|---------|-------|-------------|---------------------------------|
-| --text-page-title  | 24px    | 600   | 32px        | Titre de page ("Mes projets")   |
-| --text-section     | 18px    | 600   | 28px        | Titre de section dans un form   |
-| --text-subsection  | 14px    | 600   | 20px        | Sous-titre, label de catégorie  |
-| --text-body        | 14px    | 400   | 20px        | Corps de texte, labels de champ |
-| --text-small       | 13px    | 400   | 18px        | Descriptions, helper text       |
-| --text-caption     | 12px    | 500   | 16px        | Compteurs (4/30), badges, meta  |
+### Échelle typographique (marketing + dashboard)
+
+| Usage                         | Classes Tailwind                                      | Weight         |
+|-------------------------------|--------------------------------------------------------|----------------|
+| H1 Hero marketing             | `text-4xl sm:text-5xl lg:text-6xl tracking-tight`      | extrabold (800) |
+| H1 Page dashboard             | `text-2xl sm:text-3xl tracking-tight`                  | bold (700)     |
+| H2 Section                    | `text-3xl sm:text-4xl lg:text-5xl tracking-tight`      | bold (700)     |
+| H3 Card / sous-section        | `text-lg`                                              | semibold (600) |
+| H4 Label de champ / subtitle  | `text-sm`                                              | semibold (600) |
+| Body                          | `text-sm` ou `text-base`                               | normal (400)   |
+| Body secondaire / description | `text-sm text-muted` ou `text-base text-muted`         | normal (400)   |
+| Meta / caption                | `text-xs text-muted-foreground`                        | medium (500)   |
+| Badge statut (PRO, LIVE)      | `text-xs font-semibold uppercase tracking-wider`       | semibold (600) |
+
+### Pattern headline distinctif
+
+```tsx
+<h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl">
+  {t('title')} <span className="text-accent">{t('titleAccent')}</span>
+</h2>
+```
 
 ### Règles typo
-- Pas de texte en bold (700) sauf dans les boutons
-- Pas de texte en uppercase sauf les badges de statut (PRO, BROUILLON)
-- Pas d'italique
-- Pas de text-decoration sauf :hover sur les liens
-- Les labels de champ sont en --text-body (14px/400), couleur --color-text-secondary
-- Les titres de section n'ont PAS d'icône devant eux (retire les icônes décoratives)
+
+- `leading-[1.08]` sur H1 hero, `leading-relaxed` sur paragraphes, `leading-snug` sur subtitles.
+- Pas d'italique.
+- Pas d'uppercase sauf badges de statut (PRO, BROUILLON, LIVE).
+- Pas de text-decoration sauf `:hover` sur liens inline.
+- Labels de champ : `text-sm font-medium text-foreground` (PAS en bold).
 
 ---
 
-## SPACING
-
-Grille de 4px. Tous les espacements sont des multiples de 4.
+## RADIUS
 
 ```
---space-xs:    4px
---space-sm:    8px
---space-md:    12px
---space-base:  16px
---space-lg:    24px
---space-xl:    32px
---space-2xl:   48px
---space-3xl:   64px
+--radius-sm    6px    Boutons hamburger, focus ring, petits tags
+--radius-md    10px   Boutons CTA, inputs, secondary buttons, icon containers
+--radius-lg    14px   Cards (features, pricing, dashboard)
+--radius-xl    20px   Sections CTA pleine largeur, blobs décoratifs
+--radius-full  9999px Badges pill ("Popular"), toggles monthly/yearly
 ```
 
-### Règles spacing
-- Padding intérieur d'une page : 32px horizontal, 32px vertical
-- Gap entre sections de formulaire : 32px (pas de cards — juste du whitespace + un border-bottom)
-- Gap entre champs dans une section : 16px
-- Padding intérieur d'une card : 20px
-- Marge entre le label et l'input : 6px
-- Marge entre l'input et le helper text : 4px
+### Règles radius
+
+- Toujours via token : `rounded-[var(--radius-md)]`, jamais `rounded-lg`/`rounded-xl` brut.
+- Exception acceptée : `rounded-full` (pill) pour badges/avatars/toggles.
+- **Pas de `rounded-2xl`, `rounded-3xl`** hardcodé sur une card.
+
+---
+
+## SPACING & RYTHME
+
+Tailwind par défaut (multiples de 4px).
+
+### Rythme standard (marketing + landing)
+
+- Sections : `py-16 lg:py-24` (64px / 96px)
+- Header section (titre + sous-titre) : `mb-10 lg:mb-14`
+- Card padding : `p-7 lg:p-8` (28px / 32px)
+- Gaps dans grids : `gap-4 lg:gap-5`
+- Padding horizontal page : `px-6 lg:px-8`
+- Container : `max-w-7xl mx-auto`
+
+### Rythme dashboard
+
+- Padding de page : `p-6 lg:p-8` (24px / 32px)
+- Gap entre sections d'une page : `space-y-8` ou `space-y-10`
+- Gap entre champs d'un form : `space-y-4` ou `gap-4`
+- Padding interne card : `p-5 lg:p-6` (20px / 24px)
+- Entre label et input : `mb-1.5` (6px)
+- Entre input et helper : `mt-1` (4px)
 
 ---
 
 ## COMPOSANTS
 
-### Inputs (texte, textarea, select)
-
-```css
-input, textarea, select {
-  height: 40px;                          /* 44px pour les textareas (auto-height) */
-  padding: 8px 12px;
-  border: 1px solid var(--color-border); /* #E5E7EB */
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--color-text-primary);
-  background: var(--color-bg);           /* Blanc pur */
-  transition: border-color 0.15s ease;
-}
-
-input:focus {
-  border-color: var(--color-border-focus); /* #D1D5DB — PAS de couleur vive */
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04); /* Ombre quasi invisible */
-}
-
-input::placeholder {
-  color: var(--color-text-tertiary);     /* #9CA3AF */
-}
-```
-
-#### CE QUI EST INTERDIT sur les inputs :
-- ❌ Icône à gauche dans l'input (pas d'icône LinkedIn dans le champ LinkedIn)
-- ❌ Border-color en accent/rouge au focus
-- ❌ Background coloré au focus
-- ❌ Border-radius > 8px
-- ❌ Box-shadow visible au repos
-- ❌ Height > 44px (sauf textarea)
-
 ### Boutons
 
-**Bouton primaire (CTA) :**
-```css
-.btn-primary {
-  height: 40px;
-  padding: 0 20px;
-  background: var(--color-accent);       /* #E8553D */
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-.btn-primary:hover {
-  background: var(--color-accent-hover); /* #D4442E */
-}
+**Primaire (CTA terracotta) :**
+```tsx
+className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+```
+Variante large (hero, billing) : `px-7 py-3.5`.
+
+**Secondaire (border) :**
+```tsx
+className="inline-flex items-center justify-center rounded-[var(--radius-md)] border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-surface-warm"
 ```
 
-**Bouton secondaire :**
-```css
-.btn-secondary {
-  height: 40px;
-  padding: 0 20px;
-  background: var(--color-bg);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-}
+**Ghost / tertiary (nav, cancel) :**
+```tsx
+className="text-sm font-medium text-muted transition-colors hover:text-foreground"
 ```
 
-**Bouton texte (back, annuler) :**
-```css
-.btn-text {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 0;
-}
+**Destructive (delete, cancel subscription) :**
+```tsx
+className="inline-flex items-center justify-center rounded-[var(--radius-md)] border border-destructive/20 bg-transparent px-5 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/5"
 ```
 
-#### Règles boutons
-- Maximum 1 bouton primaire visible par écran
-- "Précédent" = bouton texte (pas un bouton outline), positionné à GAUCHE du bouton principal
-- Navigation bas de page : aligner Précédent et Suivant à DROITE, côte à côte
-- Pas d'icône dans les boutons sauf + (ajouter) et → (suivant)
-- Pas de boutons en full-width sauf sur mobile
+Règles :
+- Max 1 bouton primaire par écran (hors cards pricing où 3 plans côte à côte).
+- "Précédent" = ghost button, à gauche du bouton principal.
+- Icône de fin autorisée pour forward motion : `<ArrowRight className="h-4 w-4" />` avec `group-hover:translate-x-0.5`.
+- Icône de début autorisée pour création : `<Plus />`.
+- Pas de full-width sauf mobile (sidebar menu).
 
 ### Cards
 
-```css
-.card {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;                  /* 12px max pour les cards */
-  padding: 20px;
-  box-shadow: none;                     /* PAS d'ombre au repos */
-}
-.card:hover {
-  border-color: var(--color-border-focus);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); /* Ombre ultra subtile au hover */
-}
+```tsx
+className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-7 lg:p-8 transition-all duration-300 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
 ```
 
-#### CE QUI EST INTERDIT sur les cards :
-- ❌ box-shadow au repos (shadow-sm, shadow-md, etc.)
-- ❌ border-radius > 12px
-- ❌ Background coloré (bg-red-50, bg-blue-50, etc.)
-- ❌ Bordure colorée (border-left accent, etc.)
-- ❌ Header de card avec fond coloré
+- `border-border-light` au repos (discret), `border-border` au hover.
+- Shadow ultra-subtle au hover seulement : `shadow-[0_2px_12px_rgba(0,0,0,0.04)]`. **Jamais au repos.**
+- Cards featured (pricing plan populaire) : `border-[1.5px] border-accent md:-translate-y-2`.
+- Pas de `bg-*-50` (pas de fond coloré).
+- Pas de `border-l-4` (pas de bordure accent latérale).
 
-### Tags / Chips (compétences, technologies)
+### Inputs (texte, textarea, select)
 
-```css
-.tag {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 10px;
-  background: var(--color-bg-muted);    /* #F3F4F6 */
-  color: var(--color-text-primary);
-  border: none;                         /* PAS de border */
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 400;
-  gap: 6px;
-}
+```tsx
+className="h-10 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
 ```
 
-- Le bouton × pour supprimer un tag : couleur --color-text-tertiary, 14px
-- Pas de border sur les tags
-- Pas de couleurs différentes par tag
+- Height 40px (`h-10`), textarea auto-height avec min `min-h-[88px]`.
+- Radius `var(--radius-md)` (10px).
+- **Focus ring terracotta très léger** : `ring-2 ring-accent/10` + `border-accent/40`. (Marketing utilise cette approche chaleureuse, pas un gris neutre.)
+- Placeholder `text-muted-foreground`.
+- **Pas d'icône dans le champ** (sauf search `<Search />` à gauche avec `pl-10`).
+
+### Labels de champ
+
+```tsx
+<label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor={id}>
+  {label}
+</label>
+```
+
+Helper text sous l'input : `mt-1 text-xs text-muted`.
+Message d'erreur : `mt-1 text-xs text-destructive`.
+
+### Tags / Chips
+
+```tsx
+className="inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-sm)] bg-surface-warm px-2.5 text-xs font-medium text-foreground"
+```
+
+- Pas de bordure.
+- Pas de couleurs différentes par tag (uniformité).
+- Bouton × pour delete : `text-muted-foreground hover:text-foreground`.
 
 ### Badges de statut
 
-```css
-.badge {
-  display: inline-flex;
-  height: 22px;
-  padding: 0 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-.badge-pro     { background: var(--color-accent-light); color: var(--color-accent); }
-.badge-draft   { background: #F3F4F6; color: #6B7280; }
-.badge-live    { background: #ECFDF5; color: #059669; }
+```tsx
+// Pill shape distinctive Vizly
+className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider"
 ```
 
-### Upload zone (drag & drop images)
+Variantes :
+- `PRO` / `POPULAIRE` : `bg-accent text-white` + dot blanc `<span className="h-1.5 w-1.5 rounded-full bg-white" />`
+- `LIVE` : `bg-success/10 text-success`
+- `BROUILLON` : `bg-surface-warm text-muted`
+- `EN ATTENTE` : `bg-accent-light text-accent`
 
-```css
-.upload-zone {
-  border: 1.5px dashed var(--color-border);  /* Gris, PAS coloré */
-  border-radius: 12px;
-  padding: 32px;
-  text-align: center;
-  background: var(--color-bg-subtle);        /* #F9FAFB */
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-.upload-zone:hover {
-  border-color: var(--color-border-focus);
-}
+### Upload zone (drag & drop)
+
+```tsx
+className="rounded-[var(--radius-lg)] border-[1.5px] border-dashed border-border bg-surface-warm p-8 text-center transition-colors hover:border-muted-foreground"
 ```
 
-- ❌ INTERDIT : bordure en rouge/rose/accent sur la zone d'upload
-- ❌ INTERDIT : background coloré sur la zone d'upload
-- L'icône upload : 24px, couleur --color-text-tertiary
-- Texte : "Glisse ou clique pour ajouter" en --color-text-secondary, 14px
-- Sous-texte : "JPG, PNG, WebP — max 5 images" en --color-text-tertiary, 13px
+- Border dashed GRIS (jamais accent).
+- Background `bg-surface-warm` (crème, pas blanc).
+- Icône upload : `h-6 w-6 text-muted-foreground`.
+- Texte : "Glisse ou clique pour ajouter" en `text-sm text-muted`.
+- Helper : "JPG, PNG, WebP — max 5 Mo" en `text-xs text-muted-foreground`.
+
+### Toggle segmented (monthly/yearly billing)
+
+Pattern pill bicolore :
+```tsx
+<div className="inline-flex items-center rounded-full bg-[#f4f4f4] p-1 text-sm font-medium">
+  <button className={cn(
+    'rounded-full px-4 py-2 transition-colors',
+    active ? 'bg-white border border-border text-foreground' : 'text-muted hover:text-foreground'
+  )}>{label}</button>
+</div>
+```
 
 ---
 
 ## LAYOUT
 
-### Sidebar (navigation principale)
+### Header marketing
 
-**Option recommandée : sidebar fixe, toujours visible, fine**
-
-```
-Largeur : 220px (desktop), rétractable à 56px (icônes seules)
-Background : var(--color-bg-subtle) ou var(--color-bg)
-Border-right : 1px solid var(--color-border)
+```tsx
+<header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
 ```
 
-- Le toggle collapse/expand se fait via un bouton chevron, PAS au hover
-- Items de nav : height 36px, padding-left 12px, border-radius 6px
-- Item actif : background var(--color-bg-muted), font-weight 500
-- Item hover : background var(--color-bg-muted)
-- Icônes de nav : 18px, stroke-width 1.5, couleur --color-text-secondary
-- Icône de l'item actif : couleur --color-text-primary
-- Pas de couleur accent sur les items de nav (pas de fond rouge/corail)
+- Sticky + backdrop-blur semi-transparent.
+- Nav desktop : `gap-8`, links en `text-sm font-medium text-muted hover:text-foreground`.
+- Mobile : menu slide-down avec `transition-all duration-300 ease-out` sur `max-h`.
 
-Référence : la sidebar de Neon, Maze, Sprig — sobre, texte noir, fond neutre
+### Sidebar dashboard
 
-### Stepper (Profil → Projets → Contenu → Design → Publier)
+- Largeur : **220px desktop** (expanded), **56px** (collapsed icons-only).
+- Background : `bg-surface-warm` (crème, pas gris froid).
+- Border-right : `border-r border-border`.
+- Toggle : **chevron button**, PAS au hover (règle mémoire).
+- Pre-paint : l'inline script pose `data-sidebar-collapsed` sur `<html>` avant le premier paint pour éviter le flash (cf. `globals.css` ligne 57-62).
+- Items de nav :
+  - Height `h-9` (36px), padding-left `pl-3`, radius `rounded-[var(--radius-sm)]`.
+  - Inactive : `text-muted hover:bg-surface hover:text-foreground`.
+  - Active : `bg-surface text-foreground font-medium` (PAS de fond accent).
+  - Icônes 18px stroke-1.5, `text-muted` (inactive), `text-foreground` (active).
 
-```
-Style : ligne horizontale avec dots/numéros
-Couleur étape complétée : var(--color-accent) pour le dot, ligne en --color-accent
-Couleur étape active : dot rempli en --color-accent, texte en --color-text-primary
-Couleur étape future : dot vide border --color-border, texte en --color-text-tertiary
-Ligne entre les étapes : 2px de haut, connecte les dots
-```
+### Stepper (création portfolio)
 
-- Pas de background-circle coloré autour de l'icône d'étape
-- Pas d'icône custom par étape — juste un numéro ou un dot
-- Labels sous les dots en --text-caption (12px/500)
+- Ligne horizontale avec dots numérotés.
+- Dot complété : `bg-accent` rempli, ligne entre steps `bg-accent`.
+- Dot actif : `border-2 border-accent bg-background` + numéro `text-accent`.
+- Dot futur : `border-2 border-border bg-background` + numéro `text-muted-foreground`.
+- Labels sous les dots : `text-xs text-muted`.
+- Label de l'étape active : `text-foreground font-medium`.
 
 ### Split panel (éditeur + preview)
 
-```
-Panel gauche (éditeur) : flex-1, max-width 520px, padding 32px, scroll-y
-Panel droit (preview)  : flex-1, background var(--color-bg-subtle), border-left 1px
-Séparation             : 1px solid var(--color-border), pas de gap
-```
+- Panel gauche (form) : `flex-1 max-w-[520px] overflow-y-auto p-8`.
+- Panel droit (preview) : `flex-1 bg-surface-warm border-l border-border`.
+- Pas de gap entre les deux.
 
 ### Sections de formulaire
 
-**NE PAS wrapper chaque section dans une card.**
-
-Utiliser un pattern plus léger :
+**Ne PAS wrapper chaque section dans une card.** Pattern léger :
 
 ```
-Section title (18px/600)
-Description (13px/400, --color-text-secondary)
-                                        ← 16px gap
-Champ 1
-                                        ← 16px gap
-Champ 2
-                                        ← 32px gap
-─────────────────────────────           ← border-bottom 1px solid var(--color-border)
-                                        ← 32px gap
-Section title suivante
+<h3 font-satoshi text-lg font-semibold>Titre de section</h3>
+<p text-sm text-muted>Description de la section</p>
+                                            ← mb-6 (24px)
+<champ 1>
+                                            ← mb-4 (16px)
+<champ 2>
+                                            ← pb-10 (40px)
+<hr border-border />
+                                            ← pt-10 (40px)
+<h3>Section suivante</h3>
 ```
 
-Si des cards sont absolument nécessaires (ex: card de projet dans le dashboard),
-elles suivent le style .card défini plus haut — pas d'ombre, border 1px, radius 12px.
+Cards réservées aux items (card de projet dashboard, card de template).
 
 ---
 
 ## ANIMATIONS & TRANSITIONS
 
+Deux systèmes qui cohabitent :
+
+### 1. Transitions CSS (interactions locales)
+
+Toujours 150ms ou 200ms, `ease` par défaut :
 ```css
-/* La seule transition autorisée */
-transition: [property] 0.15s ease;
+transition: [property] 150ms ease;    /* hovers, colors */
+transition: [property] 200ms ease;    /* buttons, backgrounds */
+transition: [property] 300ms ease-out; /* menu mobile, accordions */
 ```
 
-### Ce qui a une transition :
-- border-color au focus/hover
-- background-color au hover (boutons, items de nav)
-- opacity pour les apparitions (0 → 1)
-- transform: translateY pour les entrées de page (0, 4px → 0, 0) — subtil
+Transitionable :
+- `border-color` au focus/hover
+- `background-color` au hover
+- `color` au hover
+- `opacity` (apparitions)
+- `translate` (subtil : `translate-x-0.5` sur icônes boutons)
+- `max-height` (accordions, mobile menus)
 
-### CE QUI EST INTERDIT :
-- ❌ Animations au scroll (pas de fade-in-up au scroll)
-- ❌ Transitions > 0.2s
-- ❌ Scale au hover (pas de transform: scale(1.02))
-- ❌ Bounce, elastic, spring animations
-- ❌ Skeleton loaders animés avec shimmer (utiliser un simple spinner ou texte "Chargement...")
-- ❌ Hover effects qui changent la taille d'un élément (shift le layout)
+### 2. Framer Motion (entrées de page / scroll)
+
+**ScrollReveal** (composant partagé `src/components/shared/ScrollReveal.tsx`) :
+- Ease : `[0.16, 1, 0.3, 1]` (custom EASE_OUT_EXPO)
+- Duration : `0.5s`
+- Initial : `{ opacity: 0, y: 24 }`
+- Viewport : `{ once: true, margin: '-15% 0px' }`
+
+**StaggerItem** (enfant de ScrollReveal) :
+- Duration : `0.4s`
+- Delay : `0.15 + index * 0.08` (cascade 120ms entre items)
+- Initial : `{ opacity: 0, y: 16 }`
+
+**Hero fadeUp (entrée initiale) :**
+- Ease : `[0, 0, 0.2, 1]` (easeOut)
+- Duration : `0.3s`
+- Delays cascade : 0ms, 50ms, 100ms, 150ms
+
+### Règle finale
+
+- Marketing : ScrollReveal + StaggerItem OK partout (c'est ce qui donne vie aux landing).
+- Dashboard : **animations minimales** — seulement fade-in initial sur les pages (fadeUp 0.3s), PAS de scroll animations. Le dashboard doit être rapide et fonctionnel, pas théâtral.
+- `prefers-reduced-motion` respecté automatiquement par `globals.css`.
+
+### Interdits
+
+- Transitions > 300ms (sauf mobile menu).
+- Scale au hover (`hover:scale-105` interdit sauf micro-effet sur icon containers).
+- Bounce, elastic, spring.
+- Shimmer sur skeleton loaders (préférer spinner simple ou texte "Chargement…").
+- Hover effects qui **shift** le layout.
 
 ---
 
 ## ICÔNES
 
-Provider : Lucide React (déjà utilisé dans le projet)
+Provider : **Lucide React**.
 
 ```
-Taille par défaut : 18px
-Stroke-width : 1.5
-Couleur par défaut : var(--color-text-secondary)
+Taille par défaut : h-4 w-4 (16px) dans boutons/labels
+                    h-5 w-5 (20px) dans headers
+                    h-6 w-6 (24px) dans upload zones
+Stroke-width      : 1.5 (Lucide default 2 → override via strokeWidth={1.5})
+Couleur défaut    : text-muted
 ```
 
 ### Règles icônes
-- Les icônes ne sont JAMAIS en couleur accent sauf dans les boutons CTA
-- Les icônes ne sont JAMAIS dans un cercle/carré coloré (pas de bg-red-100 + icône rouge)
-- Les icônes devant les labels de section sont SUPPRIMÉES — texte seul suffit
-- Les icônes dans les inputs sont SUPPRIMÉES (pas d'icône LinkedIn dans le champ URL)
-- Exception : icônes dans la sidebar de navigation (nécessaires)
+
+- **Jamais** dans un cercle/carré coloré (pas de `bg-red-100 rounded-full` + icône).
+- **Jamais** en couleur accent SAUF dans bouton CTA (`<Check className="text-white" />` dans bouton accent).
+- Icônes de check (pricing) : `text-success` avec `strokeWidth={2.5}`.
+- Icônes désactivées (pricing non-inclus) : `text-muted-foreground/40`.
+- Icônes dans les inputs : **SUPPRIMÉES** sauf search.
+- Icônes devant les labels de section : **SUPPRIMÉES** (texte seul).
+- Exception justifiée : sidebar nav (icônes essentielles), alertes (AlertTriangle à côté du texte).
+
+---
+
+## GRAIN TEXTURE
+
+Appliquée globalement via `body::before` (cf. `globals.css` ligne 30-40) :
+- SVG `feTurbulence fractalNoise` baseFrequency 0.9
+- `opacity: 0.035`, `z-index: 9999`
+- `pointer-events: none`
+
+**Ne pas retirer.** C'est ce qui donne la matière "premium" à l'ensemble du site.
 
 ---
 
 ## RESPONSIVE
 
 ```
-Mobile  : < 768px  → sidebar cachée, hamburger menu, formulaire full-width
-Tablet  : 768-1024px → sidebar rétractée (56px icônes), preview cachée
-Desktop : > 1024px → layout complet sidebar + éditeur + preview
+Mobile  : < 768px  → sidebar cachée, hamburger menu, preview derrière bouton
+Tablet  : 768-1024px → sidebar collapsed (56px), preview visible si espace
+Desktop : > 1024px → layout complet (sidebar 220px + éditeur + preview)
 ```
 
-- Sur mobile, le split panel disparaît — le preview est accessible via un bouton "Aperçu"
-- Les boutons Précédent/Suivant deviennent sticky en bas sur mobile
-- Padding de page : 16px sur mobile, 24px sur tablet, 32px sur desktop
+- Padding de page : `px-4 md:px-6 lg:px-8`.
+- Boutons Précédent/Suivant : sticky bottom sur mobile, inline desktop.
+- Typo : `text-2xl sm:text-3xl lg:text-4xl` cascade standard.
 
 ---
 
-## ANTI-PATTERNS — LISTE EXHAUSTIVE DES CHOSES À NE JAMAIS FAIRE
+## DASHBOARD — RÈGLES SPÉCIFIQUES
+
+Le dashboard suit TOUTES les règles ci-dessus, avec ces précisions :
+
+1. **Palette** : favoriser `bg-surface-warm` sur la sidebar et les sections alternées, `bg-surface` (blanc) sur les contenus principaux.
+2. **Densité** : plus dense que le marketing. Padding `p-6` en général, pas `p-8 lg:p-12`.
+3. **Animations** : fade-in initial uniquement (0.3s), pas de ScrollReveal par élément.
+4. **Headers de page** : `<h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">Titre</h1>` + sous-titre `text-sm text-muted mt-1`.
+5. **Actions principales** : bouton primary accent en haut à droite du header de page.
+6. **Tables / listes** : pas de shadows, dividers `border-b border-border-light` entre lignes, hover `bg-surface-warm`.
+7. **Empty states** : centré, icône Lucide 40px `text-muted-foreground/60`, titre `text-base font-medium`, description `text-sm text-muted`, CTA secondaire.
+8. **Toasts** : bas à droite, `max-w-sm`, border+bg blanc, pas de couleurs pleines full-width.
+9. **Modales** : overlay `bg-black/30` (pas plus), container `rounded-[var(--radius-xl)]` sur mobile bottom-sheet / `rounded-[var(--radius-lg)]` desktop centered.
+
+---
+
+## ANTI-PATTERNS (interdits quoi qu'il arrive)
 
 1. ❌ Gradients (sur quoi que ce soit)
-2. ❌ Box-shadow au repos (shadow-sm, shadow-md, shadow-lg, shadow-xl)
-3. ❌ Border-radius > 12px (pas de rounded-2xl, rounded-3xl, rounded-full sur des cards)
-4. ❌ Background coloré sur les sections (bg-red-50, bg-blue-50, bg-gradient-to-r)
-5. ❌ Icônes dans des cercles/carrés colorés
-6. ❌ Plus de 2 font-weight visibles par page (400 et 600, c'est tout)
-7. ❌ Texte centré sur les formulaires (toujours aligné à gauche)
-8. ❌ Bordures colorées (border-l-4 border-accent, etc.)
-9. ❌ Hover effects qui scale ou lift les éléments
-10. ❌ Uppercase sur autre chose que les badges de statut
-11. ❌ Emojis dans l'interface (pas de 👋 dans "Bienvenue")
-12. ❌ Placeholder text qui fait "fun" — rester factuel
-13. ❌ Dividers avec icônes ou texte au milieu
-14. ❌ Tabs avec background coloré sur l'onglet actif — utiliser un underline 2px
-15. ❌ Loading skeletons shimmer — utiliser un spinner simple
-16. ❌ Toast notifications colorées full-width — petits toasts en bas à droite, border, sobre
-17. ❌ Modales avec overlay très opaque — overlay à opacity 0.3 max
-18. ❌ Bordure dashed en couleur (surtout pas en accent/rouge pour les uploads)
-19. ❌ Multiple couleurs d'accent — UNE SEULE : le corail #E8553D
+2. ❌ Box-shadow au repos (shadow-sm/md/lg/xl)
+3. ❌ Rounded-2xl / rounded-3xl sur cards (token `--radius-lg` = 14px max)
+4. ❌ Backgrounds Tailwind gris froids (`bg-gray-*`, `bg-slate-*`, `bg-zinc-*`)
+5. ❌ Hex inline (`bg-[#D4634E]`, `border-[#E5E7EB]`) → toujours token
+6. ❌ Icônes dans des cercles/carrés colorés
+7. ❌ Plus de 2 couleurs accent (UNE SEULE : terracotta `#D4634E`)
+8. ❌ Texte centré sur les formulaires (toujours gauche)
+9. ❌ Bordures accent latérales (`border-l-4 border-accent`)
+10. ❌ Hover scale / lift qui shift le layout
+11. ❌ Uppercase sauf badges de statut
+12. ❌ Emojis dans l'UI
+13. ❌ Placeholder "fun" ("Tape ici ton super nom !" → "Prénom")
+14. ❌ Skeletons shimmer → spinner sobre
+15. ❌ Toasts colorés full-width
+16. ❌ Modales overlay opaque > 30%
+17. ❌ Upload zone en accent dashed
+18. ❌ Bold (700) sur le corps de texte (réservé aux boutons/headings bold)
+19. ❌ Transitions > 300ms
+20. ❌ ScrollReveal dans le dashboard (réservé au marketing)
 
 ---
 
 ## CHECKLIST AVANT CHAQUE COMMIT UI
 
-Avant de valider un changement UI, Claude Code vérifie :
-
-- [ ] Aucun gradient visible
-- [ ] Aucun box-shadow au repos
-- [ ] Aucun border-radius > 12px
-- [ ] Aucune icône dans un cercle coloré
-- [ ] Maximum 1 bouton primaire (accent) visible à l'écran
-- [ ] Les inputs n'ont pas d'icône intégrée
-- [ ] Les labels sont en 14px/400 gris, pas en bold
-- [ ] Les sections de form sont séparées par du whitespace + border-bottom, pas des cards
-- [ ] La zone d'upload est en border dashed GRIS, pas en couleur
-- [ ] Le texte est aligné à gauche (pas centré) dans les formulaires
-- [ ] Les couleurs utilisées sont UNIQUEMENT celles définies dans ce fichier
+- [ ] Aucun hex hardcodé → tous les tokens CSS
+- [ ] Aucun `bg-gray-*` / `bg-slate-*` / `bg-zinc-*`
+- [ ] Aucun gradient
+- [ ] Aucun `shadow-*` au repos (seulement hover, ultra subtle)
+- [ ] Aucun `rounded-2xl` / `rounded-3xl` sur card
+- [ ] Max 1 bouton accent visible
+- [ ] Inputs sans icône intégrée (sauf search)
+- [ ] Labels `text-sm font-medium`, pas bold
+- [ ] Headings en Satoshi (`font-[family-name:var(--font-satoshi)]`)
+- [ ] Sections form séparées par whitespace + `border-b`, pas des cards
+- [ ] Upload zone : border dashed gris, bg `surface-warm`
+- [ ] Dashboard : pas de ScrollReveal, animations minimales
+- [ ] Transitions entre 150ms et 300ms
+- [ ] Icônes Lucide stroke-1.5, `text-muted` par défaut
+- [ ] Grain texture préservée (body::before intact)
