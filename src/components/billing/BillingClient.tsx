@@ -295,20 +295,23 @@ export function BillingClient({
         </Banner>
       )}
 
-      {/* ─── Bloc 1 : Mon abonnement — masqué pour les free users, le ────
-          Bloc 2 juste en dessous joue déjà le rôle d'accueil. ───────── */}
+      {/* ─── Bloc 1 : Mon abonnement — inclut les CTAs "Changer de plan" ──
+          inline en haut à droite de la card pour les paid users. Masqué
+          pour les free users (le Bloc 2 joue le rôle d'accueil). ───── */}
       {plan !== 'free' && (
         <SubscriptionBlock
           plan={plan}
           subscription={subscription}
           formatPlanPriceLabel={formatPlanPriceLabel}
+          loadingAction={loadingAction}
           onUpdateCard={handleOpenUpdateCard}
           onCancel={handleOpenCancel}
           onReactivate={handleOpenReactivate}
+          onChangePlan={runPlanChange}
         />
       )}
 
-      {/* ─── Bloc 2 : Changer de plan / Choisis ton abonnement ───────── */}
+      {/* ─── Bloc 2 : Choisis ton abonnement (free users uniquement) ─── */}
       <ChangePlanBlock
         plan={plan}
         subscription={subscription}
@@ -459,18 +462,22 @@ interface SubscriptionBlockProps {
   plan: 'free' | 'starter' | 'pro'
   subscription: BillingSubscriptionSummary | null
   formatPlanPriceLabel: (cents: number, interval: BillingInterval) => string
+  loadingAction: LoadingAction
   onUpdateCard: () => void
   onCancel: () => void
   onReactivate: () => void
+  onChangePlan: (target: { plan: PaidPlan; interval: BillingInterval }) => void
 }
 
 function SubscriptionBlock({
   plan,
   subscription,
   formatPlanPriceLabel,
+  loadingAction,
   onUpdateCard,
   onCancel,
   onReactivate,
+  onChangePlan,
 }: SubscriptionBlockProps) {
   // H2 "Mon abonnement" retiré : redondant avec le H1 de la page. La
   // PlanCard se suffit à elle-même (nom du plan, prix et features dedans).
@@ -482,9 +489,11 @@ function SubscriptionBlock({
       plan={plan as PaidPlan}
       subscription={subscription}
       formatPlanPriceLabel={formatPlanPriceLabel}
+      loadingAction={loadingAction}
       onUpdateCard={onUpdateCard}
       onCancel={onCancel}
       onReactivate={onReactivate}
+      onChangePlan={onChangePlan}
     />
   )
 }
@@ -493,24 +502,29 @@ interface PlanCardProps {
   plan: PaidPlan
   subscription: BillingSubscriptionSummary | null
   formatPlanPriceLabel: (cents: number, interval: BillingInterval) => string
+  loadingAction: LoadingAction
   onUpdateCard: () => void
   onCancel: () => void
   onReactivate: () => void
+  onChangePlan: (target: { plan: PaidPlan; interval: BillingInterval }) => void
 }
 
 function PlanCard({
   plan,
   subscription,
   formatPlanPriceLabel,
+  loadingAction,
   onUpdateCard,
   onCancel,
   onReactivate,
+  onChangePlan,
 }: PlanCardProps) {
   const t = useTranslations('billing')
   const planConfig = PLANS[plan]
   // For legacy users (no subscription row), default to monthly pricing.
   const interval: BillingInterval = subscription?.interval ?? 'monthly'
   const isScheduledCancel = subscription?.cancel_at_period_end === true
+  const isChangingPlan = loadingAction === 'change-plan'
 
   // Crown only on Pro — explicit DA exception validated by Tom: Crown
   // colored amber is allowed exclusively on this single icon, nowhere
@@ -518,24 +532,56 @@ function PlanCard({
   const PlanIcon = plan === 'pro' ? Crown : CreditCard
   const iconColor = plan === 'pro' ? 'text-amber-500' : 'text-foreground'
 
+  // Paid user with a real subscription and not scheduled for cancel → show
+  // the 2 context-aware change-plan CTAs in the header right. Otherwise
+  // hide them (legacy hydration miss OR cancellation pending).
+  const paidChangeCTAs: PaidChangePlanCTA[] =
+    subscription !== null && !isScheduledCancel
+      ? computePaidChangePlanCTAs({
+          plan,
+          subscription,
+          formatPlanPriceLabel,
+          t,
+        })
+      : []
+
   return (
     <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-6">
-      {/* Header : icône + nom + prix */}
-      <div className="flex items-start gap-3">
-        <PlanIcon
-          className={cn('mt-0.5 h-5 w-5 shrink-0', iconColor)}
-          strokeWidth={1.5}
-          aria-hidden="true"
-        />
-        <div className="flex-1">
-          <h3 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
-            {t('planLabel', { name: planConfig.name })}
-          </h3>
-          <p className="text-sm text-muted">
-            {formatPlanPriceLabel(planConfig.priceCents[interval], interval)}
-          </p>
+      {/* Header : icône + nom + prix + CTAs de changement de plan à droite */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <PlanIcon
+            className={cn('mt-0.5 h-5 w-5 shrink-0', iconColor)}
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+          <div>
+            <h3 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+              {t('planLabel', { name: planConfig.name })}
+            </h3>
+            <p className="text-sm text-muted">
+              {formatPlanPriceLabel(planConfig.priceCents[interval], interval)}
+            </p>
+          </div>
         </div>
-        {isScheduledCancel && <PlanBadge plan={plan} cancelled />}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {paidChangeCTAs.map((cta, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => onChangePlan(cta.target)}
+              disabled={isChangingPlan}
+              className={cn(
+                'inline-flex h-8 items-center justify-center rounded-[var(--radius-md)] border px-3 text-xs font-medium transition-colors duration-150',
+                'border-border bg-surface text-foreground hover:bg-surface-warm',
+                'disabled:cursor-not-allowed disabled:text-muted-foreground',
+              )}
+            >
+              {isChangingPlan ? t('ctaLoading') : cta.label}
+            </button>
+          ))}
+          {isScheduledCancel && <PlanBadge plan={plan} cancelled />}
+        </div>
       </div>
 
       {/* Liste des features incluses */}
@@ -693,34 +739,35 @@ function ChangePlanBlock({
     )
   }
 
-  // ---- Paid users with NO subscription row (legacy hydration miss) ----
-  // We can't build context-aware CTAs without the current interval, so we
-  // hide the block entirely. La card d'abonnement au-dessus propose déjà
-  // les actions de gestion (update carte, annulation).
-  if (subscription === null) {
-    return null
-  }
+  // ---- Paid users : les CTAs "Changer de plan" sont désormais inline ----
+  // dans le header de la PlanCard (voir computePaidChangePlanCTAs et
+  // l'intégration dans PlanCard). On ne rend rien ici pour éviter la
+  // section dédiée qui dupliquait ces actions.
+  return null
+}
 
-  // ---- Annulation programmée : on masque aussi ce bloc pour éviter que ----
-  // l'utilisateur tente un changement de plan alors que le mieux à faire
-  // est de réactiver via le bouton dédié dans la card.
-  if (subscription.cancel_at_period_end) {
-    return null
-  }
+// ---- Helper : build the 2 context-aware CTAs for paid users ----
 
-  // ---- Paid users : context-aware CTAs (in-place change) ----
+interface PaidChangePlanCTA {
+  label: string
+  variant: 'primary' | 'secondary'
+  target: { plan: PaidPlan; interval: BillingInterval }
+}
+
+function computePaidChangePlanCTAs(params: {
+  plan: 'starter' | 'pro'
+  subscription: BillingSubscriptionSummary
+  formatPlanPriceLabel: (cents: number, interval: BillingInterval) => string
+  t: ReturnType<typeof useTranslations<'billing'>>
+}): PaidChangePlanCTA[] {
+  const { plan, subscription, formatPlanPriceLabel, t } = params
   const currentInterval = subscription.interval
   const otherInterval: BillingInterval =
     currentInterval === 'monthly' ? 'yearly' : 'monthly'
 
-  const ctas: Array<{
-    label: string
-    variant: 'primary' | 'secondary'
-    target: { plan: PaidPlan; interval: BillingInterval }
-  }> = []
+  const ctas: PaidChangePlanCTA[] = []
 
   if (plan === 'starter') {
-    // Upgrade to Pro on the same interval (primary)
     ctas.push({
       label: t('ctaUpgradePro', {
         price: formatPlanPriceLabel(
@@ -732,8 +779,6 @@ function ChangePlanBlock({
       target: { plan: 'pro', interval: currentInterval },
     })
   } else {
-    // Pro → downgrade to Starter on the same interval (secondary, not primary
-    // because it's a downgrade)
     ctas.push({
       label: t('ctaDowngradeStarter', {
         price: formatPlanPriceLabel(
@@ -746,39 +791,16 @@ function ChangePlanBlock({
     })
   }
 
-  // Switch interval on the SAME plan (secondary)
   ctas.push({
     label:
       otherInterval === 'yearly'
         ? t('ctaSwitchToYearly')
         : t('ctaSwitchToMonthly'),
     variant: 'secondary',
-    target: { plan: plan as PaidPlan, interval: otherInterval },
+    target: { plan, interval: otherInterval },
   })
 
-  return (
-    <section className="space-y-4">
-      <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
-        {t('changePlan')}
-      </h2>
-
-      <div className="flex flex-wrap gap-3">
-        {ctas.map((cta, idx) => {
-          const Btn = cta.variant === 'primary' ? PrimaryButton : SecondaryButton
-          return (
-            <Btn
-              key={idx}
-              disabled={isLoading}
-              loading={isLoading}
-              onClick={() => onChangePlan(cta.target)}
-            >
-              {cta.label}
-            </Btn>
-          )
-        })}
-      </div>
-    </section>
-  )
+  return ctas
 }
 
 // ---- ChoosePlanCard : full plan card used in the free-user 2-up grid ----
