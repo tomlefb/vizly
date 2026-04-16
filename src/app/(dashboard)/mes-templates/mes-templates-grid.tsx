@@ -205,19 +205,28 @@ function TemplateCard({
     )
   }
 
+  const buyButton = (
+    <button
+      type="button"
+      onClick={onBuy}
+      className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+    >
+      {t('buy')}
+    </button>
+  )
+
   return (
     <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-      {chrome}
-      {meta}
-      <div className="flex justify-center px-5 pb-5">
-        <button
-          type="button"
-          onClick={onBuy}
-          className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
-        >
-          {t('buy')}
-        </button>
+      <div className="group relative">
+        {chrome}
+        {/* Desktop hover overlay — reveals buy button on top of the preview */}
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-surface/90 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100 md:flex">
+          {buyButton}
+        </div>
       </div>
+      {meta}
+      {/* Mobile fallback — inline button, always visible */}
+      <div className="flex justify-center px-5 pb-5 md:hidden">{buyButton}</div>
     </div>
   )
 }
