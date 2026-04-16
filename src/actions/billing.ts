@@ -17,7 +17,7 @@ import {
   type PromotionDiscount,
 } from '@/lib/stripe/elements'
 import { getCustomerInvoiceSettings } from '@/lib/stripe/invoice-metadata'
-import { TEMPLATES } from '@/lib/constants'
+import { TEMPLATES, PLANS } from '@/lib/constants'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -53,6 +53,16 @@ export interface BillingDetails {
   invoices: BillingInvoiceSummary[]
   purchasedTemplates: string[]
   error: string | null
+}
+
+export interface AccountOverview {
+  plan: 'free' | 'starter' | 'pro'
+  interval: 'monthly' | 'yearly' | null
+  priceCents: number | null
+  nextBillingDate: string | null
+  cancelAtPeriodEnd: boolean
+  cardLast4: string | null
+  cardBrand: string | null
 }
 
 // ---------------------------------------------------------------------------
@@ -841,5 +851,98 @@ export async function changeSubscriptionPlanAction({
   } catch (err) {
     console.error('[changeSubscriptionPlanAction]', err)
     return { ok: false, error: 'unknown_error' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// getAccountOverview — snapshot compact utilisé par /settings
+// ---------------------------------------------------------------------------
+//
+// Renvoie uniquement ce dont la card "Abonnement" de la page Settings a besoin :
+// plan + prix courant + date de prochaine facture + 4 derniers chiffres de la CB
+// + état d'annulation. Fait un call Stripe pour le last4 (customers.retrieve
+// avec expand sur le default_payment_method). Pour les pages où ce call est
+// trop lourd, préférer getBillingStatus (strictement DB).
+
+export async function getAccountOverview(): Promise<AccountOverview> {
+  const fallback: AccountOverview = {
+    plan: 'free',
+    interval: null,
+    priceCents: null,
+    nextBillingDate: null,
+    cancelAtPeriodEnd: false,
+    cardLast4: null,
+    cardBrand: null,
+  }
+
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return fallback
+
+    const [userRes, subRes] = await Promise.all([
+      supabase
+        .from('users')
+        .select('plan, stripe_customer_id')
+        .eq('id', user.id)
+        .single(),
+      supabase
+        .from('subscriptions')
+        .select('interval, current_period_end, cancel_at_period_end')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+    ])
+
+    const plan = (userRes.data?.plan ?? 'free') as 'free' | 'starter' | 'pro'
+    if (plan === 'free') return { ...fallback, plan }
+
+    const subRow = subRes.data
+    const interval: BillingInterval | null =
+      subRow?.interval === 'monthly' || subRow?.interval === 'yearly'
+        ? subRow.interval
+        : null
+
+    // Récupération du last4 de la carte par défaut du customer. On expand
+    // invoice_settings.default_payment_method pour éviter un second round-trip.
+    // Si aucune CB par défaut : on tombe sur null, la card Settings affichera
+    // simplement le plan/date sans la ligne CB.
+    let cardLast4: string | null = null
+    let cardBrand: string | null = null
+    if (userRes.data?.stripe_customer_id) {
+      try {
+        const customer = await stripe.customers.retrieve(
+          userRes.data.stripe_customer_id,
+          { expand: ['invoice_settings.default_payment_method'] },
+        )
+        if (!customer.deleted) {
+          const dpm = customer.invoice_settings?.default_payment_method
+          if (dpm && typeof dpm !== 'string' && dpm.card) {
+            cardLast4 = dpm.card.last4
+            cardBrand = dpm.card.brand
+          }
+        }
+      } catch (err) {
+        console.error('[getAccountOverview] customer fetch failed:', err)
+      }
+    }
+
+    const priceCents: number | null = interval
+      ? PLANS[plan].priceCents[interval]
+      : null
+
+    return {
+      plan,
+      interval,
+      priceCents,
+      nextBillingDate: subRow?.current_period_end ?? null,
+      cancelAtPeriodEnd: subRow?.cancel_at_period_end ?? false,
+      cardLast4,
+      cardBrand,
+    }
+  } catch (err) {
+    console.error('[getAccountOverview]', err)
+    return fallback
   }
 }

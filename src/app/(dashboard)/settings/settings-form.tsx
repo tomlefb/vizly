@@ -81,7 +81,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
               onClick={() => setShowConfirm(true)}
               className="inline-flex h-9 shrink-0 items-center rounded-[var(--radius-md)] border border-destructive/20 bg-surface px-4 text-sm font-semibold text-destructive transition-colors duration-150 hover:bg-destructive/5"
             >
-              {t('deleteAccount')}
+              {t('deleteAccountCta')}
             </button>
           )}
         </div>
