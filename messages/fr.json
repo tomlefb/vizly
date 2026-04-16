@@ -607,11 +607,11 @@
     }
   },
   "mesTemplates": {
-    "title": "Nos templates",
-    "titleRich": "Nos <accent>templates</accent>",
-    "subtitle": "Gratuits inclus, premium à débloquer.",
-    "sectionOwned": "Vos templates",
-    "sectionPremium": "Premium",
+    "title": "Vos templates",
+    "titleRich": "Vos <accent>templates</accent>",
+    "subtitle": "Ceux que tu possèdes et ceux à débloquer.",
+    "sectionOwned": "Possédés",
+    "sectionPremium": "Non possédés",
     "count": "{count} template{count, plural, one {} other {s}}",
     "badgeFree": "Gratuit",
     "badgePurchased": "Acheté",

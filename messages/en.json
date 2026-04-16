@@ -607,11 +607,11 @@
     }
   },
   "mesTemplates": {
-    "title": "Our templates",
-    "titleRich": "Our <accent>templates</accent>",
-    "subtitle": "Free ones included, premium to unlock.",
-    "sectionOwned": "Your templates",
-    "sectionPremium": "Premium",
+    "title": "Your templates",
+    "titleRich": "Your <accent>templates</accent>",
+    "subtitle": "The ones you own and the ones to unlock.",
+    "sectionOwned": "Owned",
+    "sectionPremium": "Not owned",
     "count": "{count} template{count, plural, one {} other {s}}",
     "badgeFree": "Free",
     "badgePurchased": "Owned",

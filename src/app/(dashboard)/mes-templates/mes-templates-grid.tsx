@@ -209,11 +209,11 @@ function TemplateCard({
     <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
       {chrome}
       {meta}
-      <div className="px-5 pb-5">
+      <div className="flex justify-center px-5 pb-5">
         <button
           type="button"
           onClick={onBuy}
-          className="inline-flex h-10 w-full items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+          className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
         >
           {t('buy')}
         </button>
