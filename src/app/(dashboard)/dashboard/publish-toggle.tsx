@@ -60,7 +60,7 @@ export function PublishToggle({
   const disabled = isPending || (!published && !canPublish)
 
   return (
-    <div>
+    <div className="flex items-center gap-2">
       <button
         type="button"
         onClick={handleToggle}
@@ -83,9 +83,9 @@ export function PublishToggle({
         )}
         {published ? t('publish.unpublish') : t('publish.publish')}
       </button>
-      {error && <p className="mt-1 text-[10px] text-destructive">{error}</p>}
+      {error && <span className="text-[11px] text-destructive">{error}</span>}
       {!published && !canPublish && planMessage && (
-        <p className="mt-1 text-[10px] text-muted-foreground">{planMessage}</p>
+        <span className="text-[11px] text-muted-foreground">{planMessage}</span>
       )}
     </div>
   )

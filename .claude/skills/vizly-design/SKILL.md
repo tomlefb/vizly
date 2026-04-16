@@ -81,17 +81,39 @@ Ces patterns sont récurrents et doivent être uniformes partout. Si tu en crée
 ### Page header (toute page dashboard)
 
 ```tsx
-<header className="mb-8 flex items-center justify-between gap-4">
-  <div>
-    <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-      {title}
+<header className="mb-10 flex items-start justify-between gap-4">
+  <div className="min-w-0">
+    <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
+      {t.rich('titleRich', {
+        accent: (chunks) => <span className="text-accent">{chunks}</span>,
+      })}
     </h1>
     {subtitle && (
-      <p className="mt-1 text-sm text-muted">{subtitle}</p>
+      <p className="mt-1.5 text-sm text-muted">{subtitle}</p>
     )}
   </div>
-  {action && <div>{action}</div>}  {/* CTA primary accent à droite */}
+  {action && <div className="shrink-0">{action}</div>}
 </header>
+```
+
+**Pattern titre avec accent** (rappel du landing) : un ou deux mots du H1 en `text-accent` via `t.rich()`. Ex : "Mes **projets**", "Ma **facturation**", "Mes **domaines**". Ça crée un fil conducteur visuel landing ↔ dashboard.
+
+i18n correspondant (fragment à insérer dans `messages/*.json`) :
+```
+"titleRich": "Mes <accent>projets</accent>"
+```
+
+**Pattern meta inline** (sous le titre, remplace un encart séparé) :
+```tsx
+<p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+  <span>{planLabel}</span>
+  <span className="text-muted-foreground/60" aria-hidden>·</span>
+  <span>{statusFragment}</span>
+  <span className="text-muted-foreground/60" aria-hidden>·</span>
+  <Link href="/billing" className="font-medium text-accent hover:text-accent-hover">
+    {upgradeLabel}
+  </Link>
+</p>
 ```
 
 ### Section dans une page
@@ -109,16 +131,26 @@ Ces patterns sont récurrents et doivent être uniformes partout. Si tu en crée
 // sections séparées par pb-10 border-b border-border-light + pt-10 sur la suivante
 ```
 
-### Empty state sobre
+### Empty state sobre (style Linear/Vercel)
+
+**Condensé et centré** — jamais full-width, sinon effet "grande boîte vide".
 
 ```tsx
-<div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-warm px-6 py-16 text-center">
+<div className="mx-auto flex max-w-md flex-col items-center rounded-[var(--radius-lg)] border border-dashed border-border bg-surface px-8 py-14 text-center">
   <Icon className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.5} />
-  <h3 className="mt-4 text-base font-semibold text-foreground">{title}</h3>
-  <p className="mt-1 max-w-sm text-sm text-muted">{description}</p>
+  <h3 className="mt-4 font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+    {title}
+  </h3>
+  <p className="mt-1.5 text-sm text-muted">{description}</p>
   {cta && <div className="mt-6">{cta}</div>}
 </div>
 ```
+
+Règles :
+- **`max-w-md mx-auto`** obligatoire (pas full-width).
+- `bg-surface` (blanc), pas `bg-surface-warm` si le main est déjà warm — sinon la card se noie.
+- Titre court et neutre ("Crée ton premier projet") — éviter le prénom, ça alourdit.
+- Une seule icône Lucide muted, pas de cercle coloré derrière.
 
 ### Liste de lignes (invoices, projets, domaines)
 

@@ -567,6 +567,7 @@
   },
   "dashboard": {
     "title": "My projects",
+    "titleRich": "My <accent>projects</accent>",
     "welcomeUser": "Welcome, {name}",
     "welcome": "Welcome to Vizly",
     "planLabel": "{plan} plan",

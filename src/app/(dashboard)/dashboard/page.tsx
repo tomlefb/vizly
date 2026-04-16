@@ -77,7 +77,9 @@ export default async function DashboardPage({
       <header className="mb-10 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-            {t('title')}
+            {t.rich('titleRich', {
+              accent: (chunks) => <span className="text-accent">{chunks}</span>,
+            })}
           </h1>
           <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
             <span>{t('planLabel', { plan: planInfo.name })}</span>
@@ -242,17 +244,17 @@ export default async function DashboardPage({
           })}
         </ul>
       ) : (
-        /* Empty state — sober pattern (no colored icon circle) */
-        <div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-border bg-surface px-6 py-20 text-center">
+        /* Empty state — condensed, Linear-style */
+        <div className="mx-auto flex max-w-md flex-col items-center rounded-[var(--radius-lg)] border border-dashed border-border bg-surface px-8 py-14 text-center">
           <FolderPlus
             className="h-8 w-8 text-muted-foreground/60"
             strokeWidth={1.5}
             aria-hidden="true"
           />
           <h2 className="mt-4 font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
-            {profile?.name ? t('emptyTitle', { name: profile.name }) : t('emptyTitleDefault')}
+            {t('emptyTitleDefault')}
           </h2>
-          <p className="mt-1.5 max-w-sm text-sm text-muted">{t('emptyDescription')}</p>
+          <p className="mt-1.5 text-sm text-muted">{t('emptyDescription')}</p>
           <Link
             href="/editor"
             className="mt-6 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
