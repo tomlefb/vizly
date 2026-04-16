@@ -2,31 +2,11 @@
 // checkout.ts — Subscription management helpers
 // =============================================================================
 //
-// Phase 6 cleanup: this file used to host `createSubscriptionCheckout` and
-// `createTemplateCheckout` which created Stripe-hosted Checkout Sessions and
-// returned a redirect URL. Both have been removed — Phase 4 / Phase 5 modals
-// (SubscriptionCheckoutModal, TemplatePurchaseModal) now collect the payment
-// in-app via PaymentElement, no Checkout Session involved.
-//
-// What remains:
-//   - updateExistingSubscription: in-place plan/interval change for users who
-//     already have an active subscription. Used by changeSubscriptionPlanAction
-//     in src/actions/billing.ts. Doesn't need a client-side confirmation step
-//     because no new payment method is collected.
-//   - createBillingPortalSession: creates a Stripe-hosted Billing Portal
-//     session for "manage my subscription" actions (update card, cancel,
-//     download invoices). Used by createBillingPortalAction. The portal
-//     stays hosted by design — the Phase 7 /billing rewrite custom-renders
-//     the recap, but invoice management / cancellation flows stay in the
-//     official Stripe Portal for now.
-//
-// The file name `checkout.ts` is preserved despite the content shift to
-// avoid touching imports across the codebase. A rename to e.g.
-// `subscription-management.ts` would be polish-only and is deferred to
-// Phase 7 if the /billing rewrite touches the imports anyway.
+// Tout est in-app : pas de Stripe Checkout hébergé, pas de Billing Portal.
+// La page /billing rend sa propre UI de gestion (update CB, annulation,
+// réactivation, téléchargement de factures).
 
 import { stripe } from './client'
-import { APP_URL } from '@/lib/constants'
 
 /**
  * Update an existing subscription to a new price (upgrade, downgrade, or
@@ -72,30 +52,112 @@ export async function updateExistingSubscription(params: {
   }
 }
 
-interface BillingPortalResult {
-  url: string | null
-  error: string | null
+/**
+ * Programmer l'annulation d'une souscription à la fin de la période en cours.
+ * L'abonnement reste actif jusqu'à `current_period_end`, puis Stripe émettra
+ * `customer.subscription.deleted` qui fera passer users.plan à 'free'.
+ */
+export async function cancelSubscriptionAtPeriodEnd(params: {
+  subscriptionId: string
+}): Promise<{ error: string | null }> {
+  try {
+    const sub = await stripe.subscriptions.retrieve(params.subscriptionId)
+    if (sub.cancel_at_period_end) {
+      return { error: 'Ton abonnement est déjà programmé pour s\'annuler.' }
+    }
+    if (sub.status === 'canceled') {
+      return { error: 'Ton abonnement est déjà annulé.' }
+    }
+    await stripe.subscriptions.update(params.subscriptionId, {
+      cancel_at_period_end: true,
+    })
+    return { error: null }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Erreur lors de l\'annulation'
+    return { error: message }
+  }
 }
 
 /**
- * Create a Stripe Billing Portal session so the user can manage their
- * subscription — update card, cancel, download past invoices. The portal
- * stays Stripe-hosted by design. Phase 7 may custom-render some of these
- * surfaces in /billing, but cancellation + card update flows stay here.
+ * Annuler une annulation programmée (cancel_at_period_end = false). Possible
+ * uniquement tant que la souscription n'est pas encore passée en 'canceled'.
  */
-export async function createBillingPortalSession(params: {
-  customerId: string
-}): Promise<BillingPortalResult> {
+export async function reactivateSubscription(params: {
+  subscriptionId: string
+}): Promise<{ error: string | null }> {
   try {
-    const session = await stripe.billingPortal.sessions.create({
-      customer: params.customerId,
-      return_url: `${APP_URL}/dashboard`,
+    const sub = await stripe.subscriptions.retrieve(params.subscriptionId)
+    if (sub.status === 'canceled') {
+      return {
+        error:
+          'Cet abonnement est déjà terminé. Tu peux en souscrire un nouveau.',
+      }
+    }
+    if (!sub.cancel_at_period_end) {
+      return { error: 'Ton abonnement est déjà actif.' }
+    }
+    await stripe.subscriptions.update(params.subscriptionId, {
+      cancel_at_period_end: false,
     })
-
-    return { url: session.url, error: null }
+    return { error: null }
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : 'Erreur lors de la creation du portail'
-    return { url: null, error: message }
+      err instanceof Error ? err.message : 'Erreur lors de la réactivation'
+    return { error: message }
+  }
+}
+
+/**
+ * Créer un SetupIntent pour collecter une nouvelle méthode de paiement
+ * (mise à jour de CB). Le front confirme via PaymentElement, puis on attache
+ * le payment_method résultant à la souscription comme default_payment_method
+ * via `setSubscriptionDefaultPaymentMethod`.
+ */
+export async function createSetupIntentForCard(params: {
+  customerId: string
+}): Promise<{ clientSecret: string | null; error: string | null }> {
+  try {
+    const setupIntent = await stripe.setupIntents.create({
+      customer: params.customerId,
+      payment_method_types: ['card'],
+      usage: 'off_session',
+    })
+    if (!setupIntent.client_secret) {
+      return {
+        clientSecret: null,
+        error: 'Stripe n\'a pas renvoyé de client_secret.',
+      }
+    }
+    return { clientSecret: setupIntent.client_secret, error: null }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Erreur lors de la création du SetupIntent'
+    return { clientSecret: null, error: message }
+  }
+}
+
+/**
+ * Attacher la nouvelle méthode de paiement (confirmée côté client via
+ * PaymentElement + SetupIntent) comme moyen de paiement par défaut de la
+ * souscription ET du customer. Aussi appliqué aux futures factures.
+ */
+export async function setSubscriptionDefaultPaymentMethod(params: {
+  customerId: string
+  subscriptionId: string
+  paymentMethodId: string
+}): Promise<{ error: string | null }> {
+  try {
+    await stripe.customers.update(params.customerId, {
+      invoice_settings: { default_payment_method: params.paymentMethodId },
+    })
+    await stripe.subscriptions.update(params.subscriptionId, {
+      default_payment_method: params.paymentMethodId,
+    })
+    return { error: null }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Erreur lors de la mise à jour de la carte'
+    return { error: message }
   }
 }

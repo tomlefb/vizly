@@ -35,8 +35,9 @@ import {
 } from 'lucide-react'
 import { cn, formatEur } from '@/lib/utils'
 import {
+  cancelSubscriptionAction,
   changeSubscriptionPlanAction,
-  createBillingPortalAction,
+  reactivateSubscriptionAction,
   type BillingInvoiceSummary,
   type BillingSubscriptionSummary,
 } from '@/actions/billing'
@@ -45,6 +46,9 @@ import type { BillingInterval } from '@/lib/stripe/prices'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { SubscriptionCheckoutModal } from './SubscriptionCheckoutModal'
 import { TemplatePurchaseModal } from './TemplatePurchaseModal'
+import { UpdatePaymentMethodModal } from './UpdatePaymentMethodModal'
+import { ConfirmActionDialog } from './ConfirmActionDialog'
+import { getErrorMessage } from './CheckoutErrorMessage'
 
 // ----------------------------------------------------------------------------
 // Types
@@ -58,7 +62,7 @@ interface BillingClientProps {
 }
 
 type PaidPlan = 'starter' | 'pro'
-type LoadingAction = 'change-plan' | 'portal' | null
+type LoadingAction = 'change-plan' | 'cancel' | 'reactivate' | null
 
 const INVOICES_INITIAL_LIMIT = 12
 const TEMPLATE_PRICE_CENTS = 299
@@ -121,6 +125,10 @@ export function BillingClient({
   const [subscriptionModalPlan, setSubscriptionModalPlan] =
     useState<PaidPlan | null>(null)
   const [templateModalId, setTemplateModalId] = useState<string | null>(null)
+  const [updateCardModalOpen, setUpdateCardModalOpen] = useState(false)
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false)
+  const [dialogError, setDialogError] = useState<string | null>(null)
 
   // Auto-clear the success banner after a delay so it doesn't pile up after
   // multiple changes. Errors stay visible until next user action.
@@ -172,22 +180,53 @@ export function BillingClient({
     setSubscriptionModalPlan(target)
   }, [])
 
-  const handleBillingPortal = useCallback(async () => {
+  const handleOpenUpdateCard = useCallback(() => {
     setError(null)
     setSuccessMessage(null)
-    setLoadingAction('portal')
+    setUpdateCardModalOpen(true)
+  }, [])
 
-    const result = await createBillingPortalAction()
+  const handleOpenCancel = useCallback(() => {
+    setError(null)
+    setSuccessMessage(null)
+    setDialogError(null)
+    setCancelDialogOpen(true)
+  }, [])
 
-    if (result.error) {
-      setError(result.error)
-      setLoadingAction(null)
+  const handleOpenReactivate = useCallback(() => {
+    setError(null)
+    setSuccessMessage(null)
+    setDialogError(null)
+    setReactivateDialogOpen(true)
+  }, [])
+
+  const handleConfirmCancel = useCallback(async () => {
+    setLoadingAction('cancel')
+    setDialogError(null)
+    const result = await cancelSubscriptionAction()
+    setLoadingAction(null)
+    if (!result.ok) {
+      setDialogError(getErrorMessage(result.error))
       return
     }
-    if (result.url) {
-      window.location.href = result.url
+    setCancelDialogOpen(false)
+    setSuccessMessage(t('cancelSuccessBody'))
+    router.refresh()
+  }, [t, router])
+
+  const handleConfirmReactivate = useCallback(async () => {
+    setLoadingAction('reactivate')
+    setDialogError(null)
+    const result = await reactivateSubscriptionAction()
+    setLoadingAction(null)
+    if (!result.ok) {
+      setDialogError(getErrorMessage(result.error))
+      return
     }
-  }, [])
+    setReactivateDialogOpen(false)
+    setSuccessMessage(t('reactivateSuccessBody'))
+    router.refresh()
+  }, [t, router])
 
   const handleTemplatePurchase = useCallback((templateId: string) => {
     setError(null)
@@ -236,7 +275,9 @@ export function BillingClient({
                 plan: planName(plan as PaidPlan),
                 date: formatLongDate(subscription.current_period_end),
               })
-            : t('cancelBannerNoDate', { plan: planName(plan as PaidPlan) })}
+            : t('cancelBannerNoDate', {
+                plan: planName(plan as PaidPlan),
+              })}
         </Banner>
       )}
 
@@ -254,11 +295,14 @@ export function BillingClient({
         </Banner>
       )}
 
-      {/* ─── Bloc 1 : Mon abonnement ─────────────────────────────────── */}
+      {/* ─── Bloc 1 : Mon abonnement (avec actions de gestion in-card) ─ */}
       <SubscriptionBlock
         plan={plan}
         subscription={subscription}
         formatPlanPriceLabel={formatPlanPriceLabel}
+        onUpdateCard={handleOpenUpdateCard}
+        onCancel={handleOpenCancel}
+        onReactivate={handleOpenReactivate}
       />
 
       {/* ─── Bloc 2 : Changer de plan / Choisis ton abonnement ───────── */}
@@ -295,14 +339,6 @@ export function BillingClient({
         />
       )}
 
-      {/* ─── Bloc 5 : Gérer mon abonnement ───────────────────────────── */}
-      {plan !== 'free' && (
-        <ManageBlock
-          loading={loadingAction === 'portal'}
-          onClick={handleBillingPortal}
-        />
-      )}
-
       {/* Modals (Phase 4 + 5, untouched) */}
       {subscriptionModalPlan && (
         <SubscriptionCheckoutModal
@@ -326,6 +362,67 @@ export function BillingClient({
           onSuccess={() => router.refresh()}
         />
       )}
+
+      <UpdatePaymentMethodModal
+        open={updateCardModalOpen}
+        onClose={() => setUpdateCardModalOpen(false)}
+        onSuccess={() => {
+          setSuccessMessage(t('updateCardSuccessBody'))
+          router.refresh()
+        }}
+      />
+
+      <ConfirmActionDialog
+        open={cancelDialogOpen}
+        onClose={() => {
+          if (loadingAction === 'cancel') return
+          setCancelDialogOpen(false)
+          setDialogError(null)
+        }}
+        onConfirm={handleConfirmCancel}
+        title={t('cancelDialogTitle')}
+        description={
+          subscription?.current_period_end
+            ? t('cancelDialogDescriptionWithDate', {
+                date: formatLongDate(subscription.current_period_end),
+              })
+            : t('cancelDialogDescriptionNoDate')
+        }
+        confirmLabel={
+          loadingAction === 'cancel'
+            ? t('ctaLoading')
+            : t('cancelDialogConfirm')
+        }
+        cancelLabel={t('cancelDialogCancel')}
+        confirmVariant="destructive"
+        error={dialogError}
+      />
+
+      <ConfirmActionDialog
+        open={reactivateDialogOpen}
+        onClose={() => {
+          if (loadingAction === 'reactivate') return
+          setReactivateDialogOpen(false)
+          setDialogError(null)
+        }}
+        onConfirm={handleConfirmReactivate}
+        title={t('reactivateDialogTitle')}
+        description={
+          subscription?.current_period_end
+            ? t('reactivateDialogDescriptionWithDate', {
+                date: formatLongDate(subscription.current_period_end),
+              })
+            : t('reactivateDialogDescriptionNoDate')
+        }
+        confirmLabel={
+          loadingAction === 'reactivate'
+            ? t('ctaLoading')
+            : t('reactivateDialogConfirm')
+        }
+        cancelLabel={t('cancelDialogCancel')}
+        confirmVariant="primary"
+        error={dialogError}
+      />
     </div>
   )
 }
@@ -369,12 +466,18 @@ interface SubscriptionBlockProps {
   plan: 'free' | 'starter' | 'pro'
   subscription: BillingSubscriptionSummary | null
   formatPlanPriceLabel: (cents: number, interval: BillingInterval) => string
+  onUpdateCard: () => void
+  onCancel: () => void
+  onReactivate: () => void
 }
 
 function SubscriptionBlock({
   plan,
   subscription,
   formatPlanPriceLabel,
+  onUpdateCard,
+  onCancel,
+  onReactivate,
 }: SubscriptionBlockProps) {
   const t = useTranslations('billing')
 
@@ -393,6 +496,9 @@ function SubscriptionBlock({
           plan={plan as PaidPlan}
           subscription={subscription}
           formatPlanPriceLabel={formatPlanPriceLabel}
+          onUpdateCard={onUpdateCard}
+          onCancel={onCancel}
+          onReactivate={onReactivate}
         />
       )}
     </section>
@@ -403,13 +509,24 @@ interface PlanCardProps {
   plan: PaidPlan
   subscription: BillingSubscriptionSummary | null
   formatPlanPriceLabel: (cents: number, interval: BillingInterval) => string
+  onUpdateCard: () => void
+  onCancel: () => void
+  onReactivate: () => void
 }
 
-function PlanCard({ plan, subscription, formatPlanPriceLabel }: PlanCardProps) {
+function PlanCard({
+  plan,
+  subscription,
+  formatPlanPriceLabel,
+  onUpdateCard,
+  onCancel,
+  onReactivate,
+}: PlanCardProps) {
   const t = useTranslations('billing')
   const planConfig = PLANS[plan]
   // For legacy users (no subscription row), default to monthly pricing.
   const interval: BillingInterval = subscription?.interval ?? 'monthly'
+  const isScheduledCancel = subscription?.cancel_at_period_end === true
 
   // Crown only on Pro — explicit DA exception validated by Tom: Crown
   // colored amber is allowed exclusively on this single icon, nowhere
@@ -436,7 +553,7 @@ function PlanCard({ plan, subscription, formatPlanPriceLabel }: PlanCardProps) {
             </p>
           </div>
         </div>
-        <PlanBadge plan={plan} />
+        <PlanBadge plan={plan} cancelled={isScheduledCancel} />
       </div>
 
       {/* Liste des features incluses */}
@@ -461,34 +578,74 @@ function PlanCard({ plan, subscription, formatPlanPriceLabel }: PlanCardProps) {
         </ul>
       )}
 
-      {/* Footer : prochaine facture / cancel scheduled / fallback legacy */}
-      {subscription !== null ? (
-        <div className="mt-5 space-y-1 border-t border-border pt-4">
-          {subscription.current_period_end && (
-            <p className="text-sm text-muted-foreground">
-              {t('nextBilling', {
-                date: formatLongDate(subscription.current_period_end),
-              })}
-            </p>
-          )}
-          {subscription.cancel_at_period_end && (
-            <p className="text-sm text-muted-foreground">
-              {t('cancelScheduledLine', {
-                date: formatLongDate(subscription.current_period_end),
-              })}
-            </p>
+      {/* Footer : statut + actions de gestion (in-card) */}
+      <div className="mt-5 space-y-4 border-t border-border pt-4">
+        {subscription !== null && subscription.current_period_end && (
+          <p
+            className={cn(
+              'text-sm',
+              isScheduledCancel ? 'text-foreground' : 'text-muted-foreground',
+            )}
+          >
+            {isScheduledCancel
+              ? t('activeUntil', {
+                  date: formatLongDate(subscription.current_period_end),
+                })
+              : t('nextBilling', {
+                  date: formatLongDate(subscription.current_period_end),
+                })}
+          </p>
+        )}
+
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-foreground">
+            {t('manageTitle')}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {t('manageDescription')}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onUpdateCard}
+            className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+          >
+            {t('updateCardCta')}
+          </button>
+          {isScheduledCancel ? (
+            <button
+              type="button"
+              onClick={onReactivate}
+              className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
+            >
+              {t('reactivateCta')}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+            >
+              {t('cancelCta')}
+            </button>
           )}
         </div>
-      ) : (
-        <div className="mt-5 border-t border-border pt-4">
-          <p className="text-sm text-muted-foreground">{t('legacyHint')}</p>
-        </div>
-      )}
+      </div>
     </div>
   )
 }
 
-function PlanBadge({ plan }: { plan: PaidPlan }) {
+function PlanBadge({ plan, cancelled }: { plan: PaidPlan; cancelled: boolean }) {
+  const t = useTranslations('billing')
+  if (cancelled) {
+    return (
+      <span className="inline-flex items-center rounded-[var(--radius-sm)] bg-destructive/10 px-2 py-0.5 text-xs font-medium uppercase text-destructive">
+        {t('badgeCancelled')}
+      </span>
+    )
+  }
   return (
     <span className="inline-flex items-center rounded-[var(--radius-sm)] bg-surface-warm px-2 py-0.5 text-xs font-medium uppercase text-foreground">
       {PLANS[plan].name}
@@ -574,9 +731,16 @@ function ChangePlanBlock({
 
   // ---- Paid users with NO subscription row (legacy hydration miss) ----
   // We can't build context-aware CTAs without the current interval, so we
-  // hide the block entirely. The user is still pushed toward the Stripe
-  // portal via the dedicated ManageBlock at the bottom of the page.
+  // hide the block entirely. La card d'abonnement au-dessus propose déjà
+  // les actions de gestion (update carte, annulation).
   if (subscription === null) {
+    return null
+  }
+
+  // ---- Annulation programmée : on masque aussi ce bloc pour éviter que ----
+  // l'utilisateur tente un changement de plan alors que le mieux à faire
+  // est de réactiver via le bouton dédié dans la card.
+  if (subscription.cancel_at_period_end) {
     return null
   }
 
@@ -989,39 +1153,6 @@ function TemplatesBlock({
           )
         })}
       </div>
-    </section>
-  )
-}
-
-// ---- Bloc 5 : Gérer mon abonnement ---------------------------------------
-
-function ManageBlock({
-  loading,
-  onClick,
-}: {
-  loading: boolean
-  onClick: () => void
-}) {
-  const t = useTranslations('billing')
-  return (
-    <section className="space-y-4 border-t border-border pt-8">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          {t('manageTitle')}
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t('manageDescription')}
-        </p>
-      </div>
-
-      <SecondaryButton
-        loading={loading}
-        disabled={loading}
-        onClick={() => void onClick()}
-      >
-        {t('manageCta')}
-        <ExternalLink className="h-3.5 w-3.5" />
-      </SecondaryButton>
     </section>
   )
 }

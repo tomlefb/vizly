@@ -57,6 +57,10 @@ export const SERVER_ACTION_ERROR_MESSAGES: Record<string, string> = {
   max_redemptions_reached: 'Ce code promo a atteint sa limite.',
   customer_creation_failed: "Impossible de créer ton compte de paiement. Réessaie dans un instant.",
   price_not_configured: "Ce plan n'est pas correctement configuré. Contacte-nous.",
+  no_active_subscription: "Aucun abonnement actif trouvé.",
+  no_stripe_customer: "Aucun compte de paiement associé.",
+  no_payment_method_on_setup_intent: "La nouvelle carte n'a pas été reçue correctement. Réessaie.",
+  setup_intent_customer_mismatch: "La carte ne correspond pas à ton compte. Réessaie.",
   unknown_error: 'Une erreur est survenue. Réessaie dans un instant.',
 }
 

@@ -5,7 +5,10 @@ import { stripe } from '@/lib/stripe/client'
 import { getSubscriptionPriceId, type BillingInterval } from '@/lib/stripe/prices'
 import {
   updateExistingSubscription,
-  createBillingPortalSession,
+  cancelSubscriptionAtPeriodEnd,
+  reactivateSubscription,
+  createSetupIntentForCard,
+  setSubscriptionDefaultPaymentMethod,
 } from '@/lib/stripe/checkout'
 import {
   createSubscriptionWithPaymentIntent,
@@ -19,11 +22,6 @@ import { TEMPLATES } from '@/lib/constants'
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-interface CheckoutResult {
-  url: string | null
-  error: string | null
-}
 
 interface BillingStatus {
   plan: 'free' | 'starter' | 'pro'
@@ -297,42 +295,195 @@ export async function getBillingDetails(): Promise<BillingDetails> {
   }
 }
 
-/**
- * Create a Stripe Billing Portal session so the user can manage
- * their subscription (upgrade, downgrade, cancel, update payment method).
- */
-export async function createBillingPortalAction(): Promise<CheckoutResult> {
+// ---------------------------------------------------------------------------
+// Helper : retrouve le stripe_subscription_id actif de l'utilisateur courant.
+// Source de vérité Phase 3 : table subscriptions. Fallback legacy users row.
+// ---------------------------------------------------------------------------
+
+async function getActiveSubscriptionIdForUser(
+  userId: string,
+): Promise<{ subscriptionId: string | null; customerId: string | null; error: string | null }> {
+  const supabase = await createClient()
+
+  const { data: localSub } = await supabase
+    .from('subscriptions')
+    .select('stripe_subscription_id')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  let subscriptionId = localSub?.stripe_subscription_id ?? null
+
+  const { data: userRow } = await supabase
+    .from('users')
+    .select('stripe_customer_id, stripe_subscription_id')
+    .eq('id', userId)
+    .single()
+
+  if (!subscriptionId) {
+    subscriptionId = userRow?.stripe_subscription_id ?? null
+  }
+
+  const customerId = userRow?.stripe_customer_id ?? null
+
+  if (!subscriptionId) {
+    return {
+      subscriptionId: null,
+      customerId,
+      error: 'Aucun abonnement actif trouvé.',
+    }
+  }
+
+  return { subscriptionId, customerId, error: null }
+}
+
+// ---------------------------------------------------------------------------
+// cancelSubscriptionAction — programme l'annulation à la fin de la période
+// ---------------------------------------------------------------------------
+
+type CancelSubscriptionResult =
+  | { ok: true }
+  | { ok: false; error: string }
+
+export async function cancelSubscriptionAction(): Promise<CancelSubscriptionResult> {
   try {
     const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
 
-    if (!user) {
-      return { url: null, error: 'Non authentifie' }
+    const { subscriptionId, error: lookupError } =
+      await getActiveSubscriptionIdForUser(user.id)
+    if (!subscriptionId) {
+      return { ok: false, error: lookupError ?? 'no_active_subscription' }
     }
 
-    // Get customer ID from DB
-    const { data: userData } = await supabase
-      .from('users')
-      .select('stripe_customer_id')
-      .eq('id', user.id)
-      .single()
+    const { error } = await cancelSubscriptionAtPeriodEnd({ subscriptionId })
+    if (error) return { ok: false, error }
 
-    if (!userData?.stripe_customer_id) {
-      return {
-        url: null,
-        error: 'Aucun compte Stripe associe. Souscrivez un plan d\'abord.',
-      }
-    }
-
-    return await createBillingPortalSession({
-      customerId: userData.stripe_customer_id,
-    })
+    return { ok: true }
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Erreur lors de la creation du portail'
-    return { url: null, error: message }
+    console.error('[cancelSubscriptionAction]', err)
+    return { ok: false, error: 'unknown_error' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// reactivateSubscriptionAction — annule l'annulation programmée
+// ---------------------------------------------------------------------------
+
+export async function reactivateSubscriptionAction(): Promise<CancelSubscriptionResult> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
+
+    const { subscriptionId, error: lookupError } =
+      await getActiveSubscriptionIdForUser(user.id)
+    if (!subscriptionId) {
+      return { ok: false, error: lookupError ?? 'no_active_subscription' }
+    }
+
+    const { error } = await reactivateSubscription({ subscriptionId })
+    if (error) return { ok: false, error }
+
+    return { ok: true }
+  } catch (err) {
+    console.error('[reactivateSubscriptionAction]', err)
+    return { ok: false, error: 'unknown_error' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// createUpdatePaymentMethodIntentAction — renvoie le clientSecret d'un SetupIntent
+// ---------------------------------------------------------------------------
+
+type SetupIntentResult =
+  | { ok: true; clientSecret: string }
+  | { ok: false; error: string }
+
+export async function createUpdatePaymentMethodIntentAction(): Promise<SetupIntentResult> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
+
+    const { customerId, error: lookupError } =
+      await getActiveSubscriptionIdForUser(user.id)
+    if (!customerId) {
+      return { ok: false, error: lookupError ?? 'no_stripe_customer' }
+    }
+
+    const { clientSecret, error } = await createSetupIntentForCard({ customerId })
+    if (error || !clientSecret) {
+      return { ok: false, error: error ?? 'unknown_error' }
+    }
+
+    return { ok: true, clientSecret }
+  } catch (err) {
+    console.error('[createUpdatePaymentMethodIntentAction]', err)
+    return { ok: false, error: 'unknown_error' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// confirmPaymentMethodUpdateAction — attache la nouvelle CB à la souscription
+// ---------------------------------------------------------------------------
+//
+// Appelée APRÈS que le client ait confirmé le SetupIntent via PaymentElement.
+// On relit le SetupIntent côté serveur pour récupérer son payment_method,
+// puis on le pose comme default_payment_method sur la sub + le customer.
+// Cela garantit que les prochaines factures sont prélevées sur cette CB.
+
+export async function confirmPaymentMethodUpdateAction(params: {
+  setupIntentId: string
+}): Promise<CancelSubscriptionResult> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
+
+    const { subscriptionId, customerId, error: lookupError } =
+      await getActiveSubscriptionIdForUser(user.id)
+    if (!subscriptionId || !customerId) {
+      return { ok: false, error: lookupError ?? 'no_active_subscription' }
+    }
+
+    const setupIntent = await stripe.setupIntents.retrieve(
+      params.setupIntentId,
+    )
+
+    // Defensive : le SetupIntent doit appartenir au même customer.
+    if (setupIntent.customer !== customerId) {
+      return { ok: false, error: 'setup_intent_customer_mismatch' }
+    }
+
+    const paymentMethodId =
+      typeof setupIntent.payment_method === 'string'
+        ? setupIntent.payment_method
+        : setupIntent.payment_method?.id
+
+    if (!paymentMethodId) {
+      return { ok: false, error: 'no_payment_method_on_setup_intent' }
+    }
+
+    const { error } = await setSubscriptionDefaultPaymentMethod({
+      customerId,
+      subscriptionId,
+      paymentMethodId,
+    })
+    if (error) return { ok: false, error }
+
+    return { ok: true }
+  } catch (err) {
+    console.error('[confirmPaymentMethodUpdateAction]', err)
+    return { ok: false, error: 'unknown_error' }
   }
 }
 
