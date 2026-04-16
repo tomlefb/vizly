@@ -569,6 +569,7 @@
     "title": "Mes projets",
     "welcomeUser": "Bienvenue, {name}",
     "welcome": "Bienvenue sur Vizly",
+    "planLabel": "Plan {plan}",
     "newProject": "Nouveau projet",
     "online": "En ligne",
     "draft": "Brouillon",

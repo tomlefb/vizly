@@ -68,10 +68,10 @@ export function PublishToggle({
         className={cn(
           'inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-2 text-xs font-semibold transition-all duration-200',
           published
-            ? 'border border-border text-foreground hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+            ? 'border border-border text-foreground hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive'
             : canPublish
               ? 'bg-success/10 text-success hover:bg-success/20'
-              : 'bg-surface-warm text-muted-foreground cursor-not-allowed'
+              : 'cursor-not-allowed bg-surface-warm text-muted-foreground'
         )}
       >
         {isPending ? (
@@ -83,7 +83,7 @@ export function PublishToggle({
         )}
         {published ? t('publish.unpublish') : t('publish.publish')}
       </button>
-      {error && <p className="mt-1 text-[10px] text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-[10px] text-destructive">{error}</p>}
       {!published && !canPublish && planMessage && (
         <p className="mt-1 text-[10px] text-muted-foreground">{planMessage}</p>
       )}

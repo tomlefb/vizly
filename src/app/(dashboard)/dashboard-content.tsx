@@ -10,7 +10,7 @@ export function DashboardContent({ children }: { children: React.ReactNode }) {
     <main
       data-dashboard-main
       className={cn(
-        'min-h-dvh bg-[#F9FAFB] max-lg:!pl-0',
+        'min-h-dvh bg-surface-warm max-lg:!pl-0',
         mounted && 'transition-[padding-left] duration-200 ease-out',
       )}
       style={{ paddingLeft: sidebarWidth }}

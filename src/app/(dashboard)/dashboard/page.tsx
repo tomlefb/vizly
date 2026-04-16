@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
+import { Plus, Pencil, ExternalLink, FolderPlus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS, type PlanType } from '@/lib/constants'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
@@ -26,9 +27,6 @@ export default async function DashboardPage({
     return null
   }
 
-  // Phase 6 — auto-open the subscription checkout modal when arriving
-  // from /tarifs → /register → /dashboard?plan=X&interval=Y. The modal
-  // strips the query params on close via router.replace.
   const resolvedSearchParams = await searchParams
   const planParam = resolvedSearchParams.plan
   const intervalParam = resolvedSearchParams.interval
@@ -55,7 +53,6 @@ export default async function DashboardPage({
   const publishedCount = allPortfolios.filter((p) => p.published).length
   const publishLimit = planInfo.publishLimit
 
-  // Can the user publish one more?
   const canPublishMore = publishedCount < publishLimit
   const planMessage =
     publishLimit === 0
@@ -64,62 +61,53 @@ export default async function DashboardPage({
         ? t('publish.limitReached')
         : undefined
 
-  const planBadgeStyle =
-    plan === 'pro'
-      ? 'bg-amber-100 text-amber-800'
-      : plan === 'starter'
-        ? 'bg-accent/10 text-accent'
-        : 'bg-muted/50 text-muted-foreground'
+  const showUpgrade = publishLimit === 0 || (publishLimit === 1 && publishedCount >= 1)
+  const upgradeHref = '/billing'
+  const upgradeLabel = publishLimit === 0 ? t('upgradeStarter') : t('upgradePro')
+  const statusFragment =
+    publishLimit === 0
+      ? t('previewOnly')
+      : publishLimit === Infinity
+        ? t('projectsOnline', { count: publishedCount })
+        : `${publishedCount}/${publishLimit} ${t('projectsOnline', { count: publishedCount })}`
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight">
+      {/* Page header */}
+      <header className="mb-10 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
             {t('title')}
           </h1>
-          <p className="mt-1 text-muted">
-            {profile?.name ? t('welcomeUser', { name: profile.name }) : t('welcome')}
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+            <span>{t('planLabel', { plan: planInfo.name })}</span>
+            <span className="text-muted-foreground/60" aria-hidden="true">·</span>
+            <span>{statusFragment}</span>
+            {showUpgrade && (
+              <>
+                <span className="text-muted-foreground/60" aria-hidden="true">·</span>
+                <Link
+                  href={upgradeHref}
+                  className="font-medium text-accent transition-colors hover:text-accent-hover"
+                >
+                  {upgradeLabel}
+                </Link>
+              </>
+            )}
           </p>
         </div>
         <Link
           href="/editor"
-          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+          className="inline-flex shrink-0 items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
+          <Plus className="h-4 w-4" strokeWidth={2} />
           {t('newProject')}
         </Link>
-      </div>
-
-      {/* Publish limit info */}
-      <div className="mb-6 rounded-[var(--radius-lg)] border border-border bg-surface p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${planBadgeStyle}`}>
-            {planInfo.name}
-          </span>
-          <span className="text-sm text-muted">
-            {publishLimit === 0 && (
-              <>{t('previewOnly')} &mdash; <Link href="/billing" className="text-accent font-medium hover:text-accent-hover">{t('upgradeStarter')}</Link> {t('toPublish')}</>
-            )}
-            {publishLimit === 1 && (
-              <>{publishedCount}/1 {t('projectsOnline', { count: publishedCount })} &mdash; <Link href="/billing" className="text-accent font-medium hover:text-accent-hover">{t('upgradePro')}</Link> {t('forMore')}</>
-            )}
-            {publishLimit === Infinity && (
-              <>{t('projectsOnline', { count: publishedCount })}</>
-            )}
-          </span>
-        </div>
-        <span className="text-sm font-semibold text-foreground">
-          {t('projectCount', { count: allPortfolios.length })}
-        </span>
-      </div>
+      </header>
 
       {/* Portfolio list */}
       {allPortfolios.length > 0 ? (
-        <div className="space-y-5">
+        <ul className="space-y-4">
           {allPortfolios.map((portfolio) => {
             const templateProps = {
               portfolio: {
@@ -143,27 +131,26 @@ export default async function DashboardPage({
             }
 
             return (
-              <div
+              <li
                 key={portfolio.id}
-                className="rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)]"
+                className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Template preview */}
-                  <div className="lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-white overflow-hidden">
+                  <div className="shrink-0 overflow-hidden border-b border-border-light bg-background lg:w-[340px] lg:border-b-0 lg:border-r">
                     {/* Browser chrome */}
-                    <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-1.5">
+                    <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
                       <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6259]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#FFBF2F]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#29CE42]" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
                       </div>
-                      <div className="flex-1 flex justify-center">
-                        <div className="rounded-[2px] bg-background border border-border-light px-2 py-px text-[9px] text-muted font-mono truncate max-w-[140px]">
+                      <div className="flex flex-1 justify-center">
+                        <div className="max-w-[140px] truncate rounded-[2px] border border-border-light bg-background px-2 py-px font-mono text-[9px] text-muted">
                           {portfolio.slug ? `${portfolio.slug}.vizly.fr` : t('notPublished')}
                         </div>
                       </div>
                     </div>
-                    {/* Scaled template */}
                     <TemplatePreview
                       templateName={portfolio.template}
                       templateProps={templateProps}
@@ -173,19 +160,22 @@ export default async function DashboardPage({
                   </div>
 
                   {/* Info + actions */}
-                  <div className="flex-1 p-5 flex flex-col justify-between">
+                  <div className="flex flex-1 flex-col justify-between p-5">
                     <div>
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="mb-2 flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground truncate">
+                          <h3 className="truncate font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
                             {portfolio.title || t('untitled')}
                           </h3>
-                          <p className="text-sm text-muted mt-0.5">
-                            {t('template')} <span className="capitalize font-medium text-foreground">{portfolio.template}</span>
+                          <p className="mt-0.5 text-sm text-muted">
+                            {t('template')}{' '}
+                            <span className="font-medium capitalize text-foreground">
+                              {portfolio.template}
+                            </span>
                           </p>
                         </div>
                         <span
-                          className={`shrink-0 ml-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                             portfolio.published
                               ? 'bg-success/10 text-success'
                               : 'bg-surface-warm text-muted'
@@ -196,26 +186,25 @@ export default async function DashboardPage({
                       </div>
 
                       {portfolio.slug && (
-                        <p className="text-xs text-muted mb-1">
-                          URL : <span className="font-mono text-foreground">{portfolio.slug}.vizly.fr</span>
+                        <p className="mb-1 text-xs text-muted">
+                          URL :{' '}
+                          <span className="font-mono text-foreground">
+                            {portfolio.slug}.vizly.fr
+                          </span>
                         </p>
                       )}
                       {portfolio.bio && (
-                        <p className="text-xs text-muted line-clamp-2 mt-1">
-                          {portfolio.bio}
-                        </p>
+                        <p className="mt-1 line-clamp-2 text-xs text-muted">{portfolio.bio}</p>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border-light">
+                    <div className="mt-4 flex items-center gap-2 border-t border-border-light pt-4">
                       <Link
                         href={`/editor?id=${portfolio.id}`}
                         className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-accent px-4 py-2 text-xs font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
                       >
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-                        </svg>
+                        <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
                         {t('edit')}
                       </Link>
 
@@ -234,14 +223,11 @@ export default async function DashboardPage({
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-2 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
                         >
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                          </svg>
+                          <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
                           {t('viewSite')}
                         </a>
                       )}
 
-                      {/* Spacer to push delete to the right */}
                       <div className="flex-1" />
 
                       <DeletePortfolio
@@ -251,67 +237,34 @@ export default async function DashboardPage({
                     </div>
                   </div>
                 </div>
-              </div>
+              </li>
             )
           })}
-
-          {/* Add new project card */}
-          <Link
-            href="/editor"
-            className="block rounded-[var(--radius-xl)] border-2 border-dashed border-border bg-surface-warm/20 p-8 text-center transition-colors duration-200 hover:border-accent/40 hover:bg-accent/[0.02] group"
-          >
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-warm border border-border flex items-center justify-center transition-colors group-hover:border-accent/30 group-hover:bg-accent/10">
-                <svg className="h-5 w-5 text-muted transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </div>
-              <span className="text-sm font-medium text-muted transition-colors group-hover:text-foreground">
-                {t('createNew')}
-              </span>
-            </div>
-          </Link>
-        </div>
+        </ul>
       ) : (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border-2 border-dashed border-border py-16 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
-            <svg
-              className="h-7 w-7 text-accent"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>
-          </div>
-          <h2 className="font-[family-name:var(--font-satoshi)] text-xl font-semibold">
+        /* Empty state — sober pattern (no colored icon circle) */
+        <div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-border bg-surface px-6 py-20 text-center">
+          <FolderPlus
+            className="h-8 w-8 text-muted-foreground/60"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+          <h2 className="mt-4 font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
             {profile?.name ? t('emptyTitle', { name: profile.name }) : t('emptyTitleDefault')}
           </h2>
-          <p className="mt-2 max-w-sm text-sm text-muted leading-relaxed">
-            {t('emptyDescription')}
-          </p>
+          <p className="mt-1.5 max-w-sm text-sm text-muted">{t('emptyDescription')}</p>
           <Link
             href="/editor"
-            className="mt-6 inline-flex items-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+            className="mt-6 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
           >
+            <Plus className="h-4 w-4" strokeWidth={2} />
             {t('emptyCta')}
           </Link>
         </div>
       )}
 
-      {/* Phase 6 — auto-open the checkout modal when coming from /tarifs */}
       {autoOpenPlan && (
-        <AutoOpenSubscriptionModal
-          plan={autoOpenPlan}
-          interval={autoOpenInterval}
-        />
+        <AutoOpenSubscriptionModal plan={autoOpenPlan} interval={autoOpenInterval} />
       )}
     </>
   )
