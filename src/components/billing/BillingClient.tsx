@@ -330,16 +330,10 @@ export function BillingClient({
         />
       )}
 
-      {/* ─── Bloc 4 : Templates premium (adaptatif) ──────────────────── */}
-      {showTemplatesBlock && (
-        <TemplatesBlock
-          plan={plan}
-          premiumTemplates={premiumTemplates}
-          purchasedPremiumTemplates={purchasedPremiumTemplates}
-          purchasedTemplates={purchasedTemplates}
-          loadingAction={loadingAction}
-          onBuy={handleTemplatePurchase}
-        />
+      {/* ─── Bloc 4 : Lien vers /mes-templates (remplace le bloc complet ────
+          Templates premium — /mes-templates est la source unique de vérité). */}
+      {plan !== 'free' && (
+        <TemplatesLink hasPurchased={hasPurchasedTemplates} />
       )}
 
       {/* Modals (Phase 4 + 5, untouched) */}
@@ -478,29 +472,20 @@ function SubscriptionBlock({
   onCancel,
   onReactivate,
 }: SubscriptionBlockProps) {
-  const t = useTranslations('billing')
-
+  // H2 "Mon abonnement" retiré : redondant avec le H1 de la page. La
+  // PlanCard se suffit à elle-même (nom du plan, prix et features dedans).
+  if (plan === 'free') {
+    return null
+  }
   return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-        {t('mySubscription')}
-      </h2>
-
-      {plan === 'free' ? (
-        <p className="text-sm text-muted-foreground">
-          {t('noActiveSubscription')}
-        </p>
-      ) : (
-        <PlanCard
-          plan={plan as PaidPlan}
-          subscription={subscription}
-          formatPlanPriceLabel={formatPlanPriceLabel}
-          onUpdateCard={onUpdateCard}
-          onCancel={onCancel}
-          onReactivate={onReactivate}
-        />
-      )}
-    </section>
+    <PlanCard
+      plan={plan as PaidPlan}
+      subscription={subscription}
+      formatPlanPriceLabel={formatPlanPriceLabel}
+      onUpdateCard={onUpdateCard}
+      onCancel={onCancel}
+      onReactivate={onReactivate}
+    />
   )
 }
 
@@ -534,31 +519,29 @@ function PlanCard({
   const iconColor = plan === 'pro' ? 'text-amber-500' : 'text-foreground'
 
   return (
-    <div className="rounded-[var(--radius-md)] border border-border bg-background p-6">
-      {/* Header : icône + nom + badge */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <PlanIcon
-            className={cn('h-5 w-5', iconColor)}
-            strokeWidth={1.5}
-            aria-hidden="true"
-          />
-          <div>
-            <h3 className="text-base font-semibold text-foreground">
-              {t('planLabel', { name: planConfig.name })}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {formatPlanPriceLabel(planConfig.priceCents[interval], interval)}
-            </p>
-          </div>
+    <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-6">
+      {/* Header : icône + nom + prix */}
+      <div className="flex items-start gap-3">
+        <PlanIcon
+          className={cn('mt-0.5 h-5 w-5 shrink-0', iconColor)}
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
+        <div className="flex-1">
+          <h3 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+            {t('planLabel', { name: planConfig.name })}
+          </h3>
+          <p className="text-sm text-muted">
+            {formatPlanPriceLabel(planConfig.priceCents[interval], interval)}
+          </p>
         </div>
-        <PlanBadge plan={plan} cancelled={isScheduledCancel} />
+        {isScheduledCancel && <PlanBadge plan={plan} cancelled />}
       </div>
 
       {/* Liste des features incluses */}
       {planConfig.features.length > 0 && (
         <ul
-          className="mt-5 space-y-2"
+          className="mt-5 space-y-2.5"
           aria-label={t('planFeaturesLabel')}
         >
           {planConfig.features.map((feature) => (
@@ -567,8 +550,8 @@ function PlanCard({
               className="flex items-center gap-2 text-sm text-foreground"
             >
               <Check
-                className="h-3.5 w-3.5 shrink-0 text-foreground"
-                strokeWidth={2}
+                className="h-4 w-4 shrink-0 text-success"
+                strokeWidth={2.5}
                 aria-hidden="true"
               />
               {feature}
@@ -578,12 +561,12 @@ function PlanCard({
       )}
 
       {/* Footer : statut + actions de gestion (in-card) */}
-      <div className="mt-5 space-y-4 border-t border-border pt-4">
+      <div className="mt-6 space-y-4 border-t border-border-light pt-5">
         {subscription !== null && subscription.current_period_end && (
           <p
             className={cn(
               'text-sm',
-              isScheduledCancel ? 'text-foreground' : 'text-muted-foreground',
+              isScheduledCancel ? 'text-foreground' : 'text-muted',
             )}
           >
             {isScheduledCancel
@@ -596,20 +579,11 @@ function PlanCard({
           </p>
         )}
 
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-foreground">
-            {t('manageTitle')}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {t('manageDescription')}
-          </p>
-        </div>
-
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={onUpdateCard}
-            className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+            className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
           >
             {t('updateCardCta')}
           </button>
@@ -617,7 +591,7 @@ function PlanCard({
             <button
               type="button"
               onClick={onReactivate}
-              className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
+              className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
             >
               {t('reactivateCta')}
             </button>
@@ -625,7 +599,7 @@ function PlanCard({
             <button
               type="button"
               onClick={onCancel}
-              className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+              className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-muted transition-colors duration-150 hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive"
             >
               {t('cancelCta')}
             </button>
@@ -783,8 +757,8 @@ function ChangePlanBlock({
   })
 
   return (
-    <section className="space-y-4 border-t border-border pt-8">
-      <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+    <section className="space-y-4">
+      <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
         {t('changePlan')}
       </h2>
 
@@ -955,39 +929,39 @@ function InvoicesBlock({
   const hasMore = !showAll && totalCount > INVOICES_INITIAL_LIMIT
 
   return (
-    <section className="space-y-4 border-t border-border pt-8">
-      <h2 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+    <section className="space-y-4">
+      <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
         {t('invoicesTitle')}
       </h2>
 
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface">
         <table className="w-full text-sm">
-          <thead className="border-b border-border bg-surface-warm text-left">
+          <thead className="border-b border-border-light bg-surface-warm text-left">
             <tr>
-              <th className="px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <th className="px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t('invoiceColDate')}
               </th>
-              <th className="px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <th className="px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t('invoiceColNumber')}
               </th>
-              <th className="px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <th className="px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t('invoiceColAmount')}
               </th>
-              <th className="px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <th className="px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t('invoiceColLinks')}
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-border-light">
             {invoices.map((invoice) => (
               <tr
                 key={invoice.id}
-                className="border-b border-border last:border-b-0"
+                className="transition-colors duration-150 hover:bg-surface-warm"
               >
                 <td className="px-4 py-3 text-foreground">
                   {formatShortDate(invoice.paid_at)}
                 </td>
-                <td className="px-4 py-3 text-muted-foreground">
+                <td className="px-4 py-3 font-mono text-xs text-muted">
                   {invoice.number ?? '—'}
                 </td>
                 <td className="px-4 py-3 font-medium text-foreground">
@@ -1000,9 +974,9 @@ function InvoicesBlock({
                         href={invoice.hosted_invoice_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-muted-foreground transition-colors duration-150 hover:text-foreground"
+                        className="inline-flex items-center gap-1 text-muted transition-colors duration-150 hover:text-foreground"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
                         {t('invoiceLinkHosted')}
                       </a>
                     )}
@@ -1011,9 +985,9 @@ function InvoicesBlock({
                         href={invoice.invoice_pdf}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-muted-foreground transition-colors duration-150 hover:text-foreground"
+                        className="inline-flex items-center gap-1 text-muted transition-colors duration-150 hover:text-foreground"
                       >
-                        <FileText className="h-3.5 w-3.5" />
+                        <FileText className="h-3.5 w-3.5" strokeWidth={1.5} />
                         {t('invoiceLinkPdf')}
                       </a>
                     )}
@@ -1029,7 +1003,7 @@ function InvoicesBlock({
         <button
           type="button"
           onClick={onShowAll}
-          className="text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground"
+          className="text-sm font-medium text-muted transition-colors duration-150 hover:text-foreground"
         >
           {t('invoicesShowAll')}
         </button>
@@ -1038,7 +1012,24 @@ function InvoicesBlock({
   )
 }
 
-// ---- Bloc 4 : Templates premium (adaptatif) ------------------------------
+// ---- Bloc 4 : Lien vers /mes-templates (remplace le gros bloc templates) --
+
+function TemplatesLink({ hasPurchased }: { hasPurchased: boolean }) {
+  const t = useTranslations('billing')
+  return (
+    <section>
+      <Link
+        href="/mes-templates"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors duration-150 hover:text-foreground"
+      >
+        {hasPurchased ? t('templatesPurchasedSeeAll') : t('seeMyPremiumTemplates')}
+        <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
+      </Link>
+    </section>
+  )
+}
+
+// ---- Bloc 4 (legacy) : Templates premium (adaptatif) ---------------------
 
 interface TemplatesBlockProps {
   plan: 'free' | 'starter' | 'pro'
