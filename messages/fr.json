@@ -606,6 +606,18 @@
       "limitReached": "Limite atteinte — passe au Pro"
     }
   },
+  "mesTemplates": {
+    "title": "Nos templates",
+    "titleRich": "Nos <accent>templates</accent>",
+    "subtitle": "Gratuits inclus, premium à débloquer.",
+    "sectionOwned": "Vos templates",
+    "sectionPremium": "Premium",
+    "count": "{count} template{count, plural, one {} other {s}}",
+    "badgeFree": "Gratuit",
+    "badgePurchased": "Acheté",
+    "idealFor": "Idéal pour",
+    "buy": "Acheter"
+  },
   "sidebar": {
     "dashboard": "Dashboard",
     "templates": "Templates",

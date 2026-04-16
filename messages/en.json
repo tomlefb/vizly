@@ -606,6 +606,18 @@
       "limitReached": "Limit reached — upgrade to Pro"
     }
   },
+  "mesTemplates": {
+    "title": "Our templates",
+    "titleRich": "Our <accent>templates</accent>",
+    "subtitle": "Free ones included, premium to unlock.",
+    "sectionOwned": "Your templates",
+    "sectionPremium": "Premium",
+    "count": "{count} template{count, plural, one {} other {s}}",
+    "badgeFree": "Free",
+    "badgePurchased": "Owned",
+    "idealFor": "Ideal for",
+    "buy": "Buy"
+  },
   "sidebar": {
     "dashboard": "Dashboard",
     "templates": "Templates",
