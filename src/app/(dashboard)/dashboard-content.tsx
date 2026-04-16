@@ -8,6 +8,7 @@ export function DashboardContent({ children }: { children: React.ReactNode }) {
 
   return (
     <main
+      data-dashboard-main
       className={cn(
         'min-h-dvh bg-[#F9FAFB] max-lg:!pl-0',
         mounted && 'transition-[padding-left] duration-200 ease-out',

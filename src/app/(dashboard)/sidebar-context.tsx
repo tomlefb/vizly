@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 const EXPANDED_WIDTH = 220
 const COLLAPSED_WIDTH = 56
 export const SIDEBAR_COOKIE = 'vizly-sidebar-expanded'
+const COLLAPSED_ATTR = 'data-sidebar-collapsed'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 // 1 an
 
 // useLayoutEffect throws a warning during SSR ; on bascule sur
@@ -17,6 +18,15 @@ function readSidebarCookie(): boolean {
   if (typeof document === 'undefined') return true
   const match = document.cookie.match(new RegExp(`(?:^|; )${SIDEBAR_COOKIE}=([^;]*)`))
   return match ? match[1] !== '0' : true
+}
+
+function setCollapsedAttr(collapsed: boolean) {
+  if (typeof document === 'undefined') return
+  if (collapsed) {
+    document.documentElement.setAttribute(COLLAPSED_ATTR, '')
+  } else {
+    document.documentElement.removeAttribute(COLLAPSED_ATTR)
+  }
 }
 
 interface SidebarContextValue {
@@ -49,15 +59,15 @@ export function SidebarProvider({ children, defaultExpanded = true }: SidebarPro
   const [expanded, setExpanded] = useState(defaultExpanded)
   const [mounted, setMounted] = useState(false)
 
-  // Fire synchronously avant le paint du navigateur : re-sync depuis
-  // le cookie côté client si le SSR n'a pas pu le lire (edge cache,
-  // cookie race), pour éviter un flash de transition à l'hydratation.
+  // Sync React state + data attribute lors du mount et des navigations
+  // client-side. Au mount, corrige l'état si le SSR a passé la mauvaise
+  // valeur (cookie non lu côté serveur). Le data attribute est mis à
+  // jour directement (pas via un effect séparé) pour éviter qu'un
+  // effect intermédiaire le retire avant que le state soit commité.
   useIsomorphicLayoutEffect(() => {
-    if (isInEditor) {
-      setExpanded(false)
-    } else {
-      setExpanded(readSidebarCookie())
-    }
+    const newExpanded = isInEditor ? false : readSidebarCookie()
+    setExpanded(newExpanded)
+    setCollapsedAttr(!newExpanded)
   }, [isInEditor])
 
   // Active les transitions CSS uniquement après le premier paint pour
@@ -74,6 +84,7 @@ export function SidebarProvider({ children, defaultExpanded = true }: SidebarPro
       if (!isInEditor) {
         document.cookie = `${SIDEBAR_COOKIE}=${next ? '1' : '0'};path=/;max-age=${COOKIE_MAX_AGE};samesite=lax`
       }
+      setCollapsedAttr(!next)
       return next
     })
   }, [isInEditor])

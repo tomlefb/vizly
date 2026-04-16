@@ -47,6 +47,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dashboard sidebar pre-paint override : le layout React émet des
+   inline styles width/padding-left basés sur defaultExpanded (qui
+   peut être faux si le SSR n'a pas pu lire le cookie). L'inline
+   script dans <body> pose data-sidebar-collapsed sur <html> avant
+   le premier paint, et ces règles !important forcent la bonne
+   géométrie dès l'affichage initial. React sync ensuite le data
+   attribute à chaque toggle. */
+html[data-sidebar-collapsed] aside[data-dashboard-sidebar] {
+  width: 56px !important;
+}
+html[data-sidebar-collapsed] main[data-dashboard-main] {
+  padding-left: 56px !important;
+}
+
 /* Focus ring */
 *:focus-visible {
   outline: 2px solid var(--color-accent);

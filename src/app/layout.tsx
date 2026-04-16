@@ -83,9 +83,17 @@ export default async function RootLayout({
     },
   }
 
+  // Pre-paint sidebar state : fire avant le premier paint pour poser
+  // un data attribute sur <html> que globals.css utilise en !important
+  // pour forcer la width de la sidebar et le padding-left du main, même
+  // si le SSR a émis des inline styles incorrects (edge cache, cookie
+  // race). Évite le flash au F5 sur les pages dashboard.
+  const sidebarPrePaintScript = `(function(){try{var m=document.cookie.match(/(?:^|; )vizly-sidebar-expanded=([^;]*)/);var c=m&&m[1]==='0';var e=location.pathname.indexOf('/editor')===0;if(c||e)document.documentElement.setAttribute('data-sidebar-collapsed','');}catch(_){}})();`
+
   return (
     <html lang={locale} className={`${satoshi.variable} ${dmSans.variable} overscroll-none`}>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: sidebarPrePaintScript }} />
         <NextTopLoader
           color="#D4634E"
           height={2}
