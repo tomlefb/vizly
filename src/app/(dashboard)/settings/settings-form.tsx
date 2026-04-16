@@ -54,7 +54,6 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
         setDeleteError(result.error)
         setShowConfirm(false)
       } else {
-        // Redirect to home after account deletion
         router.push('/')
         router.refresh()
       }
@@ -71,21 +70,21 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
-            className="inline-flex items-center rounded-[var(--radius-md)] border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition-colors duration-150 hover:bg-red-50"
+            className="inline-flex items-center rounded-[var(--radius-md)] border border-destructive/20 bg-surface px-4 py-2 text-sm font-semibold text-destructive transition-colors duration-150 hover:bg-destructive/5"
           >
             {t('deleteAccount')}
           </button>
         ) : (
-          <div className="rounded-[var(--radius-md)] border border-red-300 bg-white p-4">
-            <p className="text-sm font-medium text-red-700 mb-3">
+          <div className="rounded-[var(--radius-md)] border border-destructive/20 bg-surface p-4">
+            <p className="mb-3 text-sm font-medium text-destructive">
               {t('deleteConfirm')}
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="inline-flex items-center rounded-[var(--radius-md)] bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-red-700 disabled:opacity-50"
+                className="inline-flex items-center rounded-[var(--radius-md)] bg-destructive px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-destructive/90 disabled:opacity-50"
               >
                 {isDeleting ? t('deleting') : t('deleteConfirmBtn')}
               </button>
@@ -93,13 +92,13 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
                 type="button"
                 onClick={() => setShowConfirm(false)}
                 disabled={isDeleting}
-                className="inline-flex items-center rounded-[var(--radius-md)] border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm disabled:opacity-50"
+                className="inline-flex items-center rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm disabled:opacity-50"
               >
                 {t('cancel')}
               </button>
             </div>
             {deleteError && (
-              <p className="mt-3 text-sm text-red-600" role="alert">
+              <p className="mt-3 text-sm text-destructive" role="alert">
                 {deleteError}
               </p>
             )}
@@ -114,10 +113,13 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
   // ---------------------------------------------------------------------------
   return (
     <form onSubmit={handleNameSubmit}>
-      <label htmlFor="settings-name" className="block text-sm font-medium text-foreground mb-1.5">
+      <label
+        htmlFor="settings-name"
+        className="mb-1.5 block text-sm font-medium text-foreground"
+      >
         {t('name')}
       </label>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <input
           id="settings-name"
           type="text"
@@ -129,23 +131,23 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
           }}
           placeholder={t('namePlaceholder')}
           maxLength={100}
-          className="flex-1 h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+          className="h-10 flex-1 rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
         />
         <button
           type="submit"
           disabled={isPending || name.trim() === initialName}
-          className="inline-flex items-center h-10 rounded-lg bg-[#D4634E] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#C05640] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? t('saving') : t('save')}
         </button>
       </div>
       {nameError && (
-        <p className="mt-2 text-sm text-red-600" role="alert">
+        <p className="mt-2 text-sm text-destructive" role="alert">
           {nameError}
         </p>
       )}
       {nameSuccess && (
-        <p className="mt-2 text-sm text-green-600" role="status">
+        <p className="mt-2 text-sm text-success" role="status">
           {t('nameSuccess')}
         </p>
       )}

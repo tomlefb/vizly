@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import { ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { PLANS } from '@/lib/constants'
 import { SettingsForm } from './settings-form'
@@ -28,85 +29,77 @@ export default async function SettingsPage() {
   const planLabel = PLANS[plan].name
 
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
-        {t('title')}
-      </h1>
-      <p className="text-sm text-muted">
-        {t('subtitle')}
-      </p>
+    <div>
+      <header className="mb-10">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {t.rich('titleRich', {
+            accent: (chunks) => <span className="text-accent">{chunks}</span>,
+          })}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted">{t('subtitle')}</p>
+      </header>
 
-      <div className="pt-6 space-y-8">
+      <div className="divide-y divide-border-light">
         {/* Profile section */}
-        <section className="rounded-[var(--radius-lg)] border border-border bg-surface p-6">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-4">
-            {t('profile')}
-          </h2>
-
-          <div className="space-y-4">
+        <section className="space-y-5 pb-10">
+          <div>
+            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
+              {t('profile')}
+            </h2>
+            <p className="mt-1 text-sm text-muted">{t('profileDescription')}</p>
+          </div>
+          <div className="space-y-5">
             <ChangeEmailForm currentEmail={user.email ?? ''} />
             <SettingsForm initialName={profile?.name ?? ''} />
           </div>
         </section>
 
         {/* Language section */}
-        <section className="rounded-[var(--radius-lg)] border border-border bg-surface p-6">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-1">
-            {t('language')}
-          </h2>
-          <p className="text-sm text-muted mb-4">
-            {t('languageDescription')}
-          </p>
+        <section className="space-y-5 py-10">
+          <div>
+            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
+              {t('language')}
+            </h2>
+            <p className="mt-1 text-sm text-muted">{t('languageDescription')}</p>
+          </div>
           <LanguageSwitcher />
         </section>
 
         {/* Plan section */}
-        <section className="rounded-[var(--radius-lg)] border border-border bg-surface p-6">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-4">
-            {t('currentPlan')}
-          </h2>
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent capitalize">
+        <section className="space-y-5 py-10">
+          <div>
+            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
+              {t('currentPlan')}
+            </h2>
+            <p className="mt-1 text-sm text-muted">{t('currentPlanDescription')}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">
               {planLabel}
             </span>
             {plan === 'free' && (
-              <span className="text-sm text-muted">
-                {t('upgradePlan')}
-              </span>
+              <span className="text-sm text-muted">{t('upgradePlan')}</span>
             )}
-          </div>
-          <div className="mt-4">
             <Link
               href="/billing"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
+              className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
             >
               {t('manageSubscription')}
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                />
-              </svg>
+              <ArrowRight className="h-4 w-4" strokeWidth={2} />
             </Link>
           </div>
         </section>
 
         {/* Danger zone */}
-        <section className="rounded-[var(--radius-lg)] border border-red-200 bg-red-50/50 p-6">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-red-700 mb-2">
-            {t('dangerZone')}
-          </h2>
-          <p className="text-sm text-red-600/80 mb-4">
-            {t('dangerDescription')}
-          </p>
+        <section className="space-y-4 pt-10">
+          <div>
+            <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold text-destructive">
+              {t('dangerZone')}
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted">
+              {t('dangerDescription')}
+            </p>
+          </div>
           <SettingsForm initialName={profile?.name ?? ''} showDeleteOnly />
         </section>
       </div>

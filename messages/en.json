@@ -667,9 +667,11 @@
     "redirecting": "Redirecting..."
   },
   "settings": {
-    "title": "Settings",
-    "subtitle": "Manage your profile and account.",
+    "title": "My account",
+    "titleRich": "My <accent>account</accent>",
+    "subtitle": "Profile, language and plan.",
     "profile": "Profile",
+    "profileDescription": "Your login info and display name.",
     "email": "Email",
     "name": "Name",
     "namePlaceholder": "Your full name",
@@ -679,6 +681,7 @@
     "language": "Language",
     "languageDescription": "Choose the language of your dashboard.",
     "currentPlan": "Current plan",
+    "currentPlanDescription": "Your current plan and access to billing.",
     "upgradePlan": "Upgrade to a paid plan to publish your portfolio.",
     "manageSubscription": "Manage subscription",
     "dangerZone": "Danger zone",

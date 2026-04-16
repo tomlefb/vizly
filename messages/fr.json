@@ -667,9 +667,11 @@
     "redirecting": "Redirection..."
   },
   "settings": {
-    "title": "Paramètres",
-    "subtitle": "Gère ton profil et ton compte.",
+    "title": "Mon compte",
+    "titleRich": "Mon <accent>compte</accent>",
+    "subtitle": "Profil, langue et plan.",
     "profile": "Profil",
+    "profileDescription": "Tes infos de connexion et ton nom affiché.",
     "email": "Email",
     "name": "Nom",
     "namePlaceholder": "Ton nom complet",
@@ -679,6 +681,7 @@
     "language": "Langue",
     "languageDescription": "Choisis la langue de ton tableau de bord.",
     "currentPlan": "Plan actuel",
+    "currentPlanDescription": "Ton plan courant et l'accès à la facturation.",
     "upgradePlan": "Passe à un plan payant pour publier ton portfolio.",
     "manageSubscription": "Gérer mon abonnement",
     "dangerZone": "Zone dangereuse",

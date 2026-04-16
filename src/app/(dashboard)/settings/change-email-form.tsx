@@ -217,7 +217,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
         <button
           type="button"
           onClick={handleDoneAcknowledge}
-          className="mt-3 inline-flex items-center justify-center h-9 rounded-lg border border-[#E5E7EB] bg-white px-4 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
+          className="mt-3 inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
         >
           {t('changeEmail.doneAcknowledge')}
         </button>
@@ -245,7 +245,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
         <label className="block text-sm font-medium text-foreground mb-1.5">
           {tSettings('email')}
         </label>
-        <div className="rounded-[var(--radius-md)] border border-border bg-white p-4">
+        <div className="rounded-[var(--radius-md)] border border-border bg-surface p-4">
           <p className="text-sm font-medium text-foreground">{title}</p>
           <p className="mt-1 text-xs text-muted leading-relaxed">{subtitle}</p>
 
@@ -281,13 +281,13 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
               }
               placeholder={t('changeEmail.codePlaceholder')}
               aria-label={t('changeEmail.codeLabel')}
-              className="block w-full h-11 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-center text-xl font-semibold tracking-[0.3em] text-[#111827] placeholder:text-[#9CA3AF] placeholder:tracking-normal placeholder:text-base placeholder:font-normal transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+              className="block h-11 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 py-2 text-center text-xl font-semibold tracking-[0.3em] text-foreground placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
             />
             <div className="flex gap-2">
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="inline-flex items-center justify-center h-9 rounded-lg bg-[#D4634E] px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#C05640] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading
                   ? t('changeEmail.verifyLoading')
@@ -296,7 +296,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="inline-flex items-center justify-center h-9 rounded-lg border border-[#E5E7EB] bg-white px-4 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
+                className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
               >
                 {t('changeEmail.cancelButton')}
               </button>
@@ -348,7 +348,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             placeholder={t('changeEmail.newEmailPlaceholder')}
-            className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+            className="block h-10 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
           />
           <p className="text-xs text-muted leading-relaxed">
             {t('changeEmail.requestHint', { email: currentEmail })}
@@ -357,7 +357,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center h-9 rounded-lg bg-[#D4634E] px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#C05640] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading
                 ? t('changeEmail.requestLoading')
@@ -366,7 +366,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
             <button
               type="button"
               onClick={handleCancel}
-              className="inline-flex items-center justify-center h-9 rounded-lg border border-[#E5E7EB] bg-white px-4 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
+              className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
             >
               {t('changeEmail.cancelButton')}
             </button>
@@ -390,7 +390,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
         <button
           type="button"
           onClick={handleStart}
-          className="inline-flex items-center justify-center h-10 rounded-lg border border-[#E5E7EB] bg-white px-4 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
+          className="inline-flex h-10 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
         >
           {t('changeEmail.startButton')}
         </button>
