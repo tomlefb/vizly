@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BLOG_POSTS, formatBlogDate } from '@/lib/blog'
+import { VzHighlight } from '@/components/ui/vizly'
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -12,8 +13,8 @@ export default function BlogPage() {
   return (
     <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-10 lg:pt-16 pb-16 lg:pb-24">
         <div className="max-w-2xl mb-10">
-          <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl">
-            Blog
+          <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl leading-[1.08]">
+            Le <VzHighlight>blog</VzHighlight>
           </h1>
           <p className="mt-3 text-lg text-muted leading-relaxed">
             Guides, conseils et inspiration pour creer un portfolio qui te demarque.
@@ -25,11 +26,11 @@ export default function BlogPage() {
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
-              className="group rounded-[var(--radius-lg)] border border-border bg-surface overflow-hidden transition-all duration-200 hover:border-border-light hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+              className="group rounded-[var(--radius-lg)] border border-border-light bg-surface overflow-hidden transition-all duration-300 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
             >
               {/* Cover illustration */}
               <div
-                className="h-44 relative overflow-hidden"
+                className="h-44 relative overflow-hidden border-b border-border-light"
                 style={{ backgroundColor: `${post.coverColor}0A` }}
               >
                 <div className="absolute top-3 left-3">
@@ -54,7 +55,7 @@ export default function BlogPage() {
                 >
                   {formatBlogDate(post.date)}
                 </time>
-                <h2 className="mt-2 font-[family-name:var(--font-satoshi)] text-base font-semibold leading-snug group-hover:text-accent transition-colors duration-150">
+                <h2 className="mt-2 font-[family-name:var(--font-satoshi)] text-base font-semibold leading-snug group-hover:text-accent-deep transition-colors duration-150">
                   {post.title}
                 </h2>
                 <p className="mt-2 text-sm text-muted leading-relaxed line-clamp-2">
@@ -88,7 +89,7 @@ function BlogCover({ slug, color }: { slug: string; color: string }) {
               <span className="h-1.5 w-1.5 rounded-full" style={bg('20')} />
               <span className="ml-2 h-2 flex-1 rounded-full" style={bg('10')} />
             </div>
-            <div className="p-3 space-y-2 bg-white/60">
+            <div className="p-3 space-y-2 bg-surface/60">
               <div className="flex items-center gap-2">
                 <span className="h-7 w-7 shrink-0 rounded-full" style={bg('22')} />
                 <div className="flex-1 space-y-1">
@@ -120,7 +121,7 @@ function BlogCover({ slug, color }: { slug: string; color: string }) {
               </div>
               <span className="h-2 w-16 rounded-full" style={bg('10')} />
             </div>
-            <div className="p-2.5 space-y-1.5 bg-white/60">
+            <div className="p-2.5 space-y-1.5 bg-surface/60">
               {[
                 { w: 'w-20', err: false },
                 { w: 'w-28', err: false },
@@ -157,7 +158,7 @@ function BlogCover({ slug, color }: { slug: string; color: string }) {
             {[false, true, true, false].map((alt, i) => (
               <div key={i} className="rounded-md overflow-hidden border" style={bd('20')}>
                 <div className="h-3" style={bg(alt ? '10' : '18')} />
-                <div className="p-1.5 space-y-1 bg-white/60">
+                <div className="p-1.5 space-y-1 bg-surface/60">
                   {alt ? (
                     <>
                       <span className="block h-4 w-4 rounded-full mx-auto" style={bg('15')} />
@@ -181,7 +182,7 @@ function BlogCover({ slug, color }: { slug: string; color: string }) {
     case 'portfolio-etudiant-stage-alternance':
       return (
         <div className="absolute inset-0 flex items-center justify-center p-6 pt-10">
-          <div className="w-36 rounded-lg overflow-hidden border bg-white/60" style={bd('25')}>
+          <div className="w-36 rounded-lg overflow-hidden border bg-surface/60" style={bd('25')}>
             <div className="p-3 space-y-2.5">
               <div className="flex items-center gap-2">
                 <span className="h-8 w-8 shrink-0 rounded-full" style={bg('20')} />

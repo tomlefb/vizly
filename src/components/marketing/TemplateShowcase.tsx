@@ -8,6 +8,7 @@ import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { getDemoPortfolio } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { StaggerItem } from '@/components/shared/ScrollReveal'
+import { VzBadge } from '@/components/ui/vizly'
 import type { ReactNode } from 'react'
 
 type Filter = 'all' | 'free' | 'premium'
@@ -41,8 +42,8 @@ export function TemplateShowcase({ header }: { header?: ReactNode }) {
               className={cn(
                 'rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200',
                 filter === opt.value
-                  ? 'bg-foreground text-background'
-                  : 'border border-border text-muted hover:text-foreground hover:bg-surface-warm'
+                  ? 'bg-foreground text-surface'
+                  : 'border border-border-light text-muted hover:text-foreground hover:bg-surface-warm'
               )}
             >
               {opt.label}
@@ -60,26 +61,26 @@ export function TemplateShowcase({ header }: { header?: ReactNode }) {
             <StaggerItem key={template.name} index={i} stagger={0.05}>
             <Link
               href={`/templates/${template.name}`}
-              className="block group relative rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
+              className="block group relative rounded-[var(--radius-lg)] border border-border-light bg-surface overflow-hidden transition-all duration-300 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
             >
               {/* Premium badge */}
               {template.isPremium && (
                 <div className="absolute top-3 right-3 z-10">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-3 py-1 text-[11px] font-semibold text-background backdrop-blur-sm">
-                    <Star className="h-3 w-3 fill-current" />
-                    Premium 2,99&euro;
-                  </span>
+                  <VzBadge variant="pro">
+                    <Star className="h-2.5 w-2.5 fill-current" />
+                    Premium 2,99€
+                  </VzBadge>
                 </div>
               )}
 
               {/* Real template preview */}
-              <div className="relative bg-white overflow-hidden">
+              <div className="relative bg-surface overflow-hidden">
                 {/* Browser chrome */}
-                <div className="flex items-center gap-2 bg-surface-warm px-3 py-1.5">
+                <div className="flex items-center gap-2 bg-surface-warm px-3 py-1.5 border-b border-border-light">
                   <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF6259]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FFBF2F]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#29CE42]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-border" />
                   </div>
                   <div className="flex-1 flex justify-center">
                     <div className="rounded-[2px] bg-background border border-border-light px-2 py-px text-[9px] text-muted font-mono">
@@ -97,8 +98,8 @@ export function TemplateShowcase({ header }: { header?: ReactNode }) {
                 />
 
                 {/* Hover overlay */}
-                <div className="absolute inset-0 top-[26px] bg-accent/0 group-hover:bg-accent/5 transition-colors duration-300 flex items-center justify-center">
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[var(--radius-md)] bg-accent px-5 py-2 text-sm font-semibold text-white shadow-lg">
+                <div className="absolute inset-0 top-[26px] bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300 flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[var(--radius-md)] bg-foreground px-5 py-2 text-sm font-semibold text-surface shadow-[2px_2px_0_var(--color-accent)]">
                     Voir ce template
                   </span>
                 </div>
@@ -111,7 +112,7 @@ export function TemplateShowcase({ header }: { header?: ReactNode }) {
                     {template.label}
                   </h3>
                   {!template.isPremium && (
-                    <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
+                    <span className="rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-medium text-success-fg">
                       Gratuit
                     </span>
                   )}
