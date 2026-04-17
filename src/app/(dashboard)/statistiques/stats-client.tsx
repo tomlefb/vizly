@@ -76,7 +76,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       <Header />
 
       {/* ─── Sélecteur de projet ─── */}
-      <div className="mb-8">
+      <div className="mb-10">
         <div className="flex flex-wrap gap-2">
           {publishedPortfolios.map((p) => (
             <button
@@ -86,7 +86,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
               className={cn(
                 'inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border px-4 text-sm font-medium transition-colors duration-150',
                 selectedId === p.id
-                  ? 'border-foreground bg-foreground text-background'
+                  ? 'border-accent bg-accent text-white'
                   : 'border-border bg-surface text-foreground hover:bg-surface-warm',
               )}
             >
@@ -96,7 +96,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                   className={cn(
                     'text-xs',
                     selectedId === p.id
-                      ? 'text-background/60'
+                      ? 'text-white/70'
                       : 'text-muted-foreground',
                   )}
                 >
@@ -109,34 +109,31 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       </div>
 
       {selected && (
-        <>
-          {/* ─── KPI cards ─── */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <StatCard icon={Eye} label="Vues totales" value={selected.totalViews} />
-            <StatCard
-              icon={TrendingUp}
-              label="30 derniers jours"
-              value={selected.viewsLast30}
-              trend={trendPercent}
-            />
-            <StatCard icon={Eye} label="Aujourd'hui" value={selected.viewsToday} />
-          </div>
+        <div className="divide-y divide-border-light">
+          {/* ─── Section : Vues ─── */}
+          <StatsSection
+            title="Vues"
+            description={`Nombre de vues de ${selected.title}.`}
+          >
+            <div className="grid grid-cols-3 gap-4">
+              <StatCard icon={Eye} label="Totales" value={selected.totalViews} />
+              <StatCard
+                icon={TrendingUp}
+                label="30 derniers jours"
+                value={selected.viewsLast30}
+                trend={trendPercent}
+              />
+              <StatCard icon={Eye} label="Aujourd'hui" value={selected.viewsToday} />
+            </div>
+          </StatsSection>
 
-          {/* ─── Sources ─── */}
-          <section className="mt-10">
-            <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
-              Sources
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              D&apos;où viennent les visiteurs de{' '}
-              <span className="font-medium text-foreground">
-                {selected.title}
-              </span>{' '}
-              (30 derniers jours).
-            </p>
-
+          {/* ─── Section : Sources ─── */}
+          <StatsSection
+            title="Sources"
+            description={`D'où viennent les visiteurs de ${selected.title} (30 derniers jours).`}
+          >
             {selected.sources.length > 0 ? (
-              <ul className="mt-6 space-y-1">
+              <ul className="space-y-1">
                 {selected.sources.map((s) => {
                   const maxCount = selected.sources[0]?.count ?? 1
                   const widthPct = Math.max(
@@ -168,14 +165,14 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                 })}
               </ul>
             ) : (
-              <div className="mt-6 rounded-[var(--radius-lg)] border border-dashed border-border p-6 text-center">
+              <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-6 text-center">
                 <p className="text-sm text-muted">
                   Pas encore de données sur les sources.
                 </p>
               </div>
             )}
-          </section>
-        </>
+          </StatsSection>
+        </div>
       )}
     </div>
   )
@@ -193,6 +190,28 @@ function Header() {
         Performances et vues de tes portfolios.
       </p>
     </header>
+  )
+}
+
+function StatsSection({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="grid gap-6 py-10 first:pt-0 last:pb-0 md:grid-cols-[220px_1fr] md:gap-10">
+      <div>
+        <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+          {title}
+        </h2>
+        <p className="mt-1 text-sm text-muted">{description}</p>
+      </div>
+      <div>{children}</div>
+    </section>
   )
 }
 
