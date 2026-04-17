@@ -38,7 +38,7 @@ export async function CTA(props: CTAProps = {}) {
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl leading-[1.08]">
                 {title}{' '}
-                <VzHighlight>{titleAccent}</VzHighlight>
+                <VzHighlight className="text-foreground">{titleAccent}</VzHighlight>
                 {suffix}
               </h2>
 
