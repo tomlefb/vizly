@@ -10,7 +10,7 @@ test.describe('Authentification', () => {
 
   test("la page d'inscription se charge correctement", async ({ page }) => {
     await page.goto('/register')
-    await expect(page.getByRole('heading', { name: /inscription/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /créer un compte/i })).toBeVisible()
     await expect(page.getByLabel(/nom/i)).toBeVisible()
     await expect(page.getByLabel(/email/i)).toBeVisible()
     await expect(page.getByLabel(/mot de passe/i)).toBeVisible()
@@ -33,8 +33,8 @@ test.describe('Authentification', () => {
     await page.getByLabel(/email/i).fill('invalid@test.com')
     await page.getByLabel(/mot de passe/i).fill('wrongpassword')
     await page.getByRole('button', { name: /se connecter/i }).click()
-    // Should show an error message
-    await expect(page.getByText(/erreur|invalide/i)).toBeVisible()
+    // Should show an error message (current i18n: "Email ou mot de passe incorrect")
+    await expect(page.getByRole('alert')).toBeVisible()
   })
 
   test('/login ne contient pas de checkbox CGU et le bouton Google est enabled', async ({ page }) => {
@@ -74,7 +74,8 @@ test.describe('Authentification', () => {
     })
 
     await page.goto('/register?plan=pro&interval=yearly')
-    await page.getByRole('checkbox').check()
+    // CGU checkbox was replaced by a textual legal notice; Google OAuth is
+    // immediately clickable without any checkbox interaction.
     await page.getByRole('button', { name: /google/i }).click()
 
     await expect.poll(() => capturedAuthorizeUrl, { timeout: 5000 }).not.toBeNull()
