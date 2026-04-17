@@ -4,7 +4,6 @@ import { DM_Sans } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import NextTopLoader from 'nextjs-toploader'
-import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import './globals.css'
 
 const satoshi = localFont({
@@ -95,8 +94,13 @@ export default async function RootLayout({
     <html lang={locale} className={`${satoshi.variable} ${dmSans.variable} overscroll-none`}>
       <body>
         <script dangerouslySetInnerHTML={{ __html: sidebarPrePaintScript }} />
+        {/*
+          NextTopLoader : hex inline acceptable ici — le composant ne
+          lit pas les CSS custom properties. `#8AB83D` = `--color-accent-deep`,
+          la version foncée du lime, lisible sur fond crème.
+        */}
         <NextTopLoader
-          color={DEFAULT_PORTFOLIO_COLOR}
+          color="#8AB83D"
           height={2}
           showSpinner={false}
           shadow={false}

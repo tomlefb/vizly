@@ -782,10 +782,19 @@
   },
   "notFound": {
     "title": "Page not found",
+    "titleLead": "Page",
+    "titleAccent": "not found",
     "description": "The page you're looking for doesn't exist or has been moved.",
-    "home": "Home",
-    "templates": "Templates",
+    "home": "Back to home",
+    "templates": "See templates",
     "blog": "Blog"
+  },
+  "errorPage": {
+    "titleLead": "Oops,",
+    "titleAccent": "something broke",
+    "description": "Something went wrong. Try again or go back home.",
+    "retry": "Try again",
+    "home": "Back to home"
   },
   "language": {
     "label": "Language",
