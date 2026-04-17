@@ -92,65 +92,11 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       </div>
 
       {selected && (
-        <>
-        {/* ─── KPIs (pleine largeur) ─── */}
-        <div className="mt-8 grid grid-cols-3 divide-x divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
-          <KpiCell label="Vues totales" value={selected.totalViews} />
-          <KpiCell
-            label="30 derniers jours"
-            value={selected.viewsLast30}
-            trend={trendPercent}
-          />
-          <KpiCell label="Aujourd'hui" value={selected.viewsToday} />
-        </div>
-
-        {/* ─── Sources + Preview côte à côte ─── */}
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
-          <div>
-            <div className="flex items-baseline justify-between gap-4">
-              <h2 className="text-sm font-medium text-foreground">
-                Sources
-              </h2>
-              <span className="text-xs text-muted">30 derniers jours</span>
-            </div>
-
-            {selected.sources.length > 0 ? (
-              <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border-light bg-surface-warm">
-                      <th className="px-4 py-2 text-left text-xs font-medium text-muted">
-                        Source
-                      </th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-muted">
-                        Visiteurs
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-light">
-                    {selected.sources.map((s) => (
-                      <tr key={s.source}>
-                        <td className="px-4 py-2.5 text-foreground">
-                          {s.source}
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
-                          {s.count.toLocaleString('fr-FR')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-muted">
-                Pas encore de données sur les sources.
-              </p>
-            )}
-          </div>
-
-          {/* Preview */}
-          <div className="hidden lg:block">
-            <div className="sticky top-6 overflow-hidden rounded-[var(--radius-lg)] border border-border">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_200px]">
+          {/* ─── Gauche : preview + sources ─── */}
+          <div className="min-w-0 space-y-6">
+            {/* Preview */}
+            <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border">
               <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
                 <div className="flex gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
@@ -168,13 +114,66 @@ export function StatsClient({ portfolios }: StatsClientProps) {
               <TemplatePreview
                 templateName={selected.template}
                 templateProps={selected.templateProps}
-                scale={0.25}
-                height="350px"
+                scale={0.35}
+                height="180px"
               />
             </div>
+
+            {/* Sources */}
+            <div>
+              <div className="flex items-baseline justify-between gap-4">
+                <h2 className="text-sm font-medium text-foreground">
+                  Sources
+                </h2>
+                <span className="text-xs text-muted">30 derniers jours</span>
+              </div>
+
+              {selected.sources.length > 0 ? (
+                <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border-light bg-surface-warm">
+                        <th className="px-4 py-2 text-left text-xs font-medium text-muted">
+                          Source
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-muted">
+                          Visiteurs
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border-light">
+                      {selected.sources.map((s) => (
+                        <tr key={s.source}>
+                          <td className="px-4 py-2.5 text-foreground">
+                            {s.source}
+                          </td>
+                          <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
+                            {s.count.toLocaleString('fr-FR')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-muted">
+                  Pas encore de données sur les sources.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* ─── Droite : KPIs en colonne ─── */}
+          <div className="space-y-4">
+            <KpiCell label="Vues totales" value={selected.totalViews} />
+            <KpiCell
+              label="30 derniers jours"
+              value={selected.viewsLast30}
+              trend={trendPercent}
+            />
+            <KpiCell label="Aujourd'hui" value={selected.viewsToday} />
           </div>
         </div>
-        </>
       )}
     </div>
   )
@@ -205,9 +204,9 @@ function KpiCell({
   trend?: number
 }) {
   return (
-    <div className="bg-surface px-5 py-4">
+    <div className="rounded-[var(--radius-lg)] border border-border bg-surface px-4 py-4">
       <p className="text-xs text-muted">{label}</p>
-      <p className="mt-1.5 font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground tabular-nums">
+      <p className="mt-1 font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground tabular-nums">
         {value.toLocaleString('fr-FR')}
       </p>
       {trend !== undefined && (
