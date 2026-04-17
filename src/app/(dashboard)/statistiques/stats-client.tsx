@@ -92,10 +92,9 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       </div>
 
       {selected && (
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_200px]">
+        <div className="mt-8 grid gap-8 lg:grid-cols-2">
           {/* ─── Gauche : preview + sources ─── */}
           <div className="min-w-0 space-y-6">
-            {/* Preview */}
             <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border">
               <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
                 <div className="flex gap-1">
@@ -119,7 +118,6 @@ export function StatsClient({ portfolios }: StatsClientProps) {
               />
             </div>
 
-            {/* Sources */}
             <div>
               <div className="flex items-baseline justify-between gap-4">
                 <h2 className="text-sm font-medium text-foreground">
@@ -163,15 +161,16 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             </div>
           </div>
 
-          {/* ─── Droite : KPIs en colonne ─── */}
-          <div className="space-y-4">
-            <KpiCell label="Vues totales" value={selected.totalViews} />
+          {/* ─── Droite : KPIs en colonne, gros chiffres ─── */}
+          <div className="flex flex-col gap-4">
+            <KpiCell label="Vues totales" value={selected.totalViews} large />
             <KpiCell
               label="30 derniers jours"
               value={selected.viewsLast30}
               trend={trendPercent}
+              large
             />
-            <KpiCell label="Aujourd'hui" value={selected.viewsToday} />
+            <KpiCell label="Aujourd'hui" value={selected.viewsToday} large />
           </div>
         </div>
       )}
@@ -198,19 +197,33 @@ function KpiCell({
   label,
   value,
   trend,
+  large,
 }: {
   label: string
   value: number
   trend?: number
+  large?: boolean
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-border bg-surface px-4 py-4">
-      <p className="text-xs text-muted">{label}</p>
-      <p className="mt-1 font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground tabular-nums">
+    <div
+      className={cn(
+        'flex flex-1 flex-col justify-center rounded-[var(--radius-lg)] border border-border bg-surface',
+        large ? 'px-6 py-6' : 'px-4 py-4',
+      )}
+    >
+      <p className={cn('text-muted', large ? 'text-sm' : 'text-xs')}>
+        {label}
+      </p>
+      <p
+        className={cn(
+          'mt-1 font-[family-name:var(--font-satoshi)] font-bold text-foreground tabular-nums',
+          large ? 'text-4xl' : 'text-2xl',
+        )}
+      >
         {value.toLocaleString('fr-FR')}
       </p>
       {trend !== undefined && (
-        <div className="mt-1 flex items-center gap-1">
+        <div className="mt-2 flex items-center gap-1">
           {trend > 0 ? (
             <ArrowUp className="h-3 w-3 text-success" strokeWidth={2} />
           ) : trend < 0 ? (
