@@ -3,6 +3,11 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BarChart3 } from 'lucide-react'
 import type { PlanType } from '@/lib/constants'
+import { parseSections, parseSkills } from '@/types/sections'
+import { parseCustomBlocks } from '@/types/custom-blocks'
+import { parseKpis } from '@/types/kpis'
+import { parseLayoutBlocks } from '@/types/layout-blocks'
+import type { TemplateProps } from '@/types'
 import { StatsClient, type PortfolioStats } from './stats-client'
 
 export default async function StatistiquesPage() {
@@ -49,7 +54,7 @@ export default async function StatistiquesPage() {
 
   const { data: portfolios } = await supabase
     .from('portfolios')
-    .select('id, title, slug, published')
+    .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -94,7 +99,6 @@ export default async function StatistiquesPage() {
   const sixtyDaysAgo = new Date(startOfToday)
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60)
 
-  // ── Fetch all data in parallel ──
   const [totalCountsResult, recentViewsResult] = await Promise.all([
     Promise.all(
       allPortfolios.map(async (p) => {
@@ -118,7 +122,6 @@ export default async function StatistiquesPage() {
     totalCountsResult.map((r) => [r.id, r.total]),
   )
 
-  // ── Build per-portfolio stats ──
   const statsMap = new Map<
     string,
     {
@@ -167,11 +170,35 @@ export default async function StatistiquesPage() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 8)
 
+    const templateProps: TemplateProps = {
+      portfolio: {
+        title: p.title || 'Mon portfolio',
+        bio: p.bio ?? null,
+        photo_url: p.photo_url ?? null,
+        primary_color: p.primary_color || '#D4634E',
+        secondary_color: p.secondary_color || '#1A1A1A',
+        font: p.font || 'DM Sans',
+        font_body: p.font_body ?? p.font ?? 'DM Sans',
+        social_links:
+          (p.social_links as Record<string, string> | null) ?? null,
+        contact_email: p.contact_email ?? null,
+      },
+      projects: [],
+      skills: parseSkills(p.skills),
+      sections: parseSections(p.sections),
+      customBlocks: parseCustomBlocks(p.custom_blocks),
+      kpis: parseKpis(p.kpis),
+      layoutBlocks: parseLayoutBlocks(p.layout_blocks),
+      isPremium: false,
+    }
+
     return {
       id: p.id,
       title: p.title ?? 'Sans titre',
       slug: p.slug,
       published: p.published ?? false,
+      template: p.template ?? 'classique',
+      templateProps,
       totalViews: totalCountsMap.get(p.id) ?? 0,
       viewsToday: entry?.viewsToday ?? 0,
       viewsLast30: entry?.viewsLast30 ?? 0,

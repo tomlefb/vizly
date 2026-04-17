@@ -1,12 +1,10 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import {
-  ArrowDown,
-  ArrowUp,
-  Minus,
-} from 'lucide-react'
+import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TemplatePreview } from '@/components/shared/TemplatePreview'
+import type { TemplateProps } from '@/types'
 
 // ── Types ──
 
@@ -15,6 +13,8 @@ export interface PortfolioStats {
   title: string
   slug: string | null
   published: boolean
+  template: string
+  templateProps: TemplateProps
   totalViews: number
   viewsToday: number
   viewsLast30: number
@@ -72,7 +72,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
     <div>
       <Header />
 
-      {/* ─── Sélecteur de projet (URL seulement) ─── */}
+      {/* ─── Sélecteur de projet ─── */}
       <div className="flex flex-wrap gap-2">
         {publishedPortfolios.map((p) => (
           <button
@@ -92,61 +92,94 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       </div>
 
       {selected && (
-        <>
-          {/* ─── KPIs ─── */}
-          <div className="mt-8 grid grid-cols-3 divide-x divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
-            <KpiCell label="Vues totales" value={selected.totalViews} />
-            <KpiCell
-              label="30 derniers jours"
-              value={selected.viewsLast30}
-              trend={trendPercent}
-            />
-            <KpiCell label="Aujourd'hui" value={selected.viewsToday} />
-          </div>
-
-          {/* ─── Sources ─── */}
-          <div className="mt-10">
-            <div className="flex items-baseline justify-between gap-4">
-              <h2 className="text-sm font-medium text-foreground">
-                Sources
-              </h2>
-              <span className="text-xs text-muted">30 derniers jours</span>
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+          {/* ─── Colonne gauche : stats ─── */}
+          <div className="min-w-0 space-y-8">
+            {/* KPIs */}
+            <div className="grid grid-cols-3 divide-x divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
+              <KpiCell label="Vues totales" value={selected.totalViews} />
+              <KpiCell
+                label="30 derniers jours"
+                value={selected.viewsLast30}
+                trend={trendPercent}
+              />
+              <KpiCell
+                label="Aujourd'hui"
+                value={selected.viewsToday}
+              />
             </div>
 
-            {selected.sources.length > 0 ? (
-              <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border-light bg-surface-warm">
-                      <th className="px-4 py-2 text-left text-xs font-medium text-muted">
-                        Source
-                      </th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-muted">
-                        Visiteurs
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-light">
-                    {selected.sources.map((s) => (
-                      <tr key={s.source}>
-                        <td className="px-4 py-2.5 text-foreground">
-                          {s.source}
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
-                          {s.count.toLocaleString('fr-FR')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* Sources */}
+            <div>
+              <div className="flex items-baseline justify-between gap-4">
+                <h2 className="text-sm font-medium text-foreground">
+                  Sources
+                </h2>
+                <span className="text-xs text-muted">30 derniers jours</span>
               </div>
-            ) : (
-              <p className="mt-4 text-sm text-muted">
-                Pas encore de données sur les sources.
-              </p>
-            )}
+
+              {selected.sources.length > 0 ? (
+                <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border-light bg-surface-warm">
+                        <th className="px-4 py-2 text-left text-xs font-medium text-muted">
+                          Source
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-muted">
+                          Visiteurs
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border-light">
+                      {selected.sources.map((s) => (
+                        <tr key={s.source}>
+                          <td className="px-4 py-2.5 text-foreground">
+                            {s.source}
+                          </td>
+                          <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
+                            {s.count.toLocaleString('fr-FR')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-muted">
+                  Pas encore de données sur les sources.
+                </p>
+              )}
+            </div>
           </div>
-        </>
+
+          {/* ─── Colonne droite : preview ─── */}
+          <div className="hidden lg:block">
+            <div className="sticky top-6 overflow-hidden rounded-[var(--radius-lg)] border border-border">
+              {/* Browser chrome */}
+              <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
+                <div className="flex gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                </div>
+                <div className="flex flex-1 justify-center">
+                  <div className="max-w-[180px] truncate rounded-[2px] border border-border-light bg-background px-2 py-px font-mono text-[9px] text-muted">
+                    {selected.slug
+                      ? `${selected.slug}.vizly.fr`
+                      : 'Non publié'}
+                  </div>
+                </div>
+              </div>
+              <TemplatePreview
+                templateName={selected.template}
+                templateProps={selected.templateProps}
+                scale={0.28}
+                height="400px"
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
