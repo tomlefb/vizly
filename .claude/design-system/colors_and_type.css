@@ -1,0 +1,186 @@
+/* ============================================================
+   Vizly Design System — Core tokens
+   Direction: "Handcrafted" (lime accent, cream canvas)
+   ============================================================ */
+
+/* --- Typography: web fonts --- */
+/* Satoshi is proprietary (Fontshare). We load DM Sans from Google
+   Fonts for body. For Satoshi we fall back to a close Google
+   match: Plus Jakarta Sans (geometric, grotesque, similar x-height
+   and tracking character). See README — flag the substitution. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* ---------- COLOR TOKENS ---------- */
+
+  /* Surfaces */
+  --bg:              #FAF8F6;   /* cream — page background (never gray!) */
+  --surface:         #FFFFFF;   /* cards, elevated */
+  --surface-warm:    #FAF8F6;   /* alt sections, sidebar */
+  --surface-sunken:  #F4EFE8;   /* nested surfaces, code blocks */
+
+  /* Text */
+  --fg:              #1A1A1A;   /* primary text (never #000) */
+  --fg-secondary:    #6B6560;   /* secondary copy, captions */
+  --fg-tertiary:     #9C958E;   /* placeholders, meta */
+  --fg-inverse:      #FAF8F6;   /* text on dark surfaces */
+
+  /* Borders */
+  --border-light:    #EDE6DE;   /* rest state */
+  --border:          #D8D3C7;   /* hover / focus */
+  --border-strong:   #1A1A1A;   /* outline buttons, emphatic */
+
+  /* Accent — lime citron (signature) */
+  --accent:          #C8F169;   /* marker highlight, offset shadow, avatar */
+  --accent-fg:       #1A1A1A;   /* text on accent (black) */
+  --accent-deep:     #8AB83D;   /* darker lime for inline text (Vizly. dot) */
+
+  /* Semantic */
+  --success-bg:      #E8F5E9;
+  --success-fg:      #1B5E20;
+  --destructive:     #DC2626;
+  --destructive-bg:  #FEF2F2;
+
+  /* ---------- TYPE TOKENS ---------- */
+  --font-display: 'Plus Jakarta Sans', 'Satoshi', system-ui, sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    ui-monospace, 'SF Mono', 'Menlo', monospace;
+
+  /* Type scale */
+  --text-xs:   0.75rem;   /* 12px  — meta, captions */
+  --text-sm:   0.875rem;  /* 14px  — body small, labels */
+  --text-base: 1rem;      /* 16px  — body */
+  --text-lg:   1.125rem;  /* 18px  — card title */
+  --text-xl:   1.25rem;   /* 20px  — H3 */
+  --text-2xl:  1.5rem;    /* 24px  — dashboard H1 */
+  --text-3xl:  1.875rem;  /* 30px  — section H2 small */
+  --text-4xl:  2.25rem;   /* 36px  — section H2 */
+  --text-5xl:  3rem;      /* 48px  — marketing H1 */
+  --text-6xl:  3.75rem;   /* 60px  — hero H1 */
+
+  /* ---------- RADIUS ---------- */
+  --radius-sm:   6px;    /* tags, focus ring */
+  --radius-md:   10px;   /* buttons, inputs */
+  --radius-lg:   14px;   /* cards */
+  --radius-xl:   20px;   /* CTA sections */
+  --radius-full: 9999px; /* pills */
+
+  /* ---------- SHADOW (sparse!) ---------- */
+  --shadow-card-hover: 0 2px 12px rgba(0, 0, 0, 0.04);
+  --shadow-offset-accent-3: 3px 3px 0 #C8F169;
+  --shadow-offset-accent-2: 2px 2px 0 #C8F169;
+
+  /* ---------- SPACING ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+}
+
+/* ---------- SEMANTIC ELEMENT STYLES ---------- */
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--fg);
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  text-wrap: balance;
+  margin: 0;
+}
+
+h1 { font-size: var(--text-5xl); line-height: 1.08; }
+h2 { font-size: var(--text-4xl); line-height: 1.12; font-weight: 700; }
+h3 { font-size: var(--text-lg);  line-height: 1.3;  font-weight: 600; }
+h4 { font-size: var(--text-sm);  line-height: 1.3;  font-weight: 600; }
+
+p {
+  margin: 0;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.t-muted   { color: var(--fg-secondary); }
+.t-meta    { color: var(--fg-tertiary); font-size: var(--text-xs); }
+.t-mono    { font-family: var(--font-mono); font-size: 0.95em; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-sunken);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- SIGNATURE: marker highlight ---------- */
+.vz-highlight {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+.vz-highlight::before {
+  content: '';
+  position: absolute;
+  inset: -2px -6px;
+  background: var(--accent);
+  border-radius: 3px;
+  transform: rotate(-1.5deg);
+  z-index: 0;
+}
+.vz-highlight > span {
+  position: relative;
+  z-index: 1;
+  padding: 0 4px;
+}
+
+/* ---------- SIGNATURE: Vizly wordmark ---------- */
+.vz-wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+.vz-wordmark-dot { color: var(--accent-deep); }
+
+/* ---------- SIGNATURE: grain texture ---------- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
