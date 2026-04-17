@@ -1,7 +1,7 @@
 import { Hero } from '@/components/marketing/Hero'
 import { FeaturesGrid } from '@/components/marketing/FeaturesGrid'
 import { Pricing } from '@/components/marketing/Pricing'
-import { CTA } from '@/components/marketing/CTA'
+import { CTASectionLanding } from '@/components/marketing/CTASection'
 
 export default function HomePage() {
   return (
@@ -9,7 +9,7 @@ export default function HomePage() {
       <Hero />
       <FeaturesGrid />
       <Pricing />
-      <CTA />
+      <CTASectionLanding />
     </main>
   )
 }

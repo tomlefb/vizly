@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { CTA } from '@/components/marketing/CTA'
+import { CTASectionFonctionnalites } from '@/components/marketing/CTASection'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
 import { ProfileMockup } from '@/components/marketing/features/ProfileMockup'
 import { KpiMockup } from '@/components/marketing/features/KpiMockup'
@@ -174,15 +174,7 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        <CTA
-          title="Prêt à publier"
-          titleAccent="le tien"
-          description="Gratuit pour commencer. Tu ne paies que si tu décides de publier."
-          primaryLabel="Créer mon portfolio"
-          primaryHref="/register"
-          secondaryLabel="Voir les tarifs"
-          secondaryHref="/tarifs"
-        />
+        <CTASectionFonctionnalites />
     </main>
   )
 }

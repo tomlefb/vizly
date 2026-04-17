@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { CTA } from '@/components/marketing/CTA'
+import { CTASectionTarifs } from '@/components/marketing/CTASection'
 import { TarifsClient } from '@/components/marketing/TarifsClient'
 import { ComparisonTable } from '@/components/marketing/ComparisonTable'
 import { createClient } from '@/lib/supabase/server'
@@ -42,15 +42,7 @@ export default async function TarifsPage() {
           </Link>
         </p>
       </div>
-      <CTA
-        title="Prêt à publier"
-        titleAccent="ton portfolio"
-        description="Gratuit pour commencer. Tu ne paies que quand tu décides de publier."
-        primaryLabel="Créer mon portfolio"
-        primaryHref="/register"
-        secondaryLabel="Voir les templates"
-        secondaryHref="/templates"
-      />
+      <CTASectionTarifs />
     </main>
   )
 }

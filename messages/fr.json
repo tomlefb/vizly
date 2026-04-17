@@ -237,11 +237,41 @@
     }
   },
   "cta": {
-    "title": "Ton portfolio,",
-    "titleAccent": "live dans 5 minutes",
-    "description": "Gratuit pour commencer. Tu ne paies que si tu décides de publier.",
-    "primary": "Créer mon portfolio",
-    "secondary": "Voir les tarifs"
+    "landing": {
+      "unit": "minutes chrono",
+      "title": "Ton portfolio, <highlight>live</highlight> dans 5 minutes.",
+      "description": "Gratuit pour commencer. Tu ne paies que si tu décides de publier.",
+      "primary": "Créer mon portfolio",
+      "secondary": "Voir les tarifs"
+    },
+    "tarifs": {
+      "unit": "pour commencer",
+      "title": "Commence <highlight>gratuitement</highlight>, publie quand tu veux.",
+      "description": "Aucune carte à l'inscription. Tu ne paies que si tu mets ton portfolio en ligne.",
+      "primary": "Créer mon compte",
+      "secondary": "Voir les fonctionnalités"
+    },
+    "fonctionnalites": {
+      "unit": "étapes seulement",
+      "title": "De l'idée au <highlight>portfolio</highlight> en 4 étapes.",
+      "description": "Profil, contenu, design, publication. Pas plus compliqué que ça.",
+      "primary": "Commencer gratuitement",
+      "secondary": "Voir les tarifs"
+    },
+    "templates": {
+      "unit": "templates au choix",
+      "title": "Choisis ton <highlight>style</highlight>, on fait le reste.",
+      "description": "8 templates personnalisables. Tu peux changer à tout moment sans perdre ton contenu.",
+      "primary": "Créer mon portfolio",
+      "secondary": "Voir les tarifs"
+    },
+    "templateDetail": {
+      "unit": "templates au total",
+      "title": "Celui-là ne te <highlight>plaît pas</highlight> ?",
+      "description": "Essaie les autres. Tu peux en changer à tout moment sans perdre ton contenu.",
+      "primary": "Commencer gratuitement",
+      "secondary": "Voir tous les templates"
+    }
   },
   "footer": {
     "tagline": "Ton portfolio sur pseudo.vizly.fr — pensé pour les étudiants et freelances qui ont mieux à faire que coder un site.",

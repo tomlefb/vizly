@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { TemplateShowcase } from '@/components/marketing/TemplateShowcase'
-import { CTA } from '@/components/marketing/CTA'
+import { CTASectionTemplates } from '@/components/marketing/CTASection'
 import { ScrollReveal } from '@/components/shared/ScrollReveal'
 import { VzHighlight } from '@/components/ui/vizly'
 
@@ -28,12 +28,7 @@ export default function TemplatesPage() {
           }
         />
       </main>
-      <CTA
-        title="Choisis"
-        titleAccent="ton style"
-        suffix="."
-        description="Gratuit pour commencer. Tu ne paies que si tu décides de publier."
-      />
+      <CTASectionTemplates />
     </>
   )
 }
