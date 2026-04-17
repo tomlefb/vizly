@@ -75,84 +75,68 @@ export function StatsClient({ portfolios }: StatsClientProps) {
     <div>
       <Header />
 
-      {/* ─── Sélecteur de projet ─── */}
-      <div className="mb-10">
-        <div className="flex flex-wrap gap-2">
-          {publishedPortfolios.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => setSelectedId(p.id)}
-              className={cn(
-                'inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border px-4 text-sm font-medium transition-colors duration-150',
-                selectedId === p.id
-                  ? 'border-accent bg-accent text-white'
-                  : 'border-border bg-surface text-foreground hover:bg-surface-warm',
-              )}
-            >
-              {p.title}
-              {p.slug && (
-                <span
-                  className={cn(
-                    'text-xs',
-                    selectedId === p.id
-                      ? 'text-white/70'
-                      : 'text-muted-foreground',
-                  )}
-                >
-                  {p.slug}.vizly.fr
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+      {/* ─── Sélecteur de projet (URL seulement) ─── */}
+      <div className="flex flex-wrap gap-2">
+        {publishedPortfolios.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => setSelectedId(p.id)}
+            className={cn(
+              'inline-flex h-9 items-center rounded-[var(--radius-md)] border px-4 text-sm transition-colors duration-150',
+              selectedId === p.id
+                ? 'border-accent bg-accent font-medium text-white'
+                : 'border-border bg-surface text-muted-foreground hover:bg-surface-warm hover:text-foreground',
+            )}
+          >
+            {p.slug ? `${p.slug}.vizly.fr` : p.title}
+          </button>
+        ))}
       </div>
 
       {selected && (
-        <div className="divide-y divide-border-light">
-          {/* ─── Section : Vues ─── */}
-          <StatsSection
-            title="Vues"
-            description={`Nombre de vues de ${selected.title}.`}
-          >
-            <div className="grid grid-cols-3 gap-4">
-              <StatCard icon={Eye} label="Totales" value={selected.totalViews} />
-              <StatCard
-                icon={TrendingUp}
-                label="30 derniers jours"
-                value={selected.viewsLast30}
-                trend={trendPercent}
-              />
-              <StatCard icon={Eye} label="Aujourd'hui" value={selected.viewsToday} />
-            </div>
-          </StatsSection>
+        <>
+          {/* ─── KPIs ─── */}
+          <div className="mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border">
+            <KpiCell label="Vues totales" value={selected.totalViews} />
+            <KpiCell
+              label="30 derniers jours"
+              value={selected.viewsLast30}
+              trend={trendPercent}
+            />
+            <KpiCell label="Aujourd'hui" value={selected.viewsToday} />
+          </div>
 
-          {/* ─── Section : Sources ─── */}
-          <StatsSection
-            title="Sources"
-            description={`D'où viennent les visiteurs de ${selected.title} (30 derniers jours).`}
-          >
+          {/* ─── Sources ─── */}
+          <div className="mt-10">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+                Sources
+              </h2>
+              <span className="text-xs text-muted">30 derniers jours</span>
+            </div>
+
             {selected.sources.length > 0 ? (
-              <ul className="space-y-1">
+              <ul className="mt-4 space-y-0.5">
                 {selected.sources.map((s) => {
                   const maxCount = selected.sources[0]?.count ?? 1
                   const widthPct = Math.max(
-                    8,
+                    6,
                     Math.round((s.count / maxCount) * 100),
                   )
                   return (
                     <li key={s.source} className="group relative">
                       <div
-                        className="absolute inset-y-0 left-0 rounded-[var(--radius-sm)] bg-surface-warm transition-colors group-hover:bg-accent/5"
+                        className="absolute inset-y-0 left-0 rounded-[var(--radius-sm)] bg-accent/[0.06] transition-colors group-hover:bg-accent/10"
                         style={{ width: `${widthPct}%` }}
                       />
-                      <div className="relative flex items-center justify-between px-3 py-2">
-                        <div className="flex items-center gap-2 min-w-0">
+                      <div className="relative flex items-center justify-between px-3 py-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <Link2
-                            className="h-3 w-3 shrink-0 text-muted-foreground"
+                            className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
                             strokeWidth={1.5}
                           />
-                          <span className="text-sm text-foreground truncate">
+                          <span className="text-sm text-foreground">
                             {s.source}
                           </span>
                         </div>
@@ -165,14 +149,12 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                 })}
               </ul>
             ) : (
-              <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-6 text-center">
-                <p className="text-sm text-muted">
-                  Pas encore de données sur les sources.
-                </p>
-              </div>
+              <p className="mt-6 text-sm text-muted">
+                Pas encore de données sur les sources.
+              </p>
             )}
-          </StatsSection>
-        </div>
+          </div>
+        </>
       )}
     </div>
   )
@@ -182,7 +164,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
 
 function Header() {
   return (
-    <header className="mb-10">
+    <header className="mb-8">
       <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
         Mes <span className="text-accent">statistiques</span>.
       </h1>
@@ -193,50 +175,34 @@ function Header() {
   )
 }
 
-function StatsSection({
-  title,
-  description,
-  children,
-}: {
-  title: string
-  description: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="grid gap-6 py-10 first:pt-0 last:pb-0 md:grid-cols-[220px_1fr] md:gap-10">
-      <div>
-        <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
-          {title}
-        </h2>
-        <p className="mt-1 text-sm text-muted">{description}</p>
-      </div>
-      <div>{children}</div>
-    </section>
-  )
-}
-
-function StatCard({
-  icon: Icon,
+function KpiCell({
   label,
   value,
   trend,
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
   label: string
   value: number
   trend?: number
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-5">
-      <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-        <p className="text-sm text-muted">{label}</p>
+    <div className="bg-surface px-5 py-5">
+      <div className="flex items-center gap-1.5">
+        {label === 'Vues totales' && (
+          <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+        )}
+        {label === '30 derniers jours' && (
+          <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+        )}
+        {label === "Aujourd'hui" && (
+          <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+        )}
+        <span className="text-xs text-muted">{label}</span>
       </div>
-      <p className="mt-2 font-[family-name:var(--font-satoshi)] text-3xl font-bold text-foreground tabular-nums">
+      <p className="mt-2 font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground tabular-nums sm:text-3xl">
         {value.toLocaleString('fr-FR')}
       </p>
       {trend !== undefined && (
-        <div className="mt-1.5 flex items-center gap-1">
+        <div className="mt-1 flex items-center gap-1">
           {trend > 0 ? (
             <ArrowUp className="h-3 w-3 text-success" strokeWidth={2} />
           ) : trend < 0 ? (
