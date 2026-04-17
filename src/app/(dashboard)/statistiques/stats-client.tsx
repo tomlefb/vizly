@@ -89,8 +89,8 @@ export function StatsClient({ portfolios }: StatsClientProps) {
 
       {selected && (
         <>
-          {/* ─── Ligne 1 : Preview | KPIs ─── */}
-          <div className="mt-8 grid items-start gap-8 lg:grid-cols-[2fr_3fr]">
+          {/* ─── Ligne 1 : Preview | KPIs (stretch pour aligner) ─── */}
+          <div className="mt-8 grid gap-6 lg:grid-cols-[2fr_3fr]">
             <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border">
               <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
                 <div className="flex gap-1">
@@ -110,7 +110,6 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                 templateName={selected.template}
                 templateProps={selected.templateProps}
                 scale={0.35}
-                height="175px"
               />
             </div>
 
@@ -125,8 +124,8 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             </div>
           </div>
 
-          {/* ─── Ligne 2 : Sources | Chart ─── */}
-          <div className="mt-8 grid items-start gap-8 lg:grid-cols-2">
+          {/* ─── Ligne 2 : Sources | Chart (même colonnes, stretch) ─── */}
+          <div className="mt-6 grid gap-6 lg:grid-cols-[2fr_3fr]">
             <div>
               <div className="flex items-baseline justify-between gap-4">
                 <h2 className="text-sm font-medium text-foreground">
@@ -241,18 +240,17 @@ function DailyChart({
   days: Array<{ date: string; count: number }>
 }) {
   const maxCount = Math.max(...days.map((d) => d.count), 1)
-
   const ySteps = buildYScale(maxCount)
 
   return (
-    <div className="mt-6">
+    <div className="flex flex-col">
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-sm font-medium text-foreground">Vues par jour</h2>
         <span className="text-xs text-muted">30 derniers jours</span>
       </div>
 
-      <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4 pl-2">
-        <div className="flex">
+      <div className="mt-3 flex min-h-[160px] flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4 pl-2">
+        <div className="flex flex-1">
           {/* Y axis */}
           <div className="flex w-7 shrink-0 flex-col-reverse justify-between pr-2 pb-5">
             {ySteps.map((v) => (
@@ -266,12 +264,12 @@ function DailyChart({
           </div>
 
           {/* Bars + X axis */}
-          <div className="flex-1">
-            <div className="flex items-end gap-[3px]" style={{ height: 120 }}>
+          <div className="flex flex-1 flex-col">
+            <div className="flex flex-1 items-end gap-[3px]">
               {days.map((day) => {
-                const barH =
+                const pct =
                   day.count > 0
-                    ? Math.max(3, Math.round((day.count / maxCount) * 120))
+                    ? Math.max(3, Math.round((day.count / maxCount) * 100))
                     : 0
                 const date = new Date(day.date + 'T00:00:00')
                 const label = `${date.getDate()}/${date.getMonth() + 1}`
@@ -279,7 +277,7 @@ function DailyChart({
                   <div key={day.date} className="group relative flex-1">
                     <div
                       className="w-full rounded-t-[2px] bg-accent/25 transition-colors group-hover:bg-accent/50"
-                      style={{ height: barH }}
+                      style={{ height: `${pct}%` }}
                     />
                     <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
                       {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
