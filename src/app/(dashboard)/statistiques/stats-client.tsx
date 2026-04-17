@@ -4,10 +4,8 @@ import { useMemo, useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
-  Eye,
   Link2,
   Minus,
-  TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -97,7 +95,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       {selected && (
         <>
           {/* ─── KPIs ─── */}
-          <div className="mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border">
+          <div className="mt-8 flex flex-wrap gap-x-12 gap-y-6">
             <KpiCell label="Vues totales" value={selected.totalViews} />
             <KpiCell
               label="30 derniers jours"
@@ -185,20 +183,9 @@ function KpiCell({
   trend?: number
 }) {
   return (
-    <div className="bg-surface px-5 py-5">
-      <div className="flex items-center gap-1.5">
-        {label === 'Vues totales' && (
-          <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-        )}
-        {label === '30 derniers jours' && (
-          <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-        )}
-        {label === "Aujourd'hui" && (
-          <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-        )}
-        <span className="text-xs text-muted">{label}</span>
-      </div>
-      <p className="mt-2 font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground tabular-nums sm:text-3xl">
+    <div>
+      <p className="text-xs text-muted">{label}</p>
+      <p className="mt-1 font-[family-name:var(--font-satoshi)] text-3xl font-bold text-foreground tabular-nums">
         {value.toLocaleString('fr-FR')}
       </p>
       {trend !== undefined && (
