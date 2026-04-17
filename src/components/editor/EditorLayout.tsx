@@ -229,7 +229,7 @@ export function EditorLayout({
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 flex min-h-0">
               {/* Config panel */}
-              <div className="w-[35%] overflow-y-auto border-r border-border-light bg-surface px-4 sm:px-5 py-5">
+              <div className="w-[35%] overflow-y-auto border-r border-border-light bg-surface-warm px-4 sm:px-5 py-5">
                 {children}
               </div>
               {/* Preview panel */}
@@ -297,7 +297,7 @@ export function EditorLayout({
           </div>
         ) : (
           /* Steps 1, 2, 4: Full width form */
-          <div className="flex-1 flex flex-col min-h-0 bg-surface">
+          <div className="flex-1 flex flex-col min-h-0 bg-surface-warm">
             <div className="flex-1 overflow-y-auto px-8 lg:px-12 py-8">
               {children}
             </div>

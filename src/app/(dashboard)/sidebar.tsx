@@ -63,7 +63,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
     <aside
       data-dashboard-sidebar
       className={cn(
-        'fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-border-light bg-surface-warm overflow-hidden',
+        'fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-border-light bg-surface overflow-hidden',
         mounted && 'transition-[width] duration-200 ease-out',
       )}
       style={{ width: sidebarWidth }}
@@ -76,7 +76,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
             <button
               type="button"
               onClick={toggle}
-              className="ml-auto flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface hover:text-foreground"
+              className="ml-auto flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-foreground"
               aria-label={t('collapse')}
             >
               <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
@@ -86,7 +86,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
           <button
             type="button"
             onClick={toggle}
-            className="flex h-8 w-full items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface hover:text-foreground"
+            className="flex h-8 w-full items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-foreground"
             aria-label={t('expand')}
           >
             <ChevronLeft className="h-4 w-4 rotate-180" strokeWidth={1.5} />
@@ -145,7 +145,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
           onClick={() => void handleLogout()}
           title={expanded ? undefined : t('logout')}
           className={cn(
-            'group relative flex h-9 w-full items-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface hover:text-destructive',
+            'group relative flex h-9 w-full items-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-destructive',
             expanded ? 'pl-3' : 'justify-center',
           )}
         >
@@ -207,8 +207,8 @@ function NavItem({
         'group relative flex h-9 items-center rounded-[var(--radius-sm)] transition-colors duration-150',
         expanded ? 'pl-3' : 'justify-center',
         active
-          ? 'border border-border-light bg-surface text-foreground'
-          : 'text-muted hover:bg-surface hover:text-foreground',
+          ? 'border border-border-light bg-surface-warm text-foreground'
+          : 'text-muted hover:bg-surface-warm hover:text-foreground',
       )}
     >
       <Icon
