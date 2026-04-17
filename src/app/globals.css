@@ -18,6 +18,7 @@
   /* ---------- Text ---------- */
   --color-muted: #6B6560;               /* secondary text */
   --color-muted-foreground: #9C958E;    /* placeholders, meta */
+  --color-foreground-muted: #B8B2AA;    /* secondary text on dark surfaces */
 
   /* ---------- Borders ---------- */
   --color-border: #D8D3C7;              /* hover / focus */

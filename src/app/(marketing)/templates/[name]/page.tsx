@@ -6,6 +6,7 @@ import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { getDemoPortfolio, DEMO_HANDLES } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { FullTemplatePreview } from '@/components/shared/FullTemplatePreview'
+import { CTA } from '@/components/marketing/CTA'
 import { VzBadge, vzBtnClasses } from '@/components/ui/vizly'
 
 interface PageProps {
@@ -171,20 +172,15 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         </section>
 
         {/* CTA */}
-        <section className="py-16 text-center">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight mb-3">
-            Prêt à créer ton portfolio ?
-          </h2>
-          <p className="text-muted mb-6 max-w-md mx-auto text-sm leading-relaxed">
-            Inscris-toi gratuitement, choisis le template {template.label} et personnalise-le en quelques minutes.
-          </p>
-          <Link
-            href="/register"
-            className={vzBtnClasses({ variant: 'primary', size: 'lg' })}
-          >
-            Commencer gratuitement
-          </Link>
-        </section>
+        <CTA
+          title="Prêt à créer ton"
+          titleAccent="portfolio"
+          description={`Inscris-toi gratuitement, choisis le template ${template.label} et personnalise-le en quelques minutes.`}
+          primaryLabel="Commencer gratuitement"
+          primaryHref="/register"
+          secondaryLabel={null}
+          secondaryHref={null}
+        />
     </main>
   )
 }
