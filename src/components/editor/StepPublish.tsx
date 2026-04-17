@@ -225,7 +225,7 @@ export function StepPublish({
   // ── Success screen ──
   if (isPublished) {
     return (
-      <div className={cn('space-y-6 max-w-xl', className)} data-testid="step-publish">
+      <div className={cn('space-y-6 max-w-xl mx-auto', className)} data-testid="step-publish">
         <div className="flex justify-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-success-bg)]">
             <Check className="h-7 w-7 text-[var(--color-success-fg)]" strokeWidth={2} />
@@ -295,7 +295,7 @@ export function StepPublish({
 
   // ── Main publish form ──
   return (
-    <div className={cn('space-y-6 max-w-xl', className)} data-testid="step-publish">
+    <div className={cn('space-y-6 max-w-xl mx-auto', className)} data-testid="step-publish">
       {/* Slug input */}
       <div className="space-y-2">
         <label
