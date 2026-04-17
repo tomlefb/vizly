@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { VzBtn } from '@/components/ui/vizly'
 import { updateCustomDomain } from '@/actions/portfolio'
 
 interface DomainAssignmentFormProps {
@@ -47,15 +48,16 @@ export function DomainAssignmentForm({
             setSuccess(false)
           }}
           placeholder="monsite.com"
-          className="h-10 min-w-0 flex-1 rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
+          className="h-10 min-w-0 flex-1 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent-deep focus:outline-none focus:ring-2 focus:ring-accent/30"
         />
-        <button
+        <VzBtn
           type="submit"
+          variant="primary"
+          size="md"
           disabled={isPending || domain.trim() === currentDomain}
-          className="inline-flex h-10 shrink-0 items-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? 'Enregistrement…' : 'Enregistrer'}
-        </button>
+        </VzBtn>
       </form>
       {error && (
         <p className="text-xs text-destructive" role="alert">
@@ -63,7 +65,7 @@ export function DomainAssignmentForm({
         </p>
       )}
       {success && (
-        <p className="text-xs text-success" role="status">
+        <p className="text-xs text-[var(--color-success-fg)]" role="status">
           Domaine enregistré.
         </p>
       )}
