@@ -15,13 +15,13 @@ export function FAQAccordion() {
   }, [])
 
   return (
-    <div className="divide-y divide-border" role="list">
+    <div className="divide-y divide-border-light" role="list">
       {items.map((item, i) => (
         <div key={i} role="listitem">
           <button
             type="button"
             onClick={() => toggle(i)}
-            className="flex w-full items-center justify-between py-5 text-left transition-colors duration-150 hover:text-accent"
+            className="flex w-full items-center justify-between py-5 text-left transition-colors duration-150 hover:text-accent-deep"
             aria-expanded={openIndex === i}
             aria-controls={`faq-answer-${i}`}
           >
