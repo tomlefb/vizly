@@ -8,14 +8,18 @@ test.describe('Landing page', () => {
 
   test('le header contient la navigation', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('navigation')).toBeVisible()
-    await expect(page.getByRole('link', { name: /créer mon portfolio/i })).toBeVisible()
+    const nav = page.getByRole('navigation')
+    await expect(nav).toBeVisible()
+    // Le CTA "Créer mon portfolio" est présent dans le header ET dans le hero ;
+    // on scope au header pour rester déterministe.
+    await expect(nav.getByRole('link', { name: /créer mon portfolio/i })).toBeVisible()
   })
 
   test('la section tarifs est visible', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText(/starter/i)).toBeVisible()
-    await expect(page.getByText(/4.99/i)).toBeVisible()
+    // Le plan Starter apparait comme h3 dans la section Pricing
+    await expect(page.getByRole('heading', { name: /^starter$/i })).toBeVisible()
+    await expect(page.getByText(/4,?99/)).toBeVisible()
   })
 
   test('le footer contient le copyright', async ({ page }) => {
