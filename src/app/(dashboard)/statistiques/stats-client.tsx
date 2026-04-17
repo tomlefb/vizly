@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
@@ -234,8 +234,6 @@ function KpiRow({
   )
 }
 
-const BAR_AREA_HEIGHT = 120
-
 function DailyChart({
   days,
 }: {
@@ -243,6 +241,20 @@ function DailyChart({
 }) {
   const maxCount = Math.max(...days.map((d) => d.count), 1)
   const ySteps = buildYScale(maxCount)
+  const barsRef = useRef<HTMLDivElement>(null)
+  const [barAreaH, setBarAreaH] = useState(120)
+
+  const measure = useCallback(() => {
+    if (barsRef.current) {
+      setBarAreaH(barsRef.current.clientHeight)
+    }
+  }, [])
+
+  useEffect(() => {
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [measure])
 
   return (
     <div className="flex flex-col">
@@ -251,63 +263,56 @@ function DailyChart({
         <span className="text-xs text-muted">30 derniers jours</span>
       </div>
 
-      <div className="mt-3 flex flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4 pl-2">
-        {/* Spacer pousse les barres vers le bas quand la card s'étire */}
-        <div className="flex-1" />
+      <div className="mt-3 flex min-h-[160px] flex-1 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4 pl-2">
+        <div className="flex w-7 shrink-0 flex-col-reverse justify-between pr-2 pb-5">
+          {ySteps.map((v) => (
+            <span
+              key={v}
+              className="text-right text-[9px] leading-none text-muted tabular-nums"
+            >
+              {v}
+            </span>
+          ))}
+        </div>
 
-        <div className="flex">
-          {/* Y axis */}
-          <div className="flex w-7 shrink-0 flex-col-reverse justify-between pr-2 pb-5" style={{ height: BAR_AREA_HEIGHT }}>
-            {ySteps.map((v) => (
-              <span
-                key={v}
-                className="text-right text-[9px] leading-none text-muted tabular-nums"
-              >
-                {v}
-              </span>
-            ))}
+        <div className="flex flex-1 flex-col">
+          <div ref={barsRef} className="flex flex-1 items-end gap-[3px]">
+            {days.map((day) => {
+              const barH =
+                day.count > 0
+                  ? Math.max(3, Math.round((day.count / maxCount) * barAreaH))
+                  : 0
+              const date = new Date(day.date + 'T00:00:00')
+              const label = `${date.getDate()}/${date.getMonth() + 1}`
+              return (
+                <div key={day.date} className="group relative flex-1 self-end">
+                  <div
+                    className="w-full rounded-t-[2px] bg-accent/25 transition-colors group-hover:bg-accent/50"
+                    style={{ height: barH }}
+                  />
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
+                    {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
+                  </div>
+                </div>
+              )
+            })}
           </div>
 
-          {/* Bars + X axis */}
-          <div className="flex-1">
-            <div className="flex items-end gap-[3px]" style={{ height: BAR_AREA_HEIGHT }}>
-              {days.map((day) => {
-                const barH =
-                  day.count > 0
-                    ? Math.max(3, Math.round((day.count / maxCount) * BAR_AREA_HEIGHT))
-                    : 0
-                const date = new Date(day.date + 'T00:00:00')
-                const label = `${date.getDate()}/${date.getMonth() + 1}`
-                return (
-                  <div key={day.date} className="group relative flex-1">
-                    <div
-                      className="w-full rounded-t-[2px] bg-accent/25 transition-colors group-hover:bg-accent/50"
-                      style={{ height: barH }}
-                    />
-                    <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
-                      {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="mt-1.5 flex gap-[3px]">
-              {days.map((day, i) => {
-                const date = new Date(day.date + 'T00:00:00')
-                const showLabel =
-                  i === 0 || i === days.length - 1 || i % 7 === 0
-                return (
-                  <div key={day.date} className="flex-1 text-center">
-                    {showLabel && (
-                      <span className="text-[9px] text-muted tabular-nums">
-                        {date.getDate()}/{date.getMonth() + 1}
-                      </span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+          <div className="mt-1.5 flex shrink-0 gap-[3px]">
+            {days.map((day, i) => {
+              const date = new Date(day.date + 'T00:00:00')
+              const showLabel =
+                i === 0 || i === days.length - 1 || i % 7 === 0
+              return (
+                <div key={day.date} className="flex-1 text-center">
+                  {showLabel && (
+                    <span className="text-[9px] text-muted tabular-nums">
+                      {date.getDate()}/{date.getMonth() + 1}
+                    </span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
