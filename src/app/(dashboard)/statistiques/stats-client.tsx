@@ -20,6 +20,7 @@ export interface PortfolioStats {
   viewsLast30: number
   viewsPrev30: number
   sources: Array<{ source: string; count: number }>
+  dailyViews: Array<{ date: string; count: number }>
 }
 
 interface StatsClientProps {
@@ -92,6 +93,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       </div>
 
       {selected && (
+        <>
         <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_3fr]">
           {/* ─── Gauche : preview + sources ─── */}
           <div className="min-w-0 space-y-6">
@@ -172,12 +174,78 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             <KpiRow label="Aujourd'hui" value={selected.viewsToday} />
           </div>
         </div>
+
+        {/* ─── Bar chart : vues par jour (30j) ─── */}
+        <DailyChart days={selected.dailyViews} />
+        </>
       )}
     </div>
   )
 }
 
 // ── Sub-components ──
+
+function DailyChart({
+  days,
+}: {
+  days: Array<{ date: string; count: number }>
+}) {
+  const maxCount = Math.max(...days.map((d) => d.count), 1)
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-sm font-medium text-foreground">
+          Vues par jour
+        </h2>
+        <span className="text-xs text-muted">30 derniers jours</span>
+      </div>
+
+      <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface px-4 py-4">
+        <div className="flex items-end gap-[3px]" style={{ height: 120 }}>
+          {days.map((day) => {
+            const heightPct = maxCount > 0 ? (day.count / maxCount) * 100 : 0
+            const date = new Date(day.date)
+            const label = `${date.getDate()}/${date.getMonth() + 1}`
+            return (
+              <div
+                key={day.date}
+                className="group relative flex-1"
+                style={{ height: '100%' }}
+              >
+                <div className="absolute inset-x-0 bottom-0 rounded-[2px] bg-accent/20 transition-colors group-hover:bg-accent/40"
+                  style={{
+                    height: `${Math.max(heightPct, day.count > 0 ? 4 : 0)}%`,
+                  }}
+                />
+                <div className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
+                  {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* X-axis labels — show every 5th day */}
+        <div className="mt-2 flex gap-[3px]">
+          {days.map((day, i) => {
+            const date = new Date(day.date)
+            const showLabel = i % 5 === 0 || i === days.length - 1
+            return (
+              <div key={day.date} className="flex-1 text-center">
+                {showLabel && (
+                  <span className="text-[9px] text-muted tabular-nums">
+                    {date.getDate()}/{date.getMonth() + 1}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function Header() {
   return (

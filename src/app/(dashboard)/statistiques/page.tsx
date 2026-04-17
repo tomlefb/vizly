@@ -129,6 +129,7 @@ export default async function StatistiquesPage() {
       viewsLast30: number
       viewsPrev30: number
       referrerCounts: Map<string, number>
+      dailyCounts: Map<string, number>
     }
   >()
 
@@ -138,6 +139,7 @@ export default async function StatistiquesPage() {
       viewsLast30: 0,
       viewsPrev30: 0,
       referrerCounts: new Map(),
+      dailyCounts: new Map(),
     })
   }
 
@@ -157,6 +159,8 @@ export default async function StatistiquesPage() {
         source,
         (entry.referrerCounts.get(source) ?? 0) + 1,
       )
+      const dayKey = viewedAt.toISOString().slice(0, 10)
+      entry.dailyCounts.set(dayKey, (entry.dailyCounts.get(dayKey) ?? 0) + 1)
     } else {
       entry.viewsPrev30++
     }
@@ -192,6 +196,15 @@ export default async function StatistiquesPage() {
       isPremium: false,
     }
 
+    const dailyCounts = entry?.dailyCounts ?? new Map()
+    const dailyViews: Array<{ date: string; count: number }> = []
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(startOfToday)
+      d.setDate(d.getDate() - i)
+      const key = d.toISOString().slice(0, 10)
+      dailyViews.push({ date: key, count: dailyCounts.get(key) ?? 0 })
+    }
+
     return {
       id: p.id,
       title: p.title ?? 'Sans titre',
@@ -204,6 +217,7 @@ export default async function StatistiquesPage() {
       viewsLast30: entry?.viewsLast30 ?? 0,
       viewsPrev30: entry?.viewsPrev30 ?? 0,
       sources,
+      dailyViews,
     }
   })
 
