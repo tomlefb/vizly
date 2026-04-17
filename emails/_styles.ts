@@ -5,10 +5,9 @@ import type { CSSProperties } from 'react'
 // email-safe font stacks because web fonts are unreliable across mail
 // clients (Gmail, Outlook, Apple Mail all behave differently).
 
-// Palette email Handcrafted : lime #C8F169 + lime deep #8AB83D pour
-// le dot du wordmark (lisibilité sur fond clair). Les anciens tokens
-// terracotta sont remplacés. Fond principal crème pour cohérence visuelle
-// avec le site.
+// Palette email Handcrafted : safran #F1B434 + safran deep #C2831A pour
+// le dot du wordmark (lisibilité sur fond clair). Fond principal crème
+// pour cohérence visuelle avec le site.
 export const colors = {
   background: '#FFFFFF',
   surfaceWarm: '#FAF8F6',
@@ -17,10 +16,10 @@ export const colors = {
   mutedForeground: '#9C958E',
   border: '#E8E3DE',
   borderLight: '#F0EBE6',
-  accent: '#C8F169',
-  accentHover: '#B8E150',
-  accentDeep: '#8AB83D',
-  accentLight: '#F1FADC',
+  accent: '#F1B434',
+  accentHover: '#E0A128',
+  accentDeep: '#C2831A',
+  accentLight: '#FDF3E0',
   destructive: '#DC2626',
   success: '#16A34A',
 } as const
@@ -87,8 +86,8 @@ export const logoText: CSSProperties = {
 }
 
 export const logoDot: CSSProperties = {
-  // Lime deep pour le point, lisible sur fond clair (le lime pur #C8F169
-  // disparaîtrait sur blanc/crème).
+  // Safran deep pour le point, lisible sur fond clair (le safran pur #F1B434
+  // perd en contraste sur blanc/crème).
   color: colors.accentDeep,
   fontWeight: 800,
 }

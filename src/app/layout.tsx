@@ -96,11 +96,11 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: sidebarPrePaintScript }} />
         {/*
           NextTopLoader : hex inline acceptable ici — le composant ne
-          lit pas les CSS custom properties. `#8AB83D` = `--color-accent-deep`,
-          la version foncée du lime, lisible sur fond crème.
+          lit pas les CSS custom properties. `#C2831A` = `--color-accent-deep`,
+          la version foncée du safran, lisible sur fond crème.
         */}
         <NextTopLoader
-          color="#8AB83D"
+          color="#C2831A"
           height={2}
           showSpinner={false}
           shadow={false}

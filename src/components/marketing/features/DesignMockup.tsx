@@ -1,6 +1,6 @@
 import { BrowserFrame } from './BrowserFrame'
 
-const PALETTE_COLORS = ['#1A1A1A', '#C8F169', '#FAF8F6', '#2563EB', '#7C3AED', '#059669']
+const PALETTE_COLORS = ['#1A1A1A', '#F1B434', '#FAF8F6', '#2563EB', '#7C3AED', '#059669']
 
 const SECTIONS = [
   { label: 'Profil', active: true },

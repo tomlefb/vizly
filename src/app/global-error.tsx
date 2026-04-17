@@ -46,7 +46,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             letterSpacing: '-0.02em',
           }}
         >
-          Oups, <span style={{ backgroundColor: '#C8F169', padding: '0 6px', borderRadius: '3px' }}>erreur</span>
+          Oups, <span style={{ backgroundColor: '#F1B434', padding: '0 6px', borderRadius: '3px' }}>erreur</span>
         </h1>
         <p style={{ marginTop: 20, maxWidth: 460, color: '#6B6560', lineHeight: 1.6 }}>
           Une erreur critique s&apos;est produite. Essaie de recharger la page.
@@ -64,7 +64,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             fontSize: '15px',
             fontWeight: 600,
             cursor: 'pointer',
-            boxShadow: '3px 3px 0 #C8F169',
+            boxShadow: '3px 3px 0 #F1B434',
           }}
         >
           Réessayer

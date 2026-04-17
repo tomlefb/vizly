@@ -2,7 +2,7 @@
 
 /* ============================================================
    Vizly Design System — "Handcrafted"
-   Lime accent, cream canvas, black buttons with offset shadow.
+   Saffron accent, cream canvas, black buttons with offset shadow.
    Tokens here are the single source of truth; never inline hex.
    ============================================================ */
 
@@ -25,12 +25,12 @@
   --color-border-light: #EDE6DE;        /* rest state */
   --color-border-strong: #1A1A1A;       /* outline buttons (1.5px black) */
 
-  /* ---------- Accent — lime citron (signature) ---------- */
-  --color-accent: #C8F169;              /* marker highlight, offset shadow, avatar */
-  --color-accent-hover: #B8E150;        /* slightly darker lime */
-  --color-accent-deep: #8AB83D;         /* dot in "Vizly.", inline links */
+  /* ---------- Accent — safran (signature) ---------- */
+  --color-accent: #F1B434;              /* marker highlight, offset shadow, avatar */
+  --color-accent-hover: #E0A128;        /* slightly darker saffron */
+  --color-accent-deep: #C2831A;         /* dot in "Vizly.", inline links, focus */
   --color-accent-fg: #1A1A1A;           /* text on accent = black */
-  --color-accent-light: #F1FADC;        /* very light lime (badges, backgrounds) */
+  --color-accent-light: #FDF3E0;        /* very light saffron (badges, backgrounds) */
 
   /* ---------- Semantic ---------- */
   --color-success: #16A34A;
@@ -57,9 +57,9 @@
    via shadow-[var(--shadow-offset-accent-3)] or in components). ---------- */
 :root {
   --shadow-card-hover: 0 2px 12px rgba(0, 0, 0, 0.04);
-  --shadow-offset-accent-3: 3px 3px 0 #C8F169;
-  --shadow-offset-accent-2: 2px 2px 0 #C8F169;
-  --shadow-offset-accent-1: 1px 1px 0 #C8F169;
+  --shadow-offset-accent-3: 3px 3px 0 #F1B434;
+  --shadow-offset-accent-2: 2px 2px 0 #F1B434;
+  --shadow-offset-accent-1: 1px 1px 0 #F1B434;
 }
 
 /* ---------- Base body ---------- */

@@ -10,9 +10,9 @@ export interface VzLogoProps {
 }
 
 /**
- * Vizly wordmark with signature lime dot.
- * - On light surfaces: text is `foreground`, dot is `accent-deep` (#8AB83D).
- * - On dark surfaces (dark=true): text is `surface-warm`, dot is `accent` (#C8F169).
+ * Vizly wordmark with signature saffron dot.
+ * - On light surfaces: text is `foreground`, dot is `accent-deep` (#C2831A).
+ * - On dark surfaces (dark=true): text is `surface-warm`, dot is `accent` (#F1B434).
  * - Optional `href` wraps the mark in a Next.js Link.
  */
 export function VzLogo({
