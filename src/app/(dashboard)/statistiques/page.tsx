@@ -1,12 +1,16 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { BarChart3, Eye, TrendingUp, Layers } from 'lucide-react'
 import type { PlanType } from '@/lib/constants'
 
 export default async function StatistiquesPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!user) return null
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('users')
@@ -18,29 +22,30 @@ export default async function StatistiquesPage() {
 
   if (plan !== 'pro') {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
-          <svg className="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-          </svg>
-        </div>
-        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
+      <div className="mx-auto flex max-w-md flex-col items-center py-24 text-center">
+        <BarChart3
+          className="h-9 w-9 text-muted-foreground/50"
+          strokeWidth={1.5}
+        />
+        <h3 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
           Statistiques
-        </h1>
-        <p className="mt-2 max-w-md text-sm text-muted leading-relaxed">
-          Suis le nombre de vues sur tes portfolios, decouvre d&apos;ou viennent tes visiteurs et analyse tes performances.
+        </h3>
+        <p className="mt-2 text-sm text-muted">
+          Suis le nombre de vues sur tes portfolios et découvre d&apos;où
+          viennent tes visiteurs. Disponible avec le plan Pro.
         </p>
-        <Link
-          href="/billing"
-          className="mt-6 inline-flex items-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
-        >
-          Passer au Pro
-        </Link>
+        <div className="mt-7">
+          <Link
+            href="/billing"
+            className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
+          >
+            Passer au Pro
+          </Link>
+        </div>
       </div>
     )
   }
 
-  // Fetch portfolios
   const { data: portfolios } = await supabase
     .from('portfolios')
     .select('id, title, slug, published')
@@ -50,105 +55,165 @@ export default async function StatistiquesPage() {
   const allPortfolios = portfolios ?? []
   const portfolioIds = allPortfolios.map((p) => p.id)
 
-  // Fetch total views
   let totalViews = 0
   let viewsLast30Days = 0
-  const viewsByPortfolio: Array<{ id: string; title: string; slug: string | null; views: number }> = []
+  const viewsByPortfolio: Array<{
+    id: string
+    title: string
+    slug: string | null
+    published: boolean
+    views: number
+  }> = []
 
   if (portfolioIds.length > 0) {
-    const { count: total } = await supabase
-      .from('page_views')
-      .select('id', { count: 'exact', head: true })
-      .in('portfolio_id', portfolioIds)
-
-    totalViews = total ?? 0
-
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const { count: recent } = await supabase
-      .from('page_views')
-      .select('id', { count: 'exact', head: true })
-      .in('portfolio_id', portfolioIds)
-      .gte('viewed_at', thirtyDaysAgo.toISOString())
-
-    viewsLast30Days = recent ?? 0
-
-    // Per-portfolio views
-    for (const p of allPortfolios) {
-      const { count } = await supabase
+    const [totalRes, recentRes] = await Promise.all([
+      supabase
         .from('page_views')
         .select('id', { count: 'exact', head: true })
-        .eq('portfolio_id', p.id)
+        .in('portfolio_id', portfolioIds),
+      supabase
+        .from('page_views')
+        .select('id', { count: 'exact', head: true })
+        .in('portfolio_id', portfolioIds)
+        .gte('viewed_at', thirtyDaysAgo.toISOString()),
+    ])
 
-      viewsByPortfolio.push({
-        id: p.id,
-        title: p.title ?? 'Sans titre',
-        slug: p.slug,
-        views: count ?? 0,
-      })
-    }
+    totalViews = totalRes.count ?? 0
+    viewsLast30Days = recentRes.count ?? 0
+
+    const perPortfolioCounts = await Promise.all(
+      allPortfolios.map(async (p) => {
+        const { count } = await supabase
+          .from('page_views')
+          .select('id', { count: 'exact', head: true })
+          .eq('portfolio_id', p.id)
+        return {
+          id: p.id,
+          title: p.title ?? 'Sans titre',
+          slug: p.slug,
+          published: p.published ?? false,
+          views: count ?? 0,
+        }
+      }),
+    )
+    viewsByPortfolio.push(...perPortfolioCounts)
   }
 
   const publishedCount = allPortfolios.filter((p) => p.published).length
+  const sortedByViews = [...viewsByPortfolio].sort((a, b) => b.views - a.views)
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-          Statistiques
+    <div>
+      <header className="mb-10">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Mes <span className="text-accent">statistiques</span>.
         </h1>
-        <p className="mt-1 text-sm text-muted">
-          Performances de tes portfolios.
+        <p className="mt-1.5 text-sm text-muted">
+          Performances et vues de tes portfolios.
         </p>
+      </header>
+
+      {/* ─── Métriques ─── */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard
+          icon={Eye}
+          label="Vues totales"
+          value={totalViews}
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="30 derniers jours"
+          value={viewsLast30Days}
+        />
+        <StatCard
+          icon={Layers}
+          label="Projets en ligne"
+          value={publishedCount}
+        />
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-5">
-          <p className="text-sm text-muted mb-1">Vues totales</p>
-          <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold">{totalViews}</p>
-        </div>
-        <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-5">
-          <p className="text-sm text-muted mb-1">30 derniers jours</p>
-          <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold">{viewsLast30Days}</p>
-        </div>
-        <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-5">
-          <p className="text-sm text-muted mb-1">Projets en ligne</p>
-          <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold">{publishedCount}</p>
-        </div>
-      </div>
-
-      {/* Per-project breakdown */}
-      <section>
-        <h2 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-4">
+      {/* ─── Détail par projet ─── */}
+      <section className="mt-10">
+        <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
           Par projet
         </h2>
-        {viewsByPortfolio.length > 0 ? (
-          <div className="rounded-[var(--radius-lg)] border border-border bg-surface divide-y divide-border">
-            {viewsByPortfolio.map((p) => (
-              <div key={p.id} className="flex items-center justify-between px-5 py-4">
+        <p className="mt-1 text-sm text-muted">
+          Nombre de vues par portfolio, trié par popularité.
+        </p>
+
+        {sortedByViews.length > 0 ? (
+          <ul className="mt-6 divide-y divide-border-light rounded-[var(--radius-lg)] border border-border overflow-hidden">
+            {sortedByViews.map((p) => (
+              <li
+                key={p.id}
+                className="flex items-center justify-between gap-4 bg-surface px-5 py-4 transition-colors hover:bg-surface-warm"
+              >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {p.title}
+                    </p>
+                    {p.published && (
+                      <span className="inline-flex items-center rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
+                        En ligne
+                      </span>
+                    )}
+                  </div>
                   {p.slug && (
                     <p className="text-xs text-muted">{p.slug}.vizly.fr</p>
                   )}
                 </div>
                 <p className="font-[family-name:var(--font-satoshi)] text-lg font-bold text-foreground tabular-nums">
-                  {p.views}
-                  <span className="text-xs font-normal text-muted ml-1">vues</span>
+                  {p.views.toLocaleString('fr-FR')}
+                  <span className="ml-1 text-xs font-normal text-muted">
+                    vues
+                  </span>
                 </p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
-          <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
+          <div className="mt-6 rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
             <p className="text-sm text-muted">
               Crée et publie un projet pour commencer à voir tes statistiques.
             </p>
+            <Link
+              href="/editor"
+              className="mt-4 inline-flex items-center text-sm font-medium text-accent hover:text-accent-hover transition-colors"
+            >
+              Créer un projet
+            </Link>
           </div>
         )}
       </section>
+    </div>
+  )
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
+  label: string
+  value: number
+}) {
+  return (
+    <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-5">
+      <div className="flex items-center gap-2">
+        <Icon
+          className="h-4 w-4 text-muted-foreground"
+          strokeWidth={1.5}
+        />
+        <p className="text-sm text-muted">{label}</p>
+      </div>
+      <p className="mt-2 font-[family-name:var(--font-satoshi)] text-3xl font-bold text-foreground tabular-nums">
+        {value.toLocaleString('fr-FR')}
+      </p>
     </div>
   )
 }
