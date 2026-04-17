@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
-  Link2,
   Minus,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -95,7 +94,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       {selected && (
         <>
           {/* ─── KPIs ─── */}
-          <div className="mt-8 flex flex-wrap gap-x-12 gap-y-6">
+          <div className="mt-8 grid grid-cols-3 divide-x divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
             <KpiCell label="Vues totales" value={selected.totalViews} />
             <KpiCell
               label="30 derniers jours"
@@ -108,46 +107,41 @@ export function StatsClient({ portfolios }: StatsClientProps) {
           {/* ─── Sources ─── */}
           <div className="mt-10">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+              <h2 className="text-sm font-medium text-foreground">
                 Sources
               </h2>
               <span className="text-xs text-muted">30 derniers jours</span>
             </div>
 
             {selected.sources.length > 0 ? (
-              <ul className="mt-4 space-y-0.5">
-                {selected.sources.map((s) => {
-                  const maxCount = selected.sources[0]?.count ?? 1
-                  const widthPct = Math.max(
-                    6,
-                    Math.round((s.count / maxCount) * 100),
-                  )
-                  return (
-                    <li key={s.source} className="group relative">
-                      <div
-                        className="absolute inset-y-0 left-0 rounded-[var(--radius-sm)] bg-accent/[0.06] transition-colors group-hover:bg-accent/10"
-                        style={{ width: `${widthPct}%` }}
-                      />
-                      <div className="relative flex items-center justify-between px-3 py-2.5">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <Link2
-                            className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
-                            strokeWidth={1.5}
-                          />
-                          <span className="text-sm text-foreground">
-                            {s.source}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium text-foreground tabular-nums">
+              <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border-light bg-surface-warm">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-muted">
+                        Source
+                      </th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-muted">
+                        Visiteurs
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border-light">
+                    {selected.sources.map((s) => (
+                      <tr key={s.source}>
+                        <td className="px-4 py-2.5 text-foreground">
+                          {s.source}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
                           {s.count.toLocaleString('fr-FR')}
-                        </span>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             ) : (
-              <p className="mt-6 text-sm text-muted">
+              <p className="mt-4 text-sm text-muted">
                 Pas encore de données sur les sources.
               </p>
             )}
@@ -183,9 +177,9 @@ function KpiCell({
   trend?: number
 }) {
   return (
-    <div>
+    <div className="bg-surface px-5 py-4">
       <p className="text-xs text-muted">{label}</p>
-      <p className="mt-1 font-[family-name:var(--font-satoshi)] text-3xl font-bold text-foreground tabular-nums">
+      <p className="mt-1.5 font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground tabular-nums">
         {value.toLocaleString('fr-FR')}
       </p>
       {trend !== undefined && (
