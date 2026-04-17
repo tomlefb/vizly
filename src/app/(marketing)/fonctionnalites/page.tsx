@@ -6,6 +6,7 @@ import { KpiMockup } from '@/components/marketing/features/KpiMockup'
 import { DesignMockup } from '@/components/marketing/features/DesignMockup'
 import { PublishMockup } from '@/components/marketing/features/PublishMockup'
 import { FeaturesStepperPreview } from '@/components/marketing/features/FeaturesStepperPreview'
+import { VzHighlight } from '@/components/ui/vizly'
 
 export const metadata: Metadata = {
   title: 'Fonctionnalités',
@@ -44,9 +45,9 @@ export default function FonctionnalitesPage() {
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6">
               <ScrollReveal className="max-w-2xl">
-                <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+                <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl leading-[1.08]">
                   Tout ce qu&apos;il faut pour publier un portfolio qui{' '}
-                  <span className="text-accent">te ressemble</span>.
+                  <VzHighlight>te ressemble</VzHighlight>.
                 </h1>
                 <p className="mt-5 text-lg text-muted leading-relaxed max-w-xl">
                   De l&apos;idée à la mise en ligne, sans rien sacrifier sur la personnalisation.
@@ -59,13 +60,13 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Étape 1 — Profil : texte gauche, mockup droite ── */}
+        {/* ── Étape 1 — Profil ── */}
         <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <ScrollReveal margin="0% 0px">
-                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                  1. Tu poses qui <span className="text-accent">tu es</span>.
+                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
+                  1. Tu poses qui <VzHighlight>tu es</VzHighlight>.
                 </h2>
                 <p className="mt-4 text-muted leading-relaxed">
                   Nom, bio, photo, contact, réseaux sociaux, compétences. Tout est structuré
@@ -83,7 +84,7 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Étape 2 — Contenu : mockup gauche, texte droite ── */}
+        {/* ── Étape 2 — Contenu ── */}
         <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
@@ -91,8 +92,8 @@ export default function FonctionnalitesPage() {
                 <KpiMockup />
               </ScrollReveal>
               <ScrollReveal className="order-1 lg:order-2" margin="0% 0px">
-                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                  2. Tu construis ton <span className="text-accent">contenu</span>.
+                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
+                  2. Tu construis ton <VzHighlight>contenu</VzHighlight>.
                 </h2>
                 <p className="mt-4 text-muted leading-relaxed">
                   Projets avec images et tags, blocs texte personnalisés, et surtout dix types
@@ -106,13 +107,13 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Étape 3 — Design : texte gauche, mockup droite ── */}
+        {/* ── Étape 3 — Design ── */}
         <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <ScrollReveal margin="0% 0px">
-                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                  3. Tu personnalises sans <span className="text-accent">coder</span>.
+                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
+                  3. Tu personnalises sans <VzHighlight>coder</VzHighlight>.
                 </h2>
                 <p className="mt-4 text-muted leading-relaxed">
                   Choisis ton template parmi huit styles, ta palette parmi six presets ou en
@@ -129,7 +130,7 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Étape 4 — Publication : mockup gauche, texte droite ── */}
+        {/* ── Étape 4 — Publication ── */}
         <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
@@ -137,8 +138,8 @@ export default function FonctionnalitesPage() {
                 <PublishMockup />
               </ScrollReveal>
               <ScrollReveal className="order-1 lg:order-2" margin="0% 0px">
-                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                  4. Tu publies sur ton <span className="text-accent">sous-domaine</span>.
+                <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
+                  4. Tu publies sur ton <VzHighlight>sous-domaine</VzHighlight>.
                 </h2>
                 <p className="mt-4 text-muted leading-relaxed">
                   Choisis ton pseudo, vérifie qu&apos;il est disponible en temps réel, et publie
@@ -151,12 +152,12 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Les détails qui changent tout ── */}
+        {/* ── Détails ── */}
         <section className="py-12 lg:py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <ScrollReveal className="mb-8 lg:mb-10">
-              <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-                Les détails qui <span className="text-accent">changent tout</span>.
+              <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
+                Les détails qui <VzHighlight>changent tout</VzHighlight>.
               </h2>
             </ScrollReveal>
 
@@ -173,7 +174,6 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* ── Section 7 — CTA ── */}
         <CTA
           title="Prêt à publier"
           titleAccent="le tien"

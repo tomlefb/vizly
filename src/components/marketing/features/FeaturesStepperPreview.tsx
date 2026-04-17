@@ -15,7 +15,7 @@ export function FeaturesStepperPreview() {
           <div className="flex flex-col items-center gap-1.5">
             <div
               className={`w-2.5 h-2.5 rounded-full ${
-                step.active ? 'bg-accent' : 'bg-border'
+                step.active ? 'bg-accent-deep' : 'bg-border'
               }`}
             />
             <span

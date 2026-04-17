@@ -1,7 +1,6 @@
-import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { BrowserFrame } from './BrowserFrame'
 
-const PALETTE_COLORS = ['#1A1A1A', DEFAULT_PORTFOLIO_COLOR, '#F5F0EB', '#2563EB', '#7C3AED', '#059669']
+const PALETTE_COLORS = ['#1A1A1A', '#C8F169', '#FAF8F6', '#2563EB', '#7C3AED', '#059669']
 
 const SECTIONS = [
   { label: 'Profil', active: true },
@@ -13,13 +12,13 @@ const SECTIONS = [
 export function DesignMockup() {
   return (
     <BrowserFrame url="vizly.fr/editeur/design">
-      <div className="flex divide-x divide-border">
+      <div className="flex divide-x divide-border-light">
         {/* Panneau gauche — Configuration */}
-        <div className="w-2/5 p-4 space-y-4">
+        <div className="w-2/5 p-4 space-y-4 bg-surface">
           {/* Template */}
           <div>
             <div className="text-[10px] text-muted-foreground mb-1.5">Template</div>
-            <div className="h-7 rounded-[var(--radius-sm)] border border-border px-2.5 flex items-center justify-between text-[10px] text-foreground">
+            <div className="h-7 rounded-[var(--radius-sm)] border border-border-light px-2.5 flex items-center justify-between text-[10px] text-foreground">
               <span>Minimal</span>
               <svg className="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -36,7 +35,7 @@ export function DesignMockup() {
                   key={color}
                   className={`w-5 h-5 rounded-full border ${
                     i === 1
-                      ? 'border-accent ring-1 ring-accent ring-offset-1'
+                      ? 'border-accent-deep ring-1 ring-accent-deep ring-offset-1'
                       : 'border-border-light'
                   }`}
                   style={{ backgroundColor: color }}
@@ -48,7 +47,7 @@ export function DesignMockup() {
           {/* Police */}
           <div>
             <div className="text-[10px] text-muted-foreground mb-1.5">Police</div>
-            <div className="h-7 rounded-[var(--radius-sm)] border border-border px-2.5 flex items-center justify-between text-[10px] text-foreground">
+            <div className="h-7 rounded-[var(--radius-sm)] border border-border-light px-2.5 flex items-center justify-between text-[10px] text-foreground">
               <span>DM Sans</span>
               <svg className="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -67,10 +66,10 @@ export function DesignMockup() {
                   </span>
                   <div
                     className={`w-6 h-3.5 rounded-full flex items-center px-0.5 ${
-                      section.active ? 'bg-accent justify-end' : 'bg-border justify-start'
+                      section.active ? 'bg-accent justify-end' : 'bg-border-light justify-start'
                     }`}
                   >
-                    <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-surface" />
                   </div>
                 </div>
               ))}
@@ -81,10 +80,10 @@ export function DesignMockup() {
         {/* Panneau droit — Preview */}
         <div className="flex-1 bg-surface-warm p-4">
           <div className="text-[9px] text-muted-foreground mb-2 text-center">Aperçu</div>
-          <div className="rounded-[var(--radius-sm)] bg-background border border-border-light p-3 space-y-2.5">
+          <div className="rounded-[var(--radius-sm)] bg-surface border border-border-light p-3 space-y-2.5">
             {/* Mini portfolio */}
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-accent/10" />
+              <div className="w-6 h-6 rounded-[5px] bg-accent" />
               <div>
                 <div className="text-[9px] font-semibold text-foreground">Thomas Lefèvre</div>
                 <div className="text-[7px] text-muted-foreground">Développeur backend</div>
@@ -101,7 +100,7 @@ export function DesignMockup() {
               <div className="h-10 bg-surface-warm rounded-[var(--radius-sm)]" />
             </div>
             <div className="flex gap-1">
-              <div className="h-1.5 bg-accent/20 rounded-full w-1/4" />
+              <div className="h-1.5 bg-accent/40 rounded-full w-1/4" />
               <div className="h-1.5 bg-surface-warm rounded-full w-1/4" />
               <div className="h-1.5 bg-surface-warm rounded-full w-1/4" />
             </div>
