@@ -4,6 +4,7 @@ import { Check, X, Minus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { ScrollReveal } from '@/components/shared/ScrollReveal'
+import { VzHighlight } from '@/components/ui/vizly'
 
 type CellValue = true | false | string
 
@@ -46,7 +47,7 @@ function MobilePlanCard({
   t: (key: string) => string
 }) {
   return (
-    <div className="border border-border rounded-[var(--radius-lg)] p-5">
+    <div className="border border-border-light bg-surface rounded-[var(--radius-lg)] p-5">
       <h4 className="font-[family-name:var(--font-satoshi)] text-base font-semibold mb-4">
         {t(`plans.${planKey}`)}
       </h4>
@@ -83,8 +84,8 @@ export function ComparisonTable() {
     <section className="pt-6 pb-16 lg:pt-8 lg:pb-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <ScrollReveal className="mb-10 lg:mb-14">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
-            {t('title')} <span className="text-accent">{t('titleAccent')}</span>
+          <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
+            {t('title')} <VzHighlight>{t('titleAccent')}</VzHighlight>
           </h2>
           <p className="mt-3 text-muted leading-relaxed max-w-2xl">
             {t('intro')}
@@ -96,7 +97,7 @@ export function ComparisonTable() {
           <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-border">
+                <tr className="border-b border-border-light">
                   <th className="pb-4 pr-6 text-sm font-semibold text-foreground w-2/5" />
                   <th className="pb-4 px-6 text-sm font-semibold text-foreground text-center w-1/5">
                     {t('plans.free')}
@@ -114,7 +115,7 @@ export function ComparisonTable() {
                   <tr
                     key={row.labelKey}
                     className={cn(
-                      rowIdx % 2 === 1 && 'bg-[#FAFAFA]'
+                      rowIdx % 2 === 1 && 'bg-surface-warm'
                     )}
                   >
                     <td className="py-3 pr-6 text-sm text-foreground">
@@ -152,4 +153,3 @@ export function ComparisonTable() {
     </section>
   )
 }
-

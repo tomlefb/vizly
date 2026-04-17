@@ -12,12 +12,6 @@ export const metadata: Metadata = {
 }
 
 export default async function TarifsPage() {
-  // Server-side auth check + plan resolution. Used to drive CTA behavior
-  // in TarifsClient: anonymous → /register redirect, authenticated free →
-  // open SubscriptionCheckoutModal, authenticated paid → direct
-  // changeSubscriptionPlanAction. Source of truth for `currentPlan` is
-  // the local users.plan column (kept in sync with the subscriptions
-  // table by the Phase 3 webhook handlers).
   const supabase = await createClient()
   const {
     data: { user },
