@@ -4,6 +4,11 @@ import { Plus, Pencil, ExternalLink, FolderPlus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { DEFAULT_PORTFOLIO_COLOR, PLANS, type PlanType } from '@/lib/constants'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
+import {
+  VzBadge,
+  VzHighlight,
+  vzBtnClasses,
+} from '@/components/ui/vizly'
 import { PublishToggle } from './publish-toggle'
 import { DeletePortfolio } from './delete-portfolio'
 import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
@@ -71,6 +76,9 @@ export default async function DashboardPage({
         ? t('projectsOnline', { count: publishedCount })
         : `${publishedCount}/${publishLimit} ${t('projectsOnline', { count: publishedCount })}`
 
+  // Avoid TS "unused import" on default-sections; keep for parity w/ preview
+  void DEFAULT_SECTIONS
+
   return (
     <>
       {/* Page header */}
@@ -78,19 +86,19 @@ export default async function DashboardPage({
         <div className="min-w-0">
           <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
             {t.rich('titleRich', {
-              accent: (chunks) => <span className="text-accent">{chunks}</span>,
+              accent: (chunks) => <VzHighlight>{chunks}</VzHighlight>,
             })}
           </h1>
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+          <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
             <span>{t('planLabel', { plan: planInfo.name })}</span>
-            <span className="text-muted-foreground/60" aria-hidden="true">·</span>
+            <span className="text-border" aria-hidden="true">·</span>
             <span>{statusFragment}</span>
             {showUpgrade && (
               <>
-                <span className="text-muted-foreground/60" aria-hidden="true">·</span>
+                <span className="text-border" aria-hidden="true">·</span>
                 <Link
                   href={upgradeHref}
-                  className="font-medium text-accent transition-colors hover:text-accent-hover"
+                  className="font-medium text-accent-deep transition-colors hover:text-foreground"
                 >
                   {upgradeLabel}
                 </Link>
@@ -100,7 +108,7 @@ export default async function DashboardPage({
         </div>
         <Link
           href="/editor"
-          className="inline-flex shrink-0 items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+          className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'shrink-0' })}
         >
           <Plus className="h-4 w-4" strokeWidth={2} />
           {t('newProject')}
@@ -135,11 +143,11 @@ export default async function DashboardPage({
             return (
               <li
                 key={portfolio.id}
-                className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+                className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[var(--shadow-card-hover)]"
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Template preview */}
-                  <div className="shrink-0 overflow-hidden border-b border-border-light bg-background lg:w-[340px] lg:border-b-0 lg:border-r">
+                  <div className="shrink-0 overflow-hidden border-b border-border-light bg-surface-sunken lg:w-[340px] lg:border-b-0 lg:border-r">
                     {/* Browser chrome */}
                     <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
                       <div className="flex gap-1">
@@ -148,7 +156,7 @@ export default async function DashboardPage({
                         <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
                       </div>
                       <div className="flex flex-1 justify-center">
-                        <div className="max-w-[140px] truncate rounded-[2px] border border-border-light bg-background px-2 py-px font-mono text-[9px] text-muted">
+                        <div className="max-w-[140px] truncate rounded-[2px] border border-border-light bg-surface px-2 py-px font-mono text-[9px] text-muted">
                           {portfolio.slug ? `${portfolio.slug}.vizly.fr` : t('notPublished')}
                         </div>
                       </div>
@@ -176,15 +184,9 @@ export default async function DashboardPage({
                             </span>
                           </p>
                         </div>
-                        <span
-                          className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            portfolio.published
-                              ? 'bg-success/10 text-success'
-                              : 'bg-surface-warm text-muted'
-                          }`}
-                        >
+                        <VzBadge variant={portfolio.published ? 'online' : 'draft'}>
                           {portfolio.published ? t('online') : t('draft')}
-                        </span>
+                        </VzBadge>
                       </div>
 
                       {portfolio.slug && (
@@ -201,10 +203,10 @@ export default async function DashboardPage({
                     </div>
 
                     {/* Actions */}
-                    <div className="mt-4 flex items-center gap-2 border-t border-border-light pt-4">
+                    <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border-light pt-4">
                       <Link
                         href={`/editor?id=${portfolio.id}`}
-                        className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-accent px-4 py-2 text-xs font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+                        className={vzBtnClasses({ variant: 'primary', size: 'sm' })}
                       >
                         <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
                         {t('edit')}
@@ -223,7 +225,7 @@ export default async function DashboardPage({
                           href={`https://${portfolio.slug}.vizly.fr`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-2 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+                          className={vzBtnClasses({ variant: 'secondary', size: 'sm' })}
                         >
                           <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
                           {t('viewSite')}
@@ -244,20 +246,22 @@ export default async function DashboardPage({
           })}
         </ul>
       ) : (
-        /* Empty state — no container, content floating centered (Linear-style) */
+        /* Empty state — icône dans carré neutre, CTA VzBtn primary */
         <div className="mx-auto flex max-w-md flex-col items-center py-24 text-center">
-          <FolderPlus
-            className="h-9 w-9 text-muted-foreground/50"
-            strokeWidth={1.5}
-            aria-hidden="true"
-          />
+          <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-border-light bg-surface-sunken">
+            <FolderPlus
+              className="h-5 w-5 text-muted-foreground"
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
+          </div>
           <h2 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
             {t('emptyTitleDefault')}
           </h2>
           <p className="mt-2 text-sm text-muted">{t('emptyDescription')}</p>
           <Link
             href="/editor"
-            className="mt-7 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
+            className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'mt-7' })}
           >
             <Plus className="h-4 w-4" strokeWidth={2} />
             {t('emptyCta')}
