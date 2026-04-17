@@ -2,9 +2,10 @@
 
 import { useState, useCallback, useId } from 'react'
 import { cn } from '@/lib/utils'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 
 const PRESET_COLORS = [
-  '#D4634E', '#D97706', '#059669', '#0891B2',
+  DEFAULT_PORTFOLIO_COLOR, '#D97706', '#059669', '#0891B2',
   '#6366F1', '#A855F7', '#EC4899', '#1A1A1A',
   '#6B7280', '#FAF8F6',
 ] as const

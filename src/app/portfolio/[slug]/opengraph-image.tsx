@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { createClient } from '@/lib/supabase/server'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 
 // Next.js auto-detects this file in the same directory as page.tsx and wires
 // it as the og:image / twitter:image for the route. It runs on each crawler
@@ -19,7 +20,7 @@ const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
 // Vizly brand accent — used for the wordmark dot regardless of the
 // user's custom primary_color, so the brand mark stays recognisable
 // across all portfolio OG cards.
-const VIZLY_BRAND_ACCENT = '#D4634E'
+const VIZLY_BRAND_ACCENT = DEFAULT_PORTFOLIO_COLOR
 
 // Truncate at a word boundary near `max` chars and append an ellipsis.
 function truncate(text: string, max: number): string {
@@ -44,7 +45,7 @@ export default async function PortfolioOgImage({ params }: OgImageProps) {
 
   const name = portfolio?.title?.trim() || slug
   const tagline = portfolio?.bio ? truncate(portfolio.bio, 140) : ''
-  const accent = portfolio?.primary_color || '#D4634E'
+  const accent = portfolio?.primary_color || DEFAULT_PORTFOLIO_COLOR
   const photoUrl = portfolio?.photo_url ?? null
   const initial = (name[0] ?? '?').toUpperCase()
   const subdomain = `${slug}.${APP_DOMAIN}`

@@ -125,8 +125,8 @@ export function ContactForm() {
         className={cn(
           'w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
           status === 'sending'
-            ? 'bg-[#D4634E]/60 text-white/60 cursor-not-allowed'
-            : 'bg-[#D4634E] text-white hover:bg-[#C05640]'
+            ? 'bg-accent/60 text-white/60 cursor-not-allowed'
+            : 'bg-accent text-white hover:bg-accent-hover'
         )}
       >
         {status === 'sending' ? (

@@ -165,7 +165,7 @@ export function EditorLayout({
               className={cn(
                 'inline-flex items-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
                 canGoNext
-                  ? 'bg-[#D4634E] text-white hover:bg-[#C05640]'
+                  ? 'bg-accent text-white hover:bg-accent-hover'
                   : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
               )}
             >
@@ -199,7 +199,7 @@ export function EditorLayout({
                       className={cn(
                         'h-2.5 w-2.5 rounded-full transition-colors duration-150',
                         isActive || isPast
-                          ? 'bg-[#D4634E]'
+                          ? 'bg-accent'
                           : 'border-2 border-[#E5E7EB] bg-white',
                       )}
                     />
@@ -214,7 +214,7 @@ export function EditorLayout({
                     <div
                       className={cn(
                         'flex-1 h-0.5 mx-2 transition-colors duration-150',
-                        isPast ? 'bg-[#D4634E]' : 'bg-[#E5E7EB]',
+                        isPast ? 'bg-accent' : 'bg-[#E5E7EB]',
                       )}
                     />
                   )}

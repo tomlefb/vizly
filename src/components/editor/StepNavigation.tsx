@@ -64,7 +64,7 @@ export function StepNavigation({
                     className={cn(
                       'h-2.5 w-2.5 rounded-full transition-colors duration-150',
                       isCurrent || isPast || isCompleted
-                        ? 'bg-[#D4634E]'
+                        ? 'bg-accent'
                         : 'border-2 border-[#E5E7EB] bg-white',
                     )}
                   />
@@ -79,7 +79,7 @@ export function StepNavigation({
                   <div
                     className={cn(
                       'flex-1 h-0.5 mx-2 transition-colors duration-150',
-                      isPast || isCompleted ? 'bg-[#D4634E]' : 'bg-[#E5E7EB]',
+                      isPast || isCompleted ? 'bg-accent' : 'bg-[#E5E7EB]',
                     )}
                     aria-hidden="true"
                   />
@@ -113,7 +113,7 @@ export function StepNavigation({
             'inline-flex items-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
             isLast || !canGoNext
               ? 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
-              : 'bg-[#D4634E] text-white hover:bg-[#C05640]'
+              : 'bg-accent text-white hover:bg-accent-hover'
           )}
           aria-label={isLast ? t('nav.lastStep') : t('nav.nextStep')}
         >

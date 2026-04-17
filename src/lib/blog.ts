@@ -1,3 +1,5 @@
+import { DEFAULT_PORTFOLIO_COLOR } from './constants'
+
 export interface BlogPost {
   slug: string
   title: string
@@ -15,7 +17,7 @@ export const BLOG_POSTS: BlogPost[] = [
       'Guide pas à pas pour créer ton portfolio professionnel avec Vizly. Du formulaire à la mise en ligne.',
     date: '2026-03-28',
     readingTime: '5 min',
-    coverColor: '#D4634E',
+    coverColor: DEFAULT_PORTFOLIO_COLOR,
   },
   {
     slug: 'portfolio-developpeur-erreurs',

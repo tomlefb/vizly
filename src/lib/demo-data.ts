@@ -1,5 +1,6 @@
 import type { TemplateProps } from '@/types'
 import { DEFAULT_SECTIONS } from '@/types/sections'
+import { DEFAULT_PORTFOLIO_COLOR } from './constants'
 
 /** Realistic demo portfolio used for template previews */
 export const DEMO_PORTFOLIO: TemplateProps = {
@@ -7,7 +8,7 @@ export const DEMO_PORTFOLIO: TemplateProps = {
     title: 'Prénom Nom',
     bio: 'Courte description de ton parcours et de ce que tu fais. Ce texte sera remplacé par le tien.',
     photo_url: null,
-    primary_color: '#D4634E',
+    primary_color: DEFAULT_PORTFOLIO_COLOR,
     secondary_color: '#1A1A1A',
     font: 'default',
     font_body: 'default',
@@ -155,7 +156,7 @@ export const DEMO_HANDLES: Record<string, string> = {
 
 /** Build a complete TemplateProps with per-template identity + colors */
 export function getDemoPortfolio(templateName: string, isPremium = false): TemplateProps {
-  const colors = DEMO_COLORS[templateName] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
+  const colors = DEMO_COLORS[templateName] ?? { primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#1A1A1A' }
   const override = DEMO_OVERRIDES[templateName]
 
   return {
@@ -183,7 +184,7 @@ export const DEMO_COLORS: Record<string, { primary: string; secondary: string }>
   classique: { primary: '#2D5A3D', secondary: '#FAFAF8' },
   colore: { primary: '#FF6B6B', secondary: '#FFF5E6' },
   creatif: { primary: '#8B6914', secondary: '#FFFDF5' },
-  brutalist: { primary: '#D4634E', secondary: '#FFFFFF' },
+  brutalist: { primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#FFFFFF' },
   elegant: { primary: '#8F6B4A', secondary: '#FDFBF7' },
   bento: { primary: '#4A3D8F', secondary: '#F8F7FF' },
 }

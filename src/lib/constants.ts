@@ -1,4 +1,17 @@
 export const APP_NAME = 'Vizly'
+
+/**
+ * Brand accent color (terracotta).
+ *
+ * Single source of truth for the default portfolio primary_color AND any
+ * non-Tailwind context that needs the raw hex (SVG, ImageResponse, demo
+ * data, fallbacks when a user portfolio has no color).
+ *
+ * For UI classes, prefer the Tailwind tokens `bg-accent` / `text-accent` /
+ * `hover:bg-accent-hover` which read `--color-accent` from globals.css.
+ * Keep this constant in sync with `--color-accent` in `src/app/globals.css`.
+ */
+export const DEFAULT_PORTFOLIO_COLOR = '#D4634E'
 export const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
 export const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL ?? `https://${process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'}`

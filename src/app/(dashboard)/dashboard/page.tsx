@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Plus, Pencil, ExternalLink, FolderPlus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { PLANS, type PlanType } from '@/lib/constants'
+import { DEFAULT_PORTFOLIO_COLOR, PLANS, type PlanType } from '@/lib/constants'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { PublishToggle } from './publish-toggle'
 import { DeletePortfolio } from './delete-portfolio'
@@ -116,7 +116,7 @@ export default async function DashboardPage({
                 title: portfolio.title || 'Mon portfolio',
                 bio: portfolio.bio ?? null,
                 photo_url: portfolio.photo_url ?? null,
-                primary_color: portfolio.primary_color || '#D4634E',
+                primary_color: portfolio.primary_color || DEFAULT_PORTFOLIO_COLOR,
                 secondary_color: portfolio.secondary_color || '#1A1A1A',
                 font: portfolio.font || 'DM Sans',
                 font_body: portfolio.font_body ?? portfolio.font ?? 'DM Sans',

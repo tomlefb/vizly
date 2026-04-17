@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from 'react'
 import { Check, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { TemplateName } from '@/types/templates'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
@@ -17,7 +18,7 @@ interface TemplateSelectorProps {
 
 function useDemoProps(name: TemplateName) {
   return useMemo(() => {
-    const colors = DEMO_COLORS[name] ?? { primary: '#D4634E', secondary: '#1A1A1A' }
+    const colors = DEMO_COLORS[name] ?? { primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#1A1A1A' }
     return {
       ...DEMO_PORTFOLIO,
       portfolio: {

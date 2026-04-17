@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BarChart3 } from 'lucide-react'
-import type { PlanType } from '@/lib/constants'
+import { DEFAULT_PORTFOLIO_COLOR, type PlanType } from '@/lib/constants'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis } from '@/types/kpis'
@@ -179,7 +179,7 @@ export default async function StatistiquesPage() {
         title: p.title || 'Mon portfolio',
         bio: p.bio ?? null,
         photo_url: p.photo_url ?? null,
-        primary_color: p.primary_color || '#D4634E',
+        primary_color: p.primary_color || DEFAULT_PORTFOLIO_COLOR,
         secondary_color: p.secondary_color || '#1A1A1A',
         font: p.font || 'DM Sans',
         font_body: p.font_body ?? p.font ?? 'DM Sans',

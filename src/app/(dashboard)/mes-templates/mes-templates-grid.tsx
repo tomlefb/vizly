@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import type { TemplateConfig } from '@/types/templates'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { TemplatePurchaseModal } from '@/components/billing/TemplatePurchaseModal'
@@ -126,7 +127,7 @@ function TemplateCard({
   t,
 }: TemplateCardProps) {
   const colors = DEMO_COLORS[template.name] ?? {
-    primary: '#D4634E',
+    primary: DEFAULT_PORTFOLIO_COLOR,
     secondary: '#1A1A1A',
   }
   const demoProps = {

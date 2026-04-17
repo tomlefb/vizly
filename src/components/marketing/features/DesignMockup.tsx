@@ -1,6 +1,7 @@
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { BrowserFrame } from './BrowserFrame'
 
-const PALETTE_COLORS = ['#1A1A1A', '#D4634E', '#F5F0EB', '#2563EB', '#7C3AED', '#059669']
+const PALETTE_COLORS = ['#1A1A1A', DEFAULT_PORTFOLIO_COLOR, '#F5F0EB', '#2563EB', '#7C3AED', '#059669']
 
 const SECTIONS = [
   { label: 'Profil', active: true },

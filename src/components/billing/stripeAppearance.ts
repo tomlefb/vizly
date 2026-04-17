@@ -20,6 +20,7 @@
 // trade-off for PCI safety.
 
 import type { Appearance } from '@stripe/stripe-js'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 
 // ---- Vizly design tokens (mirror of globals.css) -----------------------------
 
@@ -28,7 +29,7 @@ const VIZLY_FOREGROUND = '#1A1A1A'
 const VIZLY_MUTED = '#6B6560'
 const VIZLY_MUTED_FOREGROUND = '#9C958E'
 const VIZLY_BORDER = '#E8E3DE'
-const VIZLY_ACCENT = '#D4634E' // terracotta — the only vivid color in Vizly
+const VIZLY_ACCENT = DEFAULT_PORTFOLIO_COLOR // terracotta — the only vivid color in Vizly
 const VIZLY_DESTRUCTIVE = '#DC2626'
 const VIZLY_RADIUS_MD = '10px' // matches --radius-md, used for buttons/inputs
 const VIZLY_FONT_BODY = '"DM Sans", system-ui, sans-serif'

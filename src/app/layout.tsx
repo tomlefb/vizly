@@ -4,6 +4,7 @@ import { DM_Sans } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import NextTopLoader from 'nextjs-toploader'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import './globals.css'
 
 const satoshi = localFont({
@@ -95,7 +96,7 @@ export default async function RootLayout({
       <body>
         <script dangerouslySetInnerHTML={{ __html: sidebarPrePaintScript }} />
         <NextTopLoader
-          color="#D4634E"
+          color={DEFAULT_PORTFOLIO_COLOR}
           height={2}
           showSpinner={false}
           shadow={false}

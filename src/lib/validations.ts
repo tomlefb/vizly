@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+  DEFAULT_PORTFOLIO_COLOR,
   MAX_BIO_LENGTH,
   MAX_PROJECT_DESCRIPTION_LENGTH,
   SLUG_MIN_LENGTH,
@@ -35,7 +36,7 @@ export const portfolioSchema = z.object({
   primary_color: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide')
-    .default('#D4634E'),
+    .default(DEFAULT_PORTFOLIO_COLOR),
   secondary_color: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide')

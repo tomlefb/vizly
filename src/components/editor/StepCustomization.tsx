@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import { Palette, Type, LayoutGrid, Check, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TemplateSelector } from './TemplateSelector'
 import { ColorPicker } from './ColorPicker'
 import { FontSelector } from './FontSelector'
@@ -12,11 +13,11 @@ import type { PortfolioFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
 const COLOR_PALETTES = [
-  { name: 'Terracotta', primary: '#D4634E', secondary: '#FAF8F6', accent: '#1A1A1A' },
+  { name: 'Terracotta', primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#FAF8F6', accent: '#1A1A1A' },
   { name: 'Ocean', primary: '#2563EB', secondary: '#EFF6FF', accent: '#1E293B' },
   { name: 'Foret', primary: '#16A34A', secondary: '#F0FDF4', accent: '#1A1A1A' },
   { name: 'Crepuscule', primary: '#7C3AED', secondary: '#F5F3FF', accent: '#1E1B3A' },
-  { name: 'Minuit', primary: '#1E293B', secondary: '#F8FAFC', accent: '#D4634E' },
+  { name: 'Minuit', primary: '#1E293B', secondary: '#F8FAFC', accent: DEFAULT_PORTFOLIO_COLOR },
   { name: 'Aurore', primary: '#E07A48', secondary: '#FFFBEB', accent: '#292524' },
 ]
 

@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 
 export const size = { width: 48, height: 48 }
 export const contentType = 'image/png'
@@ -26,7 +27,7 @@ export default function Icon() {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <circle cx="16" cy="24" r="2.5" fill="#D4634E" />
+          <circle cx="16" cy="24" r="2.5" fill={DEFAULT_PORTFOLIO_COLOR} />
         </svg>
       </div>
     ),

@@ -12,6 +12,7 @@ import {
   deleteProject,
 } from '@/actions/projects'
 import { getBillingStatus } from '@/actions/billing'
+import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
@@ -78,7 +79,7 @@ const DEFAULT_PORTFOLIO: PortfolioFormData = {
   bio: '',
   photo_url: '',
   template: 'minimal',
-  primary_color: '#D4634E',
+  primary_color: DEFAULT_PORTFOLIO_COLOR,
   secondary_color: '#1A1A1A',
   font: 'DM Sans',
   font_body: 'DM Sans',
