@@ -47,6 +47,7 @@ import type {
   StripeExpressCheckoutElementConfirmEvent,
 } from '@stripe/stripe-js'
 import { Check, Loader2, X } from 'lucide-react'
+import { VzBtn, VzHighlight } from '@/components/ui/vizly'
 import { getStripe } from '@/lib/stripe/client-browser'
 import {
   createSubscriptionIntentAction,
@@ -437,7 +438,7 @@ export function SubscriptionCheckoutModal({
           onClick={handleBackdropClick}
         >
           <motion.div
-            className="relative w-full sm:max-w-md sm:my-8 max-h-[100vh] sm:max-h-[90vh] overflow-y-auto bg-background sm:rounded-[var(--radius-lg)] border-t sm:border border-border"
+            className="relative w-full sm:my-8 sm:max-w-md max-h-[100vh] sm:max-h-[90vh] overflow-y-auto border-t border-border-light bg-surface sm:rounded-[var(--radius-lg)] sm:border"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
@@ -512,7 +513,7 @@ export function SubscriptionCheckoutModal({
                   disabled={isProcessing}
                 />
 
-                <section className="px-8 py-6 border-t border-border">
+                <section className="border-t border-border-light px-8 py-6">
                   <p className="text-sm font-medium text-foreground mb-4">
                     Moyen de paiement
                   </p>
@@ -587,9 +588,9 @@ function CheckoutHeader({
         id={titleId}
         className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground"
       >
-        Passer en <span className="text-accent">{planName}</span>.
+        Passer en <VzHighlight>{planName}</VzHighlight>.
       </h2>
-      <p id={subId} className="mt-2 text-sm text-muted leading-relaxed">
+      <p id={subId} className="mt-2 text-sm leading-relaxed text-muted">
         {PLAN_DESCRIPTIONS[plan]}
       </p>
     </div>
@@ -611,7 +612,7 @@ function Recap({
   const intervalSuffix = interval === 'monthly' ? ' / mois' : ' / an'
 
   return (
-    <section className="px-8 py-6 border-t border-border">
+    <section className="border-t border-border-light px-8 py-6">
       <dl className="space-y-3 text-sm">
         <div className="flex items-baseline justify-between gap-4">
           <dt className="text-muted">Plan</dt>
@@ -627,7 +628,7 @@ function Recap({
           <>
             <div className="flex items-baseline justify-between gap-4">
               <dt className="text-muted">Sous-total</dt>
-              <dd className="text-muted text-right line-through">
+              <dd className="text-right text-muted line-through">
                 {formatEur(pricing.baseCents)}
                 {intervalSuffix}
               </dd>
@@ -635,11 +636,11 @@ function Recap({
             <div className="flex items-baseline justify-between gap-4">
               <dt className="text-muted">
                 Code promo
-                <span className="ml-2 inline-flex items-center px-2 py-0.5 text-[11px] font-medium text-accent bg-accent-light rounded-[var(--radius-sm)]">
+                <span className="ml-2 inline-flex items-center rounded-[var(--radius-sm)] bg-accent-light px-2 py-0.5 text-[11px] font-medium text-accent-fg">
                   {appliedPromo.code}
                 </span>
               </dt>
-              <dd className="text-accent font-medium text-right">
+              <dd className="text-right font-medium text-accent-deep">
                 {`−${formatEur(pricing.discountCents)}`}
               </dd>
             </div>
@@ -679,16 +680,20 @@ function PromoCodeField({
 }) {
   if (appliedPromo) {
     return (
-      <section className="px-8 py-4 border-t border-border">
+      <section className="border-t border-border-light px-8 py-4">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted">
-            Code promo <span className="text-foreground font-medium">{appliedPromo.code}</span> appliqué.
+            Code promo{' '}
+            <span className="font-medium text-foreground">
+              {appliedPromo.code}
+            </span>{' '}
+            appliqué.
           </p>
           <button
             type="button"
             onClick={() => void onRemove()}
             disabled={disabled}
-            className="text-sm text-muted hover:text-foreground underline underline-offset-4 transition-colors disabled:opacity-50"
+            className="text-sm text-muted underline underline-offset-4 transition-colors hover:text-foreground disabled:opacity-50"
           >
             Retirer
           </button>
@@ -698,13 +703,13 @@ function PromoCodeField({
   }
 
   return (
-    <section className="px-8 py-4 border-t border-border">
+    <section className="border-t border-border-light px-8 py-4">
       {!state.expanded ? (
         <button
           type="button"
           onClick={onToggle}
           disabled={disabled}
-          className="text-sm text-muted hover:text-foreground underline underline-offset-4 transition-colors disabled:opacity-50"
+          className="text-sm text-muted underline underline-offset-4 transition-colors hover:text-foreground disabled:opacity-50"
         >
           Tu as un code promo&nbsp;?
         </button>
@@ -717,7 +722,7 @@ function PromoCodeField({
             Code promo
           </label>
           <div className="flex gap-2">
-            <div className="flex-1 flex items-center rounded-[var(--radius-md)] border border-border bg-background overflow-hidden transition-colors duration-200 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/15">
+            <div className="flex flex-1 items-center overflow-hidden rounded-[var(--radius-md)] border border-border-light bg-surface transition-colors duration-150 focus-within:border-accent-deep focus-within:ring-2 focus-within:ring-accent/30">
               <input
                 id="promo-code-input"
                 type="text"
@@ -734,18 +739,18 @@ function PromoCodeField({
                 }}
               />
             </div>
-            <button
-              type="button"
+            <VzBtn
+              variant="secondary"
+              size="md"
               onClick={() => void onApply()}
               disabled={disabled || state.applying || !state.inputValue.trim()}
-              className="rounded-[var(--radius-md)] border border-border px-4 text-sm font-medium text-foreground hover:bg-surface-warm transition-colors disabled:opacity-50 disabled:hover:bg-background"
             >
               {state.applying ? (
                 <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
               ) : (
                 'Appliquer'
               )}
-            </button>
+            </VzBtn>
           </div>
           {state.error && (
             <p className="text-xs text-destructive" role="alert">
@@ -783,7 +788,7 @@ function ErrorBlock({
 }) {
   return (
     <div
-      className="rounded-[var(--radius-md)] border border-border bg-surface-warm p-4 space-y-3"
+      className="space-y-3 rounded-[var(--radius-md)] border border-border-light bg-surface-warm p-4"
       role="alert"
     >
       <p className="text-sm text-foreground">{message}</p>
@@ -791,7 +796,7 @@ function ErrorBlock({
         <button
           type="button"
           onClick={onRetry}
-          className="text-sm text-foreground hover:text-accent underline underline-offset-4 transition-colors"
+          className="text-sm text-foreground underline underline-offset-4 transition-colors hover:text-accent-deep"
         >
           Réessayer
         </button>
@@ -1015,10 +1020,7 @@ function CheckoutForm({
         type="submit"
         disabled={!stripe || !elements || isProcessing || !isCardComplete}
         className={cn(
-          'w-full inline-flex items-center justify-center gap-2 h-12 rounded-[var(--radius-md)] text-sm font-medium text-white transition-colors',
-          isProcessing || !stripe || !elements || !isCardComplete
-            ? 'bg-accent/50 cursor-not-allowed'
-            : 'bg-accent hover:bg-accent-hover',
+          'inline-flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-foreground font-[family-name:var(--font-satoshi)] text-sm font-semibold text-white shadow-[2px_2px_0_var(--color-accent)] transition-all duration-150 hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0_var(--color-accent)] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0',
         )}
       >
         {isProcessing ? (
@@ -1049,9 +1051,9 @@ function SuccessHeader({
         id={titleId}
         className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground"
       >
-        Paiement <span className="text-accent">confirmé</span>.
+        Paiement <VzHighlight>confirmé</VzHighlight>.
       </h2>
-      <p id={subId} className="mt-2 text-sm text-muted leading-relaxed">
+      <p id={subId} className="mt-2 text-sm leading-relaxed text-muted">
         Ton abonnement {planName} est actif.
       </p>
     </div>
@@ -1060,18 +1062,22 @@ function SuccessHeader({
 
 function SuccessBody({ onContinue }: { onContinue: () => void }) {
   return (
-    <section className="px-8 pt-2 pb-8 space-y-6">
+    <section className="space-y-6 px-8 pb-8 pt-2">
       <div className="flex items-center gap-3 text-sm text-muted">
-        <Check className="h-4 w-4 text-accent" strokeWidth={2.5} />
+        <Check
+          className="h-4 w-4 text-[var(--color-success-fg)]"
+          strokeWidth={2.5}
+        />
         Tu peux maintenant publier ton portfolio.
       </div>
-      <button
-        type="button"
+      <VzBtn
+        variant="primary"
+        size="lg"
         onClick={onContinue}
-        className="w-full inline-flex items-center justify-center h-12 rounded-[var(--radius-md)] bg-accent text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+        className="w-full"
       >
         Continuer
-      </button>
+      </VzBtn>
     </section>
   )
 }

@@ -15,6 +15,7 @@ import {
 } from 'framer-motion'
 import { Loader2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzBtn } from '@/components/ui/vizly'
 
 const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const satisfies Easing
 
@@ -131,7 +132,7 @@ export function ConfirmActionDialog({
           onClick={handleBackdropClick}
         >
           <motion.div
-            className="relative w-full sm:max-w-sm sm:my-8 max-h-[100vh] sm:max-h-[90vh] overflow-y-auto bg-background sm:rounded-[var(--radius-lg)] border-t sm:border border-border"
+            className="relative w-full sm:my-8 sm:max-w-sm max-h-[100vh] sm:max-h-[90vh] overflow-y-auto border-t border-border-light bg-surface sm:rounded-[var(--radius-lg)] sm:border"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
@@ -179,31 +180,42 @@ export function ConfirmActionDialog({
             </div>
 
             <div className="flex items-center justify-end gap-2 px-6 pb-6 pt-2">
-              <button
+              <VzBtn
                 ref={cancelButtonRef}
-                type="button"
+                variant="secondary"
+                size="md"
                 onClick={onClose}
                 disabled={isProcessing}
-                className="inline-flex h-10 items-center justify-center rounded-[var(--radius-md)] border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm disabled:opacity-50"
               >
                 {cancelLabel}
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleConfirm()}
-                disabled={isProcessing}
-                className={cn(
-                  'inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 text-sm font-medium text-white transition-colors disabled:opacity-60',
-                  confirmVariant === 'destructive'
-                    ? 'bg-destructive hover:bg-destructive/90'
-                    : 'bg-accent hover:bg-accent-hover',
-                )}
-              >
-                {isProcessing && (
-                  <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
-                )}
-                {confirmLabel}
-              </button>
+              </VzBtn>
+              {confirmVariant === 'destructive' ? (
+                <button
+                  type="button"
+                  onClick={() => void handleConfirm()}
+                  disabled={isProcessing}
+                  className={cn(
+                    'inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-destructive px-4 text-sm font-semibold text-white transition-colors hover:bg-destructive/90 disabled:opacity-60',
+                  )}
+                >
+                  {isProcessing && (
+                    <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+                  )}
+                  {confirmLabel}
+                </button>
+              ) : (
+                <VzBtn
+                  variant="primary"
+                  size="md"
+                  onClick={() => void handleConfirm()}
+                  disabled={isProcessing}
+                >
+                  {isProcessing && (
+                    <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+                  )}
+                  {confirmLabel}
+                </VzBtn>
+              )}
             </div>
           </motion.div>
         </motion.div>

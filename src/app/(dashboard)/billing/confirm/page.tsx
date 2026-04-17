@@ -7,21 +7,14 @@
 // Authentication. For non-3DS payments, the modals stay in-app and this page
 // is never visited.
 //
-// Stripe appends `payment_intent`, `payment_intent_client_secret` and
-// `redirect_status` to the return_url. The Vizly modals also pass a custom
-// param to discriminate the context:
-//   - SubscriptionCheckoutModal → `?subscription_id=sub_...`
-//   - TemplatePurchaseModal     → `?payment_intent_id=pi_...`
-//
-// IMPORTANT — this page does NOT touch the DB. The webhook pipeline
-// (customer.subscription.created, invoice.paid, payment_intent.succeeded)
-// is the source of truth and runs in parallel. We just show an optimistic
-// confirmation message and bounce the user back to /billing after 3 s,
-// giving the webhook time to land before the next render of the recap.
+// IMPORTANT — this page does NOT touch the DB. The webhook pipeline is the
+// source of truth and runs in parallel. We just show an optimistic
+// confirmation message and bounce the user back to /billing after 3 s.
 
-import { Check, X, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import { Check, X, AlertCircle } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
+import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 import { ConfirmRedirectAfterDelay } from './ConfirmRedirectAfterDelay'
 
 interface ConfirmPageProps {
@@ -58,15 +51,17 @@ export default async function BillingConfirmPage({
   if (status === 'succeeded') {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-16 text-center">
-        <Check
-          className="h-8 w-8 text-foreground"
-          strokeWidth={1.5}
-          aria-hidden="true"
-        />
-        <h1 className="mt-4 text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
-          {t('confirmTitle')}
+        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-border-light bg-surface-sunken">
+          <Check
+            className="h-5 w-5 text-foreground"
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+        </div>
+        <h1 className="mt-5 font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground">
+          <VzHighlight>{t('confirmTitle')}</VzHighlight>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-3 text-sm text-muted">
           {context === 'template'
             ? t('confirmTemplateBody')
             : t('confirmSubBody')}
@@ -86,20 +81,22 @@ export default async function BillingConfirmPage({
   if (status === 'failed') {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-16 text-center">
-        <X
-          className="h-8 w-8 text-foreground"
-          strokeWidth={1.5}
-          aria-hidden="true"
-        />
-        <h1 className="mt-4 text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5">
+          <X
+            className="h-5 w-5 text-destructive"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+        </div>
+        <h1 className="mt-5 font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground">
           {t('confirmFailedTitle')}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-3 text-sm text-muted">
           {t('confirmFailedBody')}
         </p>
         <Link
           href="/billing"
-          className="mt-6 inline-flex h-10 items-center rounded-md bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
+          className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'mt-7' })}
         >
           {t('confirmFailedBack')}
         </Link>
@@ -107,23 +104,25 @@ export default async function BillingConfirmPage({
     )
   }
 
-  // unknown — defensive branch, should never be reached in practice
+  // unknown — defensive branch
   return (
     <div className="mx-auto flex max-w-md flex-col items-center pt-16 text-center">
-      <AlertCircle
-        className="h-8 w-8 text-foreground"
-        strokeWidth={1.5}
-        aria-hidden="true"
-      />
-      <h1 className="mt-4 text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
+      <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-border-light bg-surface-sunken">
+        <AlertCircle
+          className="h-5 w-5 text-muted-foreground"
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
+      </div>
+      <h1 className="mt-5 font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground">
         {t('confirmUnknownTitle')}
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="mt-3 text-sm text-muted">
         {t('confirmUnknownBody')}
       </p>
       <Link
         href="/billing"
-        className="mt-6 inline-flex h-10 items-center rounded-md border border-border bg-background px-5 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+        className={vzBtnClasses({ variant: 'secondary', size: 'md', className: 'mt-7' })}
       >
         {t('confirmFailedBack')}
       </Link>
