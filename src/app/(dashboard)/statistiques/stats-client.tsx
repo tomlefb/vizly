@@ -92,7 +92,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
       </div>
 
       {selected && (
-        <div className="mt-8 grid gap-8 lg:grid-cols-2">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_3fr]">
           {/* ─── Gauche : preview + sources ─── */}
           <div className="min-w-0 space-y-6">
             <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border">
@@ -161,16 +161,15 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             </div>
           </div>
 
-          {/* ─── Droite : KPIs en colonne, gros chiffres ─── */}
-          <div className="flex flex-col gap-4">
-            <KpiCell label="Vues totales" value={selected.totalViews} large />
-            <KpiCell
+          {/* ─── Droite : KPIs en colonne ─── */}
+          <div className="divide-y divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
+            <KpiRow label="Vues totales" value={selected.totalViews} />
+            <KpiRow
               label="30 derniers jours"
               value={selected.viewsLast30}
               trend={trendPercent}
-              large
             />
-            <KpiCell label="Aujourd'hui" value={selected.viewsToday} large />
+            <KpiRow label="Aujourd'hui" value={selected.viewsToday} />
           </div>
         </div>
       )}
@@ -193,59 +192,47 @@ function Header() {
   )
 }
 
-function KpiCell({
+function KpiRow({
   label,
   value,
   trend,
-  large,
 }: {
   label: string
   value: number
   trend?: number
-  large?: boolean
 }) {
   return (
-    <div
-      className={cn(
-        'flex flex-1 flex-col justify-center rounded-[var(--radius-lg)] border border-border bg-surface',
-        large ? 'px-6 py-6' : 'px-4 py-4',
-      )}
-    >
-      <p className={cn('text-muted', large ? 'text-sm' : 'text-xs')}>
-        {label}
-      </p>
-      <p
-        className={cn(
-          'mt-1 font-[family-name:var(--font-satoshi)] font-bold text-foreground tabular-nums',
-          large ? 'text-4xl' : 'text-2xl',
+    <div className="flex items-center justify-between gap-4 bg-surface px-6 py-5">
+      <div>
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        {trend !== undefined && (
+          <div className="mt-1 flex items-center gap-1">
+            {trend > 0 ? (
+              <ArrowUp className="h-3 w-3 text-success" strokeWidth={2} />
+            ) : trend < 0 ? (
+              <ArrowDown className="h-3 w-3 text-destructive" strokeWidth={2} />
+            ) : (
+              <Minus className="h-3 w-3 text-muted-foreground" strokeWidth={2} />
+            )}
+            <span
+              className={cn(
+                'text-xs font-medium',
+                trend > 0
+                  ? 'text-success'
+                  : trend < 0
+                    ? 'text-destructive'
+                    : 'text-muted-foreground',
+              )}
+            >
+              {trend > 0 ? '+' : ''}
+              {trend} % vs 30j préc.
+            </span>
+          </div>
         )}
-      >
+      </div>
+      <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold text-foreground tabular-nums">
         {value.toLocaleString('fr-FR')}
       </p>
-      {trend !== undefined && (
-        <div className="mt-2 flex items-center gap-1">
-          {trend > 0 ? (
-            <ArrowUp className="h-3 w-3 text-success" strokeWidth={2} />
-          ) : trend < 0 ? (
-            <ArrowDown className="h-3 w-3 text-destructive" strokeWidth={2} />
-          ) : (
-            <Minus className="h-3 w-3 text-muted-foreground" strokeWidth={2} />
-          )}
-          <span
-            className={cn(
-              'text-xs font-medium',
-              trend > 0
-                ? 'text-success'
-                : trend < 0
-                  ? 'text-destructive'
-                  : 'text-muted-foreground',
-            )}
-          >
-            {trend > 0 ? '+' : ''}
-            {trend} % vs 30j préc.
-          </span>
-        </div>
-      )}
     </div>
   )
 }
