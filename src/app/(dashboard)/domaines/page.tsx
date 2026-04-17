@@ -1,14 +1,18 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getPortfoliosWithDomains } from '@/actions/portfolio'
+import { Globe } from 'lucide-react'
 import { DomainAssignmentForm } from './domain-assignment-form'
 import type { PlanType } from '@/lib/constants'
 
 export default async function DomainesPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!user) return null
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('users')
@@ -20,24 +24,26 @@ export default async function DomainesPage() {
 
   if (plan !== 'pro') {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
-          <svg className="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-          </svg>
-        </div>
-        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-          Domaines personnalises
-        </h1>
-        <p className="mt-2 max-w-md text-sm text-muted leading-relaxed">
-          Connecte ton propre nom de domaine a chacun de tes portfolios pour une presence en ligne 100% professionnelle.
+      <div className="mx-auto flex max-w-md flex-col items-center py-24 text-center">
+        <Globe
+          className="h-9 w-9 text-muted-foreground/50"
+          strokeWidth={1.5}
+        />
+        <h3 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
+          Domaines personnalisés
+        </h3>
+        <p className="mt-2 text-sm text-muted">
+          Connecte ton propre nom de domaine à chacun de tes portfolios.
+          Disponible avec le plan Pro.
         </p>
-        <Link
-          href="/billing"
-          className="mt-6 inline-flex items-center h-10 rounded-lg bg-[#D4634E] px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#C05640]"
-        >
-          Passer au Pro
-        </Link>
+        <div className="mt-7">
+          <Link
+            href="/billing"
+            className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
+          >
+            Passer au Pro
+          </Link>
+        </div>
       </div>
     )
   }
@@ -45,63 +51,135 @@ export default async function DomainesPage() {
   const { data: portfolios } = await getPortfoliosWithDomains()
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
-          Domaines personnalises
+    <div>
+      <header className="mb-10">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Mes <span className="text-accent">domaines</span>.
         </h1>
-        <p className="mt-1 text-sm text-muted">
-          Assigne un nom de domaine personnalise a chacun de tes projets.
+        <p className="mt-1.5 text-sm text-muted">
+          Connecte ton propre nom de domaine à tes portfolios.
         </p>
-      </div>
+      </header>
 
-      {/* DNS instruction */}
-      <div className="rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50/50 p-4">
-        <p className="text-sm font-medium text-amber-800">Configuration DNS</p>
-        <p className="mt-1 text-xs text-amber-700">
-          Pour chaque domaine, crée un enregistrement <span className="font-mono font-semibold">CNAME</span> pointant vers <span className="font-mono font-semibold">cname.vizly.fr</span> chez ton registrar.
-        </p>
-      </div>
-
-      {portfolios.length > 0 ? (
-        <div className="rounded-[var(--radius-lg)] border border-border bg-surface divide-y divide-border">
-          {portfolios.map((portfolio) => (
-            <div key={portfolio.id} className="p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-foreground truncate">
-                    {portfolio.title || 'Sans titre'}
-                  </h3>
-                  <p className="text-xs text-muted">
-                    {portfolio.slug ? `${portfolio.slug}.vizly.fr` : 'Non publie'}
-                    {portfolio.published && (
-                      <span className="ml-2 inline-flex items-center rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
-                        En ligne
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              <DomainAssignmentForm
-                portfolioId={portfolio.id}
-                currentDomain={portfolio.custom_domain ?? ''}
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
-          <p className="text-sm text-muted">
-            Crée un projet pour lui assigner un domaine personnalisé.
+      <div className="divide-y divide-border-light">
+        {/* ─── Tuto : comment ça marche ─── */}
+        <section className="pb-10">
+          <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+            Comment ça marche
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Trois étapes pour relier ton domaine à ton portfolio Vizly.
           </p>
-          <Link
-            href="/editor"
-            className="mt-4 inline-flex items-center text-sm font-medium text-accent hover:text-accent-hover"
-          >
-            Creer un projet
-          </Link>
-        </div>
-      )}
+
+          <ol className="mt-6 grid gap-6 sm:grid-cols-3">
+            <TutoStep
+              step={1}
+              title="Achète un domaine"
+              description="Chez un registrar comme OVH, Namecheap, Cloudflare ou Gandi. Si tu en as déjà un, passe à l'étape 2."
+            />
+            <TutoStep
+              step={2}
+              title="Configure le DNS"
+              description={
+                <>
+                  Dans les paramètres DNS de ton registrar, ajoute un
+                  enregistrement <Code>CNAME</Code> pointant vers{' '}
+                  <Code>cname.vizly.fr</Code>.
+                </>
+              }
+            />
+            <TutoStep
+              step={3}
+              title="Assigne-le ici"
+              description="Entre ton domaine dans le champ ci-dessous et clique Enregistrer. Le SSL est automatique."
+            />
+          </ol>
+        </section>
+
+        {/* ─── Liste des portfolios + formulaire domaine ─── */}
+        <section className="pt-10">
+          <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
+            Tes portfolios
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Assigne un domaine personnalisé à chaque portfolio.
+          </p>
+
+          {portfolios.length > 0 ? (
+            <ul className="mt-6 divide-y divide-border-light rounded-[var(--radius-lg)] border border-border overflow-hidden">
+              {portfolios.map((portfolio) => (
+                <li key={portfolio.id} className="bg-surface px-5 py-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-medium text-foreground truncate">
+                        {portfolio.title || 'Sans titre'}
+                      </h3>
+                      <p className="text-xs text-muted">
+                        {portfolio.slug
+                          ? `${portfolio.slug}.vizly.fr`
+                          : 'Non publié'}
+                        {portfolio.published && (
+                          <span className="ml-2 inline-flex items-center rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
+                            En ligne
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <DomainAssignmentForm
+                    portfolioId={portfolio.id}
+                    currentDomain={portfolio.custom_domain ?? ''}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="mt-6 rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
+              <p className="text-sm text-muted">
+                Crée un projet pour lui assigner un domaine personnalisé.
+              </p>
+              <Link
+                href="/editor"
+                className="mt-4 inline-flex items-center text-sm font-medium text-accent hover:text-accent-hover transition-colors"
+              >
+                Créer un projet
+              </Link>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
+  )
+}
+
+function TutoStep({
+  step,
+  title,
+  description,
+}: {
+  step: number
+  title: string
+  description: React.ReactNode
+}) {
+  return (
+    <li className="flex gap-3">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-warm text-xs font-semibold text-foreground">
+        {step}
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-foreground">{title}</p>
+        <p className="mt-1 text-sm text-muted leading-relaxed">
+          {description}
+        </p>
+      </div>
+    </li>
+  )
+}
+
+function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="rounded bg-surface-warm px-1.5 py-0.5 font-mono text-xs font-medium text-foreground">
+      {children}
+    </code>
   )
 }
