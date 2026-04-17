@@ -14,6 +14,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzBtn } from '@/components/ui/vizly'
 import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { RichTextEditor } from './RichTextEditor'
 import { KpiRenderer } from '@/components/templates/KpiRenderer'
@@ -36,12 +37,12 @@ type ContentItem =
   | { kind: 'layout'; index: number; data: LayoutBlock }
 
 const inputClass =
-  'w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]'
+  'w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-foreground'
 
 const BLOCK_TYPES = [
   { kind: 'block' as const, icon: Type, label: 'Texte', desc: 'Un titre et un paragraphe' },
-  { kind: 'kpi' as const, icon: BarChart3, label: 'Chiffres cles', desc: 'Tes KPI et stats' },
-  { kind: 'layout' as const, icon: Columns, label: 'Colonnes', desc: 'Contenu cote a cote en 2 ou 3 colonnes' },
+  { kind: 'kpi' as const, icon: BarChart3, label: 'Chiffres clés', desc: 'Tes KPI et stats' },
+  { kind: 'layout' as const, icon: Columns, label: 'Colonnes', desc: 'Contenu côte à côte en 2 ou 3 colonnes' },
 ]
 
 const COLUMN_CONTENT_TYPES: { value: ColumnContentType; label: string }[] = [
@@ -208,11 +209,9 @@ export function ContentBlocksEditor({
 
   function ModalFooter({ onSave, disabled, label }: { onSave: () => void; disabled: boolean; label: string }) {
     return (
-      <div className="shrink-0 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-end gap-3">
-        <button type="button" onClick={closeModal} className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors">Annuler</button>
-        <button type="button" onClick={onSave} disabled={disabled} className={cn('h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150', disabled ? 'bg-accent/50 text-white/60 cursor-not-allowed' : 'bg-accent text-white hover:bg-accent-hover')}>
-          {label}
-        </button>
+      <div className="shrink-0 px-8 py-4 bg-surface border-t border-border-light flex items-center justify-end gap-3">
+        <VzBtn variant="ghost" size="sm" onClick={closeModal}>Annuler</VzBtn>
+        <VzBtn variant="primary" onClick={onSave} disabled={disabled}>{label}</VzBtn>
       </div>
     )
   }
@@ -224,17 +223,17 @@ export function ContentBlocksEditor({
   return (
     <div className="flex-1 mt-8 lg:mt-0 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">Blocs de contenu</h2>
+        <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">Blocs de contenu</h3>
         <div className="relative" ref={dropdownRef}>
-          <button type="button" onClick={() => setShowDropdown(!showDropdown)} className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-hover transition-colors">
-            <Plus className="h-4 w-4" /> Ajouter <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-150', showDropdown && 'rotate-180')} />
+          <button type="button" onClick={() => setShowDropdown(!showDropdown)} className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted transition-colors">
+            <Plus className="h-4 w-4" strokeWidth={1.5} /> Ajouter <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-150', showDropdown && 'rotate-180')} strokeWidth={1.5} />
           </button>
           {showDropdown && (
-            <div className="absolute right-0 top-full mt-2 w-[260px] rounded-xl border border-[#E5E7EB] bg-white p-1.5 z-10 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
+            <div className="absolute right-0 top-full mt-2 w-[260px] rounded-[var(--radius-md)] border border-border-light bg-surface p-1.5 z-10 shadow-[var(--shadow-card-hover)]">
               {BLOCK_TYPES.map((bt) => (
-                <button key={bt.kind} type="button" onClick={() => { if (bt.kind === 'block') openAddBlock(); else if (bt.kind === 'kpi') openAddKpi(); else openAddLayout() }} className="flex items-start gap-3 w-full rounded-lg px-3 py-2.5 text-left hover:bg-[#F3F4F6] transition-colors duration-150">
-                  <bt.icon className="h-4 w-4 text-[#6B7280] mt-0.5 shrink-0" strokeWidth={1.5} />
-                  <div><p className="text-sm font-medium text-[#111827]">{bt.label}</p><p className="text-[13px] text-[#9CA3AF]">{bt.desc}</p></div>
+                <button key={bt.kind} type="button" onClick={() => { if (bt.kind === 'block') openAddBlock(); else if (bt.kind === 'kpi') openAddKpi(); else openAddLayout() }} className="flex items-start gap-3 w-full rounded-[var(--radius-sm)] px-3 py-2.5 text-left hover:bg-surface-warm transition-colors duration-150">
+                  <bt.icon className="h-4 w-4 text-muted mt-0.5 shrink-0" strokeWidth={1.5} />
+                  <div><p className="text-sm font-medium text-foreground">{bt.label}</p><p className="text-xs text-muted-foreground">{bt.desc}</p></div>
                 </button>
               ))}
             </div>
@@ -243,22 +242,22 @@ export function ContentBlocksEditor({
       </div>
 
       {contentItems.length === 0 ? (
-        <p className="text-sm text-[#9CA3AF] py-8">Aucun bloc de contenu</p>
+        <p className="py-8 text-sm text-muted-foreground">Aucun bloc de contenu</p>
       ) : (
         <div className="space-y-2">
           {contentItems.map((item) => {
             const key = `${item.kind}-${item.index}`
             let icon: React.ReactNode, title: string, preview: string
-            if (item.kind === 'block') { icon = <Type className="h-3.5 w-3.5 text-[#6B7280]" strokeWidth={1.5} />; title = item.data.title || 'Sans titre'; preview = stripHtml(item.data.content).slice(0, 60) }
-            else if (item.kind === 'kpi') { icon = <BarChart3 className="h-3.5 w-3.5 text-[#6B7280]" strokeWidth={1.5} />; title = `${item.data.value}${item.data.unit}`; preview = item.data.label }
-            else { icon = <Columns className="h-3.5 w-3.5 text-[#6B7280]" strokeWidth={1.5} />; title = `${item.data.columnCount} colonnes`; preview = item.data.columns.map((c) => c.title || c.type).join(' / ') }
+            if (item.kind === 'block') { icon = <Type className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = item.data.title || 'Sans titre'; preview = stripHtml(item.data.content).slice(0, 60) }
+            else if (item.kind === 'kpi') { icon = <BarChart3 className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = `${item.data.value}${item.data.unit}`; preview = item.data.label }
+            else { icon = <Columns className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = `${item.data.columnCount} colonnes`; preview = item.data.columns.map((c) => c.title || c.type).join(' / ') }
             return (
-              <div key={key} className="group flex items-center gap-2.5 rounded-xl border border-[#E5E7EB] bg-white p-3 transition-[border-color] duration-150 hover:border-[#D1D5DB]">
-                <div className="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-[#F9FAFB]">{icon}</div>
-                <div className="flex-1 min-w-0"><p className="text-sm font-medium text-[#111827] truncate">{title}</p>{preview && <p className="text-[13px] text-[#9CA3AF] truncate">{preview}</p>}</div>
+              <div key={key} className="group flex items-center gap-2.5 rounded-[var(--radius-md)] border border-border-light bg-surface p-3 transition-colors duration-150 hover:border-border">
+                <div className="shrink-0 flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-surface-warm">{icon}</div>
+                <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{title}</p>{preview && <p className="text-xs text-muted truncate">{preview}</p>}</div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button type="button" onClick={() => editContentItem(item)} className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors" aria-label="Modifier"><Pencil className="h-3 w-3" /></button>
-                  <button type="button" onClick={() => deleteContentItem(item)} className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#DC2626] hover:bg-[#F3F4F6] transition-colors" aria-label="Supprimer"><Trash2 className="h-3 w-3" /></button>
+                  <button type="button" onClick={() => editContentItem(item)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label="Modifier"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} /></button>
+                  <button type="button" onClick={() => deleteContentItem(item)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors" aria-label="Supprimer"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} /></button>
                 </div>
               </div>
             )
@@ -269,48 +268,48 @@ export function ContentBlocksEditor({
       {/* ── Modals ── */}
       {modalType && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/30" onClick={closeModal} onKeyDown={() => {}} role="presentation" />
-          <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-white rounded-xl overflow-hidden mx-4', modalType === 'layout' ? 'max-w-[1060px]' : 'max-w-[560px]')}>
+          <div className="absolute inset-0 bg-foreground/30" onClick={closeModal} onKeyDown={() => {}} role="presentation" />
+          <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-surface rounded-[var(--radius-lg)] border border-border-light overflow-hidden mx-4', modalType === 'layout' ? 'max-w-[1060px]' : 'max-w-[560px]')}>
             <div className="flex-1 overflow-y-auto p-8 space-y-5">
-              <button type="button" onClick={closeModal} className="absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors" aria-label="Fermer">
+              <button type="button" onClick={closeModal} className="absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label="Fermer">
                 <X className="h-4 w-4" />
               </button>
 
               {/* Block modal */}
               {modalType === 'block' && (
                 <>
-                  <h3 className="text-[18px] font-semibold text-[#111827]">{editingIndex >= 0 ? 'Modifier le bloc texte' : 'Nouveau bloc texte'}</h3>
-                  <div><label className="block text-sm text-[#6B7280] mb-1.5">Titre</label><input type="text" value={editingBlock.title} onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })} placeholder="Titre du bloc" className={inputClass} /></div>
-                  <div><label className="block text-sm text-[#6B7280] mb-1.5">Sous-titre</label><input type="text" value={editingBlock.subtitle} onChange={(e) => setEditingBlock({ ...editingBlock, subtitle: e.target.value })} placeholder="Optionnel" className={inputClass} /></div>
-                  <div><label className="block text-sm text-[#6B7280] mb-1.5">Contenu</label><RichTextEditor value={editingBlock.content} onChange={(v) => setEditingBlock({ ...editingBlock, content: v })} /></div>
+                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? 'Modifier le bloc texte' : 'Nouveau bloc texte'}</h3>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Titre</label><input type="text" value={editingBlock.title} onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })} placeholder="Titre du bloc" className={inputClass} /></div>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Sous-titre</label><input type="text" value={editingBlock.subtitle} onChange={(e) => setEditingBlock({ ...editingBlock, subtitle: e.target.value })} placeholder="Optionnel" className={inputClass} /></div>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Contenu</label><RichTextEditor value={editingBlock.content} onChange={(v) => setEditingBlock({ ...editingBlock, content: v })} /></div>
                 </>
               )}
 
               {/* KPI modal */}
               {modalType === 'kpi' && (
                 <>
-                  <h3 className="text-[18px] font-semibold text-[#111827]">{editingIndex >= 0 ? 'Modifier le chiffre cle' : 'Nouveau chiffre cle'}</h3>
+                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? 'Modifier le chiffre clé' : 'Nouveau chiffre clé'}</h3>
                   <div>
-                    <label className="block text-sm text-[#6B7280] mb-1.5">Type de visualisation</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">Type de visualisation</label>
                     <div className="grid grid-cols-5 gap-1.5">
                       {KPI_TYPES.slice(0, 10).map((t) => (
                         <button key={t.type} type="button" onClick={() => setEditingKpi({ ...editingKpi, type: t.type })}
-                          className={cn('flex flex-col items-center gap-1 rounded-lg py-2 px-1 text-center transition-colors duration-150', editingKpi.type === t.type ? 'bg-[#111827] text-white' : 'border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]')}>
+                          className={cn('flex flex-col items-center gap-1 rounded-[var(--radius-sm)] py-2 px-1 text-center transition-colors duration-150', editingKpi.type === t.type ? 'bg-foreground text-white' : 'border border-border-light text-muted hover:bg-surface-warm')}>
                           <span className="text-sm">{t.icon}</span>
                           <span className="text-[10px] leading-tight">{t.label}</span>
                         </button>
                       ))}
                     </div>
                   </div>
-                  <div><label className="block text-sm text-[#6B7280] mb-1.5">Label</label><input type="text" value={editingKpi.label} onChange={(e) => setEditingKpi({ ...editingKpi, label: e.target.value })} placeholder="clients satisfaits" className={inputClass} /></div>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Label</label><input type="text" value={editingKpi.label} onChange={(e) => setEditingKpi({ ...editingKpi, label: e.target.value })} placeholder="clients satisfaits" className={inputClass} /></div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div><label className="block text-sm text-[#6B7280] mb-1.5">Valeur</label><input type="number" value={editingKpi.value || ''} onChange={(e) => setEditingKpi({ ...editingKpi, value: parseFloat(e.target.value) || 0 })} placeholder="42" className={inputClass} /></div>
-                    <div><label className="block text-sm text-[#6B7280] mb-1.5">Max</label><input type="number" value={editingKpi.maxValue || ''} onChange={(e) => setEditingKpi({ ...editingKpi, maxValue: parseFloat(e.target.value) || 100 })} placeholder="100" className={inputClass} /></div>
-                    <div><label className="block text-sm text-[#6B7280] mb-1.5">Unite</label><input type="text" value={editingKpi.unit} onChange={(e) => setEditingKpi({ ...editingKpi, unit: e.target.value })} placeholder="%" className={inputClass} /></div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">Valeur</label><input type="number" value={editingKpi.value || ''} onChange={(e) => setEditingKpi({ ...editingKpi, value: parseFloat(e.target.value) || 0 })} placeholder="42" className={inputClass} /></div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">Max</label><input type="number" value={editingKpi.maxValue || ''} onChange={(e) => setEditingKpi({ ...editingKpi, maxValue: parseFloat(e.target.value) || 100 })} placeholder="100" className={inputClass} /></div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">Unité</label><input type="text" value={editingKpi.unit} onChange={(e) => setEditingKpi({ ...editingKpi, unit: e.target.value })} placeholder="%" className={inputClass} /></div>
                   </div>
                   <div>
-                    <label className="block text-sm text-[#6B7280] mb-1.5">Apercu</label>
-                    <div className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-6 flex items-center justify-center min-h-[100px]">
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">Aperçu</label>
+                    <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface-warm p-6 flex items-center justify-center min-h-[100px]">
                       <KpiRenderer kpi={editingKpi} primaryColor={DEFAULT_PORTFOLIO_COLOR} />
                     </div>
                   </div>
@@ -320,12 +319,12 @@ export function ContentBlocksEditor({
               {/* Layout modal */}
               {modalType === 'layout' && (
                 <>
-                  <h3 className="text-[18px] font-semibold text-[#111827]">{editingIndex >= 0 ? 'Modifier les colonnes' : 'Nouvelles colonnes'}</h3>
+                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? 'Modifier les colonnes' : 'Nouvelles colonnes'}</h3>
                   <div>
-                    <label className="block text-sm text-[#6B7280] mb-1.5">Nombre de colonnes</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">Nombre de colonnes</label>
                     <div className="flex gap-2">
                       {([2, 3] as const).map((n) => (
-                        <button key={n} type="button" onClick={() => setLayoutColumnCount(n)} className={cn('h-10 px-5 rounded-lg text-sm font-medium transition-colors duration-150', editingLayout.columnCount === n ? 'bg-[#111827] text-white' : 'border border-[#E5E7EB] text-[#111827] hover:bg-[#F3F4F6]')}>
+                        <button key={n} type="button" onClick={() => setLayoutColumnCount(n)} className={cn('h-10 px-5 rounded-[var(--radius-md)] text-sm font-medium transition-colors duration-150', editingLayout.columnCount === n ? 'bg-foreground text-white' : 'border border-border-light text-foreground hover:bg-surface-warm')}>
                           {n} colonnes
                         </button>
                       ))}
@@ -333,10 +332,10 @@ export function ContentBlocksEditor({
                   </div>
                   <div className={cn('grid gap-4', editingLayout.columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
                     {editingLayout.columns.map((col, colIdx) => (
-                      <div key={colIdx} className="space-y-2 rounded-lg border border-[#E5E7EB] p-3">
+                      <div key={colIdx} className="space-y-2 rounded-[var(--radius-md)] border border-border-light p-3">
                         <div className="flex items-center justify-between">
-                          <p className="text-[13px] font-medium text-[#6B7280]">Colonne {colIdx + 1}</p>
-                          <select value={col.type} onChange={(e) => setColumnType(colIdx, e.target.value as ColumnContentType)} className="text-[12px] text-[#6B7280] border border-[#E5E7EB] rounded-md px-2 py-1 bg-white focus:outline-none">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Colonne {colIdx + 1}</p>
+                          <select value={col.type} onChange={(e) => setColumnType(colIdx, e.target.value as ColumnContentType)} className="text-xs text-muted border border-border-light rounded-[var(--radius-sm)] px-2 py-1 bg-surface focus:outline-none">
                             {COLUMN_CONTENT_TYPES.map((ct) => (<option key={ct.value} value={ct.value}>{ct.label}</option>))}
                           </select>
                         </div>
@@ -350,7 +349,7 @@ export function ContentBlocksEditor({
                         {col.type === 'image' && (
                           <div className="space-y-2">
                             <div
-                              className="flex flex-col items-center justify-center gap-1 rounded-xl border-[1.5px] border-dashed border-[#E5E7EB] bg-[#F9FAFB] py-6 cursor-pointer hover:border-[#D1D5DB] transition-[border-color] duration-150"
+                              className="flex flex-col items-center justify-center gap-1 rounded-[var(--radius-lg)] border-[1.5px] border-dashed border-border bg-surface-warm py-6 cursor-pointer hover:border-muted-foreground transition-colors duration-150"
                               onClick={() => {
                                 const input = document.createElement('input')
                                 input.type = 'file'
@@ -373,11 +372,11 @@ export function ContentBlocksEditor({
                             >
                               {col.imageUrl ? (
                                 /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={col.imageUrl} alt={col.imageAlt ?? ''} className="w-full h-24 object-cover rounded-lg" />
+                                <img src={col.imageUrl} alt={col.imageAlt ?? ''} className="w-full h-24 object-cover rounded-[var(--radius-md)]" />
                               ) : (
                                 <>
-                                  <Upload className="h-5 w-5 text-[#9CA3AF]" />
-                                  <p className="text-[12px] text-[#9CA3AF]">Cliquer pour importer</p>
+                                  <Upload className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                                  <p className="text-xs text-muted-foreground">Cliquer pour importer</p>
                                 </>
                               )}
                             </div>
@@ -387,27 +386,30 @@ export function ContentBlocksEditor({
                         {col.type === 'kpi' && col.kpi && (
                           <div className="space-y-2">
                             <div className="grid grid-cols-5 gap-1">
-                              {KPI_TYPES.slice(0, 10).map((t) => (
-                                <button key={t.type} type="button" onClick={() => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, type: t.type } })}
-                                  className={cn('flex flex-col items-center gap-0.5 rounded-md py-1 text-center transition-colors duration-150', col.kpi!.type === t.type ? 'bg-[#111827] text-white' : 'border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]')}>
+                              {KPI_TYPES.slice(0, 10).map((t) => {
+                                const colKpi = col.kpi
+                                if (!colKpi) return null
+                                return (
+                                <button key={t.type} type="button" onClick={() => updateLayoutColumn(colIdx, { kpi: { ...colKpi, type: t.type } })}
+                                  className={cn('flex flex-col items-center gap-0.5 rounded-[var(--radius-sm)] py-1 text-center transition-colors duration-150', colKpi.type === t.type ? 'bg-foreground text-white' : 'border border-border-light text-muted hover:bg-surface-warm')}>
                                   <span className="text-[10px]">{t.icon}</span>
                                   <span className="text-[8px] leading-tight">{t.label}</span>
                                 </button>
-                              ))}
+                              )})}
                             </div>
-                            <input type="text" value={col.kpi.label} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, label: e.target.value } })} placeholder="Label" className={inputClass} />
+                            <input type="text" value={col.kpi.label} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, label: e.target.value } }) }} placeholder="Label" className={inputClass} />
                             <div className="grid grid-cols-3 gap-2">
-                              <input type="number" value={col.kpi.value || ''} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, value: parseFloat(e.target.value) || 0 } })} placeholder="Valeur" className={inputClass} />
-                              <input type="number" value={col.kpi.maxValue || ''} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, maxValue: parseFloat(e.target.value) || 100 } })} placeholder="Max" className={inputClass} />
-                              <input type="text" value={col.kpi.unit} onChange={(e) => updateLayoutColumn(colIdx, { kpi: { ...col.kpi!, unit: e.target.value } })} placeholder="Unite" className={inputClass} />
+                              <input type="number" value={col.kpi.value || ''} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, value: parseFloat(e.target.value) || 0 } }) }} placeholder="Valeur" className={inputClass} />
+                              <input type="number" value={col.kpi.maxValue || ''} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, maxValue: parseFloat(e.target.value) || 100 } }) }} placeholder="Max" className={inputClass} />
+                              <input type="text" value={col.kpi.unit} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, unit: e.target.value } }) }} placeholder="Unité" className={inputClass} />
                             </div>
-                            <div className="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-3 flex items-center justify-center min-h-[60px]">
+                            <div className="rounded-[var(--radius-md)] border border-border-light bg-surface-warm p-3 flex items-center justify-center min-h-[60px]">
                               <KpiRenderer kpi={col.kpi} primaryColor={DEFAULT_PORTFOLIO_COLOR} />
                             </div>
                           </div>
                         )}
                         {col.type === 'empty' && (
-                          <p className="text-[13px] text-[#9CA3AF] py-4 text-center">Vide — espace libre</p>
+                          <p className="py-4 text-center text-xs text-muted-foreground">Vide — espace libre</p>
                         )}
                       </div>
                     ))}

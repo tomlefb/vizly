@@ -52,9 +52,9 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
   ]
 
   return (
-    <div className="rounded-[var(--radius-md)] border border-border bg-surface overflow-hidden focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-colors">
+    <div className="rounded-[var(--radius-md)] border border-border-light bg-surface overflow-hidden focus-within:border-foreground transition-colors">
       {/* Toolbar */}
-      <div className="flex items-center gap-0.5 border-b border-border bg-surface-warm/50 px-2 py-1.5 flex-wrap">
+      <div className="flex items-center gap-0.5 border-b border-border-light bg-surface-warm px-2 py-1.5 flex-wrap">
         {tools.map((tool) => (
           <button
             key={tool.command + (tool.value ?? '')}
@@ -63,20 +63,20 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
               e.preventDefault()
               execCommand(tool.command, tool.value)
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground"
+            className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
             title={tool.label}
             aria-label={tool.label}
           >
-            <tool.icon className="h-3.5 w-3.5" />
+            <tool.icon className="h-4 w-4" strokeWidth={1.5} />
           </button>
         ))}
 
         {/* Separator */}
-        <span className="mx-1 h-4 w-px bg-border" />
+        <span className="mx-1 h-4 w-px bg-border-light" />
 
         {/* Font size buttons */}
         <div className="flex items-center gap-0.5">
-          <Type className="h-3 w-3 text-muted-foreground/50 mr-0.5" />
+          <Type className="h-3 w-3 text-muted-foreground/50 mr-0.5" strokeWidth={1.5} />
           {sizes.map((size) => (
             <button
               key={size.value}
@@ -85,7 +85,7 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
                 e.preventDefault()
                 execCommand('fontSize', size.value)
               }}
-              className="flex h-7 items-center justify-center rounded-[var(--radius-sm)] px-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground"
+              className="flex h-8 items-center justify-center rounded-[var(--radius-sm)] px-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
               title={size.title}
               aria-label={size.title}
             >

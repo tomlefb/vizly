@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { Palette, Type, LayoutGrid, Check, ChevronRight } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TemplateSelector } from './TemplateSelector'
@@ -12,11 +12,14 @@ import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { TemplateName } from '@/types/templates'
 
+// Palettes de couleurs pour les portfolios des utilisateurs — ce sont
+// des choix pour LEUR site, pas l'UI Vizly. La couleur de marque Vizly
+// reste le lime et n'apparaît pas comme preset.
 const COLOR_PALETTES = [
   { name: 'Terracotta', primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#FAF8F6', accent: '#1A1A1A' },
-  { name: 'Ocean', primary: '#2563EB', secondary: '#EFF6FF', accent: '#1E293B' },
-  { name: 'Foret', primary: '#16A34A', secondary: '#F0FDF4', accent: '#1A1A1A' },
-  { name: 'Crepuscule', primary: '#7C3AED', secondary: '#F5F3FF', accent: '#1E1B3A' },
+  { name: 'Océan', primary: '#2563EB', secondary: '#EFF6FF', accent: '#1E293B' },
+  { name: 'Forêt', primary: '#16A34A', secondary: '#F0FDF4', accent: '#1A1A1A' },
+  { name: 'Crépuscule', primary: '#7C3AED', secondary: '#F5F3FF', accent: '#1E1B3A' },
   { name: 'Minuit', primary: '#1E293B', secondary: '#F8FAFC', accent: DEFAULT_PORTFOLIO_COLOR },
   { name: 'Aurore', primary: '#E07A48', secondary: '#FFFBEB', accent: '#292524' },
 ]
@@ -73,23 +76,18 @@ export function StepCustomization({
 
   return (
     <div
-      className={cn('space-y-5', className)}
+      className={cn('space-y-6', className)}
       data-testid="step-customization"
     >
       {/* Section: Template */}
-      <section className="space-y-4 border-b border-border/30 pb-5">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-            <LayoutGrid className="h-3.5 w-3.5 text-accent" />
-          </div>
-          <div>
-            <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
-              Template
-            </h2>
-            <p className="text-[11px] text-muted-foreground">
-              Choisis le style de ton portfolio
-            </p>
-          </div>
+      <section className="space-y-4 border-b border-border-light pb-8">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            Template
+          </h3>
+          <p className="text-sm text-muted mt-1">
+            Choisis le style de ton portfolio
+          </p>
         </div>
 
         <TemplateSelector
@@ -100,19 +98,14 @@ export function StepCustomization({
       </section>
 
       {/* Section: Colors — dots style */}
-      <section className="space-y-4 border-b border-border/30 pb-5">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-            <Palette className="h-3.5 w-3.5 text-accent" />
-          </div>
-          <div>
-            <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
-              Couleurs
-            </h2>
-            <p className="text-[11px] text-muted-foreground">
-              Personnalise les couleurs de ton portfolio
-            </p>
-          </div>
+      <section className="space-y-4 border-b border-border-light pb-8">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            Couleurs
+          </h3>
+          <p className="text-sm text-muted mt-1">
+            Personnalise les couleurs de ton portfolio
+          </p>
         </div>
 
         {/* Color palette dots */}
@@ -129,20 +122,20 @@ export function StepCustomization({
                   handleSecondaryColorChange(palette.secondary)
                 }}
                 className={cn(
-                  'relative flex items-center gap-2.5 rounded-[var(--radius-md)] border-2 px-3 py-2.5 transition-all duration-200',
+                  'relative flex items-center gap-2.5 rounded-[var(--radius-md)] border bg-surface px-3 py-2.5 transition-colors duration-200',
                   isActive
-                    ? 'border-accent shadow-[0_0_0_2px_rgba(212,99,78,0.15)]'
-                    : 'border-border hover:border-border-light'
+                    ? 'border-[1.5px] border-foreground'
+                    : 'border-border-light hover:border-border'
                 )}
               >
                 {/* Color dots */}
                 <div className="flex items-center -space-x-1">
-                  <span className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.primary }} />
-                  <span className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.secondary }} />
-                  <span className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.accent }} />
+                  <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.primary }} />
+                  <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.secondary }} />
+                  <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.accent }} />
                 </div>
-                <span className="text-[11px] font-medium text-foreground">{palette.name}</span>
-                {isActive && <Check className="h-3 w-3 text-accent ml-auto" strokeWidth={2.5} />}
+                <span className="text-xs font-medium text-foreground">{palette.name}</span>
+                {isActive && <Check className="h-3 w-3 text-foreground ml-auto" strokeWidth={2.5} />}
               </button>
             )
           })}
@@ -152,9 +145,9 @@ export function StepCustomization({
         <button
           type="button"
           onClick={() => setShowCustomColors((v) => !v)}
-          className="inline-flex items-center gap-1 text-[11px] text-muted hover:text-accent transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-medium text-muted hover:text-foreground transition-colors"
         >
-          Couleurs personnalisees
+          Couleurs personnalisées
           <ChevronRight className={cn('h-3 w-3 transition-transform', showCustomColors && 'rotate-90')} />
         </button>
 
@@ -175,19 +168,14 @@ export function StepCustomization({
       </section>
 
       {/* Section: Typography */}
-      <section className="space-y-4 border-b border-border/30 pb-5">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-            <Type className="h-3.5 w-3.5 text-accent" />
-          </div>
-          <div>
-            <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
-              Typographie
-            </h2>
-            <p className="text-[11px] text-muted-foreground">
-              Choisis les polices de ton portfolio
-            </p>
-          </div>
+      <section className="space-y-4 border-b border-border-light pb-8">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+            Typographie
+          </h3>
+          <p className="text-sm text-muted mt-1">
+            Choisis les polices de ton portfolio
+          </p>
         </div>
 
         <FontSelector

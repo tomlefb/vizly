@@ -82,13 +82,13 @@ export function LivePreview({
   return (
     <div
       className={cn(
-        'flex flex-col rounded-[var(--radius-xl)] border border-border overflow-hidden bg-surface h-full',
+        'flex flex-col rounded-[var(--radius-lg)] border border-border-light overflow-hidden bg-surface h-full',
         className
       )}
       data-testid="live-preview"
     >
       {/* Browser chrome */}
-      <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-3 py-2 shrink-0">
+      <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-2 shrink-0">
         <div className="flex gap-1.5">
           <div className="h-2 w-2 rounded-full bg-[#FF5F57]" />
           <div className="h-2 w-2 rounded-full bg-[#FEBC2E]" />

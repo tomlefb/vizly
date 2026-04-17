@@ -101,6 +101,11 @@ export function StepPersonalInfo({
 
   const bioLength = (data.bio ?? '').length
 
+  const inputBase =
+    'w-full h-10 rounded-[var(--radius-md)] border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-foreground focus-visible:border-foreground'
+  const textareaBase =
+    'w-full rounded-[var(--radius-md)] border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[72px] focus:outline-none focus:border-foreground focus-visible:border-foreground'
+
   return (
     <div
       className={cn(className)}
@@ -115,10 +120,10 @@ export function StepPersonalInfo({
           {/* Identité */}
           <section className="space-y-4">
             <div>
-              <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
-                Identite
-              </h2>
-              <p className="text-[13px] text-[#6B7280] mt-1">
+              <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+                Identité
+              </h3>
+              <p className="text-sm text-muted mt-1">
                 Les infos principales de ton portfolio
               </p>
             </div>
@@ -129,19 +134,19 @@ export function StepPersonalInfo({
                 <button
                   type="button"
                   onClick={() => photoInputRef.current?.click()}
-                  className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-[1.5px] border-dashed border-[#E5E7EB] bg-[#F9FAFB] transition-[border-color] duration-150 hover:border-[#D1D5DB]"
+                  className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-[1.5px] border-dashed border-border bg-surface-warm transition-colors duration-150 hover:border-muted-foreground"
                   aria-label="Choisir une photo de profil"
                 >
                   {photoPreview ? (
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={photoPreview} alt="Photo de profil" className="h-full w-full object-cover" />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors duration-150">
+                      <div className="absolute inset-0 flex items-center justify-center bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-150">
                         <Camera className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
                       </div>
                     </>
                   ) : (
-                    <Camera className="h-5 w-5 text-[#9CA3AF]" />
+                    <Camera className="h-5 w-5 text-muted-foreground" />
                   )}
                 </button>
                 <input
@@ -155,8 +160,8 @@ export function StepPersonalInfo({
                 />
               </div>
               <div className="flex-1 pt-5">
-                <label htmlFor={`${id}-title`} className="block text-sm text-[#6B7280] mb-1.5">
-                  Nom complet <span className="text-[#DC2626]">*</span>
+                <label htmlFor={`${id}-title`} className="mb-1.5 block text-sm font-medium text-foreground">
+                  Nom complet <span className="text-destructive">*</span>
                 </label>
                 <input
                   id={`${id}-title`}
@@ -166,15 +171,12 @@ export function StepPersonalInfo({
                   onChange={(e) => onChange('title', e.target.value)}
                   placeholder="Tom Lefebvre"
                   maxLength={100}
-                  className={cn(
-                    'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
-                    errors['title'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
-                  )}
+                  className={cn(inputBase, errors['title'] ? 'border-destructive' : 'border-border-light')}
                   aria-invalid={!!errors['title']}
                   aria-describedby={errors['title'] ? `${id}-title-error` : undefined}
                 />
                 {errors['title'] && (
-                  <p id={`${id}-title-error`} className="text-[13px] text-[#DC2626] mt-1" role="alert">
+                  <p id={`${id}-title-error`} className="mt-1 text-xs text-destructive" role="alert">
                     {errors['title']}
                   </p>
                 )}
@@ -183,7 +185,7 @@ export function StepPersonalInfo({
 
             {/* Bio */}
             <div>
-              <label htmlFor={`${id}-bio`} className="block text-sm text-[#6B7280] mb-1.5">
+              <label htmlFor={`${id}-bio`} className="mb-1.5 block text-sm font-medium text-foreground">
                 Bio
               </label>
               <textarea
@@ -194,18 +196,15 @@ export function StepPersonalInfo({
                 placeholder="Parle de toi en quelques lignes..."
                 maxLength={MAX_BIO_LENGTH}
                 rows={3}
-                className={cn(
-                  'w-full rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[72px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
-                  errors['bio'] ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
-                )}
+                className={cn(textareaBase, errors['bio'] ? 'border-destructive' : 'border-border-light')}
                 aria-invalid={!!errors['bio']}
                 aria-describedby={`${id}-bio-count`}
               />
               <p
                 id={`${id}-bio-count`}
                 className={cn(
-                  'text-[13px] text-right mt-1',
-                  bioLength > MAX_BIO_LENGTH * 0.9 ? 'text-[#DC2626]' : 'text-[#9CA3AF]'
+                  'mt-1 text-right text-xs',
+                  bioLength > MAX_BIO_LENGTH * 0.9 ? 'text-destructive' : 'text-muted-foreground'
                 )}
               >
                 {bioLength}/{MAX_BIO_LENGTH}
@@ -213,21 +212,21 @@ export function StepPersonalInfo({
             </div>
           </section>
 
-          <div className="border-b border-[#E5E7EB]" />
+          <div className="border-b border-border-light" />
 
           {/* Contact */}
           <section className="space-y-4">
             <div>
-              <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
+              <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
                 Contact
-              </h2>
-              <p className="text-[13px] text-[#6B7280] mt-1">
-                L&apos;email affiche sur ton portfolio
+              </h3>
+              <p className="text-sm text-muted mt-1">
+                L&apos;email affiché sur ton portfolio
               </p>
             </div>
 
             <div>
-              <label htmlFor={`${id}-email`} className="block text-sm text-[#6B7280] mb-1.5">
+              <label htmlFor={`${id}-email`} className="mb-1.5 block text-sm font-medium text-foreground">
                 Email de contact
               </label>
               <input
@@ -242,20 +241,20 @@ export function StepPersonalInfo({
                 onBlur={() => validateEmailOnBlur(data.contact_email ?? '')}
                 placeholder="contact@example.com"
                 className={cn(
-                  'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
+                  inputBase,
                   (errors['contact_email'] || fieldErrors['contact_email'])
-                    ? 'border-[#DC2626]'
-                    : 'border-[#E5E7EB]'
+                    ? 'border-destructive'
+                    : 'border-border-light'
                 )}
                 aria-invalid={!!(errors['contact_email'] || fieldErrors['contact_email'])}
                 aria-describedby={(errors['contact_email'] || fieldErrors['contact_email']) ? `${id}-email-error` : `${id}-email-hint`}
               />
               {(errors['contact_email'] || fieldErrors['contact_email']) ? (
-                <p id={`${id}-email-error`} className="text-[13px] text-[#DC2626] mt-1" role="alert">
+                <p id={`${id}-email-error`} className="mt-1 text-xs text-destructive" role="alert">
                   {errors['contact_email'] || fieldErrors['contact_email']}
                 </p>
               ) : (
-                <p id={`${id}-email-hint`} className="text-[13px] text-[#9CA3AF] mt-1">
+                <p id={`${id}-email-hint`} className="mt-1 text-xs text-muted">
                   Cet email sera visible sur ton portfolio.
                 </p>
               )}
@@ -269,10 +268,10 @@ export function StepPersonalInfo({
           {/* Compétences */}
           <section className="space-y-4">
             <div>
-              <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
-                Competences
-              </h2>
-              <p className="text-[13px] text-[#6B7280] mt-1">
+              <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+                Compétences
+              </h3>
+              <p className="text-sm text-muted mt-1">
                 Tes skills et technologies
               </p>
             </div>
@@ -284,16 +283,16 @@ export function StepPersonalInfo({
             />
           </section>
 
-          <div className="border-b border-[#E5E7EB]" />
+          <div className="border-b border-border-light" />
 
           {/* Réseaux sociaux */}
           <section className="space-y-4">
             <div>
-              <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
-                Reseaux sociaux
-              </h2>
-              <p className="text-[13px] text-[#6B7280] mt-1">
-                Tes liens pour etre retrouve
+              <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+                Réseaux sociaux
+              </h3>
+              <p className="text-sm text-muted mt-1">
+                Tes liens pour être retrouvé
               </p>
             </div>
 
@@ -307,7 +306,7 @@ export function StepPersonalInfo({
 
                 return (
                   <div key={platform}>
-                    <label htmlFor={`${id}-social-${platform}`} className="block text-sm text-[#6B7280] mb-1.5">
+                    <label htmlFor={`${id}-social-${platform}`} className="mb-1.5 block text-sm font-medium text-foreground">
                       {label}
                     </label>
                     <input
@@ -321,13 +320,10 @@ export function StepPersonalInfo({
                       }}
                       onBlur={() => validateUrlOnBlur(fieldKey, currentValue)}
                       placeholder={placeholder}
-                      className={cn(
-                        'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
-                        error ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
-                      )}
+                      className={cn(inputBase, error ? 'border-destructive' : 'border-border-light')}
                     />
                     {error && (
-                      <p className="text-[13px] text-[#DC2626] mt-1">{error}</p>
+                      <p className="mt-1 text-xs text-destructive">{error}</p>
                     )}
                   </div>
                 )
@@ -375,20 +371,20 @@ function SkillsInput({
 
   return (
     <div>
-      <label htmlFor={`${id}-skills`} className="block text-sm text-[#6B7280] mb-1.5">
-        Ajoute tes competences
+      <label htmlFor={`${id}-skills`} className="mb-1.5 block text-sm font-medium text-foreground">
+        Ajoute tes compétences
       </label>
-      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 min-h-[40px] transition-[border-color] duration-150 focus-within:border-[#D1D5DB] focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 min-h-[40px] transition-colors duration-150 focus-within:border-foreground">
         {skills.map((skill) => (
           <span
             key={skill}
-            className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-[#F3F4F6] text-[#111827] rounded-[6px] text-[13px]"
+            className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-surface-sunken text-foreground rounded-[var(--radius-sm)] text-xs font-medium"
           >
             {skill}
             <button
               type="button"
               onClick={() => removeSkill(skill)}
-              className="flex h-3.5 w-3.5 items-center justify-center text-[#9CA3AF] hover:text-[#111827] transition-colors"
+              className="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               aria-label={`Supprimer ${skill}`}
             >
               <X className="h-2.5 w-2.5" />
@@ -412,12 +408,12 @@ function SkillsInput({
               }
             }}
             placeholder={skills.length === 0 ? 'React, Figma, TypeScript...' : 'Ajouter...'}
-            className="flex-1 min-w-[100px] bg-transparent text-[13px] text-[#111827] placeholder:text-[#9CA3AF] outline-none"
+            className="flex-1 min-w-[100px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
         )}
       </div>
-      <div className="flex justify-between text-[13px] text-[#9CA3AF] mt-1">
-        <span>Appuie sur Entree pour ajouter</span>
+      <div className="mt-1 flex justify-between text-xs text-muted-foreground">
+        <span>Appuie sur Entrée pour ajouter</span>
         <span>{skills.length}/30</span>
       </div>
     </div>

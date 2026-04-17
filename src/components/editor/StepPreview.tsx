@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { Eye, ArrowLeft, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzBtn } from '@/components/ui/vizly'
 import { templateMap } from '@/components/templates'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import type { TemplateProps } from '@/types'
@@ -63,22 +64,22 @@ export function StepPreview({
     <div className={cn('space-y-6', className)} data-testid="step-preview">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-accent/10 mx-auto">
-          <Eye className="h-6 w-6 text-accent" />
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-surface-sunken mx-auto">
+          <Eye className="h-6 w-6 text-foreground" strokeWidth={1.5} />
         </div>
-        <h2 className="text-xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          Voici a quoi ressemblera ton portfolio
+        <h2 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)] tracking-tight">
+          Voici à quoi ressemblera ton portfolio
         </h2>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          Template : <span className="font-medium capitalize">{data.template}</span>.
+        <p className="text-sm text-muted max-w-md mx-auto">
+          Template : <span className="font-medium capitalize text-foreground">{data.template}</span>.
           Tu peux toujours revenir modifier.
         </p>
       </div>
 
       {/* Actual template rendering */}
-      <div className="rounded-[var(--radius-xl)] border border-border overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+      <div className="rounded-[var(--radius-lg)] border border-border-light overflow-hidden">
         {/* Browser chrome */}
-        <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-4 py-2.5">
+        <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-4 py-2.5">
           <div className="flex gap-1.5">
             <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
             <div className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
@@ -101,22 +102,14 @@ export function StepPreview({
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-2">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-surface-warm active:scale-[0.98]"
-        >
+        <VzBtn variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          Retour a l&apos;edition
-        </button>
-        <button
-          type="button"
-          onClick={onContinue}
-          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]"
-        >
+          Retour à l&apos;édition
+        </VzBtn>
+        <VzBtn variant="primary" onClick={onContinue}>
           Continuer vers la publication
           <ArrowRight className="h-4 w-4" />
-        </button>
+        </VzBtn>
       </div>
     </div>
   )

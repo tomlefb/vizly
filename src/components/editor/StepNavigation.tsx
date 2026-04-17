@@ -2,8 +2,9 @@
 
 import { useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzBtn } from '@/components/ui/vizly'
 
 const STEP_KEYS = [
   { id: 1, key: 'steps.profile' },
@@ -62,15 +63,19 @@ export function StepNavigation({
                 >
                   <div
                     className={cn(
-                      'h-2.5 w-2.5 rounded-full transition-colors duration-150',
-                      isCurrent || isPast || isCompleted
-                        ? 'bg-accent'
-                        : 'border-2 border-[#E5E7EB] bg-white',
+                      'flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold transition-colors duration-150',
+                      isPast || isCompleted
+                        ? 'bg-accent text-accent-fg'
+                        : isCurrent
+                          ? 'border-2 border-foreground bg-surface text-foreground'
+                          : 'border-2 border-border-light bg-surface text-muted-foreground',
                     )}
-                  />
+                  >
+                    {(isPast || isCompleted) ? <Check className="h-3 w-3" strokeWidth={2.5} /> : step.id}
+                  </div>
                   <span className={cn(
-                    'text-[12px] font-medium whitespace-nowrap',
-                    isCurrent ? 'text-[#111827]' : isPast || isCompleted ? 'text-[#111827]' : 'text-[#9CA3AF]',
+                    'text-[12px] whitespace-nowrap',
+                    isCurrent ? 'text-foreground font-medium' : isPast || isCompleted ? 'text-foreground' : 'text-muted',
                   )}>
                     {step.label}
                   </span>
@@ -78,8 +83,8 @@ export function StepNavigation({
                 {index < STEPS.length - 1 && (
                   <div
                     className={cn(
-                      'flex-1 h-0.5 mx-2 transition-colors duration-150',
-                      isPast || isCompleted ? 'bg-accent' : 'bg-[#E5E7EB]',
+                      'flex-1 h-0.5 mx-2 transition-colors duration-150 mb-5',
+                      isPast || isCompleted ? 'bg-accent' : 'bg-border-light',
                     )}
                     aria-hidden="true"
                   />
@@ -91,37 +96,31 @@ export function StepNavigation({
       </nav>
 
       {/* Bottom navigation buttons */}
-      <div className="flex items-center justify-end gap-3 pt-6 px-1 border-t border-[#E5E7EB]">
+      <div className="flex items-center justify-end gap-3 pt-6 px-1 border-t border-border-light">
         {!isFirst && (
-          <button
-            type="button"
+          <VzBtn
+            variant="ghost"
+            size="sm"
             data-testid="step-prev"
             onClick={onPrevious}
-            className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors duration-150"
             aria-label={t('nav.previousStep')}
           >
             {t('nav.previous')}
-          </button>
+          </VzBtn>
         )}
 
-        <button
-          type="button"
+        <VzBtn
+          variant="primary"
           data-testid="step-next"
           onClick={onNext}
           disabled={isLast || !canGoNext}
-          className={cn(
-            'inline-flex items-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
-            isLast || !canGoNext
-              ? 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
-              : 'bg-accent text-white hover:bg-accent-hover'
-          )}
           aria-label={isLast ? t('nav.lastStep') : t('nav.nextStep')}
         >
           <span className="hidden sm:inline">
             {isLast ? t('steps.publish') : t('nav.next')}
           </span>
           {!isLast && <ArrowRight className="h-4 w-4" />}
-        </button>
+        </VzBtn>
       </div>
     </div>
   )

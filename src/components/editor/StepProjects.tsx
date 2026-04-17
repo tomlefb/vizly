@@ -2,13 +2,13 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import {
-  Plus,
   GripVertical,
   Pencil,
   Trash2,
   ImageIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzBtn } from '@/components/ui/vizly'
 import { ProjectForm } from './ProjectForm'
 import { ImageUploader } from './ImageUploader'
 import type { ProjectFormData } from '@/lib/validations'
@@ -177,10 +177,10 @@ export function StepProjects({
         {/* ── Left: Text fields ── */}
         <div className="flex-1 space-y-4">
           <div>
-            <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
+            <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
               {isEditing ? 'Modifier le projet' : 'Nouveau projet'}
-            </h2>
-            <p className="text-[13px] text-[#6B7280] mt-1">
+            </h3>
+            <p className="text-sm text-muted mt-1">
               {isEditing ? 'Modifie les informations de ton projet' : 'Ajoute un projet à ton portfolio'}
             </p>
           </div>
@@ -192,27 +192,17 @@ export function StepProjects({
           />
 
           <div className="flex items-center gap-3 pt-1">
-            <button
-              type="button"
+            <VzBtn
+              variant="primary"
               onClick={handleSave}
               disabled={!editingProject.title.trim()}
-              className={cn(
-                'h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
-                editingProject.title.trim()
-                  ? 'bg-accent text-white hover:bg-accent-hover'
-                  : 'bg-accent/50 text-white/60 cursor-not-allowed'
-              )}
             >
               {isEditing ? 'Enregistrer' : 'Ajouter le projet'}
-            </button>
+            </VzBtn>
             {isEditing && (
-              <button
-                type="button"
-                onClick={resetToNew}
-                className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors duration-150"
-              >
+              <VzBtn variant="ghost" size="sm" onClick={resetToNew}>
                 Annuler
-              </button>
+              </VzBtn>
             )}
           </div>
         </div>
@@ -222,11 +212,11 @@ export function StepProjects({
 
           {/* Images */}
           <div>
-            <h2 className="text-[18px] font-semibold leading-7 text-[#111827]">
+            <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
               Images
-            </h2>
-            <p className="text-[13px] text-[#6B7280] mt-1 mb-3">
-              {isUploadingImages ? 'Upload en cours...' : 'Ajoute jusqu\u2019a 5 images'}
+            </h3>
+            <p className="mb-3 mt-1 text-sm text-muted">
+              {isUploadingImages ? 'Upload en cours…' : 'Ajoute jusqu\u2019à 5 images'}
             </p>
             <ImageUploader
               images={localFiles}
@@ -237,19 +227,19 @@ export function StepProjects({
             />
           </div>
 
-          <div className="border-b border-[#E5E7EB]" />
+          <div className="border-b border-border-light" />
 
           {/* Project list */}
           <div>
-            <h2 className="text-[18px] font-semibold leading-7 text-[#111827] mb-3">
+            <h3 className="mb-3 text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
               {projects.length > 0
                 ? `${projects.length} projet${projects.length > 1 ? 's' : ''}`
                 : 'Tes projets'}
-            </h2>
+            </h3>
 
             {projects.length === 0 ? (
-              <div className="flex items-center justify-center rounded-xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] py-10">
-                <p className="text-[13px] text-[#9CA3AF]">Tes projets apparaitront ici</p>
+              <div className="flex items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-border-light bg-surface-warm py-10">
+                <p className="text-sm text-muted-foreground">Tes projets apparaîtront ici</p>
               </div>
             ) : (
               <div className="space-y-2" data-testid="project-list" role="list">
@@ -263,32 +253,32 @@ export function StepProjects({
                     onDrop={() => handleDrop(index)}
                     onDragEnd={handleDragEnd}
                     className={cn(
-                      'group relative flex items-center gap-2.5 rounded-xl border bg-white p-3 cursor-grab active:cursor-grabbing transition-[border-color] duration-150',
+                      'group relative flex items-center gap-2.5 rounded-[var(--radius-md)] border bg-surface p-3 cursor-grab active:cursor-grabbing transition-colors duration-150',
                       editingIndex === index || dragOverIndex === index
-                        ? 'border-[#D1D5DB]'
-                        : 'border-[#E5E7EB]',
+                        ? 'border-foreground'
+                        : 'border-border-light hover:border-border',
                     )}
                   >
-                    <div className="shrink-0 text-[#E5E7EB] group-hover:text-[#9CA3AF] transition-colors">
-                      <GripVertical className="h-3.5 w-3.5" />
+                    <div className="shrink-0 text-border-light group-hover:text-muted-foreground transition-colors">
+                      <GripVertical className="h-3.5 w-3.5" strokeWidth={1.5} />
                     </div>
 
                     {/* Thumbnail */}
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] overflow-hidden flex items-center justify-center">
+                    <div className="shrink-0 h-10 w-10 rounded-[var(--radius-sm)] bg-surface-warm border border-border-light overflow-hidden flex items-center justify-center">
                       {project.images.length > 0 ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img src={project.images[0]} alt="" className="h-full w-full object-cover" />
                       ) : (
-                        <ImageIcon className="h-3.5 w-3.5 text-[#D1D5DB]" />
+                        <ImageIcon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#111827] truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {project.title || 'Sans titre'}
                       </p>
                       {project.tags.length > 0 && (
-                        <p className="text-[12px] text-[#9CA3AF] truncate mt-0.5">
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
                           {project.tags.slice(0, 3).join(', ')}
                           {project.tags.length > 3 && ` +${project.tags.length - 3}`}
                         </p>
@@ -299,18 +289,18 @@ export function StepProjects({
                       <button
                         type="button"
                         onClick={() => openEditProject(index)}
-                        className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors"
                         aria-label={`Modifier ${project.title}`}
                       >
-                        <Pencil className="h-3 w-3" />
+                        <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(index)}
-                        className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:text-[#DC2626] hover:bg-[#F3F4F6] transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors"
                         aria-label={`Supprimer ${project.title}`}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                       </button>
                     </div>
                   </div>

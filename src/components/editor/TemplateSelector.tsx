@@ -40,22 +40,22 @@ function FreeTemplateCard({ name, label, idealFor, isSelected, onSelect }: {
       data-testid={`template-card-${name}`}
       onClick={() => onSelect(name)}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
+        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border bg-surface text-left transition-all duration-200',
         isSelected
-          ? 'border-accent border-[3px] shadow-[0_4px_16px_rgba(212,99,78,0.15)]'
-          : 'border-border hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]'
+          ? 'border-[1.5px] border-foreground shadow-[var(--shadow-offset-accent-2)]'
+          : 'border-border-light hover:border-border hover:shadow-[var(--shadow-card-hover)]'
       )}
     >
       <div className="relative w-full overflow-hidden" style={{ minHeight: '160px' }}>
         <TemplatePreview templateName={name} templateProps={demoProps} scale={0.18} height="100%" />
         {isSelected && (
-          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent shadow-sm">
-            <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent">
+            <Check className="h-3 w-3 text-accent-fg" strokeWidth={2.5} />
           </div>
         )}
       </div>
       <div className="p-2.5 bg-surface">
-        <p className="text-[12px] font-semibold text-foreground">{label}</p>
+        <p className="text-xs font-semibold text-foreground">{label}</p>
         <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{idealFor}</p>
       </div>
     </button>
@@ -72,28 +72,28 @@ function PremiumTemplateCard({ name, label, idealFor, isSelected, isLocked, onSe
       data-testid={`template-card-${name}`}
       onClick={() => onSelect(name)}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border text-left transition-all duration-200',
+        'group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border bg-surface text-left transition-all duration-200',
         isSelected
-          ? 'border-accent border-[3px] shadow-[0_4px_16px_rgba(212,99,78,0.15)]'
-          : 'border-border hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]'
+          ? 'border-[1.5px] border-foreground shadow-[var(--shadow-offset-accent-2)]'
+          : 'border-border-light hover:border-border hover:shadow-[var(--shadow-card-hover)]'
       )}
     >
       <div className="relative w-full overflow-hidden" style={{ minHeight: '160px' }}>
         <TemplatePreview templateName={name} templateProps={demoProps} scale={0.18} height="100%" />
         {/* Premium badge — discrete top left */}
-        <div className="absolute top-2 left-2 rounded-full bg-foreground/70 px-2 py-0.5 backdrop-blur-sm">
-          <span className="text-[9px] font-semibold text-white">Premium</span>
+        <div className="absolute top-2 left-2 rounded-full bg-foreground/80 px-2 py-0.5 backdrop-blur-sm">
+          <span className="text-[9px] font-semibold uppercase tracking-wider text-white">{isLocked ? 'Premium' : 'Acheté'}</span>
         </div>
         {isSelected && (
-          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent shadow-sm">
-            <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent">
+            <Check className="h-3 w-3 text-accent-fg" strokeWidth={2.5} />
           </div>
         )}
       </div>
       <div className="p-2.5 bg-surface">
         <div className="flex items-center gap-1.5">
-          <p className="text-[12px] font-semibold text-foreground">{label}</p>
-          <span className="rounded-full bg-accent-light px-1.5 py-px text-[9px] font-semibold text-accent">2.99€</span>
+          <p className="text-xs font-semibold text-foreground">{label}</p>
+          <span className="rounded-full bg-accent-light px-1.5 py-px text-[9px] font-semibold text-accent-deep">2,99 €</span>
         </div>
         <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{idealFor}</p>
       </div>
@@ -121,7 +121,7 @@ export function TemplateSelector({
     <div className={cn('space-y-6', className)} data-testid="template-selector">
       {/* Free templates */}
       <div>
-        <h3 className="text-[13px] font-semibold text-muted uppercase tracking-wide mb-3">
+        <h3 className="mb-3 text-xs font-semibold text-muted uppercase tracking-wider">
           Templates gratuits
         </h3>
         <div className="grid grid-cols-2 gap-4">
@@ -140,7 +140,7 @@ export function TemplateSelector({
 
       {/* Premium templates */}
       <div>
-        <h3 className="text-[13px] font-semibold text-muted uppercase tracking-wide mb-3">
+        <h3 className="mb-3 text-xs font-semibold text-muted uppercase tracking-wider">
           Templates premium
         </h3>
         <div className="grid grid-cols-2 gap-4">

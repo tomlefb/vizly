@@ -42,7 +42,7 @@ function FontDropdown({ label, value, onChange }: FontDropdownProps) {
 
   return (
     <div ref={containerRef} className="space-y-1.5">
-      <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+      <label className="block text-sm font-medium text-foreground">
         {label}
       </label>
       <div className="relative">
@@ -55,10 +55,10 @@ function FontDropdown({ label, value, onChange }: FontDropdownProps) {
             }
           }}
           className={cn(
-            'flex w-full items-center justify-between rounded-[var(--radius-md)] border px-3 py-2.5 text-left transition-all duration-150',
+            'flex w-full items-center justify-between rounded-[var(--radius-md)] border bg-surface px-3 py-2.5 text-left transition-colors duration-150',
             open
-              ? 'border-accent ring-2 ring-accent/20'
-              : 'border-border bg-surface hover:border-border-light'
+              ? 'border-foreground'
+              : 'border-border-light hover:border-border'
           )}
         >
           <div className="min-w-0 flex-1">
@@ -66,7 +66,7 @@ function FontDropdown({ label, value, onChange }: FontDropdownProps) {
               {value}
             </p>
             {selectedFont && (
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {selectedFont.style}
               </p>
             )}
@@ -75,7 +75,7 @@ function FontDropdown({ label, value, onChange }: FontDropdownProps) {
         </button>
 
         {open && (
-          <div className="absolute z-20 mt-1 w-full rounded-[var(--radius-md)] border border-border bg-background shadow-lg max-h-60 overflow-y-auto">
+          <div className="absolute z-20 mt-1 w-full rounded-[var(--radius-md)] border border-border-light bg-surface shadow-[var(--shadow-card-hover)] max-h-60 overflow-y-auto">
             {AVAILABLE_FONTS.map((font) => {
               const isSelected = value === font.name
               return (
@@ -87,18 +87,18 @@ function FontDropdown({ label, value, onChange }: FontDropdownProps) {
                   className={cn(
                     'flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
                     isSelected
-                      ? 'bg-accent/5 text-foreground'
+                      ? 'bg-surface-sunken text-foreground'
                       : 'hover:bg-surface-warm text-foreground'
                   )}
                 >
                   <span className="text-sm flex-1 truncate" style={{ fontFamily: font.family }}>
                     {font.name}
                   </span>
-                  <span className="text-[11px] text-muted-foreground shrink-0">
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {font.style}
                   </span>
                   {isSelected && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-foreground shrink-0" />
                   )}
                 </button>
               )

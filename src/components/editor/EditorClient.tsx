@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { VzBtn } from '@/components/ui/vizly'
 import { useImageUpload } from '@/hooks/useImageUpload'
 import { useEditorAutoSave, type SaveStatus } from '@/hooks/useEditorAutoSave'
 import { useEditorState } from '@/hooks/useEditorState'
@@ -95,16 +95,14 @@ export function EditorClient({
               <span className="text-xs text-muted-foreground">
                 {t('templatePremium', { label: editor.selectedTemplateConfig.label })}
               </span>
-              <button
-                type="button"
-                onClick={() => void editor.handleTemplatePurchase(editor.selectedTemplateConfig!.name)}
+              <VzBtn
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  const cfg = editor.selectedTemplateConfig
+                  if (cfg) void editor.handleTemplatePurchase(cfg.name)
+                }}
                 disabled={editor.checkoutLoading}
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-semibold transition-all duration-200',
-                  editor.checkoutLoading
-                    ? 'bg-accent/40 text-white/60 cursor-not-allowed'
-                    : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_2px_8px_rgba(212,99,78,0.2)]'
-                )}
               >
                 {editor.checkoutLoading ? (
                   <>
@@ -114,7 +112,7 @@ export function EditorClient({
                 ) : (
                   t('buyTemplate')
                 )}
-              </button>
+              </VzBtn>
             </div>
           ) : undefined
         }
