@@ -111,7 +111,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                   templateName={selected.template}
                   templateProps={selected.templateProps}
                   scale={0.35}
-                  height="180px"
+                  height="210px"
                 />
               </div>
 
@@ -156,10 +156,13 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                   </p>
                 )}
               </div>
+
+              {/* Bar chart sous les sources */}
+              <DailyChart days={selected.dailyViews} />
             </div>
 
             {/* ─── Droite : KPIs ─── */}
-            <div className="divide-y divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
+            <div className="divide-y divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border self-start">
               <KpiRow label="Vues totales" value={selected.totalViews} />
               <KpiRow
                 label="30 derniers jours"
@@ -169,9 +172,6 @@ export function StatsClient({ portfolios }: StatsClientProps) {
               <KpiRow label="Aujourd'hui" value={selected.viewsToday} />
             </div>
           </div>
-
-          {/* ─── Bar chart ─── */}
-          <DailyChart days={selected.dailyViews} />
         </>
       )}
     </div>
@@ -242,58 +242,82 @@ function DailyChart({
   days: Array<{ date: string; count: number }>
 }) {
   const maxCount = Math.max(...days.map((d) => d.count), 1)
-  const chartHeight = 100
+
+  const ySteps = buildYScale(maxCount)
 
   return (
-    <div className="mt-8">
+    <div className="mt-6">
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-sm font-medium text-foreground">Vues par jour</h2>
         <span className="text-xs text-muted">30 derniers jours</span>
       </div>
 
-      <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4">
-        <div className="flex items-end gap-[3px]" style={{ height: chartHeight }}>
-          {days.map((day) => {
-            const barH =
-              day.count > 0
-                ? Math.max(3, Math.round((day.count / maxCount) * chartHeight))
-                : 0
-            const date = new Date(day.date + 'T00:00:00')
-            const label = `${date.getDate()}/${date.getMonth() + 1}`
-            return (
-              <div
-                key={day.date}
-                className="group relative flex-1"
+      <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4 pl-2">
+        <div className="flex">
+          {/* Y axis */}
+          <div className="flex w-7 shrink-0 flex-col-reverse justify-between pr-2 pb-5">
+            {ySteps.map((v) => (
+              <span
+                key={v}
+                className="text-right text-[9px] leading-none text-muted tabular-nums"
               >
-                <div
-                  className="w-full rounded-t-[2px] bg-accent/25 transition-colors group-hover:bg-accent/50"
-                  style={{ height: barH }}
-                />
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
-                  {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
-                </div>
-              </div>
-            )
-          })}
-        </div>
+                {v}
+              </span>
+            ))}
+          </div>
 
-        <div className="mt-2 flex gap-[3px]">
-          {days.map((day, i) => {
-            const date = new Date(day.date + 'T00:00:00')
-            const showLabel =
-              i === 0 || i === days.length - 1 || i % 7 === 0
-            return (
-              <div key={day.date} className="flex-1 text-center">
-                {showLabel && (
-                  <span className="text-[9px] text-muted tabular-nums">
-                    {date.getDate()}/{date.getMonth() + 1}
-                  </span>
-                )}
-              </div>
-            )
-          })}
+          {/* Bars + X axis */}
+          <div className="flex-1">
+            <div className="flex items-end gap-[3px]" style={{ height: 120 }}>
+              {days.map((day) => {
+                const barH =
+                  day.count > 0
+                    ? Math.max(3, Math.round((day.count / maxCount) * 120))
+                    : 0
+                const date = new Date(day.date + 'T00:00:00')
+                const label = `${date.getDate()}/${date.getMonth() + 1}`
+                return (
+                  <div key={day.date} className="group relative flex-1">
+                    <div
+                      className="w-full rounded-t-[2px] bg-accent/25 transition-colors group-hover:bg-accent/50"
+                      style={{ height: barH }}
+                    />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
+                      {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="mt-1.5 flex gap-[3px]">
+              {days.map((day, i) => {
+                const date = new Date(day.date + 'T00:00:00')
+                const showLabel =
+                  i === 0 || i === days.length - 1 || i % 7 === 0
+                return (
+                  <div key={day.date} className="flex-1 text-center">
+                    {showLabel && (
+                      <span className="text-[9px] text-muted tabular-nums">
+                        {date.getDate()}/{date.getMonth() + 1}
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
+}
+
+function buildYScale(max: number): number[] {
+  if (max <= 5) return [0, Math.ceil(max / 2), max]
+  const step = Math.ceil(max / 4)
+  const steps: number[] = [0]
+  for (let v = step; v < max; v += step) steps.push(v)
+  steps.push(max)
+  return steps
 }
