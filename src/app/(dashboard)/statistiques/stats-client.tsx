@@ -6,8 +6,6 @@ import { cn } from '@/lib/utils'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import type { TemplateProps } from '@/types'
 
-// ── Types ──
-
 export interface PortfolioStats {
   id: string
   title: string
@@ -26,8 +24,6 @@ export interface PortfolioStats {
 interface StatsClientProps {
   portfolios: PortfolioStats[]
 }
-
-// ── Component ──
 
 export function StatsClient({ portfolios }: StatsClientProps) {
   const publishedPortfolios = useMemo(
@@ -73,7 +69,6 @@ export function StatsClient({ portfolios }: StatsClientProps) {
     <div>
       <Header />
 
-      {/* ─── Sélecteur de projet ─── */}
       <div className="flex flex-wrap gap-2">
         {publishedPortfolios.map((p) => (
           <button
@@ -94,155 +89,91 @@ export function StatsClient({ portfolios }: StatsClientProps) {
 
       {selected && (
         <>
-        <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_3fr]">
-          {/* ─── Gauche : preview + sources ─── */}
-          <div className="min-w-0 space-y-6">
-            <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border">
-              <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
-                <div className="flex gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
-                </div>
-                <div className="flex flex-1 justify-center">
-                  <div className="max-w-[180px] truncate rounded-[2px] border border-border-light bg-background px-2 py-px font-mono text-[9px] text-muted">
-                    {selected.slug
-                      ? `${selected.slug}.vizly.fr`
-                      : 'Non publié'}
+          <div className="mt-8 grid items-start gap-8 lg:grid-cols-[2fr_3fr]">
+            {/* ─── Gauche : preview + sources ─── */}
+            <div className="min-w-0 space-y-6">
+              <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border">
+                <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
+                  <div className="flex gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                  </div>
+                  <div className="flex flex-1 justify-center">
+                    <div className="max-w-[180px] truncate rounded-[2px] border border-border-light bg-background px-2 py-px font-mono text-[9px] text-muted">
+                      {selected.slug
+                        ? `${selected.slug}.vizly.fr`
+                        : 'Non publié'}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <TemplatePreview
-                templateName={selected.template}
-                templateProps={selected.templateProps}
-                scale={0.35}
-                height="180px"
-              />
-            </div>
-
-            <div>
-              <div className="flex items-baseline justify-between gap-4">
-                <h2 className="text-sm font-medium text-foreground">
-                  Sources
-                </h2>
-                <span className="text-xs text-muted">30 derniers jours</span>
-              </div>
-
-              {selected.sources.length > 0 ? (
-                <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border-light bg-surface-warm">
-                        <th className="px-4 py-2 text-left text-xs font-medium text-muted">
-                          Source
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-muted">
-                          Visiteurs
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border-light">
-                      {selected.sources.map((s) => (
-                        <tr key={s.source}>
-                          <td className="px-4 py-2.5 text-foreground">
-                            {s.source}
-                          </td>
-                          <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
-                            {s.count.toLocaleString('fr-FR')}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="mt-4 text-sm text-muted">
-                  Pas encore de données sur les sources.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* ─── Droite : KPIs en colonne ─── */}
-          <div className="divide-y divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
-            <KpiRow label="Vues totales" value={selected.totalViews} />
-            <KpiRow
-              label="30 derniers jours"
-              value={selected.viewsLast30}
-              trend={trendPercent}
-            />
-            <KpiRow label="Aujourd'hui" value={selected.viewsToday} />
-          </div>
-        </div>
-
-        {/* ─── Bar chart : vues par jour (30j) ─── */}
-        <DailyChart days={selected.dailyViews} />
-        </>
-      )}
-    </div>
-  )
-}
-
-// ── Sub-components ──
-
-function DailyChart({
-  days,
-}: {
-  days: Array<{ date: string; count: number }>
-}) {
-  const maxCount = Math.max(...days.map((d) => d.count), 1)
-
-  return (
-    <div className="mt-8">
-      <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-sm font-medium text-foreground">
-          Vues par jour
-        </h2>
-        <span className="text-xs text-muted">30 derniers jours</span>
-      </div>
-
-      <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface px-4 py-4">
-        <div className="flex items-end gap-[3px]" style={{ height: 120 }}>
-          {days.map((day) => {
-            const heightPct = maxCount > 0 ? (day.count / maxCount) * 100 : 0
-            const date = new Date(day.date)
-            const label = `${date.getDate()}/${date.getMonth() + 1}`
-            return (
-              <div
-                key={day.date}
-                className="group relative flex-1"
-                style={{ height: '100%' }}
-              >
-                <div className="absolute inset-x-0 bottom-0 rounded-[2px] bg-accent/20 transition-colors group-hover:bg-accent/40"
-                  style={{
-                    height: `${Math.max(heightPct, day.count > 0 ? 4 : 0)}%`,
-                  }}
+                <TemplatePreview
+                  templateName={selected.template}
+                  templateProps={selected.templateProps}
+                  scale={0.35}
+                  height="180px"
                 />
-                <div className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
-                  {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
-                </div>
               </div>
-            )
-          })}
-        </div>
 
-        {/* X-axis labels — show every 5th day */}
-        <div className="mt-2 flex gap-[3px]">
-          {days.map((day, i) => {
-            const date = new Date(day.date)
-            const showLabel = i % 5 === 0 || i === days.length - 1
-            return (
-              <div key={day.date} className="flex-1 text-center">
-                {showLabel && (
-                  <span className="text-[9px] text-muted tabular-nums">
-                    {date.getDate()}/{date.getMonth() + 1}
-                  </span>
+              <div>
+                <div className="flex items-baseline justify-between gap-4">
+                  <h2 className="text-sm font-medium text-foreground">
+                    Sources
+                  </h2>
+                  <span className="text-xs text-muted">30 derniers jours</span>
+                </div>
+
+                {selected.sources.length > 0 ? (
+                  <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border-light bg-surface-warm">
+                          <th className="px-4 py-2 text-left text-xs font-medium text-muted">
+                            Source
+                          </th>
+                          <th className="px-4 py-2 text-right text-xs font-medium text-muted">
+                            Visiteurs
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-light">
+                        {selected.sources.map((s) => (
+                          <tr key={s.source}>
+                            <td className="px-4 py-2.5 text-foreground">
+                              {s.source}
+                            </td>
+                            <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
+                              {s.count.toLocaleString('fr-FR')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-muted">
+                    Pas encore de données sur les sources.
+                  </p>
                 )}
               </div>
-            )
-          })}
-        </div>
-      </div>
+            </div>
+
+            {/* ─── Droite : KPIs ─── */}
+            <div className="divide-y divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border">
+              <KpiRow label="Vues totales" value={selected.totalViews} />
+              <KpiRow
+                label="30 derniers jours"
+                value={selected.viewsLast30}
+                trend={trendPercent}
+              />
+              <KpiRow label="Aujourd'hui" value={selected.viewsToday} />
+            </div>
+          </div>
+
+          {/* ─── Bar chart ─── */}
+          <DailyChart days={selected.dailyViews} />
+        </>
+      )}
     </div>
   )
 }
@@ -301,6 +232,68 @@ function KpiRow({
       <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold text-foreground tabular-nums">
         {value.toLocaleString('fr-FR')}
       </p>
+    </div>
+  )
+}
+
+function DailyChart({
+  days,
+}: {
+  days: Array<{ date: string; count: number }>
+}) {
+  const maxCount = Math.max(...days.map((d) => d.count), 1)
+  const chartHeight = 100
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-sm font-medium text-foreground">Vues par jour</h2>
+        <span className="text-xs text-muted">30 derniers jours</span>
+      </div>
+
+      <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4">
+        <div className="flex items-end gap-[3px]" style={{ height: chartHeight }}>
+          {days.map((day) => {
+            const barH =
+              day.count > 0
+                ? Math.max(3, Math.round((day.count / maxCount) * chartHeight))
+                : 0
+            const date = new Date(day.date + 'T00:00:00')
+            const label = `${date.getDate()}/${date.getMonth() + 1}`
+            return (
+              <div
+                key={day.date}
+                className="group relative flex-1"
+              >
+                <div
+                  className="w-full rounded-t-[2px] bg-accent/25 transition-colors group-hover:bg-accent/50"
+                  style={{ height: barH }}
+                />
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
+                  {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="mt-2 flex gap-[3px]">
+          {days.map((day, i) => {
+            const date = new Date(day.date + 'T00:00:00')
+            const showLabel =
+              i === 0 || i === days.length - 1 || i % 7 === 0
+            return (
+              <div key={day.date} className="flex-1 text-center">
+                {showLabel && (
+                  <span className="text-[9px] text-muted tabular-nums">
+                    {date.getDate()}/{date.getMonth() + 1}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
