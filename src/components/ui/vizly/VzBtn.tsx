@@ -42,6 +42,36 @@ const VARIANT_CLASSES: Record<VzBtnVariant, string> = {
     'bg-transparent text-destructive border border-destructive/30 rounded-[var(--radius-md)] hover:bg-destructive/5',
 }
 
+const BASE_CLASSES =
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-[family-name:var(--font-satoshi)] font-semibold transition-all duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-50 disabled:pointer-events-none'
+
+/**
+ * Helper returning the full set of classes for a given variant/size.
+ * Useful when the caller needs to apply Vizly button styles to a non-button
+ * element (e.g. a Next.js `<Link>` rendering an `<a>` tag) — since VzBtn
+ * itself renders a `<button>`, and `<a><button>` is invalid HTML, callers
+ * needing "button-looking link" behavior should apply `vzBtnClasses(...)`
+ * to a `<Link>` directly.
+ */
+export function vzBtnClasses({
+  variant = 'primary',
+  size = 'md',
+  className,
+}: {
+  variant?: VzBtnVariant
+  size?: VzBtnSize
+  className?: string
+} = {}): string {
+  const shadowClass = variant === 'primary' ? primaryShadowClasses(size) : ''
+  return cn(
+    BASE_CLASSES,
+    SIZE_CLASSES[size],
+    VARIANT_CLASSES[variant],
+    shadowClass,
+    className,
+  )
+}
+
 /**
  * Vizly primary button (Handcrafted direction).
  * Black body + lime offset shadow + press shift on hover.
@@ -59,18 +89,11 @@ export const VzBtn = forwardRef<HTMLButtonElement, VzBtnProps>(function VzBtn(
   }: VzBtnProps,
   ref: ForwardedRef<HTMLButtonElement>,
 ) {
-  const base =
-    'inline-flex items-center justify-center gap-2 whitespace-nowrap font-[family-name:var(--font-satoshi)] font-semibold transition-all duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] disabled:opacity-50 disabled:pointer-events-none'
-
-  const variantClass = VARIANT_CLASSES[variant]
-  const sizeClass = SIZE_CLASSES[size]
-  const shadowClass = variant === 'primary' ? primaryShadowClasses(size) : ''
-
   return (
     <button
       ref={ref}
       type={type ?? 'button'}
-      className={cn(base, sizeClass, variantClass, shadowClass, className)}
+      className={vzBtnClasses({ variant, size, className })}
       {...rest}
     >
       {children}

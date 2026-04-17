@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { Logo } from '@/components/shared/Logo'
+import { VzLogo, vzBtnClasses } from '@/components/ui/vizly'
 import { createClient } from '@/lib/supabase/client'
 
 export function Header() {
@@ -33,15 +33,13 @@ export function Header() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border-light">
       <nav
         className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8"
         aria-label="Navigation principale"
       >
         {/* Logo */}
-        <Link href="/" className="shrink-0" aria-label={t('home')}>
-          <Logo size="md" />
-        </Link>
+        <VzLogo href="/" size={22} />
 
         {/* Desktop nav */}
         <ul className="hidden md:flex items-center gap-8">
@@ -65,7 +63,7 @@ export function Header() {
           ) : isLoggedIn ? (
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+              className={vzBtnClasses({ variant: 'primary', size: 'sm' })}
             >
               {t('dashboard')}
             </Link>
@@ -79,7 +77,7 @@ export function Header() {
               </Link>
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+                className={vzBtnClasses({ variant: 'primary', size: 'sm' })}
               >
                 {t('register')}
               </Link>
@@ -104,7 +102,7 @@ export function Header() {
       <div
         id="mobile-menu"
         className={cn(
-          'md:hidden overflow-hidden border-b border-border bg-background transition-all duration-300 ease-out',
+          'md:hidden overflow-hidden border-b border-border-light bg-background transition-all duration-300 ease-out',
           mobileOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         )}
         aria-hidden={!mobileOpen}
@@ -124,14 +122,18 @@ export function Header() {
             ))}
           </ul>
 
-          <div className="border-t border-border pt-4 space-y-3">
+          <div className="border-t border-border-light pt-4 space-y-3">
             {!authReady ? (
               <div className="h-10" />
             ) : isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
                 onClick={() => setMobileOpen(false)}
+                className={vzBtnClasses({
+                  variant: 'primary',
+                  size: 'md',
+                  className: 'w-full',
+                })}
               >
                 {t('dashboard')}
               </Link>
@@ -139,15 +141,23 @@ export function Header() {
               <>
                 <Link
                   href="/login"
-                  className="block text-center rounded-[var(--radius-md)] border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm"
                   onClick={() => setMobileOpen(false)}
+                  className={vzBtnClasses({
+                    variant: 'secondary',
+                    size: 'md',
+                    className: 'w-full',
+                  })}
                 >
                   {t('login')}
                 </Link>
                 <Link
                   href="/register"
-                  className="block text-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover"
                   onClick={() => setMobileOpen(false)}
+                  className={vzBtnClasses({
+                    variant: 'primary',
+                    size: 'md',
+                    className: 'w-full',
+                  })}
                 >
                   {t('register')}
                 </Link>

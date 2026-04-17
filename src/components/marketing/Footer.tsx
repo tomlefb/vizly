@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { Logo } from '@/components/shared/Logo'
+import { VzLogo } from '@/components/ui/vizly'
 
 export async function Footer() {
   const t = await getTranslations('footer')
@@ -33,12 +33,12 @@ export async function Footer() {
   ]
 
   return (
-    <footer className="border-t border-border bg-surface-warm" role="contentinfo">
+    <footer className="border-t border-border-light bg-surface-warm" role="contentinfo">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16">
           {/* Brand column -- wider */}
           <div className="md:col-span-6">
-            <Logo size="md" />
+            <VzLogo size={22} />
             <p className="mt-4 text-sm text-muted leading-relaxed max-w-xs">
               {t('tagline')}
             </p>
@@ -70,7 +70,7 @@ export async function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-16 pt-8 border-t border-border-light flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
             {t('copyright', { year: new Date().getFullYear().toString() })}
           </p>

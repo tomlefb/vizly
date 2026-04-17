@@ -1,6 +1,6 @@
 export { VzLogo } from './VzLogo'
 export type { VzLogoProps } from './VzLogo'
-export { VzBtn } from './VzBtn'
+export { VzBtn, vzBtnClasses } from './VzBtn'
 export type { VzBtnProps } from './VzBtn'
 export { VzHighlight } from './VzHighlight'
 export type { VzHighlightProps } from './VzHighlight'

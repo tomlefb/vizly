@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { HeroPortfolioWall } from './HeroPortfolioWall'
+import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 
 const easeOut = [0, 0, 0.2, 1] as const
 
@@ -34,8 +35,9 @@ export function Hero() {
             animate="visible"
             custom={0}
           >
-            {t('titleStart')}{' '}
-            <span className="text-accent">{t('titleHighlight')}</span>
+            {t.rich('titleRich', {
+              highlight: (chunks) => <VzHighlight>{chunks}</VzHighlight>,
+            })}
           </motion.h1>
 
           <motion.p
@@ -57,14 +59,21 @@ export function Hero() {
           >
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-accent px-7 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-hover hover:gap-3"
+              className={vzBtnClasses({
+                variant: 'primary',
+                size: 'lg',
+                className: 'group',
+              })}
             >
               {t('cta')}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/templates"
-              className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-border px-7 py-3.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-surface-warm"
+              className={vzBtnClasses({
+                variant: 'secondary',
+                size: 'lg',
+              })}
             >
               {t('secondary')}
             </Link>
