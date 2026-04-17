@@ -6,6 +6,8 @@ import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { getDemoPortfolio, DEMO_HANDLES } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { FullTemplatePreview } from '@/components/shared/FullTemplatePreview'
+import { CTASectionTemplateDetail } from '@/components/marketing/CTASection'
+import { VzBadge, vzBtnClasses } from '@/components/ui/vizly'
 
 interface PageProps {
   params: Promise<{ name: string }>
@@ -63,12 +65,12 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                   {template.label}
                 </h1>
                 {template.isPremium ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1 text-xs font-semibold text-background">
-                    <Star className="h-3 w-3 fill-current" />
+                  <VzBadge variant="pro">
+                    <Star className="h-2.5 w-2.5 fill-current" />
                     Premium
-                  </span>
+                  </VzBadge>
                 ) : (
-                  <span className="rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+                  <span className="rounded-full bg-success-bg px-3 py-1 text-xs font-semibold text-success-fg">
                     Gratuit
                   </span>
                 )}
@@ -78,7 +80,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                 {template.description}
               </p>
 
-              <div className="rounded-[var(--radius-lg)] border border-border bg-surface p-5 mb-6">
+              <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-5 mb-6">
                 <p className="text-sm font-medium text-foreground mb-1">
                   Idéal pour
                 </p>
@@ -90,9 +92,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
               <ul className="space-y-2.5 mb-8">
                 {features.map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
-                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-success/10">
-                      <Check className="h-3 w-3 text-success" strokeWidth={2.5} />
-                    </span>
+                    <Check className="h-4 w-4 text-success shrink-0" strokeWidth={2.5} />
                     {f}
                   </li>
                 ))}
@@ -101,13 +101,13 @@ export default async function TemplateDetailPage({ params }: PageProps) {
               <div className="flex flex-wrap gap-3">
                 <Link
                   href="/register"
-                  className="inline-flex items-center rounded-[var(--radius-md)] bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+                  className={vzBtnClasses({ variant: 'primary', size: 'lg' })}
                 >
                   Créer mon portfolio
                 </Link>
                 <Link
                   href="/templates"
-                  className="inline-flex items-center rounded-[var(--radius-md)] border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-warm"
+                  className={vzBtnClasses({ variant: 'secondary', size: 'lg' })}
                 >
                   Voir les autres templates
                 </Link>
@@ -115,12 +115,12 @@ export default async function TemplateDetailPage({ params }: PageProps) {
             </div>
 
             {/* Mini preview card */}
-            <div className="rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.06)]">
-              <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-4 py-2.5">
+            <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface overflow-hidden">
+              <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-4 py-2.5">
                 <div className="flex gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF6259]" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FFBF2F]" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#29CE42]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-border" />
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="rounded bg-background border border-border-light px-3 py-0.5 text-[11px] text-muted font-mono">
@@ -139,7 +139,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         </section>
 
         {/* Full-width preview */}
-        <section className="border-t border-border bg-surface-warm/30 pt-12 pb-16">
+        <section className="border-t border-border-light bg-surface-warm/30 pt-12 pb-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8 mb-8">
             <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
               Preview complète
@@ -150,13 +150,13 @@ export default async function TemplateDetailPage({ params }: PageProps) {
           </div>
 
           <div className="mx-auto max-w-6xl px-6 lg:px-8">
-            <div className="rounded-[var(--radius-xl)] border border-border bg-surface overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.08)]">
+            <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface overflow-hidden">
               {/* Browser chrome */}
-              <div className="flex items-center gap-2 border-b border-border bg-surface-warm px-4 py-2.5">
+              <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-4 py-2.5">
                 <div className="flex gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF6259]" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FFBF2F]" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#29CE42]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-border" />
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="rounded bg-background border border-border-light px-3 py-0.5 text-[11px] text-muted font-mono">
@@ -164,7 +164,6 @@ export default async function TemplateDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
-              {/* Live template render */}
               <div className="max-h-[800px] overflow-y-auto">
                 <FullTemplatePreview templateName={template.name} templateProps={demoProps} />
               </div>
@@ -173,20 +172,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         </section>
 
         {/* CTA */}
-        <section className="py-16 text-center">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight mb-3">
-            Prêt à créer ton portfolio ?
-          </h2>
-          <p className="text-muted mb-6 max-w-md mx-auto text-sm leading-relaxed">
-            Inscris-toi gratuitement, choisis le template {template.label} et personnalise-le en quelques minutes.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center rounded-[var(--radius-md)] bg-accent px-7 py-3.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
-          >
-            Commencer gratuitement
-          </Link>
-        </section>
+        <CTASectionTemplateDetail />
     </main>
   )
 }

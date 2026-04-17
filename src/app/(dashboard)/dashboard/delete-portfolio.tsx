@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Trash2, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { deletePortfolio } from '@/actions/portfolio'
 
 interface DeletePortfolioProps {
@@ -39,16 +38,20 @@ export function DeletePortfolio({ portfolioId, portfolioTitle }: DeletePortfolio
           type="button"
           onClick={handleDelete}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-destructive px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-destructive/90 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-destructive px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-destructive/90 disabled:opacity-50"
         >
-          {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+          {isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+          )}
           {t('delete.confirm')}
         </button>
         <button
           type="button"
           onClick={() => setShowConfirm(false)}
           disabled={isPending}
-          className="text-xs text-muted transition-colors hover:text-foreground"
+          className="text-[12px] text-muted transition-colors hover:text-foreground"
         >
           {t('delete.cancel')}
         </button>
@@ -61,10 +64,11 @@ export function DeletePortfolio({ portfolioId, portfolioTitle }: DeletePortfolio
     <button
       type="button"
       onClick={() => setShowConfirm(true)}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] border border-border text-muted transition-colors hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] border border-border-light text-muted transition-colors hover:border-destructive/30 hover:bg-destructive/5 hover:text-destructive"
       title={t('delete.title', { title: portfolioTitle })}
+      aria-label={t('delete.title', { title: portfolioTitle })}
     >
-      <Trash2 className="h-3.5 w-3.5" />
+      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
     </button>
   )
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { CTA } from '@/components/marketing/CTA'
+import { CTASectionTarifs } from '@/components/marketing/CTASection'
 import { TarifsClient } from '@/components/marketing/TarifsClient'
 import { ComparisonTable } from '@/components/marketing/ComparisonTable'
 import { createClient } from '@/lib/supabase/server'
@@ -12,12 +12,6 @@ export const metadata: Metadata = {
 }
 
 export default async function TarifsPage() {
-  // Server-side auth check + plan resolution. Used to drive CTA behavior
-  // in TarifsClient: anonymous → /register redirect, authenticated free →
-  // open SubscriptionCheckoutModal, authenticated paid → direct
-  // changeSubscriptionPlanAction. Source of truth for `currentPlan` is
-  // the local users.plan column (kept in sync with the subscriptions
-  // table by the Phase 3 webhook handlers).
   const supabase = await createClient()
   const {
     data: { user },
@@ -48,15 +42,7 @@ export default async function TarifsPage() {
           </Link>
         </p>
       </div>
-      <CTA
-        title="Prêt à publier"
-        titleAccent="ton portfolio"
-        description="Gratuit pour commencer. Tu ne paies que quand tu décides de publier."
-        primaryLabel="Créer mon portfolio"
-        primaryHref="/register"
-        secondaryLabel="Voir les templates"
-        secondaryHref="/templates"
-      />
+      <CTASectionTarifs />
     </main>
   )
 }

@@ -1,4 +1,5 @@
 import { BrowserFrame } from './BrowserFrame'
+import { VzAvatar, VzBadge } from '@/components/ui/vizly'
 
 export function PublishMockup() {
   return (
@@ -10,21 +11,16 @@ export function PublishMockup() {
         </div>
 
         {/* Carte projet */}
-        <div className="rounded-[var(--radius-md)] border border-border p-4">
+        <div className="rounded-[var(--radius-md)] border border-border-light bg-surface p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-[9px] font-semibold text-accent">
-                TL
-              </div>
+              <VzAvatar initials="TL" size={28} />
               <div>
                 <div className="text-[11px] font-semibold text-foreground">Portfolio de Thomas L.</div>
                 <div className="text-[9px] text-muted-foreground">Mis à jour il y a 2 heures</div>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[9px] font-semibold text-success">
-              <span className="w-1.5 h-1.5 rounded-full bg-success" />
-              En ligne
-            </span>
+            <VzBadge variant="online">En ligne</VzBadge>
           </div>
 
           <div className="flex items-center justify-between">
@@ -34,7 +30,7 @@ export function PublishMockup() {
                 thomas-l.vizly.fr
               </span>
             </div>
-            <span className="rounded-[var(--radius-sm)] bg-accent px-2.5 py-1 text-[9px] font-semibold text-white">
+            <span className="rounded-[var(--radius-sm)] bg-foreground px-2.5 py-1 text-[9px] font-semibold text-surface">
               Modifier
             </span>
           </div>

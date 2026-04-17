@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
+import { VzHighlight } from '@/components/ui/vizly'
 import { SettingsForm } from './settings-form'
 import { ChangeEmailForm } from './change-email-form'
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
@@ -27,10 +28,10 @@ export default async function SettingsPage() {
       <header className="mb-10">
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           {t.rich('titleRich', {
-            accent: (chunks) => <span className="text-accent">{chunks}</span>,
+            accent: (chunks) => <VzHighlight>{chunks}</VzHighlight>,
           })}
         </h1>
-        <p className="mt-1.5 text-sm text-muted">{t('subtitle')}</p>
+        <p className="mt-2 text-sm text-muted">{t('subtitle')}</p>
       </header>
 
       <div className="divide-y divide-border-light">
@@ -91,4 +92,3 @@ function SettingsSection({
     </section>
   )
 }
-

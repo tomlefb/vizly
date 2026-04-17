@@ -8,9 +8,16 @@ import {
   verifyPasswordResetOtp,
   updateUserPassword,
 } from '@/actions/auth'
+import { VzBtn } from '@/components/ui/vizly'
 import { z } from 'zod'
 
 type Step = 'email' | 'otp' | 'password' | 'done' | 'redirecting'
+
+const INPUT_CLASSES =
+  'block w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent/30'
+
+const OTP_INPUT_CLASSES =
+  'block w-full h-12 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-center text-2xl font-semibold tracking-[0.3em] text-foreground placeholder:text-muted-foreground placeholder:tracking-normal placeholder:text-base placeholder:font-normal transition-colors duration-150 focus:outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent/30'
 
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth')
@@ -180,27 +187,8 @@ export default function ForgotPasswordPage() {
 
   if (step === 'redirecting') {
     return (
-      <div className="flex flex-col items-center text-center">
-        <svg
-          className="h-8 w-8 animate-spin text-muted"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-          />
-        </svg>
+      <div className="flex flex-col items-center py-6 text-center">
+        <Spinner className="h-8 w-8 text-muted" />
         <p className="mt-4 text-sm text-muted">{t('resetPassword.redirecting')}</p>
       </div>
     )
@@ -211,9 +199,9 @@ export default function ForgotPasswordPage() {
   if (step === 'done') {
     return (
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
+        <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-success-bg)]">
           <svg
-            className="h-7 w-7 text-success"
+            className="h-6 w-6 text-[var(--color-success-fg)]"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
@@ -227,7 +215,7 @@ export default function ForgotPasswordPage() {
             />
           </svg>
         </div>
-        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           {t('resetPassword.doneTitle')}
         </h1>
         <p className="mt-3 text-sm text-muted leading-relaxed">
@@ -235,22 +223,25 @@ export default function ForgotPasswordPage() {
             ? t('resetPassword.doneSubtitleLoggedIn')
             : t('resetPassword.doneSubtitleLoggedOut')}
         </p>
-        {sessionFullAfterUpdate ? (
-          <button
-            type="button"
-            onClick={handleGoToDashboard}
-            className="mt-6 inline-flex items-center justify-center h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
-          >
-            {t('resetPassword.goToDashboard')}
-          </button>
-        ) : (
-          <Link
-            href="/login"
-            className="mt-6 inline-flex items-center justify-center h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
-          >
-            {t('resetPassword.goToLogin')}
-          </Link>
-        )}
+        <div className="mt-6 flex justify-center">
+          {sessionFullAfterUpdate ? (
+            <VzBtn
+              type="button"
+              variant="primary"
+              size="lg"
+              onClick={handleGoToDashboard}
+            >
+              {t('resetPassword.goToDashboard')}
+            </VzBtn>
+          ) : (
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md)] bg-foreground px-[22px] py-3.5 text-[15px] font-semibold font-[family-name:var(--font-satoshi)] text-white shadow-[3px_3px_0_var(--color-accent)] transition-all duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0_var(--color-accent)]"
+            >
+              {t('resetPassword.goToLogin')}
+            </Link>
+          )}
+        </div>
       </div>
     )
   }
@@ -260,23 +251,23 @@ export default function ForgotPasswordPage() {
   if (step === 'password') {
     return (
       <>
-        <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           {t('resetPassword.passwordTitle')}
         </h1>
-        <p className="mt-2 text-center text-sm text-muted leading-relaxed">
+        <p className="mt-2 text-sm text-muted leading-relaxed">
           {t('resetPassword.passwordSubtitle')}
         </p>
 
         {error && (
           <div
             role="alert"
-            className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-[var(--color-destructive-bg)] px-4 py-3 text-sm text-destructive"
           >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleUpdatePassword} className="mt-8 space-y-4">
+        <form onSubmit={handleUpdatePassword} className="mt-7 space-y-4">
           <div>
             <label
               htmlFor="password"
@@ -293,7 +284,7 @@ export default function ForgotPasswordPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t('resetPassword.passwordPlaceholder')}
-              className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+              className={INPUT_CLASSES}
             />
           </div>
 
@@ -313,14 +304,16 @@ export default function ForgotPasswordPage() {
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
               placeholder={t('resetPassword.passwordConfirmPlaceholder')}
-              className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+              className={INPUT_CLASSES}
             />
           </div>
 
-          <button
+          <VzBtn
             type="submit"
+            variant="primary"
+            size="lg"
             disabled={loading || password.length < 6 || passwordConfirm.length < 6}
-            className="flex w-full items-center justify-center h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full"
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
@@ -330,7 +323,7 @@ export default function ForgotPasswordPage() {
             ) : (
               t('resetPassword.updateSubmit')
             )}
-          </button>
+          </VzBtn>
         </form>
       </>
     )
@@ -341,17 +334,17 @@ export default function ForgotPasswordPage() {
   if (step === 'otp') {
     return (
       <>
-        <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           {t('resetPassword.otpTitle')}
         </h1>
-        <p className="mt-2 text-center text-sm text-muted leading-relaxed">
+        <p className="mt-2 text-sm text-muted leading-relaxed">
           {t('resetPassword.otpSubtitle', { email })}
         </p>
 
         {error && (
           <div
             role="alert"
-            className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-[var(--color-destructive-bg)] px-4 py-3 text-sm text-destructive"
           >
             {error}
           </div>
@@ -360,13 +353,13 @@ export default function ForgotPasswordPage() {
         {resendInfo && (
           <div
             role="status"
-            className="mt-6 rounded-[var(--radius-md)] border border-success/30 bg-success/5 px-4 py-3 text-sm text-success"
+            className="mt-6 rounded-[var(--radius-md)] border border-[var(--color-success-fg)]/20 bg-[var(--color-success-bg)] px-4 py-3 text-sm text-[var(--color-success-fg)]"
           >
             {resendInfo}
           </div>
         )}
 
-        <form onSubmit={handleVerifyOtp} className="mt-8 space-y-4">
+        <form onSubmit={handleVerifyOtp} className="mt-7 space-y-4">
           <div>
             <label
               htmlFor="otp"
@@ -385,14 +378,16 @@ export default function ForgotPasswordPage() {
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder={t('resetPassword.codePlaceholder')}
-              className="block w-full h-12 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-center text-2xl font-semibold tracking-[0.3em] text-[#111827] placeholder:text-[#9CA3AF] placeholder:tracking-normal placeholder:text-base placeholder:font-normal transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+              className={OTP_INPUT_CLASSES}
             />
           </div>
 
-          <button
+          <VzBtn
             type="submit"
+            variant="primary"
+            size="lg"
             disabled={loading || otp.length !== 6}
-            className="flex w-full items-center justify-center h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full"
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
@@ -402,7 +397,7 @@ export default function ForgotPasswordPage() {
             ) : (
               t('resetPassword.verifySubmit')
             )}
-          </button>
+          </VzBtn>
         </form>
 
         <div className="mt-6 flex flex-col items-center gap-3 text-sm">
@@ -430,23 +425,21 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
-      <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
+      <h1 className="font-[family-name:var(--font-satoshi)] text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
         {t('forgotPassword.title')}
       </h1>
-      <p className="mt-2 text-center text-sm text-muted">
-        {t('forgotPassword.subtitle')}
-      </p>
+      <p className="mt-2 text-sm text-muted">{t('forgotPassword.subtitle')}</p>
 
       {error && (
         <div
           role="alert"
-          className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-[var(--color-destructive-bg)] px-4 py-3 text-sm text-destructive"
         >
           {error}
         </div>
       )}
 
-      <form onSubmit={handleRequestEmail} className="mt-8 space-y-4">
+      <form onSubmit={handleRequestEmail} className="mt-7 space-y-4">
         <div>
           <label
             htmlFor="email"
@@ -462,14 +455,16 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t('forgotPassword.emailPlaceholder')}
-            className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+            className={INPUT_CLASSES}
           />
         </div>
 
-        <button
+        <VzBtn
           type="submit"
+          variant="primary"
+          size="lg"
           disabled={loading}
-          className="flex w-full items-center justify-center h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
@@ -479,13 +474,13 @@ export default function ForgotPasswordPage() {
           ) : (
             t('forgotPassword.submit')
           )}
-        </button>
+        </VzBtn>
       </form>
 
-      <p className="mt-8 text-center text-sm text-muted">
+      <p className="mt-6 text-center text-sm text-muted">
         <Link
           href="/login"
-          className="font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
+          className="font-medium text-accent-deep underline-offset-4 transition-colors duration-150 hover:underline"
         >
           {t('forgotPassword.backToLogin')}
         </Link>
@@ -494,10 +489,10 @@ export default function ForgotPasswordPage() {
   )
 }
 
-function Spinner() {
+function Spinner({ className }: { className?: string }) {
   return (
     <svg
-      className="h-4 w-4 animate-spin"
+      className={className ?? 'h-4 w-4 animate-spin'}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"

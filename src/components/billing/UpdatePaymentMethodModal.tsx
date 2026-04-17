@@ -23,6 +23,7 @@ import {
   useStripe,
 } from '@stripe/react-stripe-js'
 import { Check, Loader2, X } from 'lucide-react'
+import { VzBtn, VzHighlight } from '@/components/ui/vizly'
 import { getStripe } from '@/lib/stripe/client-browser'
 import {
   confirmPaymentMethodUpdateAction,
@@ -172,7 +173,7 @@ export function UpdatePaymentMethodModal({
           onClick={handleBackdropClick}
         >
           <motion.div
-            className="relative w-full sm:max-w-md sm:my-8 max-h-[100vh] sm:max-h-[90vh] overflow-y-auto bg-background sm:rounded-[var(--radius-lg)] border-t sm:border border-border"
+            className="relative w-full sm:my-8 sm:max-w-md max-h-[100vh] sm:max-h-[90vh] overflow-y-auto border-t border-border-light bg-surface sm:rounded-[var(--radius-lg)] sm:border"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
@@ -206,9 +207,9 @@ export function UpdatePaymentMethodModal({
                     id={titleId}
                     className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground"
                   >
-                    Carte <span className="text-accent">mise à jour</span>.
+                    Carte <VzHighlight>mise à jour</VzHighlight>.
                   </h2>
-                  <p id={subId} className="mt-2 text-sm text-muted leading-relaxed">
+                  <p id={subId} className="mt-2 text-sm leading-relaxed text-muted">
                     Les prochaines factures seront prélevées sur cette carte.
                   </p>
                 </div>
@@ -218,9 +219,9 @@ export function UpdatePaymentMethodModal({
                     id={titleId}
                     className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground"
                   >
-                    Mettre à jour <span className="text-accent">ta carte</span>.
+                    Mettre à jour <VzHighlight>ta carte</VzHighlight>.
                   </h2>
-                  <p id={subId} className="mt-2 text-sm text-muted leading-relaxed">
+                  <p id={subId} className="mt-2 text-sm leading-relaxed text-muted">
                     Ta nouvelle carte remplacera l&apos;ancienne pour toutes les prochaines factures.
                   </p>
                 </div>
@@ -228,24 +229,28 @@ export function UpdatePaymentMethodModal({
             </header>
 
             {state.kind === 'success' ? (
-              <section className="px-8 pt-2 pb-8 space-y-6">
+              <section className="space-y-6 px-8 pb-8 pt-2">
                 <div className="flex items-center gap-3 text-sm text-muted">
-                  <Check className="h-4 w-4 text-accent" strokeWidth={2.5} />
+                  <Check
+                    className="h-4 w-4 text-[var(--color-success-fg)]"
+                    strokeWidth={2.5}
+                  />
                   Moyen de paiement par défaut mis à jour.
                 </div>
-                <button
-                  type="button"
+                <VzBtn
+                  variant="primary"
+                  size="lg"
                   onClick={() => {
                     onSuccess?.()
                     onClose()
                   }}
-                  className="w-full inline-flex items-center justify-center h-12 rounded-[var(--radius-md)] bg-accent text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+                  className="w-full"
                 >
                   Continuer
-                </button>
+                </VzBtn>
               </section>
             ) : (
-              <section className="px-8 py-6 border-t border-border">
+              <section className="border-t border-border-light px-8 py-6">
                 {state.kind === 'loadingIntent' && (
                   <div
                     className="space-y-3"
@@ -264,7 +269,7 @@ export function UpdatePaymentMethodModal({
 
                 {state.kind === 'error' && (
                   <div
-                    className="rounded-[var(--radius-md)] border border-border bg-surface-warm p-4 space-y-3"
+                    className="space-y-3 rounded-[var(--radius-md)] border border-border-light bg-surface-warm p-4"
                     role="alert"
                   >
                     <p className="text-sm text-foreground">{state.message}</p>
@@ -272,7 +277,7 @@ export function UpdatePaymentMethodModal({
                       <button
                         type="button"
                         onClick={() => void fetchIntent()}
-                        className="text-sm text-foreground hover:text-accent underline underline-offset-4 transition-colors"
+                        className="text-sm text-foreground underline underline-offset-4 transition-colors hover:text-accent-deep"
                       >
                         Réessayer
                       </button>
@@ -405,10 +410,7 @@ function UpdateCardForm({
         type="submit"
         disabled={!stripe || !elements || isProcessing || !isCardComplete}
         className={cn(
-          'w-full inline-flex items-center justify-center gap-2 h-12 rounded-[var(--radius-md)] text-sm font-medium text-white transition-colors',
-          isProcessing || !stripe || !elements || !isCardComplete
-            ? 'bg-accent/50 cursor-not-allowed'
-            : 'bg-accent hover:bg-accent-hover',
+          'inline-flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-foreground font-[family-name:var(--font-satoshi)] text-sm font-semibold text-white shadow-[2px_2px_0_var(--color-accent)] transition-all duration-150 hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0_var(--color-accent)] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0',
         )}
       >
         {isProcessing ? (

@@ -5,6 +5,7 @@ import { Check, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
+import { VzHighlight, VzBadge, vzBtnClasses } from '@/components/ui/vizly'
 
 export type BillingInterval = 'monthly' | 'yearly'
 
@@ -75,17 +76,6 @@ interface PricingProps {
   interval?: BillingInterval
   onIntervalChange?: (interval: BillingInterval) => void
   showHeader?: boolean
-  /**
-   * Called when the user clicks one of the 3 plan CTAs. The parent
-   * (TarifsClient) decides what to do based on auth state:
-   *   - anonymous → router.push('/register?plan=...&interval=...')
-   *   - authenticated free user → open SubscriptionCheckoutModal
-   *   - authenticated paid user → call changeSubscriptionPlanAction
-   *
-   * If `onPlanClick` is not provided, the buttons fall back to the
-   * legacy anonymous-only behavior of pushing to /register (handled
-   * inside the component via useRouter).
-   */
   onPlanClick?: (planId: 'free' | 'starter' | 'pro') => void
 }
 
@@ -107,8 +97,8 @@ export function Pricing({
         {showHeader && (
           <ScrollReveal className="mb-10 lg:mb-14">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
-              <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
-                {t('title')} <span className="text-accent">{t('titleAccent')}</span>
+              <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0 leading-[1.08]">
+                {t('title')} <VzHighlight>{t('titleAccent')}</VzHighlight>
               </h2>
               <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
                 {t('subtitle')}
@@ -117,14 +107,14 @@ export function Pricing({
 
             {/* Billing interval toggle */}
             <div className="mt-8 flex items-center gap-3">
-              <div className="inline-flex items-center rounded-full bg-[#f4f4f4] p-1 text-sm font-medium">
+              <div className="inline-flex items-center rounded-full bg-surface-sunken p-1 text-sm font-medium">
                 <button
                   type="button"
                   onClick={() => setInterval('monthly')}
                   className={cn(
                     'rounded-full px-4 py-2 transition-colors duration-150',
                     interval === 'monthly'
-                      ? 'bg-white border border-border text-foreground'
+                      ? 'bg-surface border border-border-light text-foreground'
                       : 'text-muted hover:text-foreground'
                   )}
                 >
@@ -136,7 +126,7 @@ export function Pricing({
                   className={cn(
                     'rounded-full px-4 py-2 transition-colors duration-150',
                     interval === 'yearly'
-                      ? 'bg-white border border-border text-foreground'
+                      ? 'bg-surface border border-border-light text-foreground'
                       : 'text-muted hover:text-foreground'
                   )}
                 >
@@ -144,7 +134,7 @@ export function Pricing({
                 </button>
               </div>
               {interval === 'yearly' && (
-                <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
+                <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-fg">
                   {t('yearlyDiscount')}
                 </span>
               )}
@@ -164,19 +154,16 @@ export function Pricing({
                 key={plan.id}
                 index={i}
                 className={cn(
-                  'relative rounded-[var(--radius-lg)] flex flex-col p-7 lg:p-8',
+                  'relative rounded-[var(--radius-lg)] flex flex-col p-7 lg:p-8 bg-surface',
                   plan.featured
                     ? 'border-[1.5px] border-accent md:-translate-y-2'
-                    : 'border-[0.5px] border-border'
+                    : 'border border-border-light'
                 )}
               >
                 {/* Popular badge */}
                 {plan.featured && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
-                      <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                      {t('popular')}
-                    </span>
+                    <VzBadge variant="popular">{t('popular')}</VzBadge>
                   </div>
                 )}
 
@@ -200,14 +187,14 @@ export function Pricing({
                 {/* Yearly sub-price line */}
                 <div className="h-5 mt-1">
                   {interval === 'yearly' && !isFree && (
-                    <p className="text-xs font-medium text-accent">
+                    <p className="text-xs font-medium text-accent-deep">
                       {t('perYear', { price: plan.yearlyTotalPrice })}
                     </p>
                   )}
                 </div>
 
                 {/* Divider */}
-                <div className="my-6 border-t border-border" />
+                <div className="my-6 border-t border-border-light" />
 
                 {/* Features */}
                 <ul className="space-y-3 flex-1" role="list">
@@ -251,10 +238,11 @@ export function Pricing({
                   type="button"
                   onClick={() => onPlanClick?.(plan.id)}
                   className={cn(
-                    'mt-8 block w-full text-center rounded-[var(--radius-md)] px-6 py-3 text-sm font-semibold transition-colors duration-150',
-                    plan.featured
-                      ? 'bg-accent text-white hover:bg-accent-hover'
-                      : 'border border-border text-foreground hover:bg-surface-warm'
+                    'mt-8 block w-full',
+                    vzBtnClasses({
+                      variant: plan.featured ? 'primary' : 'secondary',
+                      size: 'md',
+                    })
                   )}
                 >
                   {t(`plans.${plan.id}.cta`)}

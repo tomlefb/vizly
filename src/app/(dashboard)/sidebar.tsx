@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { VzLogo, VzAvatar } from '@/components/ui/vizly'
 import { useSidebar } from './sidebar-context'
 
 interface SidebarProps {
@@ -62,25 +63,20 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
     <aside
       data-dashboard-sidebar
       className={cn(
-        'fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-[#E5E7EB] bg-white overflow-hidden',
+        'fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-border-light bg-surface overflow-hidden',
         mounted && 'transition-[width] duration-200 ease-out',
       )}
       style={{ width: sidebarWidth }}
     >
-      {/* Logo + toggle */}
-      <div className="flex h-14 items-center shrink-0 px-3">
+      {/* Logo + toggle chevron */}
+      <div className="flex h-14 items-center shrink-0 px-4">
         {expanded ? (
           <>
-            <Link href="/dashboard" aria-label="Dashboard" className="flex items-baseline">
-              <span className="font-[family-name:var(--font-satoshi)] font-bold text-[20px] text-[#111827] select-none whitespace-nowrap">
-                Vizly
-                <span className="inline-block w-[0.3em] h-[0.3em] rounded-full bg-accent ml-[0.1em]" />
-              </span>
-            </Link>
+            <VzLogo size={20} href="/dashboard" />
             <button
               type="button"
               onClick={toggle}
-              className="flex h-6 w-6 items-center justify-center rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150 shrink-0 ml-auto"
+              className="ml-auto flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-foreground"
               aria-label={t('collapse')}
             >
               <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
@@ -90,7 +86,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
           <button
             type="button"
             onClick={toggle}
-            className="flex h-8 w-full items-center justify-center rounded-[6px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150"
+            className="flex h-8 w-full items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-foreground"
             aria-label={t('expand')}
           >
             <ChevronLeft className="h-4 w-4 rotate-180" strokeWidth={1.5} />
@@ -99,7 +95,10 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-3 px-2 overflow-y-auto overflow-x-hidden" aria-label="Navigation principale">
+      <nav
+        className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2"
+        aria-label="Navigation principale"
+      >
         <div className="space-y-0.5">
           {NAV_PORTFOLIO.map(({ href, icon: Icon, label }) => (
             <NavItem
@@ -112,7 +111,13 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
             />
           ))}
         </div>
-        <div className="space-y-0.5 mt-3 pt-3 border-t border-[#E5E7EB]/40">
+        <div
+          className={cn(
+            'mx-2 my-3 h-px bg-border-light',
+            !expanded && 'mx-1',
+          )}
+        />
+        <div className="space-y-0.5">
           {NAV_ACCOUNT.map(({ href, icon: Icon, label }) => (
             <NavItem
               key={href}
@@ -126,40 +131,54 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
         </div>
       </nav>
 
-      {/* Bottom links */}
-      <div className="shrink-0 border-t border-[#E5E7EB]/40 py-1.5 px-2 space-y-0.5">
-        <NavItem href="/" icon={ArrowLeft} label={t('home')} active={false} expanded={expanded} />
+      {/* Utility links */}
+      <div className="shrink-0 space-y-0.5 border-t border-border-light px-2 py-2">
+        <NavItem
+          href="/"
+          icon={ArrowLeft}
+          label={t('home')}
+          active={false}
+          expanded={expanded}
+        />
         <button
           type="button"
           onClick={() => void handleLogout()}
           title={expanded ? undefined : t('logout')}
           className={cn(
-            'group relative flex items-center w-full h-9 rounded-[6px] text-[#6B7280] hover:text-[#DC2626] hover:bg-[#F3F4F6] transition-colors duration-150',
+            'group relative flex h-9 w-full items-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-destructive',
             expanded ? 'pl-3' : 'justify-center',
           )}
         >
           <LogOut className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
-          {expanded && <span className="text-[13px] whitespace-nowrap ml-3">{t('logout')}</span>}
+          {expanded && (
+            <span className="ml-3 whitespace-nowrap text-[13px]">
+              {t('logout')}
+            </span>
+          )}
           {!expanded && (
-            <span className="absolute left-full ml-2 z-50 rounded-[6px] bg-[#111827]/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150">
+            <span className="pointer-events-none absolute left-full z-50 ml-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-foreground/90 px-2.5 py-1 text-[11px] font-medium text-surface-warm opacity-0 transition-opacity duration-150 group-hover:opacity-100">
               {t('logout')}
             </span>
           )}
         </button>
       </div>
 
-      {/* User avatar */}
-      <div className={cn(
-        'shrink-0 border-t border-[#E5E7EB] h-14 flex items-center px-2',
-        !expanded && 'justify-center',
-      )}>
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F3F4F6] text-[#111827] text-[12px] font-semibold">
-          {initials}
-        </span>
+      {/* User identity */}
+      <div
+        className={cn(
+          'flex h-14 shrink-0 items-center border-t border-border-light px-3',
+          !expanded && 'justify-center px-2',
+        )}
+      >
+        <VzAvatar initials={initials} size={32} />
         {expanded && (
-          <div className="min-w-0 ml-3 pr-2">
-            <p className="text-[12px] font-medium text-[#111827] truncate">{userName || t('user')}</p>
-            <p className="text-[10px] text-[#6B7280] truncate">{userEmail}</p>
+          <div className="ml-3 min-w-0 pr-2">
+            <p className="truncate text-[12.5px] font-semibold text-foreground">
+              {userName || t('user')}
+            </p>
+            <p className="truncate text-[10.5px] text-muted-foreground">
+              {userEmail}
+            </p>
           </div>
         )}
       </div>
@@ -185,27 +204,32 @@ function NavItem({
       href={href}
       title={expanded ? undefined : label}
       className={cn(
-        'group relative flex items-center h-9 rounded-[6px] transition-colors duration-150',
+        'group relative flex h-9 items-center rounded-[var(--radius-sm)] transition-colors duration-150',
         expanded ? 'pl-3' : 'justify-center',
         active
-          ? 'bg-[#F3F4F6] text-[#111827]'
-          : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]',
+          ? 'border border-border-light bg-surface-warm text-foreground'
+          : 'text-muted hover:bg-surface-warm hover:text-foreground',
       )}
     >
       <Icon
         className={cn(
           'h-[18px] w-[18px] shrink-0',
-          active ? 'text-[#111827]' : 'text-[#6B7280]',
+          active ? 'text-foreground' : 'text-muted',
         )}
         strokeWidth={1.5}
       />
       {expanded && (
-        <span className={cn('text-[13px] whitespace-nowrap ml-3', active && 'font-medium')}>
+        <span
+          className={cn(
+            'ml-3 whitespace-nowrap text-[13px]',
+            active && 'font-medium',
+          )}
+        >
           {label}
         </span>
       )}
       {!expanded && (
-        <span className="absolute left-full ml-2 z-50 rounded-[6px] bg-[#111827]/90 px-2.5 py-1 text-[11px] font-medium text-white whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150">
+        <span className="pointer-events-none absolute left-full z-50 ml-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-foreground/90 px-2.5 py-1 text-[11px] font-medium text-surface-warm opacity-0 transition-opacity duration-150 group-hover:opacity-100">
           {label}
         </span>
       )}

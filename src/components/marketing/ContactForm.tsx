@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Send, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 
 export function ContactForm() {
   const [name, setName] = useState('')
@@ -47,12 +48,12 @@ export function ContactForm() {
 
   if (status === 'sent') {
     return (
-      <div className="rounded-[var(--radius-xl)] border border-border bg-background p-10 text-center">
-        <h2 className="font-[family-name:var(--font-satoshi)] text-xl font-semibold tracking-tight">
-          Message <span className="text-accent">envoyé</span>.
+      <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-10 text-center">
+        <h2 className="font-[family-name:var(--font-satoshi)] text-xl font-semibold tracking-tight leading-[1.1]">
+          Message <VzHighlight>envoyé</VzHighlight>.
         </h2>
-        <p className="mt-2 text-sm text-muted leading-relaxed">
-          On te répond au plus vite !
+        <p className="mt-4 text-sm text-muted leading-relaxed">
+          On te répond au plus vite.
         </p>
         <button
           type="button"
@@ -60,13 +61,19 @@ export function ContactForm() {
             setStatus('idle')
             setErrorMsg('')
           }}
-          className="mt-6 text-sm font-medium text-accent underline underline-offset-4 transition-colors duration-150 hover:text-accent-hover"
+          className="mt-6 text-sm font-medium text-foreground underline underline-offset-4 transition-colors duration-150 hover:text-accent-deep"
         >
           Envoyer un autre message
         </button>
       </div>
     )
   }
+
+  const inputClasses =
+    'w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20'
+
+  const textareaClasses =
+    'w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[120px] focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -81,7 +88,7 @@ export function ContactForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Ton nom"
-          className="w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+          className={inputClasses}
         />
       </div>
 
@@ -96,7 +103,7 @@ export function ContactForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="ton@email.com"
-          className="w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+          className={inputClasses}
         />
       </div>
 
@@ -111,7 +118,7 @@ export function ContactForm() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Ton message..."
-          className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[120px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+          className={textareaClasses}
         />
       </div>
 
@@ -123,10 +130,8 @@ export function ContactForm() {
         type="submit"
         disabled={status === 'sending'}
         className={cn(
-          'w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
-          status === 'sending'
-            ? 'bg-accent/60 text-white/60 cursor-not-allowed'
-            : 'bg-accent text-white hover:bg-accent-hover'
+          vzBtnClasses({ variant: 'primary', size: 'md', className: 'w-full' }),
+          status === 'sending' && 'opacity-70 cursor-not-allowed'
         )}
       >
         {status === 'sending' ? (

@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { ScrollReveal, StaggerItem } from '@/components/shared/ScrollReveal'
+import { VzHighlight } from '@/components/ui/vizly'
 
 const FEATURE_KEYS = ['live', 'form', 'templates', 'customizable', 'unlimited'] as const
 
@@ -14,8 +15,8 @@ export async function FeaturesGrid() {
         {/* Header -- matching pricing pattern */}
         <ScrollReveal className="mb-10 lg:mb-14">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
-            <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
-              <span className="text-accent">{ft('titleAccent')}</span> {ft('titleEnd')}
+            <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0 leading-[1.08]">
+              <VzHighlight>{ft('titleAccent')}</VzHighlight> {ft('titleEnd')}
             </h2>
             <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
               {ft('subtitle')}
@@ -30,9 +31,9 @@ export async function FeaturesGrid() {
               key={key}
               index={i}
               className={`py-4 md:py-0 md:px-5 lg:px-6 ${
-                i > 0 ? 'md:border-l-[0.5px] md:border-border' : ''
-              } ${i % 2 !== 0 ? 'max-md:border-l-[0.5px] max-md:border-border' : ''
-              } ${i >= 2 ? 'max-md:border-t-[0.5px] max-md:border-border' : ''}`}
+                i > 0 ? 'md:border-l-[0.5px] md:border-border-light' : ''
+              } ${i % 2 !== 0 ? 'max-md:border-l-[0.5px] max-md:border-border-light' : ''
+              } ${i >= 2 ? 'max-md:border-t-[0.5px] max-md:border-border-light' : ''}`}
             >
               <p className="text-[15px] font-semibold text-foreground tracking-wide">
                 {t(`features.${key}.title`)}

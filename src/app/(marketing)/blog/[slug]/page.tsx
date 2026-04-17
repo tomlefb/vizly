@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { BLOG_POSTS, getPost, formatBlogDate } from '@/lib/blog'
 import { getArticleContent } from '@/lib/blog-content'
+import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -49,7 +50,7 @@ export default async function BlogArticlePage({ params }: Props) {
             <span aria-hidden="true">&middot;</span>
             <span>{post.readingTime} de lecture</span>
           </div>
-          <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl leading-tight">
+          <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl leading-[1.1]">
             {post.title}
           </h1>
           <p className="mt-4 text-lg text-muted leading-relaxed">
@@ -74,14 +75,14 @@ export default async function BlogArticlePage({ params }: Props) {
               return (
                 <div
                   key={i}
-                  className="rounded-[var(--radius-lg)] border border-accent/20 bg-accent/5 p-6 text-center my-8"
+                  className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-6 text-center my-8"
                 >
-                  <p className="text-base font-semibold text-foreground mb-2">
+                  <p className="text-base font-semibold text-foreground mb-4">
                     {block.text}
                   </p>
                   <Link
                     href="/register"
-                    className="inline-flex items-center rounded-[var(--radius-md)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+                    className={vzBtnClasses({ variant: 'primary', size: 'md' })}
                   >
                     Creer mon portfolio gratuitement
                   </Link>
@@ -95,16 +96,16 @@ export default async function BlogArticlePage({ params }: Props) {
         </article>
 
         {/* Bottom CTA */}
-        <div className="mt-16 rounded-[var(--radius-xl)] bg-foreground p-8 sm:p-10 text-center">
-          <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold text-background mb-3">
-            Prêt à créer ton portfolio ?
+        <div className="mt-16 rounded-[var(--radius-xl)] border border-border-light bg-surface p-8 sm:p-10 text-center">
+          <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground mb-3 leading-[1.1]">
+            Prêt à créer <VzHighlight>ton portfolio</VzHighlight> ?
           </h2>
-          <p className="text-background/60 mb-6 text-sm">
+          <p className="text-muted mb-6 text-sm">
             Gratuit pour commencer. Publication a partir de 4,99 EUR/mois.
           </p>
           <Link
             href="/register"
-            className="inline-flex items-center rounded-[var(--radius-md)] bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+            className={vzBtnClasses({ variant: 'primary', size: 'lg' })}
           >
             Commencer gratuitement
           </Link>

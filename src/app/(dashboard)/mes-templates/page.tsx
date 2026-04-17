@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
+import { VzHighlight } from '@/components/ui/vizly'
 import { MesTemplatesGrid } from './mes-templates-grid'
 
 export default async function MesTemplatesPage() {
@@ -25,10 +26,10 @@ export default async function MesTemplatesPage() {
       <header>
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl">
           {t.rich('titleRich', {
-            accent: (chunks) => <span className="text-accent">{chunks}</span>,
+            accent: (chunks) => <VzHighlight>{chunks}</VzHighlight>,
           })}
         </h1>
-        <p className="mt-1.5 text-sm text-muted">{t('subtitle')}</p>
+        <p className="mt-2 text-sm text-muted">{t('subtitle')}</p>
       </header>
 
       <MesTemplatesGrid

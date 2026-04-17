@@ -7,9 +7,16 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { registerUser, verifyUserOtp, resendSignupOtp } from '@/actions/auth'
 import { getDashboardUrl } from '@/lib/auth/dashboardUrl'
+import { VzBtn } from '@/components/ui/vizly'
 import { z } from 'zod'
 
 type Step = 'form' | 'otp' | 'redirecting'
+
+const INPUT_CLASSES =
+  'block w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent/30'
+
+const OTP_INPUT_CLASSES =
+  'block w-full h-12 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-center text-2xl font-semibold tracking-[0.3em] text-foreground placeholder:text-muted-foreground placeholder:tracking-normal placeholder:text-base placeholder:font-normal transition-colors duration-150 focus:outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent/30'
 
 export default function RegisterPage() {
   // Suspense boundary required by Next 15 because RegisterPageInner reads
@@ -180,27 +187,8 @@ function RegisterPageInner() {
 
   if (step === 'redirecting') {
     return (
-      <div className="flex flex-col items-center text-center">
-        <svg
-          className="h-8 w-8 animate-spin text-muted"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-          />
-        </svg>
+      <div className="flex flex-col items-center py-6 text-center">
+        <Spinner className="h-8 w-8 text-muted" />
         <p className="mt-4 text-sm text-muted">{t('verify.redirecting')}</p>
       </div>
     )
@@ -209,17 +197,17 @@ function RegisterPageInner() {
   if (step === 'otp') {
     return (
       <>
-        <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
+        <h1 className="font-[family-name:var(--font-satoshi)] text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           {t('verify.title')}
         </h1>
-        <p className="mt-2 text-center text-sm text-muted leading-relaxed">
+        <p className="mt-2 text-sm text-muted leading-relaxed">
           {t('verify.subtitle', { email })}
         </p>
 
         {error && (
           <div
             role="alert"
-            className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-[var(--color-destructive-bg)] px-4 py-3 text-sm text-destructive"
           >
             {error}
           </div>
@@ -228,13 +216,13 @@ function RegisterPageInner() {
         {resendInfo && (
           <div
             role="status"
-            className="mt-6 rounded-[var(--radius-md)] border border-success/30 bg-success/5 px-4 py-3 text-sm text-success"
+            className="mt-6 rounded-[var(--radius-md)] border border-[var(--color-success-fg)]/20 bg-[var(--color-success-bg)] px-4 py-3 text-sm text-[var(--color-success-fg)]"
           >
             {resendInfo}
           </div>
         )}
 
-        <form onSubmit={handleVerify} className="mt-8 space-y-4">
+        <form onSubmit={handleVerify} className="mt-7 space-y-4">
           <div>
             <label
               htmlFor="otp"
@@ -253,43 +241,26 @@ function RegisterPageInner() {
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder={t('verify.codePlaceholder')}
-              className="block w-full h-12 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-center text-2xl font-semibold tracking-[0.3em] text-[#111827] placeholder:text-[#9CA3AF] placeholder:tracking-normal placeholder:text-base placeholder:font-normal transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+              className={OTP_INPUT_CLASSES}
             />
           </div>
 
-          <button
+          <VzBtn
             type="submit"
+            variant="primary"
+            size="lg"
             disabled={loading || otp.length !== 6}
-            className="flex w-full items-center justify-center h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full"
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
-                <svg
-                  className="h-4 w-4 animate-spin"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
+                <Spinner />
                 {t('verify.loading')}
               </span>
             ) : (
               t('verify.submit')
             )}
-          </button>
+          </VzBtn>
         </form>
 
         <div className="mt-6 flex flex-col items-center gap-3 text-sm">
@@ -315,23 +286,21 @@ function RegisterPageInner() {
 
   return (
     <>
-      <h1 className="text-center font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
+      <h1 className="font-[family-name:var(--font-satoshi)] text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
         {t('register.title')}
       </h1>
-      <p className="mt-2 text-center text-sm text-muted">
-        {t('register.subtitle')}
-      </p>
+      <p className="mt-2 text-sm text-muted">{t('register.subtitle')}</p>
 
       {error && (
         <div
           role="alert"
-          className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="mt-6 rounded-[var(--radius-md)] border border-destructive/30 bg-[var(--color-destructive-bg)] px-4 py-3 text-sm text-destructive"
         >
           {error}
         </div>
       )}
 
-      <form onSubmit={handleRegister} className="mt-8 space-y-4">
+      <form onSubmit={handleRegister} className="mt-7 space-y-4">
         <div>
           <label
             htmlFor="name"
@@ -347,7 +316,7 @@ function RegisterPageInner() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('register.namePlaceholder')}
-            className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+            className={INPUT_CLASSES}
           />
         </div>
 
@@ -366,7 +335,7 @@ function RegisterPageInner() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t('register.emailPlaceholder')}
-            className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+            className={INPUT_CLASSES}
           />
         </div>
 
@@ -386,100 +355,127 @@ function RegisterPageInner() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t('register.passwordPlaceholder')}
-            className="block w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+            className={INPUT_CLASSES}
           />
         </div>
 
-        <button
+        <VzBtn
           type="submit"
+          variant="primary"
+          size="lg"
           disabled={loading}
-          className="flex w-full items-center justify-center h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
-              <svg
-                className="h-4 w-4 animate-spin"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
+              <Spinner />
               {t('register.loading')}
             </span>
           ) : (
             t('register.submit')
           )}
-        </button>
+        </VzBtn>
       </form>
 
       <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-border" />
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <span className="w-full border-t border-border-light" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-3 text-muted">{t('register.or')}</span>
+        <div className="relative flex justify-center">
+          <span className="bg-surface px-3 text-xs text-muted">
+            {t('register.or')}
+          </span>
         </div>
       </div>
 
-      <button
+      <VzBtn
         type="button"
+        variant="secondary"
+        size="lg"
         onClick={handleGoogleLogin}
-        className="flex w-full items-center justify-center gap-3 h-10 rounded-lg border border-[#E5E7EB] bg-white px-5 text-sm font-medium text-[#111827] transition-colors duration-150 hover:bg-[#F3F4F6]"
+        className="w-full"
       >
-        <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-            fill="#4285F4"
-          />
-          <path
-            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            fill="#34A853"
-          />
-          <path
-            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            fill="#FBBC05"
-          />
-          <path
-            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            fill="#EA4335"
-          />
-        </svg>
+        <GoogleIcon />
         {t('register.google')}
-      </button>
+      </VzBtn>
 
-      <p className="mt-4 text-center text-xs text-muted leading-relaxed">
+      <p className="mt-5 text-center text-xs text-muted leading-relaxed">
         {t('register.legalNotice')}{' '}
-        <Link href="/legal/cgu" target="_blank" className="underline text-foreground hover:text-accent">
+        <Link
+          href="/legal/cgu"
+          target="_blank"
+          className="text-accent-deep underline underline-offset-2 hover:text-foreground"
+        >
           {t('register.cgu')}
         </Link>{' '}
         {t('register.and')}{' '}
-        <Link href="/legal/confidentialite" target="_blank" className="underline text-foreground hover:text-accent">
+        <Link
+          href="/legal/confidentialite"
+          target="_blank"
+          className="text-accent-deep underline underline-offset-2 hover:text-foreground"
+        >
           {t('register.privacy')}
-        </Link>.
+        </Link>
+        .
       </p>
 
-      <p className="mt-8 text-center text-sm text-muted">
+      <p className="mt-6 text-center text-sm text-muted">
         {t('register.hasAccount')}{' '}
         <Link
           href={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
-          className="font-medium text-accent transition-colors duration-150 hover:text-accent-hover"
+          className="font-medium text-accent-deep underline-offset-4 transition-colors duration-150 hover:underline"
         >
           {t('register.login')}
         </Link>
       </p>
     </>
+  )
+}
+
+function GoogleIcon() {
+  return (
+    <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+        fill="#4285F4"
+      />
+      <path
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+        fill="#34A853"
+      />
+      <path
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+        fill="#EA4335"
+      />
+    </svg>
+  )
+}
+
+function Spinner({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className ?? 'h-4 w-4 animate-spin'}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
   )
 }

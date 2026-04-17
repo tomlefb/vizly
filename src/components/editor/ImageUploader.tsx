@@ -135,18 +135,18 @@ export function ImageUploader({
           tabIndex={0}
           aria-label={`Ajouter des images. ${remaining} emplacement${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
           className={cn(
-            'relative flex items-center justify-center gap-3 rounded-xl border-[1.5px] border-dashed h-[100px] px-6 cursor-pointer transition-[border-color] duration-150',
+            'relative flex items-center justify-center gap-3 rounded-[var(--radius-lg)] border-[1.5px] border-dashed h-[100px] px-6 cursor-pointer transition-colors duration-150',
             isDragging
-              ? 'border-[#D1D5DB] bg-[#F3F4F6]'
-              : 'border-[#E5E7EB] bg-[#F9FAFB] hover:border-[#D1D5DB]'
+              ? 'border-muted-foreground bg-surface-sunken'
+              : 'border-border bg-surface-warm hover:border-muted-foreground'
           )}
         >
-          <Upload className="h-6 w-6 shrink-0 text-[#9CA3AF]" />
+          <Upload className="h-6 w-6 shrink-0 text-muted-foreground" />
           <div>
-            <p className="text-sm text-[#6B7280]">
-              {isDragging ? 'Depose tes images ici' : 'Glisse ou clique pour ajouter'}
+            <p className="text-sm text-muted">
+              {isDragging ? 'Dépose tes images ici' : 'Glisse ou clique pour ajouter'}
             </p>
-            <p className="text-[13px] text-[#9CA3AF]">
+            <p className="text-xs text-muted-foreground">
               JPG, PNG, WebP ou GIF — max 5 images
             </p>
           </div>
@@ -171,7 +171,7 @@ export function ImageUploader({
             key={i}
             className={cn(
               'h-2 w-2 rounded-full transition-colors duration-200',
-              i < totalImages ? 'bg-[#111827]' : 'bg-[#E5E7EB]'
+              i < totalImages ? 'bg-foreground' : 'bg-border-light'
             )}
             aria-hidden="true"
           />
@@ -186,7 +186,7 @@ export function ImageUploader({
           {existingUrls.map((url, index) => (
             <div
               key={`existing-${index}`}
-              className="group relative aspect-square rounded-[var(--radius-sm)] overflow-hidden border border-border bg-surface-warm"
+              className="group relative aspect-square rounded-[var(--radius-sm)] overflow-hidden border border-border-light bg-surface-warm"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -219,8 +219,8 @@ export function ImageUploader({
                 className={cn(
                   'group relative aspect-square rounded-[var(--radius-sm)] overflow-hidden border bg-surface-warm cursor-grab active:cursor-grabbing transition-all duration-150',
                   dragOverIndex === index
-                    ? 'border-accent ring-2 ring-accent/20 scale-105'
-                    : 'border-border'
+                    ? 'border-foreground ring-2 ring-foreground/10 scale-105'
+                    : 'border-border-light'
                 )}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -257,7 +257,7 @@ export function ImageUploader({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex aspect-square items-center justify-center rounded-[var(--radius-sm)] border border-dashed border-border hover:border-accent/50 hover:bg-surface-warm transition-colors duration-150"
+              className="flex aspect-square items-center justify-center rounded-[var(--radius-sm)] border border-dashed border-border-light hover:border-muted-foreground hover:bg-surface-warm transition-colors duration-150"
               aria-label="Ajouter une image"
             >
               <ImageIcon className="h-5 w-5 text-muted-foreground/50" />

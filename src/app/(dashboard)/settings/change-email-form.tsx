@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
+import { VzBtn } from '@/components/ui/vizly'
 import {
   requestEmailChange,
   verifyEmailChangeOtp,
@@ -14,6 +15,12 @@ type Step = 'idle' | 'request' | 'verify_current' | 'verify_new' | 'done'
 interface ChangeEmailFormProps {
   currentEmail: string
 }
+
+const INPUT_CLASSES =
+  'block h-10 w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent/30'
+
+const OTP_INPUT_CLASSES =
+  'block h-11 w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-center text-xl font-semibold tracking-[0.3em] text-foreground placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent/30'
 
 export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
   const router = useRouter()
@@ -203,24 +210,25 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
   if (step === 'done') {
     return (
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1.5">
+        <label className="mb-1.5 block text-sm font-medium text-foreground">
           {tSettings('email')}
         </label>
-        <div className="rounded-[var(--radius-md)] border border-success/30 bg-success/5 px-4 py-3">
-          <p className="text-sm font-medium text-success">
+        <div className="rounded-[var(--radius-md)] border border-[var(--color-success-fg)]/30 bg-[var(--color-success-bg)] px-4 py-3">
+          <p className="text-sm font-medium text-[var(--color-success-fg)]">
             {t('changeEmail.doneTitle')}
           </p>
           <p className="mt-1 text-sm text-foreground">
             {t('changeEmail.doneSubtitle', { email: newEmail })}
           </p>
         </div>
-        <button
-          type="button"
+        <VzBtn
+          variant="secondary"
+          size="md"
           onClick={handleDoneAcknowledge}
-          className="mt-3 inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+          className="mt-3"
         >
           {t('changeEmail.doneAcknowledge')}
-        </button>
+        </VzBtn>
       </div>
     )
   }
@@ -242,17 +250,17 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
 
     return (
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1.5">
+        <label className="mb-1.5 block text-sm font-medium text-foreground">
           {tSettings('email')}
         </label>
-        <div className="rounded-[var(--radius-md)] border border-border bg-surface p-4">
+        <div className="rounded-[var(--radius-md)] border border-border-light bg-surface p-4">
           <p className="text-sm font-medium text-foreground">{title}</p>
-          <p className="mt-1 text-xs text-muted leading-relaxed">{subtitle}</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted">{subtitle}</p>
 
           {error && (
             <div
               role="alert"
-              className="mt-3 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+              className="mt-3 rounded-[var(--radius-sm)] border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
             >
               {error}
             </div>
@@ -261,7 +269,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
           {resendInfo && (
             <div
               role="status"
-              className="mt-3 rounded-[var(--radius-md)] border border-success/30 bg-success/5 px-3 py-2 text-xs text-success"
+              className="mt-3 rounded-[var(--radius-sm)] border border-[var(--color-success-fg)]/30 bg-[var(--color-success-bg)] px-3 py-2 text-xs text-[var(--color-success-fg)]"
             >
               {resendInfo}
             </div>
@@ -281,25 +289,26 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
               }
               placeholder={t('changeEmail.codePlaceholder')}
               aria-label={t('changeEmail.codeLabel')}
-              className="block h-11 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 py-2 text-center text-xl font-semibold tracking-[0.3em] text-foreground placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
+              className={OTP_INPUT_CLASSES}
             />
             <div className="flex gap-2">
-              <button
+              <VzBtn
                 type="submit"
+                variant="primary"
+                size="md"
                 disabled={loading || otp.length !== 6}
-                className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading
                   ? t('changeEmail.verifyLoading')
                   : t('changeEmail.verifyButton')}
-              </button>
-              <button
-                type="button"
+              </VzBtn>
+              <VzBtn
+                variant="secondary"
+                size="md"
                 onClick={handleCancel}
-                className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
               >
                 {t('changeEmail.cancelButton')}
-              </button>
+              </VzBtn>
             </div>
           </form>
 
@@ -325,7 +334,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
       <div>
         <label
           htmlFor="new-email"
-          className="block text-sm font-medium text-foreground mb-1.5"
+          className="mb-1.5 block text-sm font-medium text-foreground"
         >
           {t('changeEmail.newEmailLabel')}
         </label>
@@ -333,7 +342,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
         {error && (
           <div
             role="alert"
-            className="mb-3 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+            className="mb-3 rounded-[var(--radius-sm)] border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive"
           >
             {error}
           </div>
@@ -348,28 +357,29 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             placeholder={t('changeEmail.newEmailPlaceholder')}
-            className="block h-10 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
+            className={INPUT_CLASSES}
           />
-          <p className="text-xs text-muted leading-relaxed">
+          <p className="text-xs leading-relaxed text-muted">
             {t('changeEmail.requestHint', { email: currentEmail })}
           </p>
           <div className="flex gap-2">
-            <button
+            <VzBtn
               type="submit"
+              variant="primary"
+              size="md"
               disabled={loading}
-              className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading
                 ? t('changeEmail.requestLoading')
                 : t('changeEmail.requestButton')}
-            </button>
-            <button
-              type="button"
+            </VzBtn>
+            <VzBtn
+              variant="secondary"
+              size="md"
               onClick={handleCancel}
-              className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
             >
               {t('changeEmail.cancelButton')}
-            </button>
+            </VzBtn>
           </div>
         </form>
       </div>
@@ -384,16 +394,17 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
         {tSettings('email')}
       </label>
       <div className="flex flex-wrap items-center gap-2">
-        <div className="h-10 min-w-0 flex-1 truncate rounded-[var(--radius-md)] border border-border bg-surface-warm px-3 text-sm leading-[38px] text-muted">
+        <div className="h-10 min-w-0 flex-1 truncate rounded-[var(--radius-md)] border border-border-light bg-surface-warm px-3 text-sm leading-[38px] text-muted">
           {currentEmail}
         </div>
-        <button
-          type="button"
+        <VzBtn
+          variant="secondary"
+          size="md"
           onClick={handleStart}
-          className="inline-flex h-10 min-w-[140px] items-center justify-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
+          className="min-w-[140px]"
         >
           {t('changeEmail.startButton')}
-        </button>
+        </VzBtn>
       </div>
     </div>
   )

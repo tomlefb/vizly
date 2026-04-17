@@ -33,7 +33,7 @@ export default async function MentionsLegalesPage() {
         {tShared('editor.city')}
         <br />
         {t('editorSite.emailLabel')}{' '}
-        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>
+        <a href={`mailto:${email}`} className="text-accent-deep hover:underline">{email}</a>
       </Section>
 
       <Section title={t('host.title')}>
@@ -44,7 +44,7 @@ export default async function MentionsLegalesPage() {
         {t('host.siteLabel')}{' '}
         <a
           href={t('host.url')}
-          className="text-accent hover:underline"
+          className="text-accent-deep hover:underline"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -68,7 +68,7 @@ export default async function MentionsLegalesPage() {
 
       <Section title={t('contactSection.title')}>
         {t('contactSection.prompt')}{' '}
-        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>
+        <a href={`mailto:${email}`} className="text-accent-deep hover:underline">{email}</a>
       </Section>
     </article>
   )

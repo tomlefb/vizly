@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
+import { VzHighlight } from '@/components/ui/vizly'
 import type { TemplateProps } from '@/types'
 
 export interface PortfolioStats {
@@ -56,7 +57,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
     return (
       <div>
         <Header />
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
+        <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-warm p-8 text-center">
           <p className="text-sm text-muted">
             Publie un projet pour commencer à voir ses statistiques.
           </p>
@@ -76,10 +77,10 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             type="button"
             onClick={() => setSelectedId(p.id)}
             className={cn(
-              'inline-flex h-9 items-center rounded-[var(--radius-md)] border px-4 text-sm transition-colors duration-150',
+              'inline-flex h-9 items-center rounded-[var(--radius-md)] border px-4 font-mono text-[13px] transition-colors duration-150',
               selectedId === p.id
-                ? 'border-accent bg-accent font-medium text-white'
-                : 'border-border bg-surface text-muted-foreground hover:bg-surface-warm hover:text-foreground',
+                ? 'border-border-strong bg-foreground font-medium text-surface-warm'
+                : 'border-border-light bg-surface text-muted hover:border-border hover:bg-surface-warm hover:text-foreground',
             )}
           >
             {p.slug ? `${p.slug}.vizly.fr` : p.title}
@@ -89,9 +90,9 @@ export function StatsClient({ portfolios }: StatsClientProps) {
 
       {selected && (
         <>
-          {/* ─── Ligne 1 : Preview | KPIs (stretch pour aligner) ─── */}
+          {/* ─── Ligne 1 : Preview | KPIs ─── */}
           <div className="mt-8 grid gap-6 lg:grid-cols-[2fr_3fr]">
-            <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border">
+            <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface">
               <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
                 <div className="flex gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
@@ -99,7 +100,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                   <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
                 </div>
                 <div className="flex flex-1 justify-center">
-                  <div className="max-w-[180px] truncate rounded-[2px] border border-border-light bg-background px-2 py-px font-mono text-[9px] text-muted">
+                  <div className="max-w-[180px] truncate rounded-[2px] border border-border-light bg-surface px-2 py-px font-mono text-[9px] text-muted">
                     {selected.slug
                       ? `${selected.slug}.vizly.fr`
                       : 'Non publié'}
@@ -113,7 +114,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
               />
             </div>
 
-            <div className="divide-y divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border self-start">
+            <div className="divide-y divide-border-light self-start overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface">
               <KpiRow label="Vues totales" value={selected.totalViews} />
               <KpiRow
                 label="30 derniers jours"
@@ -124,36 +125,39 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             </div>
           </div>
 
-          {/* ─── Ligne 2 : Sources | Chart (même colonnes, stretch) ─── */}
+          {/* ─── Ligne 2 : Sources | Chart ─── */}
           <div className="mt-6 grid gap-6 lg:grid-cols-[2fr_3fr]">
             <div>
               <div className="flex items-baseline justify-between gap-4">
-                <h2 className="text-sm font-medium text-foreground">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Sources
                 </h2>
                 <span className="text-xs text-muted">30 derniers jours</span>
               </div>
 
               {selected.sources.length > 0 ? (
-                <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border">
+                <div className="mt-3 overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border-light bg-surface-warm">
-                        <th className="px-4 py-2 text-left text-xs font-medium text-muted">
+                        <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Source
                         </th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-muted">
+                        <th className="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Visiteurs
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border-light">
                       {selected.sources.map((s) => (
-                        <tr key={s.source}>
+                        <tr
+                          key={s.source}
+                          className="transition-colors duration-150 hover:bg-surface-warm"
+                        >
                           <td className="px-4 py-2.5 text-foreground">
                             {s.source}
                           </td>
-                          <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
+                          <td className="px-4 py-2.5 text-right font-medium tabular-nums text-foreground">
                             {s.count.toLocaleString('fr-FR')}
                           </td>
                         </tr>
@@ -180,9 +184,9 @@ function Header() {
   return (
     <header className="mb-8">
       <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-        Mes <span className="text-accent">statistiques</span>.
+        Mes <VzHighlight>statistiques</VzHighlight>.
       </h1>
-      <p className="mt-1.5 text-sm text-muted">
+      <p className="mt-2 text-sm text-muted">
         Performances et vues de tes portfolios.
       </p>
     </header>
@@ -201,11 +205,13 @@ function KpiRow({
   return (
     <div className="flex items-center justify-between gap-4 bg-surface px-6 py-5">
       <div>
-        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
         {trend !== undefined && (
           <div className="mt-1 flex items-center gap-1">
             {trend > 0 ? (
-              <ArrowUp className="h-3 w-3 text-success" strokeWidth={2} />
+              <ArrowUp className="h-3 w-3 text-[var(--color-success-fg)]" strokeWidth={2} />
             ) : trend < 0 ? (
               <ArrowDown className="h-3 w-3 text-destructive" strokeWidth={2} />
             ) : (
@@ -215,7 +221,7 @@ function KpiRow({
               className={cn(
                 'text-xs font-medium',
                 trend > 0
-                  ? 'text-success'
+                  ? 'text-[var(--color-success-fg)]'
                   : trend < 0
                     ? 'text-destructive'
                     : 'text-muted-foreground',
@@ -227,7 +233,7 @@ function KpiRow({
           </div>
         )}
       </div>
-      <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold text-foreground tabular-nums">
+      <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tabular-nums text-foreground">
         {value.toLocaleString('fr-FR')}
       </p>
     </div>
@@ -259,16 +265,18 @@ function DailyChart({
   return (
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-sm font-medium text-foreground">Vues par jour</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Vues par jour
+        </h2>
         <span className="text-xs text-muted">30 derniers jours</span>
       </div>
 
-      <div className="mt-3 flex min-h-[160px] flex-1 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface p-4 pl-2">
+      <div className="mt-3 flex min-h-[160px] flex-1 overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface p-4 pl-2">
         <div className="flex w-7 shrink-0 flex-col-reverse justify-between pr-2 pb-5">
           {ySteps.map((v) => (
             <span
               key={v}
-              className="text-right text-[9px] leading-none text-muted tabular-nums"
+              className="text-right text-[9px] leading-none tabular-nums text-muted"
             >
               {v}
             </span>
@@ -287,10 +295,10 @@ function DailyChart({
               return (
                 <div key={day.date} className="group relative flex-1 self-end">
                   <div
-                    className="w-full rounded-t-[2px] bg-accent/25 transition-colors group-hover:bg-accent/50"
+                    className="w-full rounded-t-[2px] bg-foreground/70 transition-colors group-hover:bg-foreground"
                     style={{ height: barH }}
                   />
-                  <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-[10px] font-medium text-background group-hover:block">
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-[var(--radius-sm)] bg-foreground px-2 py-1 text-[10px] font-medium text-surface-warm group-hover:block">
                     {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
                   </div>
                 </div>
@@ -306,7 +314,7 @@ function DailyChart({
               return (
                 <div key={day.date} className="flex-1 text-center">
                   {showLabel && (
-                    <span className="text-[9px] text-muted tabular-nums">
+                    <span className="text-[9px] tabular-nums text-muted">
                       {date.getDate()}/{date.getMonth() + 1}
                     </span>
                   )}

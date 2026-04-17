@@ -67,12 +67,17 @@ export function ProjectForm({
 
   const descriptionLength = (project.description ?? '').length
 
+  const inputBase =
+    'w-full h-10 rounded-[var(--radius-md)] border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-foreground'
+  const textareaBase =
+    'w-full rounded-[var(--radius-md)] border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[56px] focus:outline-none focus:border-foreground'
+
   return (
     <div className={cn('space-y-3', className)} data-testid="project-form">
       {/* Title */}
       <div>
-        <label htmlFor={`${id}-title`} className="block text-sm text-[#6B7280] mb-1.5">
-          Titre du projet <span className="text-[#DC2626]">*</span>
+        <label htmlFor={`${id}-title`} className="mb-1.5 block text-sm font-medium text-foreground">
+          Titre du projet <span className="text-destructive">*</span>
         </label>
         <input
           id={`${id}-title`}
@@ -82,13 +87,13 @@ export function ProjectForm({
           onChange={(e) => handleFieldChange('title', e.target.value)}
           placeholder="Mon super projet"
           maxLength={100}
-          className="w-full h-10 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+          className={cn(inputBase, 'border-border-light')}
         />
       </div>
 
       {/* Description */}
       <div>
-        <label htmlFor={`${id}-description`} className="block text-sm text-[#6B7280] mb-1.5">
+        <label htmlFor={`${id}-description`} className="mb-1.5 block text-sm font-medium text-foreground">
           Description
         </label>
         <textarea
@@ -96,19 +101,19 @@ export function ProjectForm({
           data-testid="project-description"
           value={project.description ?? ''}
           onChange={(e) => handleFieldChange('description', e.target.value)}
-          placeholder="Decris ton projet en quelques lignes..."
+          placeholder="Décris ton projet en quelques lignes..."
           maxLength={MAX_PROJECT_DESCRIPTION_LENGTH}
           rows={2}
-          className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 resize-y min-h-[56px] focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]"
+          className={cn(textareaBase, 'border-border-light')}
         />
-        <p className="text-[13px] text-[#9CA3AF] text-right mt-1">
+        <p className="mt-1 text-right text-xs text-muted-foreground">
           {descriptionLength}/{MAX_PROJECT_DESCRIPTION_LENGTH}
         </p>
       </div>
 
       {/* External link */}
       <div>
-        <label htmlFor={`${id}-link`} className="block text-sm text-[#6B7280] mb-1.5">
+        <label htmlFor={`${id}-link`} className="mb-1.5 block text-sm font-medium text-foreground">
           Lien externe
         </label>
         <input
@@ -122,19 +127,16 @@ export function ProjectForm({
           onBlur={() => {
             const val = project.external_link ?? ''
             if (val.trim()) {
-              try { new URL(val) ; setLinkError(null) } catch { setLinkError('URL invalide (doit commencer par https://)') }
+              try { new URL(val); setLinkError(null) } catch { setLinkError('URL invalide (doit commencer par https://)') }
             } else {
               setLinkError(null)
             }
           }}
           placeholder="https://github.com/..."
-          className={cn(
-            'w-full h-10 rounded-lg border bg-white px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] transition-[border-color] duration-150 focus:outline-none focus:border-[#D1D5DB] focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]',
-            linkError ? 'border-[#DC2626]' : 'border-[#E5E7EB]'
-          )}
+          className={cn(inputBase, linkError ? 'border-destructive' : 'border-border-light')}
         />
         {linkError && (
-          <p className="text-[13px] text-[#DC2626] mt-1 flex items-center gap-1">
+          <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
             <AlertCircle className="h-3 w-3" />
             {linkError}
           </p>
@@ -143,20 +145,20 @@ export function ProjectForm({
 
       {/* Tags */}
       <div>
-        <label htmlFor={`${id}-tags`} className="block text-sm text-[#6B7280] mb-1.5">
+        <label htmlFor={`${id}-tags`} className="mb-1.5 block text-sm font-medium text-foreground">
           Technologies / Tags
         </label>
-        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 min-h-[40px] transition-[border-color] duration-150 focus-within:border-[#D1D5DB] focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]">
+        <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 min-h-[40px] transition-colors duration-150 focus-within:border-foreground">
           {project.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-[#F3F4F6] text-[#111827] rounded-[6px] text-[13px]"
+              className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-surface-sunken text-foreground rounded-[var(--radius-sm)] text-xs font-medium"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => handleRemoveTag(tag)}
-                className="flex h-3.5 w-3.5 items-center justify-center text-[#9CA3AF] hover:text-[#111827] transition-colors"
+                className="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={`Supprimer le tag ${tag}`}
               >
                 <X className="h-2.5 w-2.5" />
@@ -171,11 +173,11 @@ export function ProjectForm({
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagKeyDown}
               placeholder={project.tags.length === 0 ? 'React, TypeScript...' : 'Ajouter...'}
-              className="flex-1 min-w-[80px] bg-transparent text-sm text-[#111827] placeholder:text-[#9CA3AF] outline-none"
+              className="flex-1 min-w-[80px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
             />
           )}
         </div>
-        <p className="text-[13px] text-[#9CA3AF] mt-1">{project.tags.length}/10</p>
+        <p className="mt-1 text-xs text-muted-foreground">{project.tags.length}/10</p>
       </div>
     </div>
   )

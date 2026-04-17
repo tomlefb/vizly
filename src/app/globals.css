@@ -1,24 +1,50 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: #FFFFFF;
-  --color-foreground: #1A1A1A;
-  --color-muted: #6B6560;
-  --color-muted-foreground: #9C958E;
-  --color-border: #E8E3DE;
-  --color-border-light: #F0EBE6;
-  --color-accent: #D4634E;
-  --color-accent-hover: #C05640;
-  --color-accent-light: #FDF2EF;
-  --color-surface: #FFFFFF;
-  --color-surface-warm: #FAF8F6;
-  --color-surface-elevated: #FFFFFF;
-  --color-destructive: #DC2626;
-  --color-success: #16A34A;
+/* ============================================================
+   Vizly Design System — "Handcrafted"
+   Lime accent, cream canvas, black buttons with offset shadow.
+   Tokens here are the single source of truth; never inline hex.
+   ============================================================ */
 
+@theme {
+  /* ---------- Surfaces ---------- */
+  --color-background: #FAF8F6;          /* cream page background — never gray */
+  --color-foreground: #1A1A1A;          /* near-black text */
+  --color-surface: #FFFFFF;             /* cards, elevated surfaces */
+  --color-surface-warm: #FAF8F6;        /* alt sections, sidebar */
+  --color-surface-sunken: #F4EFE8;      /* nested surfaces, code blocks */
+  --color-surface-elevated: #FFFFFF;    /* modales (compat) */
+
+  /* ---------- Text ---------- */
+  --color-muted: #6B6560;               /* secondary text */
+  --color-muted-foreground: #9C958E;    /* placeholders, meta */
+  --color-foreground-muted: #B8B2AA;    /* secondary text on dark surfaces */
+
+  /* ---------- Borders ---------- */
+  --color-border: #D8D3C7;              /* hover / focus */
+  --color-border-light: #EDE6DE;        /* rest state */
+  --color-border-strong: #1A1A1A;       /* outline buttons (1.5px black) */
+
+  /* ---------- Accent — lime citron (signature) ---------- */
+  --color-accent: #C8F169;              /* marker highlight, offset shadow, avatar */
+  --color-accent-hover: #B8E150;        /* slightly darker lime */
+  --color-accent-deep: #8AB83D;         /* dot in "Vizly.", inline links */
+  --color-accent-fg: #1A1A1A;           /* text on accent = black */
+  --color-accent-light: #F1FADC;        /* very light lime (badges, backgrounds) */
+
+  /* ---------- Semantic ---------- */
+  --color-success: #16A34A;
+  --color-success-bg: #E8F5E9;
+  --color-success-fg: #1B5E20;
+  --color-destructive: #DC2626;
+  --color-destructive-bg: #FEF2F2;
+
+  /* ---------- Fonts ---------- */
   --font-display: var(--font-satoshi);
   --font-body: var(--font-dm-sans);
+  --font-mono: ui-monospace, 'SF Mono', 'Menlo', monospace;
 
+  /* ---------- Radius ---------- */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -26,7 +52,26 @@
   --radius-full: 9999px;
 }
 
-/* Grain texture overlay */
+/* ---------- Signature shadows (outside @theme; Tailwind v4 does not
+   map --shadow-* to utilities by default, so these are raw vars used
+   via shadow-[var(--shadow-offset-accent-3)] or in components). ---------- */
+:root {
+  --shadow-card-hover: 0 2px 12px rgba(0, 0, 0, 0.04);
+  --shadow-offset-accent-3: 3px 3px 0 #C8F169;
+  --shadow-offset-accent-2: 2px 2px 0 #C8F169;
+  --shadow-offset-accent-1: 1px 1px 0 #C8F169;
+}
+
+/* ---------- Base body ---------- */
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Grain texture overlay (signature) ---------- */
 body::before {
   content: "";
   position: fixed;
@@ -39,21 +84,13 @@ body::before {
   background-size: 256px 256px;
 }
 
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family: var(--font-body), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Dashboard sidebar pre-paint override : le layout React émet des
-   inline styles width/padding-left basés sur defaultExpanded (qui
-   peut être faux si le SSR n'a pas pu lire le cookie). L'inline
-   script dans <body> pose data-sidebar-collapsed sur <html> avant
-   le premier paint, et ces règles !important forcent la bonne
-   géométrie dès l'affichage initial. React sync ensuite le data
-   attribute à chaque toggle. */
+/* ---------- Dashboard sidebar pre-paint override ----------
+   The layout React component emits inline width/padding based on
+   defaultExpanded (which may be wrong when SSR can't read the cookie).
+   An inline script in <body> sets data-sidebar-collapsed on <html>
+   before first paint, and these !important rules force the right
+   geometry before hydration. React syncs the data attribute on every
+   toggle. */
 html[data-sidebar-collapsed] aside[data-dashboard-sidebar] {
   width: 56px !important;
 }
@@ -61,26 +98,51 @@ html[data-sidebar-collapsed] main[data-dashboard-main] {
   padding-left: 56px !important;
 }
 
-/* Focus ring */
+/* ---------- Focus ring ---------- */
 *:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-accent-deep);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
-/* Selection */
+/* ---------- Selection ---------- */
 ::selection {
-  background-color: var(--color-accent-light);
+  background-color: var(--color-accent);
   color: var(--color-foreground);
 }
 
-/* Float animation for decorative elements */
+/* ---------- Signature: marker highlight ---------- */
+.vz-highlight {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+.vz-highlight::before {
+  content: '';
+  position: absolute;
+  inset: -2px -6px;
+  background: var(--color-accent);
+  border-radius: 3px;
+  transform: rotate(-1.5deg);
+  z-index: 0;
+}
+.vz-highlight > span {
+  position: relative;
+  z-index: 1;
+  padding: 0 4px;
+}
+
+/* ---------- Signature: Vizly wordmark dot ---------- */
+.vz-wordmark-dot {
+  color: var(--color-accent-deep);
+}
+
+/* ---------- Keyframes ---------- */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
 }
 
-/* Hero portfolio wall scroll animations */
 @keyframes scroll-up {
   0% { transform: translateY(0); }
   100% { transform: translateY(-50%); }
@@ -96,7 +158,7 @@ html[data-sidebar-collapsed] main[data-dashboard-main] {
   animation: scroll-down linear infinite;
 }
 
-/* Reduced motion */
+/* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

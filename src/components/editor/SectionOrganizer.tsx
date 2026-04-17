@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { ChevronUp, ChevronDown, Eye, EyeOff, GripVertical, LayoutList } from 'lucide-react'
+import { ChevronUp, ChevronDown, Eye, EyeOff, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getSectionLabel, type SectionBlock, type SectionId } from '@/types/sections'
 import type { CustomBlock } from '@/types/custom-blocks'
@@ -59,18 +59,13 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-accent/10">
-          <LayoutList className="h-3.5 w-3.5 text-accent" />
-        </div>
-        <div>
-          <h2 className="text-base font-medium text-foreground font-[family-name:var(--font-satoshi)]">
-            Sections
-          </h2>
-          <p className="text-[11px] text-muted-foreground">
-            Organise et choisis les sections de ton portfolio
-          </p>
-        </div>
+      <div>
+        <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          Sections
+        </h3>
+        <p className="text-sm text-muted mt-1">
+          Organise et choisis les sections de ton portfolio
+        </p>
       </div>
 
       <div className="space-y-1.5">
@@ -83,17 +78,17 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
             <div
               key={section.id}
               className={cn(
-                'flex items-center gap-2 bg-white border border-border/60 rounded-[var(--radius-sm)] px-3 py-2.5 transition-colors duration-200 hover:bg-surface-warm',
+                'flex items-center gap-2 bg-surface border border-border-light rounded-[var(--radius-md)] px-3 py-2.5 transition-colors duration-200 hover:border-border',
                 !section.visible && 'opacity-50'
               )}
             >
-              {/* Grip — more visible */}
-              <GripVertical className="h-5 w-5 text-muted-foreground/40 hover:text-muted cursor-grab shrink-0 transition-colors" />
+              {/* Grip */}
+              <GripVertical className="h-5 w-5 text-muted-foreground/40 hover:text-muted cursor-grab shrink-0 transition-colors" strokeWidth={1.5} />
 
               {/* Label */}
               <span
                 className={cn(
-                  'flex-1 text-[13px] font-medium',
+                  'flex-1 text-sm font-medium',
                   section.visible ? 'text-foreground' : 'text-muted-foreground line-through'
                 )}
               >
@@ -106,23 +101,23 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
                   type="button"
                   onClick={() => moveUp(section.id)}
                   disabled={isFirst}
-                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-white hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
+                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
                   aria-label="Monter"
                 >
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4" strokeWidth={1.5} />
                 </button>
                 <button
                   type="button"
                   onClick={() => moveDown(section.id)}
                   disabled={isLast}
-                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-white hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
+                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground transition-colors hover:bg-surface-warm hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
                   aria-label="Descendre"
                 >
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4" strokeWidth={1.5} />
                 </button>
               </div>
 
-              {/* Toggle visibility — terracotta when visible */}
+              {/* Toggle visibility */}
               <button
                 type="button"
                 onClick={() => toggleVisibility(section.id)}
@@ -132,15 +127,15 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
                   isHero
                     ? 'text-muted-foreground/20 cursor-not-allowed'
                     : section.visible
-                      ? 'text-accent hover:bg-accent/10'
+                      ? 'text-foreground hover:bg-surface-warm'
                       : 'text-muted-foreground/40 hover:bg-surface-warm hover:text-foreground'
                 )}
                 aria-label={section.visible ? 'Masquer' : 'Afficher'}
               >
                 {section.visible ? (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-4 w-4" strokeWidth={1.5} />
                 ) : (
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4" strokeWidth={1.5} />
                 )}
               </button>
             </div>
@@ -149,7 +144,7 @@ export function SectionOrganizer({ sections, customBlocks = [], onChange }: Sect
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Utilise les fleches pour reorganiser. L&apos;oeil active ou desactive une section.
+        Utilise les flèches pour réorganiser. L&apos;œil active ou désactive une section.
       </p>
     </section>
   )

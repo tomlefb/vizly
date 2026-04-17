@@ -7,6 +7,7 @@ import type { TemplateConfig } from '@/types/templates'
 import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
+import { VzBadge, VzBtn } from '@/components/ui/vizly'
 import { TemplatePurchaseModal } from '@/components/billing/TemplatePurchaseModal'
 
 interface Props {
@@ -141,7 +142,7 @@ function TemplateCard({
   }
 
   const chrome = (
-    <div className="border-b border-border-light bg-background overflow-hidden">
+    <div className="overflow-hidden border-b border-border-light bg-surface-sunken">
       <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-3 py-1.5">
         <div className="flex gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
@@ -149,7 +150,7 @@ function TemplateCard({
           <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
         </div>
         <div className="flex flex-1 justify-center">
-          <div className="rounded-[2px] border border-border-light bg-background px-2 py-px font-mono text-[9px] text-muted">
+          <div className="rounded-[2px] border border-border-light bg-surface px-2 py-px font-mono text-[9px] text-muted">
             pseudo.vizly.fr
           </div>
         </div>
@@ -166,18 +167,12 @@ function TemplateCard({
   const badge =
     variant === 'owned' ? (
       isPurchased ? (
-        <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
-          {t('badgePurchased')}
-        </span>
+        <VzBadge variant="online">{t('badgePurchased')}</VzBadge>
       ) : (
-        <span className="inline-flex items-center rounded-full bg-surface-warm px-2 py-0.5 text-[10px] font-semibold text-muted">
-          {t('badgeFree')}
-        </span>
+        <VzBadge variant="draft">{t('badgeFree')}</VzBadge>
       )
     ) : (
-      <span className="inline-flex items-center rounded-full bg-foreground px-2.5 py-0.5 text-[10px] font-semibold text-background">
-        2,99&nbsp;€
-      </span>
+      <VzBadge variant="pro">2,99&nbsp;€</VzBadge>
     )
 
   const meta = (
@@ -188,7 +183,7 @@ function TemplateCard({
         </h3>
         {badge}
       </div>
-      <p className="text-sm text-muted leading-relaxed">
+      <p className="text-sm leading-relaxed text-muted">
         {template.description}
       </p>
       <p className="mt-1.5 text-xs text-muted-foreground">
@@ -199,7 +194,7 @@ function TemplateCard({
 
   if (variant === 'owned') {
     return (
-      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[var(--shadow-card-hover)]">
         {chrome}
         {meta}
       </div>
@@ -207,23 +202,18 @@ function TemplateCard({
   }
 
   const buyButton = (
-    <button
-      type="button"
-      onClick={onBuy}
-      className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
-    >
+    <VzBtn variant="primary" size="md" onClick={onBuy}>
       {t('buy')}
-    </button>
+    </VzBtn>
   )
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface transition-all duration-200 hover:border-border hover:shadow-[var(--shadow-card-hover)]">
       <div className="group relative">
         {chrome}
         {/* Desktop hover overlay — reveals buy button on top of the preview.
-            has-[:focus-visible] keeps it a11y for keyboard users without
-            getting stuck after a mouse click (which leaves focus on the button). */}
-        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-surface-warm/80 opacity-0 backdrop-blur-md transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 has-[:focus-visible]:pointer-events-auto has-[:focus-visible]:opacity-100 md:flex">
+            has-[:focus-visible] keeps it a11y for keyboard users. */}
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-surface-warm/85 opacity-0 backdrop-blur-md transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 has-[:focus-visible]:pointer-events-auto has-[:focus-visible]:opacity-100 md:flex">
           {buyButton}
         </div>
       </div>

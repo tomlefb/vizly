@@ -8,6 +8,7 @@ import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis } from '@/types/kpis'
 import { parseLayoutBlocks } from '@/types/layout-blocks'
 import type { TemplateProps } from '@/types'
+import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 import { StatsClient, type PortfolioStats } from './stats-client'
 
 export default async function StatistiquesPage() {
@@ -29,10 +30,12 @@ export default async function StatistiquesPage() {
   if (plan !== 'pro') {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center py-24 text-center">
-        <BarChart3
-          className="h-9 w-9 text-muted-foreground/50"
-          strokeWidth={1.5}
-        />
+        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-border-light bg-surface-sunken">
+          <BarChart3
+            className="h-5 w-5 text-muted-foreground"
+            strokeWidth={1.5}
+          />
+        </div>
         <h3 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
           Statistiques
         </h3>
@@ -40,14 +43,12 @@ export default async function StatistiquesPage() {
           Suis le nombre de vues sur tes portfolios et découvre d&apos;où
           viennent tes visiteurs. Disponible avec le plan Pro.
         </p>
-        <div className="mt-7">
-          <Link
-            href="/billing"
-            className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
-          >
-            Passer au Pro
-          </Link>
-        </div>
+        <Link
+          href="/billing"
+          className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'mt-7' })}
+        >
+          Passer au Pro
+        </Link>
       </div>
     )
   }
@@ -66,19 +67,19 @@ export default async function StatistiquesPage() {
       <div>
         <header className="mb-10">
           <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Mes <span className="text-accent">statistiques</span>.
+            Mes <VzHighlight>statistiques</VzHighlight>.
           </h1>
-          <p className="mt-1.5 text-sm text-muted">
+          <p className="mt-2 text-sm text-muted">
             Performances et vues de tes portfolios.
           </p>
         </header>
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
+        <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-warm p-8 text-center">
           <p className="text-sm text-muted">
             Crée et publie un projet pour commencer à voir tes statistiques.
           </p>
           <Link
             href="/editor"
-            className="mt-4 inline-flex items-center text-sm font-medium text-accent hover:text-accent-hover transition-colors"
+            className="mt-4 inline-flex items-center text-sm font-medium text-accent-deep transition-colors hover:text-foreground"
           >
             Créer un projet
           </Link>

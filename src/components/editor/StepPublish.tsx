@@ -13,6 +13,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzBtn, vzBtnClasses } from '@/components/ui/vizly'
 import { APP_DOMAIN, SLUG_MIN_LENGTH, SLUG_MAX_LENGTH } from '@/lib/constants'
 import type { PortfolioFormData, ProjectFormData } from '@/lib/validations'
 import { SubscriptionCheckoutModal } from '@/components/billing/SubscriptionCheckoutModal'
@@ -224,43 +225,38 @@ export function StepPublish({
   // ── Success screen ──
   if (isPublished) {
     return (
-      <div className={cn('space-y-6', className)} data-testid="step-publish">
+      <div className={cn('space-y-6 max-w-xl mx-auto', className)} data-testid="step-publish">
         <div className="flex justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
-            <Check className="h-7 w-7 text-success" strokeWidth={2} />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-success-bg)]">
+            <Check className="h-7 w-7 text-[var(--color-success-fg)]" strokeWidth={2} />
           </div>
         </div>
 
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          <h2 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)] tracking-tight">
             Ton portfolio est en ligne
           </h2>
-          <p className="text-[13px] text-muted">
-            Ton portfolio est maintenant accessible a tout le monde.
+          <p className="text-sm text-muted">
+            Ton portfolio est maintenant accessible à tout le monde.
           </p>
         </div>
 
         {/* URL copy box */}
-        <div className="flex items-center gap-2 bg-white border border-border/60 rounded-[var(--radius-md)] p-1.5">
+        <div className="flex items-center gap-2 bg-surface border border-border-light rounded-[var(--radius-md)] p-1.5">
           <input
             type="text"
             readOnly
             value={portfolioUrl}
-            className="flex-1 bg-transparent px-3 py-2 text-[13px] font-mono text-foreground outline-none"
+            className="flex-1 bg-transparent px-3 py-2 text-sm font-mono text-foreground outline-none"
           />
-          <button
-            type="button"
+          <VzBtn
+            variant={copied ? 'secondary' : 'primary'}
+            size="sm"
             onClick={handleCopyLink}
-            className={cn(
-              'flex items-center gap-1.5 rounded-[var(--radius-sm)] px-3 py-1.5 text-[12px] font-semibold transition-all',
-              copied
-                ? 'bg-success text-white'
-                : 'bg-accent text-white hover:bg-accent-hover'
-            )}
           >
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-            {copied ? 'Copie !' : 'Copier'}
-          </button>
+            {copied ? 'Copié !' : 'Copier'}
+          </VzBtn>
         </div>
 
         {/* Action buttons */}
@@ -269,7 +265,7 @@ export function StepPublish({
             href={portfolioUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-accent px-6 py-3 text-[14px] font-semibold text-white transition-all hover:bg-accent-hover active:scale-[0.98]"
+            className={vzBtnClasses({ variant: 'primary', size: 'lg', className: 'w-full' })}
           >
             Voir mon portfolio
             <ExternalLink className="h-4 w-4" />
@@ -279,7 +275,7 @@ export function StepPublish({
               href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(portfolioUrl)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-border px-4 py-2.5 text-[12px] font-medium text-foreground hover:bg-surface-warm transition-colors"
+              className={vzBtnClasses({ variant: 'secondary', size: 'sm', className: 'flex-1' })}
             >
               Partager sur LinkedIn
             </a>
@@ -287,7 +283,7 @@ export function StepPublish({
               href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(portfolioUrl)}&text=${encodeURIComponent('Mon portfolio est en ligne !')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-border px-4 py-2.5 text-[12px] font-medium text-foreground hover:bg-surface-warm transition-colors"
+              className={vzBtnClasses({ variant: 'secondary', size: 'sm', className: 'flex-1' })}
             >
               Partager sur X
             </a>
@@ -299,17 +295,17 @@ export function StepPublish({
 
   // ── Main publish form ──
   return (
-    <div className={cn('space-y-6', className)} data-testid="step-publish">
+    <div className={cn('space-y-6 max-w-xl mx-auto', className)} data-testid="step-publish">
       {/* Slug input */}
       <div className="space-y-2">
         <label
           htmlFor="slug-input"
-          className="block text-[12px] font-medium text-muted"
+          className="mb-1.5 block text-sm font-medium text-foreground"
         >
           Ton pseudo
         </label>
 
-        <div className="flex items-center rounded-[var(--radius-md)] border border-border bg-white overflow-hidden transition-colors duration-200 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/15">
+        <div className="flex items-center rounded-[var(--radius-md)] border border-border-light bg-surface overflow-hidden transition-colors duration-150 focus-within:border-foreground">
           <input
             id="slug-input"
             data-testid="slug-input"
@@ -322,7 +318,7 @@ export function StepPublish({
             aria-invalid={slugStatus === 'invalid' || slugStatus === 'taken'}
             aria-describedby="slug-status"
           />
-          <div className="flex items-center gap-2 pr-4 text-[12px] text-muted-foreground select-none">
+          <div className="flex items-center gap-2 pr-4 text-xs text-muted-foreground select-none">
             <span className="font-mono">.{APP_DOMAIN}</span>
             {statusIcon[slugStatus]}
           </div>
@@ -330,55 +326,55 @@ export function StepPublish({
 
         <div id="slug-status" aria-live="polite" className="min-h-[18px]">
           {slugStatus === 'available' && (
-            <p className="text-[12px] text-success font-medium flex items-center gap-1">
+            <p className="text-xs font-medium text-[var(--color-success-fg)] flex items-center gap-1">
               <Check className="h-3 w-3" />
               Disponible !
             </p>
           )}
           {slugError && (
-            <p className="text-[11px] text-destructive" role="alert">
+            <p className="text-xs text-destructive" role="alert">
               {slugError}
             </p>
           )}
           {slugStatus === 'checking' && (
-            <p className="text-[11px] text-muted-foreground">
-              Verification en cours...
+            <p className="text-xs text-muted-foreground">
+              Vérification en cours...
             </p>
           )}
         </div>
       </div>
 
       {/* Recap card */}
-      <div className="bg-white border border-border/60 rounded-[var(--radius-lg)] p-4 space-y-2.5">
-        <h3 className="text-[12px] font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          Recapitulatif
+      <div className="bg-surface border border-border-light rounded-[var(--radius-lg)] p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          Récapitulatif
         </h3>
         <div className="space-y-2">
-          <div className="flex items-center gap-3 text-[12px]">
-            <User className="h-3.5 w-3.5 text-muted shrink-0" />
+          <div className="flex items-center gap-3 text-sm">
+            <User className="h-3.5 w-3.5 text-muted shrink-0" strokeWidth={1.5} />
             <span className="text-muted">Nom</span>
             <span className="ml-auto font-medium text-foreground truncate max-w-[200px]">
               {data.title || '\u2014'}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[12px]">
-            <Palette className="h-3.5 w-3.5 text-muted shrink-0" />
+          <div className="flex items-center gap-3 text-sm">
+            <Palette className="h-3.5 w-3.5 text-muted shrink-0" strokeWidth={1.5} />
             <span className="text-muted">Template</span>
             <span className="ml-auto font-medium text-foreground capitalize">
               {data.template || '\u2014'}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[12px]">
-            <FolderOpen className="h-3.5 w-3.5 text-muted shrink-0" />
+          <div className="flex items-center gap-3 text-sm">
+            <FolderOpen className="h-3.5 w-3.5 text-muted shrink-0" strokeWidth={1.5} />
             <span className="text-muted">Projets</span>
             <span className="ml-auto font-medium text-foreground">
               {projects.length}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[12px]">
-            <Globe className="h-3.5 w-3.5 text-muted shrink-0" />
+          <div className="flex items-center gap-3 text-sm">
+            <Globe className="h-3.5 w-3.5 text-muted shrink-0" strokeWidth={1.5} />
             <span className="text-muted">URL</span>
-            <span className="ml-auto font-medium text-foreground font-mono text-[11px]">
+            <span className="ml-auto font-medium text-foreground font-mono text-xs">
               {slug ? `${slug}.${APP_DOMAIN}` : '\u2014'}
             </span>
           </div>
@@ -387,27 +383,23 @@ export function StepPublish({
 
       {/* Template purchase warning */}
       {selectedTemplateNeedsPurchase && (
-        <div className="rounded-[var(--radius-md)] border border-amber-300/40 bg-amber-50/50 p-3">
-          <p className="text-[12px] text-amber-800 font-medium text-center">
-            Le template selectionne est premium et n&apos;a pas encore ete achete.
-            Retourne a l&apos;etape Design pour l&apos;acheter.
+        <div className="rounded-[var(--radius-md)] border border-border-light bg-surface-warm p-3">
+          <p className="text-xs text-muted text-center">
+            Le template sélectionné est premium et n&apos;a pas encore été acheté.
+            Retourne à l&apos;étape Design pour l&apos;acheter.
           </p>
         </div>
       )}
 
       {/* Publish button */}
       <div className="space-y-2">
-        <button
-          type="button"
+        <VzBtn
+          variant="primary"
+          size="lg"
           data-testid="publish-btn"
           onClick={() => void handlePublishClick()}
           disabled={!canPublish}
-          className={cn(
-            'w-full flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-8 py-3.5 text-[15px] font-semibold transition-all duration-200',
-            canPublish
-              ? 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_4px_14px_rgba(212,99,78,0.3)]'
-              : 'bg-surface-warm text-muted-foreground/40 cursor-not-allowed'
-          )}
+          className="w-full"
           aria-label={isFreeUser ? "S'abonner pour publier" : 'Publier mon portfolio'}
         >
           {isPublishing ? (
@@ -420,15 +412,15 @@ export function StepPublish({
           ) : (
             'Publier mon portfolio'
           )}
-        </button>
+        </VzBtn>
 
         {publishError && (
-          <p className="text-[11px] text-destructive text-center" role="alert">
+          <p className="text-xs text-destructive text-center" role="alert">
             {publishError}
           </p>
         )}
 
-        <p className="text-[11px] text-muted-foreground text-center">
+        <p className="text-xs text-muted-foreground text-center">
           {isFreeUser
             ? "Sauvegarde, puis paiement, puis mise en ligne. Tout en restant dans l'éditeur."
             : "Ton portfolio sera accessible publiquement."}

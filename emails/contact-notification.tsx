@@ -37,7 +37,7 @@ const COPY = {
     replyHint: (email: string) => (
       <>
         Tu peux répondre directement à{' '}
-        <a href={`mailto:${email}`} style={{ color: colors.accent }}>
+        <a href={`mailto:${email}`} style={{ color: colors.accentDeep, textDecoration: 'underline' }}>
           {email}
         </a>
         .
@@ -61,7 +61,7 @@ const COPY = {
     replyHint: (email: string) => (
       <>
         You can reply directly to{' '}
-        <a href={`mailto:${email}`} style={{ color: colors.accent }}>
+        <a href={`mailto:${email}`} style={{ color: colors.accentDeep, textDecoration: 'underline' }}>
           {email}
         </a>
         .

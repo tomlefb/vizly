@@ -22,6 +22,7 @@
     "badge": "100% free to start",
     "titleStart": "Create your portfolio in",
     "titleHighlight": "5 minutes",
+    "titleRich": "Create your portfolio in <highlight>5 minutes</highlight>",
     "description": "Fill in a form, pick a template, and your portfolio site is live at {domain}. No technical skills required.",
     "cta": "Get started for free",
     "secondary": "View templates",
@@ -236,11 +237,41 @@
     }
   },
   "cta": {
-    "title": "Your portfolio,",
-    "titleAccent": "live in 5 minutes",
-    "description": "Free to start. You only pay when you decide to publish.",
-    "primary": "Create my portfolio",
-    "secondary": "View pricing"
+    "landing": {
+      "unit": "minutes flat",
+      "title": "Your portfolio, <highlight>live</highlight> in 5 minutes.",
+      "description": "Free to start. You only pay when you decide to publish.",
+      "primary": "Create my portfolio",
+      "secondary": "View pricing"
+    },
+    "tarifs": {
+      "unit": "to get started",
+      "title": "Start <highlight>free</highlight>, publish whenever.",
+      "description": "No card required to sign up. You only pay when you take your portfolio live.",
+      "primary": "Create my account",
+      "secondary": "See features"
+    },
+    "fonctionnalites": {
+      "unit": "steps only",
+      "title": "From idea to <highlight>portfolio</highlight> in 4 steps.",
+      "description": "Profile, content, design, publish. No more complicated than that.",
+      "primary": "Get started for free",
+      "secondary": "View pricing"
+    },
+    "templates": {
+      "unit": "templates to pick",
+      "title": "Pick your <highlight>style</highlight>, we handle the rest.",
+      "description": "8 fully customisable templates. Switch any time without losing your content.",
+      "primary": "Create my portfolio",
+      "secondary": "View pricing"
+    },
+    "templateDetail": {
+      "unit": "templates total",
+      "title": "This one's <highlight>not quite it</highlight>?",
+      "description": "Try the others. You can switch any time without losing your content.",
+      "primary": "Get started for free",
+      "secondary": "View all templates"
+    }
   },
   "footer": {
     "tagline": "Your portfolio at username.vizly.fr — built for students and freelancers who'd rather work than code a website.",
@@ -781,10 +812,19 @@
   },
   "notFound": {
     "title": "Page not found",
+    "titleLead": "Page",
+    "titleAccent": "not found",
     "description": "The page you're looking for doesn't exist or has been moved.",
-    "home": "Home",
-    "templates": "Templates",
+    "home": "Back to home",
+    "templates": "See templates",
     "blog": "Blog"
+  },
+  "errorPage": {
+    "titleLead": "Oops,",
+    "titleAccent": "something broke",
+    "description": "Something went wrong. Try again or go back home.",
+    "retry": "Try again",
+    "home": "Back to home"
   },
   "language": {
     "label": "Language",

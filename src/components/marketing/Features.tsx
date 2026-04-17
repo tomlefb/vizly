@@ -7,21 +7,21 @@ import {
 } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { cn } from '@/lib/utils'
+import { VzHighlight } from '@/components/ui/vizly'
 import type { LucideIcon } from 'lucide-react'
 
 interface FeatureItem {
   icon: LucideIcon
   key: string
-  accent: string
   span: string
 }
 
 const featuresMeta: FeatureItem[] = [
-  { icon: Zap, key: 'live', accent: 'bg-[#8B6914]/8 text-[#8B6914]', span: 'md:col-span-2' },
-  { icon: ClipboardList, key: 'form', accent: 'bg-accent/8 text-accent', span: 'md:col-span-1' },
-  { icon: Palette, key: 'templates', accent: 'bg-[#2D5A3D]/8 text-[#2D5A3D]', span: 'md:col-span-1' },
-  { icon: Paintbrush, key: 'customizable', accent: 'bg-[#8F3D6B]/8 text-[#8F3D6B]', span: 'md:col-span-2' },
-  { icon: Layers, key: 'unlimited', accent: 'bg-[#3D6B8F]/8 text-[#3D6B8F]', span: 'md:col-span-2' },
+  { icon: Zap, key: 'live', span: 'md:col-span-2' },
+  { icon: ClipboardList, key: 'form', span: 'md:col-span-1' },
+  { icon: Palette, key: 'templates', span: 'md:col-span-1' },
+  { icon: Paintbrush, key: 'customizable', span: 'md:col-span-2' },
+  { icon: Layers, key: 'unlimited', span: 'md:col-span-2' },
 ]
 
 export async function Features() {
@@ -30,11 +30,11 @@ export async function Features() {
   return (
     <section id="features" className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Header -- matching pricing pattern */}
+        {/* Header */}
         <div className="mb-10 lg:mb-14">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
-            <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0">
-              {t('title')} <span className="text-accent">{t('titleAccent')}</span>
+            <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0 leading-[1.08]">
+              {t('title')} <VzHighlight>{t('titleAccent')}</VzHighlight>
             </h2>
             <p className="text-sm text-muted sm:text-base sm:pb-1 leading-snug">
               {t('subtitle')}
@@ -42,23 +42,18 @@ export async function Features() {
           </div>
         </div>
 
-        {/* Feature grid -- varied sizes using col-span */}
+        {/* Feature grid -- Handcrafted: icônes simples text-muted, pas de cercle coloré */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 lg:gap-5">
-          {featuresMeta.map(({ icon: Icon, key, accent, span }) => (
+          {featuresMeta.map(({ icon: Icon, key, span }) => (
             <article
               key={key}
               className={cn(
-                'group relative rounded-[var(--radius-lg)] border border-border-light bg-surface p-7 lg:p-8 transition-all duration-300 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]',
+                'group rounded-[var(--radius-lg)] border border-border-light bg-surface p-7 lg:p-8 transition-all duration-300 hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]',
                 span
               )}
             >
-              <div
-                className={cn(
-                  'inline-flex items-center justify-center w-11 h-11 rounded-[var(--radius-md)] mb-5 transition-transform duration-300 group-hover:scale-105',
-                  accent
-                )}
-              >
-                <Icon className="h-5 w-5" strokeWidth={1.8} />
+              <div className="mb-5">
+                <Icon className="h-6 w-6 text-muted" strokeWidth={1.5} />
               </div>
 
               <h3 className="font-[family-name:var(--font-satoshi)] text-lg font-semibold mb-2">

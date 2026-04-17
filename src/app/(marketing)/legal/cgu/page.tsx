@@ -34,7 +34,7 @@ export default async function CGUPage() {
         })}
         {' '}
         {t('editeur.contactLabel')}{' '}
-        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>.
+        <a href={`mailto:${email}`} className="text-accent-deep hover:underline">{email}</a>.
       </Section>
 
       <Section title={t('inscription.title')}>
@@ -49,7 +49,7 @@ export default async function CGUPage() {
         {t('retractation.body')}
         {' '}
         {t('retractation.contactPrompt')}{' '}
-        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>.
+        <a href={`mailto:${email}`} className="text-accent-deep hover:underline">{email}</a>.
       </Section>
 
       <Section title={t('propriete.title')}>

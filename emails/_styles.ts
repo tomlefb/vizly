@@ -5,6 +5,10 @@ import type { CSSProperties } from 'react'
 // email-safe font stacks because web fonts are unreliable across mail
 // clients (Gmail, Outlook, Apple Mail all behave differently).
 
+// Palette email Handcrafted : lime #C8F169 + lime deep #8AB83D pour
+// le dot du wordmark (lisibilité sur fond clair). Les anciens tokens
+// terracotta sont remplacés. Fond principal crème pour cohérence visuelle
+// avec le site.
 export const colors = {
   background: '#FFFFFF',
   surfaceWarm: '#FAF8F6',
@@ -13,9 +17,10 @@ export const colors = {
   mutedForeground: '#9C958E',
   border: '#E8E3DE',
   borderLight: '#F0EBE6',
-  accent: '#D4634E',
-  accentHover: '#C05640',
-  accentLight: '#FDF2EF',
+  accent: '#C8F169',
+  accentHover: '#B8E150',
+  accentDeep: '#8AB83D',
+  accentLight: '#F1FADC',
   destructive: '#DC2626',
   success: '#16A34A',
 } as const
@@ -82,8 +87,10 @@ export const logoText: CSSProperties = {
 }
 
 export const logoDot: CSSProperties = {
-  color: colors.accent,
-  fontWeight: 700,
+  // Lime deep pour le point, lisible sur fond clair (le lime pur #C8F169
+  // disparaîtrait sur blanc/crème).
+  color: colors.accentDeep,
+  fontWeight: 800,
 }
 
 export const contentSection: CSSProperties = {
@@ -115,10 +122,13 @@ export const paragraphMuted: CSSProperties = {
   fontSize: '14px',
 }
 
+// Bouton Handcrafted — fond noir + texte blanc + ombre offset lime
+// (la signature). Les clients mail qui ignorent box-shadow auront juste
+// un bouton noir propre, ce qui reste cohérent.
 export const button: CSSProperties = {
   display: 'inline-block',
   padding: '12px 24px',
-  backgroundColor: colors.accent,
+  backgroundColor: colors.foreground,
   color: '#FFFFFF',
   fontFamily: fonts.sans,
   fontSize: '15px',
@@ -126,6 +136,7 @@ export const button: CSSProperties = {
   textDecoration: 'none',
   borderRadius: radius.md,
   textAlign: 'center',
+  boxShadow: `3px 3px 0 ${colors.accent}`,
 }
 
 export const hr: CSSProperties = {

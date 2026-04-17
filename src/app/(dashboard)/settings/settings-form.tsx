@@ -3,12 +3,16 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { VzBtn } from '@/components/ui/vizly'
 import { updateProfile, deleteAccount } from '@/actions/auth'
 
 interface SettingsFormProps {
   initialName: string
   showDeleteOnly?: boolean
 }
+
+const INPUT_CLASSES =
+  'block h-10 w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent/30'
 
 export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps) {
   const router = useRouter()
@@ -60,11 +64,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
     })
   }
 
-  // ---------------------------------------------------------------------------
-  // Render: delete-only mode — horizontal footer layout
-  // (title + description left, destructive CTA right; inline confirmation below
-  // when triggered).
-  // ---------------------------------------------------------------------------
+  // Render : delete-only mode
   if (showDeleteOnly) {
     return (
       <div>
@@ -76,17 +76,18 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
             <p className="mt-1 text-sm text-muted">{t('dangerDescription')}</p>
           </div>
           {!showConfirm && (
-            <button
-              type="button"
+            <VzBtn
+              variant="destructive"
+              size="md"
               onClick={() => setShowConfirm(true)}
-              className="inline-flex h-9 shrink-0 items-center rounded-[var(--radius-md)] border border-destructive/20 bg-surface px-4 text-sm font-semibold text-destructive transition-colors duration-150 hover:bg-destructive/5"
+              className="shrink-0"
             >
               {t('deleteAccountCta')}
-            </button>
+            </VzBtn>
           )}
         </div>
         {showConfirm && (
-          <div className="mt-5 rounded-[var(--radius-md)] border border-destructive/20 bg-destructive/5 p-4">
+          <div className="mt-5 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/5 p-4">
             <p className="mb-3 text-sm font-medium text-destructive">
               {t('deleteConfirm')}
             </p>
@@ -95,18 +96,18 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="inline-flex h-9 items-center rounded-[var(--radius-md)] bg-destructive px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-destructive/90 disabled:opacity-50"
+                className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-destructive px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-destructive/90 disabled:opacity-50"
               >
                 {isDeleting ? t('deleting') : t('deleteConfirmBtn')}
               </button>
-              <button
-                type="button"
+              <VzBtn
+                variant="secondary"
+                size="md"
                 onClick={() => setShowConfirm(false)}
                 disabled={isDeleting}
-                className="inline-flex h-9 items-center rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm disabled:opacity-50"
               >
                 {t('cancel')}
-              </button>
+              </VzBtn>
             </div>
             {deleteError && (
               <p className="mt-3 text-sm text-destructive" role="alert">
@@ -119,9 +120,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
     )
   }
 
-  // ---------------------------------------------------------------------------
-  // Render: name form
-  // ---------------------------------------------------------------------------
+  // Render : name form
   return (
     <form onSubmit={handleNameSubmit}>
       <label
@@ -142,15 +141,17 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
           }}
           placeholder={t('namePlaceholder')}
           maxLength={100}
-          className="h-10 min-w-0 flex-1 rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
+          className={`${INPUT_CLASSES} min-w-0 flex-1`}
         />
-        <button
+        <VzBtn
           type="submit"
+          variant="primary"
+          size="md"
           disabled={isPending || name.trim() === initialName}
-          className="inline-flex h-10 min-w-[140px] items-center justify-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-w-[140px]"
         >
           {isPending ? t('saving') : t('save')}
-        </button>
+        </VzBtn>
       </div>
       {nameError && (
         <p className="mt-2 text-sm text-destructive" role="alert">
@@ -158,7 +159,7 @@ export function SettingsForm({ initialName, showDeleteOnly }: SettingsFormProps)
         </p>
       )}
       {nameSuccess && (
-        <p className="mt-2 text-sm text-success" role="status">
+        <p className="mt-2 text-sm text-[var(--color-success-fg)]" role="status">
           {t('nameSuccess')}
         </p>
       )}

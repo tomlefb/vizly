@@ -44,6 +44,7 @@ import {
 import { PLANS } from '@/lib/constants'
 import type { BillingInterval } from '@/lib/stripe/prices'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
+import { VzBadge, VzBtn } from '@/components/ui/vizly'
 import { SubscriptionCheckoutModal } from './SubscriptionCheckoutModal'
 import { TemplatePurchaseModal } from './TemplatePurchaseModal'
 import { UpdatePaymentMethodModal } from './UpdatePaymentMethodModal'
@@ -446,11 +447,16 @@ function Banner({ variant, title, children }: BannerProps) {
     variant === 'error' ? 'text-destructive' : 'text-foreground'
 
   return (
-    <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-border bg-surface-warm px-4 py-3">
-      <Icon className={cn('mt-0.5 h-4 w-4 shrink-0', iconColor)} strokeWidth={2} />
+    <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-border-light bg-surface-warm px-4 py-3">
+      <Icon
+        className={cn('mt-0.5 h-4 w-4 shrink-0', iconColor)}
+        strokeWidth={2}
+      />
       <div className="text-sm">
         {title && <p className="font-medium text-foreground">{title}</p>}
-        <p className={cn(title ? 'mt-0.5' : '', 'text-foreground')}>{children}</p>
+        <p className={cn(title ? 'mt-0.5' : '', 'text-foreground')}>
+          {children}
+        </p>
       </div>
     </div>
   )
@@ -566,19 +572,15 @@ function PlanCard({
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           {paidChangeCTAs.map((cta, idx) => (
-            <button
+            <VzBtn
               key={idx}
-              type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => onChangePlan(cta.target)}
               disabled={isChangingPlan}
-              className={cn(
-                'inline-flex h-8 items-center justify-center rounded-[var(--radius-md)] border px-3 text-xs font-medium transition-colors duration-150',
-                'border-border bg-surface text-foreground hover:bg-surface-warm',
-                'disabled:cursor-not-allowed disabled:text-muted-foreground',
-              )}
             >
               {isChangingPlan ? t('ctaLoading') : cta.label}
-            </button>
+            </VzBtn>
           ))}
           {isScheduledCancel && <PlanBadge plan={plan} cancelled />}
         </div>
@@ -596,7 +598,7 @@ function PlanCard({
               className="flex items-center gap-2 text-sm text-foreground"
             >
               <Check
-                className="h-4 w-4 shrink-0 text-success"
+                className="h-4 w-4 shrink-0 text-[var(--color-success-fg)]"
                 strokeWidth={2.5}
                 aria-hidden="true"
               />
@@ -626,29 +628,17 @@ function PlanCard({
         )}
 
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onUpdateCard}
-            className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-surface-warm"
-          >
+          <VzBtn variant="secondary" size="md" onClick={onUpdateCard}>
             {t('updateCardCta')}
-          </button>
+          </VzBtn>
           {isScheduledCancel ? (
-            <button
-              type="button"
-              onClick={onReactivate}
-              className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] bg-accent px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-accent-hover"
-            >
+            <VzBtn variant="primary" size="md" onClick={onReactivate}>
               {t('reactivateCta')}
-            </button>
+            </VzBtn>
           ) : (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-4 text-sm font-medium text-muted transition-colors duration-150 hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive"
-            >
+            <VzBtn variant="destructive" size="md" onClick={onCancel}>
               {t('cancelCta')}
-            </button>
+            </VzBtn>
           )}
         </div>
       </div>
@@ -660,16 +650,12 @@ function PlanBadge({ plan, cancelled }: { plan: PaidPlan; cancelled: boolean }) 
   const t = useTranslations('billing')
   if (cancelled) {
     return (
-      <span className="inline-flex items-center rounded-[var(--radius-sm)] bg-destructive/10 px-2 py-0.5 text-xs font-medium uppercase text-destructive">
+      <span className="inline-flex items-center rounded-full bg-destructive/10 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.06em] text-destructive">
         {t('badgeCancelled')}
       </span>
     )
   }
-  return (
-    <span className="inline-flex items-center rounded-[var(--radius-sm)] bg-surface-warm px-2 py-0.5 text-xs font-medium uppercase text-foreground">
-      {PLANS[plan].name}
-    </span>
-  )
+  return <VzBadge variant="pro">{PLANS[plan].name}</VzBadge>
 }
 
 // ---- Bloc 2 : Changer de plan --------------------------------------------
@@ -837,16 +823,13 @@ function ChoosePlanCard({
       className={cn(
         'relative flex flex-col rounded-[var(--radius-lg)] bg-surface p-6 transition-all duration-200',
         featured
-          ? 'border-[1.5px] border-accent md:-translate-y-2'
-          : 'border border-border-light hover:border-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]',
+          ? 'border-[1.5px] border-border-strong md:-translate-y-2'
+          : 'border border-border-light hover:border-border hover:shadow-[var(--shadow-card-hover)]',
       )}
     >
       {featured && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
-            <span className="h-1.5 w-1.5 rounded-full bg-white" />
-            {t('popular')}
-          </span>
+          <VzBadge variant="popular">{t('popular')}</VzBadge>
         </div>
       )}
 
@@ -869,7 +852,7 @@ function ChoosePlanCard({
             className="flex items-center gap-2 text-sm text-foreground"
           >
             <Check
-              className="h-4 w-4 shrink-0 text-success"
+              className="h-4 w-4 shrink-0 text-[var(--color-success-fg)]"
               strokeWidth={2.5}
               aria-hidden="true"
             />
@@ -897,14 +880,14 @@ function IntervalToggle({
   const t = useTranslations('billing')
   return (
     <div className="flex items-center gap-3">
-      <div className="inline-flex items-center rounded-full bg-[#f4f4f4] p-1 text-sm font-medium">
+      <div className="inline-flex items-center rounded-full bg-surface-sunken p-1 text-sm font-medium">
         <button
           type="button"
           onClick={() => onChange('monthly')}
           className={cn(
             'rounded-full px-4 py-1.5 transition-colors duration-150',
             value === 'monthly'
-              ? 'border border-border bg-white text-foreground'
+              ? 'border border-border-light bg-surface text-foreground'
               : 'text-muted hover:text-foreground',
           )}
         >
@@ -916,7 +899,7 @@ function IntervalToggle({
           className={cn(
             'rounded-full px-4 py-1.5 transition-colors duration-150',
             value === 'yearly'
-              ? 'border border-border bg-white text-foreground'
+              ? 'border border-border-light bg-surface text-foreground'
               : 'text-muted hover:text-foreground',
           )}
         >
@@ -924,9 +907,7 @@ function IntervalToggle({
         </button>
       </div>
       {value === 'yearly' && (
-        <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
-          {t('yearlyDiscount')}
-        </span>
+        <VzBadge variant="pro">{t('yearlyDiscount')}</VzBadge>
       )}
     </div>
   )
@@ -1204,19 +1185,15 @@ function PrimaryButton({
 }: BillingButtonProps) {
   const t = useTranslations('billing')
   return (
-    <button
-      type="button"
+    <VzBtn
+      variant="primary"
+      size="md"
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        'inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] px-5 text-sm font-semibold transition-colors duration-150',
-        'bg-accent text-white hover:bg-accent-hover',
-        'disabled:cursor-not-allowed disabled:bg-accent/40',
-        fullWidth && 'w-full',
-      )}
+      className={fullWidth ? 'w-full' : ''}
     >
       {loading ? t('ctaLoading') : children}
-    </button>
+    </VzBtn>
   )
 }
 
@@ -1229,18 +1206,14 @@ function SecondaryButton({
 }: BillingButtonProps) {
   const t = useTranslations('billing')
   return (
-    <button
-      type="button"
+    <VzBtn
+      variant="secondary"
+      size="md"
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        'inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-5 text-sm font-semibold text-foreground transition-colors duration-150',
-        'hover:bg-surface-warm',
-        'disabled:cursor-not-allowed disabled:text-muted-foreground',
-        fullWidth && 'w-full',
-      )}
+      className={fullWidth ? 'w-full' : ''}
     >
       {loading ? t('ctaLoading') : children}
-    </button>
+    </VzBtn>
   )
 }

@@ -7,7 +7,7 @@ export function KpiMockup() {
       <div className="p-5 sm:p-6">
         <div className="grid grid-cols-2 gap-3">
           {/* Compteur */}
-          <div className="rounded-[var(--radius-md)] border border-border p-4 text-center">
+          <div className="rounded-[var(--radius-md)] border border-border-light bg-surface p-4 text-center">
             <div className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
               127
             </div>
@@ -15,16 +15,16 @@ export function KpiMockup() {
           </div>
 
           {/* Anneau de progression */}
-          <div className="rounded-[var(--radius-md)] border border-border p-4 flex flex-col items-center">
+          <div className="rounded-[var(--radius-md)] border border-border-light bg-surface p-4 flex flex-col items-center">
             <svg viewBox="0 0 36 36" className="w-12 h-12">
               <circle
                 cx="18" cy="18" r="14" fill="none"
-                stroke="currentColor" className="text-border"
+                stroke="currentColor" className="text-border-light"
                 strokeWidth="2.5"
               />
               <circle
                 cx="18" cy="18" r="14" fill="none"
-                stroke="currentColor" className="text-accent"
+                stroke="currentColor" className="text-accent-deep"
                 strokeWidth="2.5"
                 strokeDasharray="87.96 100"
                 strokeLinecap="round"
@@ -41,10 +41,10 @@ export function KpiMockup() {
           </div>
 
           {/* Étoiles */}
-          <div className="rounded-[var(--radius-md)] border border-border p-4 text-center">
+          <div className="rounded-[var(--radius-md)] border border-border-light bg-surface p-4 text-center">
             <div className="flex justify-center gap-0.5 mb-1">
               {[1, 2, 3, 4].map(i => (
-                <Star key={i} className="w-3.5 h-3.5 fill-accent text-accent" />
+                <Star key={i} className="w-3.5 h-3.5 fill-accent-deep text-accent-deep" />
               ))}
               <Star className="w-3.5 h-3.5 fill-border text-border" />
             </div>
@@ -55,13 +55,13 @@ export function KpiMockup() {
           </div>
 
           {/* Timeline */}
-          <div className="rounded-[var(--radius-md)] border border-border p-4">
+          <div className="rounded-[var(--radius-md)] border border-border-light bg-surface p-4">
             <div className="flex items-center w-full mb-2">
-              <div className="w-2 h-2 rounded-full bg-accent shrink-0" />
-              <div className="flex-1 h-px bg-accent" />
-              <div className="w-2 h-2 rounded-full bg-accent shrink-0" />
-              <div className="flex-1 h-px bg-accent" />
-              <div className="w-2 h-2 rounded-full bg-accent shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-accent-deep shrink-0" />
+              <div className="flex-1 h-px bg-accent-deep" />
+              <div className="w-2 h-2 rounded-full bg-accent-deep shrink-0" />
+              <div className="flex-1 h-px bg-accent-deep" />
+              <div className="w-2 h-2 rounded-full bg-accent-deep shrink-0" />
               <div className="flex-1 h-px bg-border" />
               <div className="w-2 h-2 rounded-full bg-border shrink-0" />
             </div>

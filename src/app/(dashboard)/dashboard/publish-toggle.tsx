@@ -31,7 +31,6 @@ export function PublishToggle({
     setError(null)
 
     if (published) {
-      // Unpublish
       startTransition(async () => {
         const result = await unpublishPortfolio(portfolioId)
         if (result.error) {
@@ -41,7 +40,6 @@ export function PublishToggle({
         }
       })
     } else {
-      // Publish — need a slug
       if (!slug) {
         setError(t('publish.noSlug'))
         return
@@ -66,20 +64,20 @@ export function PublishToggle({
         onClick={handleToggle}
         disabled={disabled}
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-2 text-xs font-semibold transition-all duration-200',
+          'inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3.5 py-2 text-[13px] font-semibold transition-all duration-150',
           published
-            ? 'border border-border text-foreground hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive'
+            ? 'border border-border-light text-foreground hover:border-destructive/30 hover:bg-destructive/5 hover:text-destructive'
             : canPublish
-              ? 'bg-success/10 text-success hover:bg-success/20'
-              : 'cursor-not-allowed bg-surface-warm text-muted-foreground'
+              ? 'border border-border-light bg-[var(--color-success-bg)] text-[var(--color-success-fg)] hover:bg-[var(--color-success-bg)]/80'
+              : 'cursor-not-allowed border border-border-light bg-surface-warm text-muted-foreground',
         )}
       >
         {isPending ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
         ) : published ? (
-          <GlobeLock className="h-3.5 w-3.5" />
+          <GlobeLock className="h-3.5 w-3.5" strokeWidth={1.5} />
         ) : (
-          <Globe className="h-3.5 w-3.5" />
+          <Globe className="h-3.5 w-3.5" strokeWidth={1.5} />
         )}
         {published ? t('publish.unpublish') : t('publish.publish')}
       </button>

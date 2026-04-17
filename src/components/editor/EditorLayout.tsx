@@ -7,12 +7,13 @@ import {
   X,
   Check,
   Loader2,
-  ChevronRight,
+  ArrowRight,
   Monitor,
   Smartphone,
   Tablet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VzBtn } from '@/components/ui/vizly'
 import { templateMap } from '@/components/templates'
 import { DEFAULT_SECTIONS, parseSections } from '@/types/sections'
 import { parseKpis } from '@/types/kpis'
@@ -139,39 +140,33 @@ export function EditorLayout({
 
   const previewBg = portfolioData.template === 'dark' ? '#0A0A0A'
     : portfolioData.template === 'colore' ? '#FFF5E6'
-    : '#FAFAF8'
+    : '#FAF8F6'
 
   // ── Bottom bar (shared across all layouts) ──
   const bottomBar = (
-    <div className="shrink-0 h-16 bg-white border-t border-[#E5E7EB] px-6 flex items-center">
+    <div className="shrink-0 h-16 bg-surface border-t border-border-light px-6 flex items-center">
       <div className="flex items-center justify-between w-full">
         {saveIndicator}
         <div className="flex items-center gap-3">
           {bottomBarExtra}
           {currentStepIndex > 0 && (
-            <button
-              type="button"
+            <VzBtn
+              variant="ghost"
+              size="sm"
               onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
-              className="text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors duration-150"
             >
               {t('nav.previous')}
-            </button>
+            </VzBtn>
           )}
           {nextStep ? (
-            <button
-              type="button"
+            <VzBtn
+              variant="primary"
               onClick={onNext}
               disabled={!canGoNext}
-              className={cn(
-                'inline-flex items-center gap-2 h-10 rounded-lg px-5 text-sm font-medium transition-colors duration-150',
-                canGoNext
-                  ? 'bg-accent text-white hover:bg-accent-hover'
-                  : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
-              )}
             >
               {t('nav.next')}
-              <ChevronRight className="h-4 w-4" />
-            </button>
+              <ArrowRight className="h-4 w-4" />
+            </VzBtn>
           ) : <span />}
         </div>
       </div>
@@ -182,7 +177,7 @@ export function EditorLayout({
     <>
       <div className="flex flex-col h-full min-h-0">
         {/* ── Stepper ── */}
-        <div className="shrink-0 border-b border-[#E5E7EB] bg-white px-4 sm:px-6 py-4">
+        <div className="shrink-0 border-b border-border-light bg-surface px-4 sm:px-6 py-4">
           <nav className="flex items-center w-full" aria-label={t('nav.stepsLabel')}>
             {STEPS.map((step, index) => {
               const isActive = currentStep === step.id
@@ -197,15 +192,19 @@ export function EditorLayout({
                   >
                     <div
                       className={cn(
-                        'h-2.5 w-2.5 rounded-full transition-colors duration-150',
-                        isActive || isPast
-                          ? 'bg-accent'
-                          : 'border-2 border-[#E5E7EB] bg-white',
+                        'flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold transition-colors duration-150',
+                        isPast
+                          ? 'bg-accent text-accent-fg'
+                          : isActive
+                            ? 'border-2 border-foreground bg-surface text-foreground'
+                            : 'border-2 border-border-light bg-surface text-muted-foreground',
                       )}
-                    />
+                    >
+                      {isPast ? <Check className="h-3 w-3" strokeWidth={2.5} /> : step.id}
+                    </div>
                     <span className={cn(
-                      'text-[12px] font-medium hidden sm:inline whitespace-nowrap',
-                      isActive ? 'text-[#111827]' : isPast ? 'text-[#111827]' : 'text-[#9CA3AF]',
+                      'text-[12px] hidden sm:inline whitespace-nowrap',
+                      isActive ? 'text-foreground font-medium' : isPast ? 'text-foreground' : 'text-muted',
                     )}>
                       {step.label}
                     </span>
@@ -213,8 +212,8 @@ export function EditorLayout({
                   {index < STEPS.length - 1 && (
                     <div
                       className={cn(
-                        'flex-1 h-0.5 mx-2 transition-colors duration-150',
-                        isPast ? 'bg-accent' : 'bg-[#E5E7EB]',
+                        'flex-1 h-0.5 mx-2 transition-colors duration-150 mb-5',
+                        isPast ? 'bg-accent' : 'bg-border-light',
                       )}
                     />
                   )}
@@ -230,34 +229,34 @@ export function EditorLayout({
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 flex min-h-0">
               {/* Config panel */}
-              <div className="w-[35%] overflow-y-auto border-r border-border/50 px-4 sm:px-5 py-5">
+              <div className="w-[35%] overflow-y-auto border-r border-border-light bg-surface-warm px-4 sm:px-5 py-5">
                 {children}
               </div>
               {/* Preview panel */}
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col overflow-hidden bg-surface-warm">
                 {/* Minimal preview bar — no browser chrome */}
-                <div className="shrink-0 flex items-center justify-between border-b border-border/50 bg-white/60 backdrop-blur-sm px-4 h-10">
+                <div className="shrink-0 flex items-center justify-between border-b border-border-light bg-surface/60 backdrop-blur-sm px-4 h-10">
                   <span />
                   <span className="text-[11px] text-muted font-mono tracking-wide">{t('preview.url')}</span>
                   <div className="flex items-center gap-1">
                     <button type="button" onClick={() => setPreviewDevice('desktop')}
-                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'desktop' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
+                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'desktop' ? 'bg-surface-sunken text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-surface-sunken')}
                       title={t('preview.desktop')} aria-label={t('preview.desktop')}>
                       <Monitor className="h-3.5 w-3.5" />
                     </button>
                     <button type="button" onClick={() => setPreviewDevice('tablet')}
-                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'tablet' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
+                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'tablet' ? 'bg-surface-sunken text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-surface-sunken')}
                       title={t('preview.tablet')} aria-label={t('preview.tablet')}>
                       <Tablet className="h-3.5 w-3.5" />
                     </button>
                     <button type="button" onClick={() => setPreviewDevice('mobile')}
-                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'mobile' ? 'bg-accent/10 text-accent' : 'text-muted-foreground hover:text-foreground')}
+                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'mobile' ? 'bg-surface-sunken text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-surface-sunken')}
                       title={t('preview.mobile')} aria-label={t('preview.mobile')}>
                       <Smartphone className="h-3.5 w-3.5" />
                     </button>
-                    <div className="w-px h-4 bg-border/50 mx-0.5" />
+                    <div className="w-px h-4 bg-border-light mx-0.5" />
                     <button type="button" onClick={() => setPreviewOpen(true)}
-                      className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-foreground transition-colors"
+                      className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted-foreground hover:text-foreground hover:bg-surface-sunken transition-colors"
                       title={t('preview.fullscreen')} aria-label={t('preview.fullscreen')}>
                       <Maximize2 className="h-3.5 w-3.5" />
                     </button>
@@ -267,8 +266,8 @@ export function EditorLayout({
                 <div className="flex-1 overflow-hidden relative flex justify-center p-4" style={{ backgroundColor: previewBg }}>
                   {TemplateComponent ? (
                     <div className={cn(
-                      'overflow-y-auto rounded-lg shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-border/30 transition-all duration-300',
-                      previewDevice === 'mobile' ? 'w-[375px] h-full' : previewDevice === 'tablet' ? 'w-[768px] h-full' : 'absolute inset-4 rounded-lg'
+                      'overflow-y-auto rounded-[var(--radius-lg)] shadow-[var(--shadow-card-hover)] border border-border-light transition-all duration-300',
+                      previewDevice === 'mobile' ? 'w-[375px] h-full' : previewDevice === 'tablet' ? 'w-[768px] h-full' : 'absolute inset-4'
                     )}>
                       {portfolioData.font && (
                         <style>{`
@@ -297,9 +296,9 @@ export function EditorLayout({
             {bottomBar}
           </div>
         ) : (
-          /* Steps 1, 2, 3, 5: Full width form */
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 overflow-y-auto px-12 py-8">
+          /* Steps 1, 2, 4: Full width form */
+          <div className="flex-1 flex flex-col min-h-0 bg-surface-warm">
+            <div className="flex-1 overflow-y-auto px-8 lg:px-12 py-8">
               {children}
             </div>
             {bottomBar}
@@ -312,13 +311,16 @@ export function EditorLayout({
         <div className="fixed inset-0 z-50 bg-background">
           <div className="flex flex-col h-full">
             {/* Minimal header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-border/50 px-6 h-12">
+            <div className="shrink-0 flex items-center justify-between border-b border-border-light bg-surface px-6 h-12">
               <span className="text-[11px] text-muted font-mono tracking-wide">{t('preview.url')}</span>
-              <button type="button" onClick={() => setPreviewOpen(false)}
-                className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm">
+              <VzBtn
+                variant="secondary"
+                size="sm"
+                onClick={() => setPreviewOpen(false)}
+              >
                 <X className="h-4 w-4" />
                 {t('preview.close')}
-              </button>
+              </VzBtn>
             </div>
             <div className="flex-1 overflow-y-auto" style={{ backgroundColor: previewBg }}>
               {portfolioData.font && (

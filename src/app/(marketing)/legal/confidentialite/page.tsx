@@ -38,7 +38,7 @@ export default async function ConfidentialitePage() {
         })}
         <br />
         {t('responsable.contactLabel')}{' '}
-        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>
+        <a href={`mailto:${email}`} className="text-accent-deep hover:underline">{email}</a>
       </Section>
 
       <Section title={t('donneesCollectees.title')}>
@@ -82,7 +82,7 @@ export default async function ConfidentialitePage() {
         </ul>
         <p className="mt-2">
           {t('rgpd.contactPrompt')}{' '}
-          <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>.
+          <a href={`mailto:${email}`} className="text-accent-deep hover:underline">{email}</a>.
           {' '}
           {t('rgpd.contactSuffix')}
         </p>
@@ -90,7 +90,7 @@ export default async function ConfidentialitePage() {
 
       <Section title={t('contactSection.title')}>
         {t('contactSection.prompt')}{' '}
-        <a href={`mailto:${email}`} className="text-accent hover:underline">{email}</a>
+        <a href={`mailto:${email}`} className="text-accent-deep hover:underline">{email}</a>
       </Section>
     </article>
   )

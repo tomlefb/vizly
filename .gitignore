@@ -57,3 +57,5 @@ certificates
 
 # claude code runtime locks (per-session, not project state)
 .claude/scheduled_tasks.lock
+vizly-design-system/
+snapshot-*.yml

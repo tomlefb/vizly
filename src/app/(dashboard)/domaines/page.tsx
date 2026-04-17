@@ -3,6 +3,11 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getPortfoliosWithDomains } from '@/actions/portfolio'
 import { Globe } from 'lucide-react'
+import {
+  VzBadge,
+  VzHighlight,
+  vzBtnClasses,
+} from '@/components/ui/vizly'
 import { DomainAssignmentForm } from './domain-assignment-form'
 import type { PlanType } from '@/lib/constants'
 
@@ -25,10 +30,12 @@ export default async function DomainesPage() {
   if (plan !== 'pro') {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center py-24 text-center">
-        <Globe
-          className="h-9 w-9 text-muted-foreground/50"
-          strokeWidth={1.5}
-        />
+        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] border border-border-light bg-surface-sunken">
+          <Globe
+            className="h-5 w-5 text-muted-foreground"
+            strokeWidth={1.5}
+          />
+        </div>
         <h3 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
           Domaines personnalisés
         </h3>
@@ -36,14 +43,12 @@ export default async function DomainesPage() {
           Connecte ton propre nom de domaine à chacun de tes portfolios.
           Disponible avec le plan Pro.
         </p>
-        <div className="mt-7">
-          <Link
-            href="/billing"
-            className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-accent px-5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
-          >
-            Passer au Pro
-          </Link>
-        </div>
+        <Link
+          href="/billing"
+          className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'mt-7' })}
+        >
+          Passer au Pro
+        </Link>
       </div>
     )
   }
@@ -54,9 +59,9 @@ export default async function DomainesPage() {
     <div>
       <header className="mb-10">
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          Mes <span className="text-accent">domaines</span>.
+          Mes <VzHighlight>domaines</VzHighlight>.
         </h1>
-        <p className="mt-1.5 text-sm text-muted">
+        <p className="mt-2 text-sm text-muted">
           Connecte ton propre nom de domaine à tes portfolios.
         </p>
       </header>
@@ -106,22 +111,25 @@ export default async function DomainesPage() {
           </p>
 
           {portfolios.length > 0 ? (
-            <ul className="mt-6 divide-y divide-border-light rounded-[var(--radius-lg)] border border-border overflow-hidden">
+            <ul className="mt-6 divide-y divide-border-light overflow-hidden rounded-[var(--radius-lg)] border border-border-light">
               {portfolios.map((portfolio) => (
-                <li key={portfolio.id} className="bg-surface px-5 py-4">
-                  <div className="flex items-center gap-3 mb-3">
+                <li
+                  key={portfolio.id}
+                  className="bg-surface px-5 py-4 transition-colors duration-150 hover:bg-surface-warm"
+                >
+                  <div className="mb-3 flex items-center gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-medium text-foreground truncate">
+                      <h3 className="truncate text-sm font-medium text-foreground">
                         {portfolio.title || 'Sans titre'}
                       </h3>
-                      <p className="text-xs text-muted">
-                        {portfolio.slug
-                          ? `${portfolio.slug}.vizly.fr`
-                          : 'Non publié'}
+                      <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted">
+                        <span className="font-mono">
+                          {portfolio.slug
+                            ? `${portfolio.slug}.vizly.fr`
+                            : 'Non publié'}
+                        </span>
                         {portfolio.published && (
-                          <span className="ml-2 inline-flex items-center rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
-                            En ligne
-                          </span>
+                          <VzBadge variant="online">En ligne</VzBadge>
                         )}
                       </p>
                     </div>
@@ -134,13 +142,13 @@ export default async function DomainesPage() {
               ))}
             </ul>
           ) : (
-            <div className="mt-6 rounded-[var(--radius-lg)] border border-dashed border-border p-8 text-center">
+            <div className="mt-6 rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-warm p-8 text-center">
               <p className="text-sm text-muted">
                 Crée un projet pour lui assigner un domaine personnalisé.
               </p>
               <Link
                 href="/editor"
-                className="mt-4 inline-flex items-center text-sm font-medium text-accent hover:text-accent-hover transition-colors"
+                className="mt-4 inline-flex items-center text-sm font-medium text-accent-deep transition-colors hover:text-foreground"
               >
                 Créer un projet
               </Link>
@@ -163,12 +171,12 @@ function TutoStep({
 }) {
   return (
     <li className="flex gap-3">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-warm text-xs font-semibold text-foreground">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-border-light bg-surface-warm font-[family-name:var(--font-satoshi)] text-xs font-bold text-foreground">
         {step}
       </span>
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">{title}</p>
-        <p className="mt-1 text-sm text-muted leading-relaxed">
+        <p className="mt-1 text-sm leading-relaxed text-muted">
           {description}
         </p>
       </div>
@@ -178,7 +186,7 @@ function TutoStep({
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded bg-surface-warm px-1.5 py-0.5 font-mono text-xs font-medium text-foreground">
+    <code className="rounded-[var(--radius-sm)] bg-surface-sunken px-1.5 py-0.5 font-mono text-xs font-medium text-foreground">
       {children}
     </code>
   )
