@@ -475,22 +475,37 @@ async function handleSubscriptionUpdated(
     }
 
     case 'plan-changed': {
-      // On a downgrade Pro → Starter, Starter n'autorise qu'1 portfolio en
-      // ligne (cf. PLANS.starter.publishLimit). On garde le plus récemment
-      // publié et on dépublie les autres + on libère leur custom_domain.
-      // L'user devra cliquer Republier (et ressaisir un domaine) au réupgrade.
-      let unpublishedCount = 0
+      // Ce case se déclenche au bascule EFFECTIF des items Stripe :
+      //   - upgrade : immédiat (clic = bascule), on fire l'email d'ici
+      //   - downgrade : bascule via Subscription Schedule au period_end,
+      //     l'email "ton plan passera en X" a déjà été envoyé depuis
+      //     changeSubscriptionPlanAction au clic — ici on applique
+      //     seulement le cleanup portfolios/domain, pas de mail, et on
+      //     purge les pending_* de la DB puisque le schedule a complété.
       if (change.changeType === 'downgrade' && change.newPlan === 'Starter') {
-        unpublishedCount = await enforceStarterPublishLimit(userId, supabase)
+        await enforceStarterPublishLimit(userId, supabase)
+        await clearPendingScheduleFields(userId, supabase)
+      } else if (change.changeType === 'downgrade') {
+        // Downgrade intra-plan (n'a pas lieu dans Vizly 2 plans mais par
+        // sécurité : purge quand même les pending_*).
+        await clearPendingScheduleFields(userId, supabase)
+      } else {
+        // Upgrade immédiat : email depuis le webhook, pas de pending_*
+        // à purger normalement (l'upgrade release le schedule côté action).
+        await sendPlanChangedEmail(subscription, userBefore, change)
       }
-      await sendPlanChangedEmail(subscription, userBefore, change, {
-        unpublishedCount,
-      })
       break
     }
 
     case 'billing-period-changed':
-      await sendBillingPeriodChangedEmail(subscription, userBefore, change)
+      // Pattern identique à plan-changed : yearly→monthly = downgrade
+      // d'interval, programmé via schedule → email déjà envoyé au clic.
+      // monthly→yearly = upgrade immédiat → email depuis ici.
+      if (change.newBillingPeriod === 'monthly') {
+        await clearPendingScheduleFields(userId, supabase)
+      } else {
+        await sendBillingPeriodChangedEmail(subscription, userBefore, change)
+      }
       break
   }
 
@@ -549,6 +564,39 @@ async function enforceStarterPublishLimit(
     `[stripe webhook] enforceStarterPublishLimit: user ${userId} — kept 1, unpublished ${toUnpublish.length}`,
   )
   return toUnpublish.length
+}
+
+/**
+ * Purge les colonnes "downgrade programmé" sur la row subscriptions locale.
+ *
+ * Appelée depuis handleSubscriptionUpdated au moment où les items Stripe
+ * basculent réellement (fin d'un Subscription Schedule). À ce point, le
+ * schedule est consommé côté Stripe, et notre DB doit refléter l'absence
+ * de changement pending — sinon l'UI /billing continuerait d'afficher
+ * "Ton plan passera en X le {date}" après la transition.
+ *
+ * Les champs sont purgés ensemble via la contrainte check
+ * `subscriptions_pending_coherence` posée par la migration 013.
+ */
+async function clearPendingScheduleFields(
+  userId: string,
+  supabase: ReturnType<typeof createAdminClient>,
+): Promise<void> {
+  const { error } = await supabase
+    .from('subscriptions')
+    .update({
+      stripe_schedule_id: null,
+      pending_plan: null,
+      pending_interval: null,
+      pending_effective_at: null,
+    })
+    .eq('user_id', userId)
+
+  if (error) {
+    console.error(
+      `[stripe webhook] clearPendingScheduleFields: failed for ${userId}: ${error.message}`,
+    )
+  }
 }
 
 async function updateUserPlanFromSubscription(
@@ -615,7 +663,8 @@ async function handleSubscriptionDeleted(
   }
 
   // 1. Mark the local subscriptions row as canceled (don't delete — keep
-  // for traceability until re-subscription replaces it).
+  // pour traçabilité jusqu'à la ré-abonnement remplace). Purge aussi les
+  // pending_* : un schedule actif n'a plus de sens sur une sub canceled.
   const { error: subError } = await supabase
     .from('subscriptions')
     .update({
@@ -623,6 +672,10 @@ async function handleSubscriptionDeleted(
       canceled_at: subscription.canceled_at
         ? new Date(subscription.canceled_at * 1000).toISOString()
         : new Date().toISOString(),
+      stripe_schedule_id: null,
+      pending_plan: null,
+      pending_interval: null,
+      pending_effective_at: null,
     })
     .eq('user_id', targetUserId)
 

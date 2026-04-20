@@ -35,6 +35,7 @@ import {
 } from 'lucide-react'
 import { cn, formatEur } from '@/lib/utils'
 import {
+  cancelScheduledChangeAction,
   cancelSubscriptionAction,
   changeSubscriptionPlanAction,
   reactivateSubscriptionAction,
@@ -63,7 +64,12 @@ interface BillingClientProps {
 }
 
 type PaidPlan = 'starter' | 'pro'
-type LoadingAction = 'change-plan' | 'cancel' | 'reactivate' | null
+type LoadingAction =
+  | 'change-plan'
+  | 'cancel'
+  | 'reactivate'
+  | 'cancel-scheduled'
+  | null
 
 const INVOICES_INITIAL_LIMIT = 12
 const TEMPLATE_PRICE_CENTS = 299
@@ -215,6 +221,20 @@ export function BillingClient({
     router.refresh()
   }, [t, router])
 
+  const handleCancelScheduled = useCallback(async () => {
+    setError(null)
+    setSuccessMessage(null)
+    setLoadingAction('cancel-scheduled')
+    const result = await cancelScheduledChangeAction()
+    setLoadingAction(null)
+    if (!result.ok) {
+      setError(getErrorMessage(result.error))
+      return
+    }
+    setSuccessMessage(t('pendingChangeCancelSuccess'))
+    router.refresh()
+  }, [t, router])
+
   const handleConfirmReactivate = useCallback(async () => {
     setLoadingAction('reactivate')
     setDialogError(null)
@@ -244,6 +264,25 @@ export function BillingClient({
     subscription !== null &&
     subscription.cancel_at_period_end &&
     plan !== 'free'
+
+  // Bannière "downgrade programmé" : rendue quand un Subscription Schedule
+  // est actif (pending_plan + pending_effective_at renseignés côté DB par
+  // changeSubscriptionPlanAction). Cachée si on est aussi en annulation
+  // programmée pour éviter deux bannières qui se marchent dessus — la
+  // cancel est la plus forte et l'emporte visuellement.
+  const pendingChange =
+    subscription !== null &&
+    subscription.pending_plan !== null &&
+    subscription.pending_interval !== null &&
+    subscription.pending_effective_at !== null
+      ? {
+          plan: subscription.pending_plan,
+          interval: subscription.pending_interval,
+          effectiveAt: subscription.pending_effective_at,
+        }
+      : null
+
+  const showPendingChangeBanner = pendingChange !== null && !showCancelBanner
 
   const visibleInvoices = useMemo(() => {
     if (showAllInvoices || invoices.length <= INVOICES_INITIAL_LIMIT) {
@@ -280,6 +319,38 @@ export function BillingClient({
                 plan: planName(plan as PaidPlan),
               })}
         </Banner>
+      )}
+
+      {/* 1bis. Pending plan change banner (downgrade programmé) */}
+      {showPendingChangeBanner && pendingChange && (
+        <div className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-border-light bg-surface-warm px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <Check
+              className="mt-0.5 h-4 w-4 shrink-0 text-foreground"
+              strokeWidth={2}
+            />
+            <p className="text-sm text-foreground">
+              {t('pendingChangeBanner', {
+                plan: planName(pendingChange.plan),
+                interval:
+                  pendingChange.interval === 'yearly'
+                    ? t('pendingChangeIntervalYearly')
+                    : t('pendingChangeIntervalMonthly'),
+                date: formatLongDate(pendingChange.effectiveAt),
+              })}
+            </p>
+          </div>
+          <VzBtn
+            variant="ghost"
+            size="sm"
+            onClick={handleCancelScheduled}
+            disabled={loadingAction === 'cancel-scheduled'}
+          >
+            {loadingAction === 'cancel-scheduled'
+              ? t('pendingChangeCancelLoading')
+              : t('pendingChangeCancelCta')}
+          </VzBtn>
+        </div>
       )}
 
       {/* 2. Success banner — auto-clears after 5s */}

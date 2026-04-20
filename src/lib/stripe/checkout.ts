@@ -7,11 +7,15 @@
 // réactivation, téléchargement de factures).
 
 import { stripe } from './client'
+import type Stripe from 'stripe'
 
 /**
- * Update an existing subscription to a new price (upgrade, downgrade, or
- * interval change). Replaces the current subscription item — no stacking.
- * Proration is applied automatically by Stripe Billing.
+ * Update an existing subscription to a new price IMMEDIATELY — utilisé
+ * pour les upgrades (Starter→Pro, monthly→yearly au sein du même plan).
+ * Les downgrades passent par `scheduleChangeAtPeriodEnd` à la place pour
+ * que les features Pro restent accessibles jusqu'à la fin de la période
+ * payée. L'aiguillage upgrade vs downgrade se fait côté action
+ * (`changeSubscriptionPlanAction`) via `classifySubscriptionChange`.
  *
  * Returns the (French) error message verbatim so the calling Server Action
  * can surface it to the modal — including the "Tu es deja sur ce plan"
@@ -48,6 +52,111 @@ export async function updateExistingSubscription(params: {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : 'Erreur lors de la mise a jour de l\'abonnement'
+    return { error: message }
+  }
+}
+
+/**
+ * Programmer un changement de plan/interval à la fin de la période en cours
+ * via Stripe Subscription Schedules. Utilisé pour tous les downgrades
+ * (Pro→Starter, yearly→monthly d'un même plan). L'abonnement reste sur
+ * son plan courant jusqu'à `current_period_end`, puis Stripe bascule
+ * automatiquement vers le nouveau price (event `customer.subscription.updated`
+ * avec items modifiés — le webhook détecte alors le bascule effectif).
+ *
+ * Idempotence : si un schedule existe déjà sur la subscription (rare :
+ * l'UI refuse normalement un 2e click downgrade quand un est déjà actif),
+ * on update le schedule existant pour remplacer la phase future au lieu
+ * de créer un doublon.
+ *
+ * Renvoie le schedule créé/mis à jour pour que l'action puisse :
+ *   - stocker `stripe_schedule_id` + `pending_plan/interval/effective_at` en DB
+ *   - fire l'email "Ton plan passera en X le {date}" au clic
+ */
+export async function scheduleChangeAtPeriodEnd(params: {
+  subscriptionId: string
+  newPriceId: string
+}): Promise<{ schedule: Stripe.SubscriptionSchedule | null; error: string | null }> {
+  try {
+    const subscription = await stripe.subscriptions.retrieve(params.subscriptionId)
+    const currentItem = subscription.items.data[0]
+
+    if (!currentItem) {
+      return { schedule: null, error: 'Aucun item trouve dans l\'abonnement actuel' }
+    }
+
+    if (currentItem.price.id === params.newPriceId) {
+      return { schedule: null, error: 'Tu es deja sur ce plan' }
+    }
+
+    // Stripe attache schedule.id à la subscription une fois créé. Si on
+    // retrouve déjà une valeur, on réutilise ce schedule pour éviter les
+    // doublons (Stripe refuse d'en créer un 2e sur la même sub).
+    const existingScheduleRef = subscription.schedule
+    const existingScheduleId =
+      typeof existingScheduleRef === 'string'
+        ? existingScheduleRef
+        : (existingScheduleRef?.id ?? null)
+
+    let schedule: Stripe.SubscriptionSchedule
+    if (existingScheduleId) {
+      schedule = await stripe.subscriptionSchedules.retrieve(existingScheduleId)
+    } else {
+      schedule = await stripe.subscriptionSchedules.create({
+        from_subscription: params.subscriptionId,
+      })
+    }
+
+    const currentPhase = schedule.phases[0]
+    if (!currentPhase) {
+      return { schedule: null, error: 'Planning d\'abonnement invalide (aucune phase courante)' }
+    }
+
+    // Reconstruit les items de la phase courante en conservant le price
+    // en cours. Stripe renvoie `price` parfois en string parfois expandé
+    // en objet selon le mode de retrieve — on normalise en string id.
+    const currentPhaseItems = currentPhase.items.map((item) => ({
+      price: typeof item.price === 'string' ? item.price : item.price.id,
+      quantity: item.quantity ?? 1,
+    }))
+
+    const updated = await stripe.subscriptionSchedules.update(schedule.id, {
+      end_behavior: 'release',
+      phases: [
+        {
+          items: currentPhaseItems,
+          start_date: currentPhase.start_date,
+          end_date: currentPhase.end_date ?? undefined,
+        },
+        {
+          items: [{ price: params.newPriceId, quantity: 1 }],
+        },
+      ],
+    })
+
+    return { schedule: updated, error: null }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Erreur lors de la programmation du changement de plan'
+    return { schedule: null, error: message }
+  }
+}
+
+/**
+ * Libère un Subscription Schedule : supprime la phase future et remet la
+ * subscription sur un rythme normal (plan courant perdure). Utilisé quand
+ * l'user revient sur son downgrade (re-click Pro) ou quand il choisit
+ * d'annuler complètement l'abo (dans ce cas on release + cancel_at_period_end).
+ */
+export async function releaseSubscriptionSchedule(params: {
+  scheduleId: string
+}): Promise<{ error: string | null }> {
+  try {
+    await stripe.subscriptionSchedules.release(params.scheduleId)
+    return { error: null }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Erreur lors de l\'annulation du changement de plan'
     return { error: message }
   }
 }

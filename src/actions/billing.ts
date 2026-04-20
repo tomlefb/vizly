@@ -1,15 +1,23 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe/client'
-import { getSubscriptionPriceId, type BillingInterval } from '@/lib/stripe/prices'
+import {
+  getSubscriptionPriceId,
+  classifySubscriptionChange,
+  type BillingInterval,
+} from '@/lib/stripe/prices'
 import {
   updateExistingSubscription,
   cancelSubscriptionAtPeriodEnd,
   reactivateSubscription,
   createSetupIntentForCard,
   setSubscriptionDefaultPaymentMethod,
+  scheduleChangeAtPeriodEnd,
+  releaseSubscriptionSchedule,
 } from '@/lib/stripe/checkout'
+import { sendEmail } from '@/lib/emails/send'
 import {
   createSubscriptionWithPaymentIntent,
   createTemplatePaymentIntent,
@@ -35,6 +43,11 @@ export interface BillingSubscriptionSummary {
   current_period_end: string | null
   cancel_at_period_end: boolean
   canceled_at: string | null
+  // Downgrade programmé via Subscription Schedule. Les 3 champs sont
+  // remplis ensemble (contrainte DB) ou tous null.
+  pending_plan: 'starter' | 'pro' | null
+  pending_interval: 'monthly' | 'yearly' | null
+  pending_effective_at: string | null
 }
 
 export interface BillingInvoiceSummary {
@@ -227,7 +240,7 @@ export async function getBillingDetails(): Promise<BillingDetails> {
       supabase
         .from('subscriptions')
         .select(
-          'status, interval, current_period_end, cancel_at_period_end, canceled_at',
+          'status, interval, current_period_end, cancel_at_period_end, canceled_at, pending_plan, pending_interval, pending_effective_at',
         )
         .eq('user_id', user.id)
         .maybeSingle(),
@@ -268,6 +281,15 @@ export async function getBillingDetails(): Promise<BillingDetails> {
             current_period_end: subRow.current_period_end,
             cancel_at_period_end: subRow.cancel_at_period_end,
             canceled_at: subRow.canceled_at,
+            pending_plan:
+              subRow.pending_plan === 'starter' || subRow.pending_plan === 'pro'
+                ? subRow.pending_plan
+                : null,
+            pending_interval:
+              subRow.pending_interval === 'monthly' || subRow.pending_interval === 'yearly'
+                ? subRow.pending_interval
+                : null,
+            pending_effective_at: subRow.pending_effective_at,
           }
         : null
 
@@ -354,6 +376,52 @@ type CancelSubscriptionResult =
   | { ok: true }
   | { ok: false; error: string }
 
+/**
+ * Annule un changement de plan/interval programmé (release le Subscription
+ * Schedule Stripe + purge les pending_* de la DB). L'user reste sur son
+ * plan courant comme avant le clic Downgrade.
+ */
+export async function cancelScheduledChangeAction(): Promise<CancelSubscriptionResult> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { ok: false, error: 'not_authenticated' }
+
+    const { data: localSub } = await supabase
+      .from('subscriptions')
+      .select('stripe_schedule_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!localSub?.stripe_schedule_id) {
+      return { ok: false, error: 'no_scheduled_change' }
+    }
+
+    const { error: releaseError } = await releaseSubscriptionSchedule({
+      scheduleId: localSub.stripe_schedule_id,
+    })
+    if (releaseError) return { ok: false, error: releaseError }
+
+    const admin = createAdminClient()
+    await admin
+      .from('subscriptions')
+      .update({
+        stripe_schedule_id: null,
+        pending_plan: null,
+        pending_interval: null,
+        pending_effective_at: null,
+      })
+      .eq('user_id', user.id)
+
+    return { ok: true }
+  } catch (err) {
+    console.error('[cancelScheduledChangeAction]', err)
+    return { ok: false, error: 'unknown_error' }
+  }
+}
+
 export async function cancelSubscriptionAction(): Promise<CancelSubscriptionResult> {
   try {
     const supabase = await createClient()
@@ -366,6 +434,34 @@ export async function cancelSubscriptionAction(): Promise<CancelSubscriptionResu
       await getActiveSubscriptionIdForUser(user.id)
     if (!subscriptionId) {
       return { ok: false, error: lookupError ?? 'no_active_subscription' }
+    }
+
+    // Si un downgrade est programmé, Stripe refuse `cancel_at_period_end`
+    // tant qu'un Subscription Schedule actif existe. On release d'abord,
+    // puis on programme l'annulation → comportement attendu : l'abo
+    // s'arrête au period_end comme si l'user avait simplement cliqué Cancel.
+    const { data: localSub } = await supabase
+      .from('subscriptions')
+      .select('stripe_schedule_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (localSub?.stripe_schedule_id) {
+      const { error: releaseError } = await releaseSubscriptionSchedule({
+        scheduleId: localSub.stripe_schedule_id,
+      })
+      if (releaseError) return { ok: false, error: releaseError }
+
+      const admin = createAdminClient()
+      await admin
+        .from('subscriptions')
+        .update({
+          stripe_schedule_id: null,
+          pending_plan: null,
+          pending_interval: null,
+          pending_effective_at: null,
+        })
+        .eq('user_id', user.id)
     }
 
     const { error } = await cancelSubscriptionAtPeriodEnd({ subscriptionId })
@@ -775,22 +871,29 @@ type ChangeSubscriptionPlanResult =
   | { ok: false; error: string }
 
 /**
- * Change the plan of an EXISTING active subscription (upgrade/downgrade
- * Starter ↔ Pro, or interval switch monthly ↔ yearly). This is a direct
- * Stripe mutation via `updateExistingSubscription` — it does NOT need a
- * client-side PaymentElement confirmation because no new payment method
- * is being collected. The new charge (with proration) happens server-side
- * via Stripe Billing.
+ * Change the plan of an EXISTING active subscription (Starter ↔ Pro, ou
+ * interval switch monthly ↔ yearly).
  *
- * Distinct from `createSubscriptionIntentAction` which is for the
- * "no sub yet → create one and confirm via PaymentElement" flow.
+ * Routage upgrade vs downgrade :
  *
- * Sync side-effects:
- *   - Stripe fires `customer.subscription.updated` webhook → Phase 3
- *     handler updates the local `subscriptions` table + dispatches the
- *     `plan-changed` or `billing-period-changed` email
- *   - This action returns immediately without waiting — UI shows a
- *     success message and the user sees the updated plan after a refresh
+ *   - UPGRADE immédiat (Starter→Pro, monthly→yearly du même plan) :
+ *     `updateExistingSubscription` bascule les items Stripe tout de suite.
+ *     Le webhook `customer.subscription.updated` fire avec les nouveaux
+ *     items → email `plan-changed/upgrade` envoyé depuis le webhook.
+ *
+ *   - DOWNGRADE programmé (Pro→Starter, yearly→monthly du même plan) :
+ *     `scheduleChangeAtPeriodEnd` crée un Stripe Subscription Schedule
+ *     avec une phase future qui bascule au `period_end`. La sub ne change
+ *     PAS maintenant, l'user garde ses features Pro jusqu'à cette date.
+ *     Email `plan-changed/downgrade` (isImmediate=false) envoyé DIRECTEMENT
+ *     d'ici au clic, pas du webhook (le webhook n'observera un vrai
+ *     item change qu'au period_end). Les champs pending_* de la row
+ *     subscriptions sont remplis pour que l'UI /billing affiche "Ton
+ *     plan passera en X le {date}".
+ *
+ *   - CAS RE-UPGRADE (user avec downgrade scheduled qui re-click son plan
+ *     courant) : on `releaseSubscriptionSchedule` pour annuler le changement
+ *     et revenir à l'état pre-downgrade. Pas d'email (rien n'a changé).
  */
 export async function changeSubscriptionPlanAction({
   plan,
@@ -807,12 +910,12 @@ export async function changeSubscriptionPlanAction({
     if (!user) return { ok: false, error: 'not_authenticated' }
 
     // Read the local subscriptions table (Phase 3 source of truth) to find
-    // the user's active stripe_subscription_id. Fallback on the legacy
-    // users.stripe_subscription_id column for the Phase 6 cleanup window
-    // — to be removed once Phase 7 confirms the legacy column is unused.
+    // the user's active stripe_subscription_id + schedule state. Fallback
+    // on the legacy users.stripe_subscription_id column pour les subs
+    // anciennes qui n'ont pas encore de row locale.
     const { data: localSub } = await supabase
       .from('subscriptions')
-      .select('stripe_subscription_id')
+      .select('stripe_subscription_id, stripe_schedule_id')
       .eq('user_id', user.id)
       .maybeSingle()
 
@@ -836,18 +939,166 @@ export async function changeSubscriptionPlanAction({
       return { ok: false, error: 'price_not_configured' }
     }
 
-    const { error: updateError } = await updateExistingSubscription({
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+    const currentItem = subscription.items.data[0]
+    if (!currentItem) {
+      return { ok: false, error: 'no_current_item' }
+    }
+    const currentPriceId = currentItem.price.id
+
+    const classification = classifySubscriptionChange(currentPriceId, newPriceId)
+
+    // --- Cas 1 : l'user a un schedule actif (downgrade programmé) et
+    // click sur un plan qui correspond à sa subscription COURANTE →
+    // on release le schedule (= il reste sur son plan actuel).
+    if (localSub?.stripe_schedule_id && classification === 'same') {
+      const { error: releaseError } = await releaseSubscriptionSchedule({
+        scheduleId: localSub.stripe_schedule_id,
+      })
+      if (releaseError) return { ok: false, error: releaseError }
+
+      // Le webhook subscription_schedule.released ne met pas à jour la row
+      // locale (on ne hooke pas cet event) — on clear manuellement ici.
+      const admin = createAdminClient()
+      await admin
+        .from('subscriptions')
+        .update({
+          stripe_schedule_id: null,
+          pending_plan: null,
+          pending_interval: null,
+          pending_effective_at: null,
+        })
+        .eq('user_id', user.id)
+
+      return { ok: true, message: 'Changement de plan annulé.' }
+    }
+
+    if (classification === 'same') {
+      return { ok: false, error: 'Tu es deja sur ce plan' }
+    }
+
+    // --- Cas 2 : upgrade immédiat (webhook prendra le relai pour l'email)
+    if (classification === 'upgrade') {
+      // Si un schedule downgrade existe, le release d'abord : l'user qui
+      // upgrade vers Pro pendant qu'un downgrade vers Starter était planifié
+      // a clairement changé d'avis.
+      if (localSub?.stripe_schedule_id) {
+        await releaseSubscriptionSchedule({
+          scheduleId: localSub.stripe_schedule_id,
+        })
+        const admin = createAdminClient()
+        await admin
+          .from('subscriptions')
+          .update({
+            stripe_schedule_id: null,
+            pending_plan: null,
+            pending_interval: null,
+            pending_effective_at: null,
+          })
+          .eq('user_id', user.id)
+      }
+
+      const { error: updateError } = await updateExistingSubscription({
+        subscriptionId,
+        newPriceId,
+      })
+      if (updateError) return { ok: false, error: updateError }
+      return { ok: true, message: 'Plan mis à jour.' }
+    }
+
+    // --- Cas 3 : downgrade programmé → Subscription Schedule + email au clic
+    const { schedule, error: scheduleError } = await scheduleChangeAtPeriodEnd({
       subscriptionId,
       newPriceId,
     })
-
-    if (updateError) {
-      // updateExistingSubscription returns a French message like
-      // "Tu es deja sur ce plan" — pass it through for the modal to display.
-      return { ok: false, error: updateError }
+    if (scheduleError || !schedule) {
+      return { ok: false, error: scheduleError ?? 'schedule_failed' }
     }
 
-    return { ok: true, message: 'Plan mis à jour.' }
+    const periodEndTs = currentItem.current_period_end
+    if (!periodEndTs) {
+      return { ok: false, error: 'no_period_end' }
+    }
+    const effectiveAtIso = new Date(periodEndTs * 1000).toISOString()
+
+    // Persiste l'état "downgrade programmé" en DB pour l'UI /billing.
+    const admin = createAdminClient()
+    await admin
+      .from('subscriptions')
+      .update({
+        stripe_schedule_id: schedule.id,
+        pending_plan: plan,
+        pending_interval: interval,
+        pending_effective_at: effectiveAtIso,
+      })
+      .eq('user_id', user.id)
+
+    // Envoi de l'email "ton plan passera en X le {date}" — best-effort,
+    // un échec Resend ne doit pas bloquer le succès Stripe. Le template
+    // dépend du type de downgrade : plan change vs simple interval change
+    // au sein du même plan.
+    const { data: userRow } = await supabase
+      .from('users')
+      .select('email, name, plan')
+      .eq('id', user.id)
+      .single()
+
+    if (userRow && (userRow.plan === 'starter' || userRow.plan === 'pro')) {
+      const newPrice = await stripe.prices.retrieve(newPriceId)
+      const currentPlanName: 'Starter' | 'Pro' =
+        userRow.plan === 'pro' ? 'Pro' : 'Starter'
+      const newPlanName: 'Starter' | 'Pro' = plan === 'pro' ? 'Pro' : 'Starter'
+      const periodEndIso = new Date(periodEndTs * 1000).toISOString().slice(0, 10)
+      const nextBillingDate = new Date(periodEndTs * 1000)
+      if (interval === 'yearly') {
+        nextBillingDate.setUTCFullYear(nextBillingDate.getUTCFullYear() + 1)
+      } else {
+        nextBillingDate.setUTCMonth(nextBillingDate.getUTCMonth() + 1)
+      }
+      const nextBillingIso = nextBillingDate.toISOString().slice(0, 10)
+
+      const isPlanChange = userRow.plan !== plan
+      const emailResult = isPlanChange
+        ? await sendEmail({
+            template: 'plan-changed',
+            to: userRow.email,
+            data: {
+              name: userRow.name ?? '',
+              previousPlanName: currentPlanName,
+              newPlanName,
+              changeType: 'downgrade',
+              newAmount: newPrice.unit_amount ?? 0,
+              currency: newPrice.currency,
+              newBillingPeriod: interval,
+              effectiveDate: periodEndIso,
+              isImmediate: false,
+              nextBillingDate: nextBillingIso,
+            },
+          })
+        : await sendEmail({
+            template: 'billing-period-changed',
+            to: userRow.email,
+            data: {
+              name: userRow.name ?? '',
+              planName: currentPlanName,
+              previousBillingPeriod: interval === 'monthly' ? 'yearly' : 'monthly',
+              newBillingPeriod: interval,
+              newAmount: newPrice.unit_amount ?? 0,
+              currency: newPrice.currency,
+              effectiveDate: periodEndIso,
+              isImmediate: false,
+              nextBillingDate: nextBillingIso,
+            },
+          })
+      if (!emailResult.ok) {
+        console.error(
+          '[changeSubscriptionPlanAction] scheduled-change email failed:',
+          emailResult.error,
+        )
+      }
+    }
+
+    return { ok: true, message: 'Changement programmé à la fin de la période.' }
   } catch (err) {
     console.error('[changeSubscriptionPlanAction]', err)
     return { ok: false, error: 'unknown_error' }

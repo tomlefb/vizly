@@ -279,9 +279,13 @@ export type Database = {
           current_period_start: string | null
           id: string
           interval: string
+          pending_effective_at: string | null
+          pending_interval: string | null
+          pending_plan: Database["public"]["Enums"]["plan_type"] | null
           plan: Database["public"]["Enums"]["plan_type"]
           status: string
           stripe_customer_id: string
+          stripe_schedule_id: string | null
           stripe_subscription_id: string
           updated_at: string
           user_id: string
@@ -294,9 +298,13 @@ export type Database = {
           current_period_start?: string | null
           id?: string
           interval: string
+          pending_effective_at?: string | null
+          pending_interval?: string | null
+          pending_plan?: Database["public"]["Enums"]["plan_type"] | null
           plan: Database["public"]["Enums"]["plan_type"]
           status: string
           stripe_customer_id: string
+          stripe_schedule_id?: string | null
           stripe_subscription_id: string
           updated_at?: string
           user_id: string
@@ -309,9 +317,13 @@ export type Database = {
           current_period_start?: string | null
           id?: string
           interval?: string
+          pending_effective_at?: string | null
+          pending_interval?: string | null
+          pending_plan?: Database["public"]["Enums"]["plan_type"] | null
           plan?: Database["public"]["Enums"]["plan_type"]
           status?: string
           stripe_customer_id?: string
+          stripe_schedule_id?: string | null
           stripe_subscription_id?: string
           updated_at?: string
           user_id?: string

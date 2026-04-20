@@ -70,6 +70,36 @@ export function getPlanAndIntervalFromPriceId(
 }
 
 /**
+ * Compare deux price IDs de subscription pour décider si le changement
+ * est un "upgrade" (immédiat) ou un "downgrade" (programmé à period_end).
+ *
+ * Règle : plus de features ET/OU engagement plus long = upgrade immédiat.
+ * Inversement, moins de features OU engagement plus court = downgrade
+ * programmé. Le rank est `plan * 10 + interval` (pro=2, starter=1,
+ * yearly=2, monthly=1) — strictement décroissant = downgrade.
+ *
+ * Retourne `null` si l'un des deux priceIds n'est pas reconnu (cas qui
+ * ne devrait pas arriver en prod — la UI ne propose que les 4 plans Vizly).
+ */
+export function classifySubscriptionChange(
+  currentPriceId: string,
+  newPriceId: string,
+): 'upgrade' | 'downgrade' | 'same' | null {
+  const current = getPlanAndIntervalFromPriceId(currentPriceId)
+  const next = getPlanAndIntervalFromPriceId(newPriceId)
+  if (!current || !next) return null
+
+  const rank = (m: { plan: 'starter' | 'pro'; interval: BillingInterval }) =>
+    (m.plan === 'pro' ? 2 : 1) * 10 + (m.interval === 'yearly' ? 2 : 1)
+
+  const currentRank = rank(current)
+  const nextRank = rank(next)
+
+  if (nextRank === currentRank) return 'same'
+  return nextRank > currentRank ? 'upgrade' : 'downgrade'
+}
+
+/**
  * Determine the template ID from a Stripe price ID.
  * @returns The template id (e.g. "creatif") or null.
  */
