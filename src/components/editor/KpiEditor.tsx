@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { generateKpiId, type KpiItem } from '@/types/kpis'
 
@@ -12,6 +13,8 @@ interface KpiEditorProps {
 }
 
 export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
+  const t = useTranslations('editor.kpi')
+
   const addKpi = useCallback(() => {
     onChange([...kpis, {
       id: generateKpiId(),
@@ -43,10 +46,10 @@ export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
     <section className="space-y-4">
       <div>
         <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          Chiffres clés
+          {t('title')}
         </h3>
         <p className="text-sm text-muted mt-1">
-          Ajoute tes KPI pour impressionner
+          {t('description')}
         </p>
       </div>
 
@@ -63,21 +66,21 @@ export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
                   const num = parseFloat(raw)
                   updateKpi(index, { value: isNaN(num) ? 0 : num })
                 }}
-                placeholder="42"
+                placeholder={t('valuePlaceholder')}
                 className={cn(inputBase, 'w-20 text-base font-bold text-center')}
               />
               <input
                 type="text"
                 value={kpi.label}
                 onChange={(e) => updateKpi(index, { label: e.target.value })}
-                placeholder="clients satisfaits"
+                placeholder={t('labelPlaceholder')}
                 className={cn(inputBase, 'flex-1 text-sm')}
               />
               <button
                 type="button"
                 onClick={() => removeKpi(index)}
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-muted opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/5 transition-all"
-                aria-label="Supprimer le KPI"
+                aria-label={t('deleteAriaLabel')}
               >
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
@@ -93,7 +96,7 @@ export function KpiEditor({ kpis, onChange }: KpiEditorProps) {
         className="flex items-center justify-center gap-1.5 w-full h-10 border border-dashed border-border-light rounded-[var(--radius-md)] text-sm font-medium text-muted transition-colors duration-150 hover:border-muted-foreground hover:text-foreground"
       >
         <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
-        Ajouter un KPI
+        {t('addButton')}
       </button>
     </section>
   )

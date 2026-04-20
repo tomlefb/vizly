@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useId } from 'react'
 import { X, AlertCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { MAX_PROJECT_DESCRIPTION_LENGTH } from '@/lib/constants'
 import type { ProjectFormData } from '@/lib/validations'
@@ -17,6 +18,7 @@ export function ProjectForm({
   onChange,
   className,
 }: ProjectFormProps) {
+  const t = useTranslations('editor.project')
   const id = useId()
   const [tagInput, setTagInput] = useState('')
   const [linkError, setLinkError] = useState<string | null>(null)
@@ -77,7 +79,7 @@ export function ProjectForm({
       {/* Title */}
       <div>
         <label htmlFor={`${id}-title`} className="mb-1.5 block text-sm font-medium text-foreground">
-          Titre du projet <span className="text-destructive">*</span>
+          {t('titleLabel')} <span className="text-destructive">*</span>
         </label>
         <input
           id={`${id}-title`}
@@ -85,7 +87,7 @@ export function ProjectForm({
           type="text"
           value={project.title}
           onChange={(e) => handleFieldChange('title', e.target.value)}
-          placeholder="Mon super projet"
+          placeholder={t('titlePlaceholder')}
           maxLength={100}
           className={cn(inputBase, 'border-border-light')}
         />
@@ -94,14 +96,14 @@ export function ProjectForm({
       {/* Description */}
       <div>
         <label htmlFor={`${id}-description`} className="mb-1.5 block text-sm font-medium text-foreground">
-          Description
+          {t('descriptionLabel')}
         </label>
         <textarea
           id={`${id}-description`}
           data-testid="project-description"
           value={project.description ?? ''}
           onChange={(e) => handleFieldChange('description', e.target.value)}
-          placeholder="Décris ton projet en quelques lignes..."
+          placeholder={t('descriptionPlaceholder')}
           maxLength={MAX_PROJECT_DESCRIPTION_LENGTH}
           rows={2}
           className={cn(textareaBase, 'border-border-light')}
@@ -114,7 +116,7 @@ export function ProjectForm({
       {/* External link */}
       <div>
         <label htmlFor={`${id}-link`} className="mb-1.5 block text-sm font-medium text-foreground">
-          Lien externe
+          {t('linkLabel')}
         </label>
         <input
           id={`${id}-link`}
@@ -127,12 +129,12 @@ export function ProjectForm({
           onBlur={() => {
             const val = project.external_link ?? ''
             if (val.trim()) {
-              try { new URL(val); setLinkError(null) } catch { setLinkError('URL invalide (doit commencer par https://)') }
+              try { new URL(val); setLinkError(null) } catch { setLinkError(t('linkError')) }
             } else {
               setLinkError(null)
             }
           }}
-          placeholder="https://github.com/..."
+          placeholder={t('linkPlaceholder')}
           className={cn(inputBase, linkError ? 'border-destructive' : 'border-border-light')}
         />
         {linkError && (
@@ -146,7 +148,7 @@ export function ProjectForm({
       {/* Tags */}
       <div>
         <label htmlFor={`${id}-tags`} className="mb-1.5 block text-sm font-medium text-foreground">
-          Technologies / Tags
+          {t('tagsLabel')}
         </label>
         <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 min-h-[40px] transition-colors duration-150 focus-within:border-foreground">
           {project.tags.map((tag) => (
@@ -159,7 +161,7 @@ export function ProjectForm({
                 type="button"
                 onClick={() => handleRemoveTag(tag)}
                 className="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={`Supprimer le tag ${tag}`}
+                aria-label={t('deleteTagAriaLabel', { tag })}
               >
                 <X className="h-2.5 w-2.5" />
               </button>
@@ -172,7 +174,7 @@ export function ProjectForm({
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagKeyDown}
-              placeholder={project.tags.length === 0 ? 'React, TypeScript...' : 'Ajouter...'}
+              placeholder={project.tags.length === 0 ? t('tagsPlaceholderFirst') : t('tagsPlaceholderAdd')}
               className="flex-1 min-w-[80px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
             />
           )}

@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Plus, Pencil, Trash2, X, FileText } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 import { VzBtn } from '@/components/ui/vizly'
 import { RichTextEditor } from './RichTextEditor'
 import { generateBlockId, type CustomBlock } from '@/types/custom-blocks'
@@ -18,6 +18,7 @@ function stripHtml(html: string): string {
 }
 
 export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) {
+  const t = useTranslations('editor.customBlock')
   const [isEditing, setIsEditing] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editingBlock, setEditingBlock] = useState<CustomBlock>({
@@ -68,10 +69,10 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
     <section className="space-y-4">
       <div>
         <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          Blocs de texte
+          {t('title')}
         </h3>
         <p className="text-sm text-muted mt-1">
-          Ajoute des sections de texte personnalisées
+          {t('description')}
         </p>
       </div>
 
@@ -87,7 +88,7 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
               >
                 <FileText className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" strokeWidth={1.5} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{block.title || 'Sans titre'}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{block.title || t('noTitle')}</p>
                   {block.subtitle && (
                     <p className="text-xs text-muted truncate">{block.subtitle}</p>
                   )}
@@ -100,7 +101,7 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
                     type="button"
                     onClick={() => openEdit(index)}
                     className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors"
-                    aria-label="Modifier"
+                    aria-label={t('editAriaLabel')}
                   >
                     <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
                   </button>
@@ -108,7 +109,7 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
                     type="button"
                     onClick={() => handleDelete(index)}
                     className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors"
-                    aria-label="Supprimer"
+                    aria-label={t('deleteAriaLabel')}
                   >
                     <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                   </button>
@@ -126,7 +127,7 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
         className="flex items-center justify-center gap-1.5 w-full border border-dashed border-border-light rounded-[var(--radius-md)] py-2.5 text-sm font-medium text-muted transition-colors duration-150 hover:border-muted-foreground hover:text-foreground"
       >
         <Plus className="h-4 w-4" strokeWidth={1.5} />
-        Ajouter un bloc texte
+        {t('addButton')}
       </button>
 
       {/* Edit modal */}
@@ -147,7 +148,7 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
             >
               <div className="flex items-center justify-between border-b border-border-light px-6 py-4">
                 <h3 className="text-lg font-semibold font-[family-name:var(--font-satoshi)] text-foreground">
-                  {editingIndex !== null ? 'Modifier le bloc' : 'Nouveau bloc texte'}
+                  {editingIndex !== null ? t('modalEditTitle') : t('modalNewTitle')}
                 </h3>
                 <button
                   type="button"
@@ -161,13 +162,13 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
               <div className="px-6 py-5 space-y-4 max-h-[65vh] overflow-y-auto">
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-foreground">
-                    Titre <span className="text-destructive">*</span>
+                    {t('titleLabel')} <span className="text-destructive">*</span>
                   </label>
                   <input
                     type="text"
                     value={editingBlock.title}
                     onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })}
-                    placeholder="Ex : À propos de moi"
+                    placeholder={t('titlePlaceholder')}
                     maxLength={200}
                     className={inputBase}
                   />
@@ -175,13 +176,13 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
 
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-foreground">
-                    Sous-titre
+                    {t('subtitleLabel')}
                   </label>
                   <input
                     type="text"
                     value={editingBlock.subtitle}
                     onChange={(e) => setEditingBlock({ ...editingBlock, subtitle: e.target.value })}
-                    placeholder="Ex : Mon parcours et mes passions"
+                    placeholder={t('subtitlePlaceholder')}
                     maxLength={200}
                     className={inputBase}
                   />
@@ -189,24 +190,24 @@ export function CustomBlockEditor({ blocks, onChange }: CustomBlockEditorProps) 
 
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-foreground">
-                    Contenu
+                    {t('contentLabel')}
                   </label>
                   <RichTextEditor
                     value={editingBlock.content}
                     onChange={(html) => setEditingBlock({ ...editingBlock, content: html })}
-                    placeholder="Écris ton contenu ici… Utilise la barre d'outils pour le formatage."
+                    placeholder={t('contentPlaceholder')}
                   />
                 </div>
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-border-light px-6 py-4">
-                <VzBtn variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Annuler</VzBtn>
+                <VzBtn variant="ghost" size="sm" onClick={() => setIsEditing(false)}>{t('cancel')}</VzBtn>
                 <VzBtn
                   variant="primary"
                   onClick={handleSave}
                   disabled={!editingBlock.title.trim()}
                 >
-                  {editingIndex !== null ? 'Enregistrer' : 'Ajouter'}
+                  {editingIndex !== null ? t('save') : t('add')}
                 </VzBtn>
               </div>
             </motion.div>

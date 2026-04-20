@@ -2,10 +2,12 @@
 
 import { useState, useCallback } from 'react'
 import { Send, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 
 export function ContactForm() {
+  const t = useTranslations('contactForm')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -30,7 +32,7 @@ export function ContactForm() {
 
         if (!res.ok || data.error) {
           setStatus('error')
-          setErrorMsg(data.error ?? 'Erreur lors de l\'envoi')
+          setErrorMsg(data.error ?? t('errorSending'))
           return
         }
 
@@ -40,20 +42,20 @@ export function ContactForm() {
         setMessage('')
       } catch {
         setStatus('error')
-        setErrorMsg('Erreur réseau. Réessaie.')
+        setErrorMsg(t('errorNetwork'))
       }
     },
-    [name, email, message]
+    [name, email, message, t]
   )
 
   if (status === 'sent') {
     return (
       <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface p-10 text-center">
         <h2 className="font-[family-name:var(--font-satoshi)] text-xl font-semibold tracking-tight leading-[1.1]">
-          Message <VzHighlight>envoyé</VzHighlight>.
+          {t('successTitleStart')} <VzHighlight>{t('successTitleAccent')}</VzHighlight>.
         </h2>
         <p className="mt-4 text-sm text-muted leading-relaxed">
-          On te répond au plus vite.
+          {t('successBody')}
         </p>
         <button
           type="button"
@@ -63,7 +65,7 @@ export function ContactForm() {
           }}
           className="mt-6 text-sm font-medium text-foreground underline underline-offset-4 transition-colors duration-150 hover:text-accent-deep"
         >
-          Envoyer un autre message
+          {t('successAgain')}
         </button>
       </div>
     )
@@ -79,7 +81,7 @@ export function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-1.5">
         <label htmlFor="contact-name" className="block text-sm font-medium text-foreground">
-          Nom
+          {t('nameLabel')}
         </label>
         <input
           id="contact-name"
@@ -87,14 +89,14 @@ export function ContactForm() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Ton nom"
+          placeholder={t('namePlaceholder')}
           className={inputClasses}
         />
       </div>
 
       <div className="space-y-1.5">
         <label htmlFor="contact-email" className="block text-sm font-medium text-foreground">
-          Email
+          {t('emailLabel')}
         </label>
         <input
           id="contact-email"
@@ -102,14 +104,14 @@ export function ContactForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="ton@email.com"
+          placeholder={t('emailPlaceholder')}
           className={inputClasses}
         />
       </div>
 
       <div className="space-y-1.5">
         <label htmlFor="contact-message" className="block text-sm font-medium text-foreground">
-          Message
+          {t('messageLabel')}
         </label>
         <textarea
           id="contact-message"
@@ -117,7 +119,7 @@ export function ContactForm() {
           rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Ton message..."
+          placeholder={t('messagePlaceholder')}
           className={textareaClasses}
         />
       </div>
@@ -137,12 +139,12 @@ export function ContactForm() {
         {status === 'sending' ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Envoi en cours...
+            {t('sending')}
           </>
         ) : (
           <>
             <Send className="h-4 w-4" />
-            Envoyer
+            {t('send')}
           </>
         )}
       </button>

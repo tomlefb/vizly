@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Plus, Pencil, Trash2, X, Columns3, Type, BarChart3, ImageIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { VzBtn } from '@/components/ui/vizly'
 import { RichTextEditor } from './RichTextEditor'
@@ -18,14 +19,15 @@ interface LayoutBlockEditorProps {
 
 const EMPTY_COLUMN: LayoutColumn = { type: 'empty' }
 
-const COLUMN_TYPE_OPTIONS: Array<{ type: ColumnContentType; label: string; icon: typeof Type }> = [
-  { type: 'text', label: 'Texte', icon: Type },
-  { type: 'kpi', label: 'KPI', icon: BarChart3 },
-  { type: 'image', label: 'Image', icon: ImageIcon },
-  { type: 'empty', label: 'Vide', icon: X },
+const COLUMN_TYPE_OPTIONS: Array<{ type: ColumnContentType; icon: typeof Type }> = [
+  { type: 'text', icon: Type },
+  { type: 'kpi', icon: BarChart3 },
+  { type: 'image', icon: ImageIcon },
+  { type: 'empty', icon: X },
 ]
 
 export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBlockEditorProps) {
+  const t = useTranslations('editor.layoutBlock')
   const [isEditing, setIsEditing] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editingBlock, setEditingBlock] = useState<LayoutBlock>({
@@ -95,10 +97,10 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
     <section className="space-y-4">
       <div>
         <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-          Sections en colonnes
+          {t('title')}
         </h3>
         <p className="text-sm text-muted mt-1">
-          Crée des sections avec 1, 2 ou 3 colonnes
+          {t('description')}
         </p>
       </div>
 
@@ -110,17 +112,22 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
               <Columns3 className="h-4 w-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">
-                  {block.columnCount} colonne{block.columnCount > 1 ? 's' : ''} — {block.columns.filter((c) => c.type !== 'empty').length} contenu{block.columns.filter((c) => c.type !== 'empty').length > 1 ? 's' : ''}
+                  {(() => {
+                    const filled = block.columns.filter((c) => c.type !== 'empty').length
+                    if (block.columnCount === 1) return t('summaryColumnsOne', { filled })
+                    if (filled === 1) return t('summaryColumnsManyOne', { count: block.columnCount })
+                    return t('summaryColumnsMany', { count: block.columnCount, filled })
+                  })()}
                 </p>
                 <p className="text-xs text-muted truncate">
-                  {block.columns.map((c) => c.type === 'text' ? (c.title || 'Texte') : c.type === 'kpi' ? 'KPI' : c.type === 'image' ? 'Image' : 'Vide').join(' | ')}
+                  {block.columns.map((c) => c.type === 'text' ? (c.title || t('typeLabels.text')) : t(`typeLabels.${c.type}`)).join(' | ')}
                 </p>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button type="button" onClick={() => openEdit(index)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label="Modifier">
+                <button type="button" onClick={() => openEdit(index)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label={t('editAriaLabel')}>
                   <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </button>
-                <button type="button" onClick={() => handleDelete(index)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors" aria-label="Supprimer">
+                <button type="button" onClick={() => handleDelete(index)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors" aria-label={t('deleteAriaLabel')}>
                   <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </button>
               </div>
@@ -131,7 +138,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
 
       <button type="button" onClick={openNew} className="flex items-center justify-center gap-1.5 w-full border border-dashed border-border-light rounded-[var(--radius-md)] py-2.5 text-sm font-medium text-muted transition-colors duration-150 hover:border-muted-foreground hover:text-foreground">
         <Plus className="h-4 w-4" strokeWidth={1.5} />
-        Ajouter une section colonnes
+        {t('addButton')}
       </button>
 
       {/* Edit modal */}
@@ -146,7 +153,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border-light px-6 py-4">
                 <h3 className="text-lg font-semibold font-[family-name:var(--font-satoshi)] text-foreground">
-                  {editingIndex !== null ? 'Modifier la section' : 'Nouvelle section colonnes'}
+                  {editingIndex !== null ? t('modalEditTitle') : t('modalNewTitle')}
                 </h3>
                 <button type="button" onClick={() => setIsEditing(false)} className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors">
                   <X className="h-4 w-4" />
@@ -156,7 +163,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
               <div className="px-6 py-5 space-y-6 max-h-[75vh] overflow-y-auto">
                 {/* Column count picker — visual mini-schemas */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-foreground">Nombre de colonnes</label>
+                  <label className="block text-sm font-medium text-foreground">{t('columnCountLabel')}</label>
                   <div className="flex gap-3">
                     {([1, 2, 3] as const).map((n) => {
                       const isActive = editingBlock.columnCount === n
@@ -180,7 +187,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                           <span className={cn(
                             'text-[11px] font-medium',
                             isActive ? 'text-foreground' : 'text-muted-foreground'
-                          )}>{n} col{n > 1 ? 's' : ''}</span>
+                          )}>{n === 1 ? t('columnCountOneShort') : t('columnCountManyShort', { count: n })}</span>
                         </button>
                       )
                     })}
@@ -191,7 +198,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                 <div className={cn('grid gap-4', editingBlock.columnCount === 1 ? 'grid-cols-1' : editingBlock.columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
                   {editingBlock.columns.slice(0, editingBlock.columnCount).map((col, i) => (
                     <div key={i} className="space-y-3 rounded-[var(--radius-lg)] border border-border-light p-3">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Colonne {i + 1}</p>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('columnLabel', { number: i + 1 })}</p>
 
                       {/* Type picker */}
                       <div className="grid grid-cols-2 gap-1">
@@ -202,7 +209,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                               col.type === opt.type ? 'border-foreground bg-surface-sunken text-foreground' : 'border-border-light text-muted hover:border-border'
                             )}>
                             <opt.icon className="h-3 w-3" strokeWidth={1.5} />
-                            {opt.label}
+                            {t(`typeLabels.${opt.type}`)}
                           </button>
                         ))}
                       </div>
@@ -211,8 +218,8 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                       {col.type === 'text' && (
                         <div className="space-y-2">
                           <input type="text" value={col.title ?? ''} onChange={(e) => updateColumn(i, { title: e.target.value })}
-                            placeholder="Titre (optionnel)" className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
-                          <RichTextEditor value={col.content ?? ''} onChange={(html) => updateColumn(i, { content: html })} placeholder="Contenu…" />
+                            placeholder={t('titlePlaceholder')} className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
+                          <RichTextEditor value={col.content ?? ''} onChange={(html) => updateColumn(i, { content: html })} placeholder={t('contentPlaceholder')} />
                         </div>
                       )}
 
@@ -232,12 +239,12 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                             )})}
                           </div>
                           <input type="text" value={col.kpi.label} onChange={(e) => { const k = col.kpi; if (k) updateColumn(i, { kpi: { ...k, label: e.target.value } }) }}
-                            placeholder="Label" className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
+                            placeholder={t('labelPlaceholder')} className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
                           <div className="flex gap-2">
                             <input type="number" value={col.kpi.value} onChange={(e) => { const k = col.kpi; if (k) updateColumn(i, { kpi: { ...k, value: parseFloat(e.target.value) || 0 } }) }}
-                              placeholder="Valeur" className="flex-1 rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
+                              placeholder={t('valuePlaceholder')} className="flex-1 rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
                             <input type="text" value={col.kpi.unit} onChange={(e) => { const k = col.kpi; if (k) updateColumn(i, { kpi: { ...k, unit: e.target.value } }) }}
-                              placeholder="Unité" className="w-16 rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
+                              placeholder={t('unitPlaceholder')} className="w-16 rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
                           </div>
                           <div className="rounded-[var(--radius-sm)] bg-surface-warm p-2">
                             <KpiRenderer kpi={col.kpi} primaryColor={primaryColor} />
@@ -248,9 +255,9 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                       {col.type === 'image' && (
                         <div className="space-y-2">
                           <input type="url" value={col.imageUrl ?? ''} onChange={(e) => updateColumn(i, { imageUrl: e.target.value })}
-                            placeholder="URL de l'image" className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
+                            placeholder={t('imageUrlPlaceholder')} className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
                           <input type="text" value={col.imageAlt ?? ''} onChange={(e) => updateColumn(i, { imageAlt: e.target.value })}
-                            placeholder="Description (alt)" className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
+                            placeholder={t('imageAltPlaceholder')} className="w-full rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground" />
                           {col.imageUrl && (
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img src={col.imageUrl} alt={col.imageAlt ?? ''} className="w-full rounded-[var(--radius-sm)] border border-border-light object-cover max-h-32" />
@@ -259,7 +266,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                       )}
 
                       {col.type === 'empty' && (
-                        <p className="text-xs text-muted-foreground/50 italic text-center py-4">Colonne vide</p>
+                        <p className="text-xs text-muted-foreground/50 italic text-center py-4">{t('emptyColumn')}</p>
                       )}
                     </div>
                   ))}
@@ -268,9 +275,9 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
 
               {/* Footer */}
               <div className="flex items-center justify-end gap-3 border-t border-border-light px-6 py-4">
-                <VzBtn variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Annuler</VzBtn>
+                <VzBtn variant="ghost" size="sm" onClick={() => setIsEditing(false)}>{t('cancel')}</VzBtn>
                 <VzBtn variant="primary" onClick={handleSave}>
-                  {editingIndex !== null ? 'Enregistrer' : 'Ajouter'}
+                  {editingIndex !== null ? t('save') : t('add')}
                 </VzBtn>
               </div>
             </motion.div>

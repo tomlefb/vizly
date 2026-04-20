@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useId } from 'react'
 import { Upload, X, ImageIcon, GripVertical, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { MAX_IMAGES_PER_PROJECT } from '@/lib/constants'
 
@@ -24,6 +25,7 @@ export function ImageUploader({
   onImageRemove,
   className,
 }: ImageUploaderProps) {
+  const t = useTranslations('editor.imageUploader')
   const id = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -133,7 +135,7 @@ export function ImageUploader({
           }}
           role="button"
           tabIndex={0}
-          aria-label={`Ajouter des images. ${remaining} emplacement${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
+          aria-label={t('addImagesAriaLabel', { count: remaining })}
           className={cn(
             'relative flex items-center justify-center gap-3 rounded-[var(--radius-lg)] border-[1.5px] border-dashed h-[100px] px-6 cursor-pointer transition-colors duration-150',
             isDragging
@@ -144,10 +146,10 @@ export function ImageUploader({
           <Upload className="h-6 w-6 shrink-0 text-muted-foreground" />
           <div>
             <p className="text-sm text-muted">
-              {isDragging ? 'Dépose tes images ici' : 'Glisse ou clique pour ajouter'}
+              {isDragging ? t('dropHere') : t('clickOrDrag')}
             </p>
             <p className="text-xs text-muted-foreground">
-              JPG, PNG, WebP ou GIF — max 5 images
+              {t('helper')}
             </p>
           </div>
           <input
@@ -191,14 +193,14 @@ export function ImageUploader({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
-                alt={`Image existante ${index + 1}`}
+                alt={t('existingImageAlt', { index: index + 1 })}
                 className="h-full w-full object-cover"
               />
               <button
                 type="button"
                 onClick={() => onImageRemove(index)}
                 className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-foreground/70 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 hover:bg-destructive"
-                aria-label={`Supprimer l'image ${index + 1}`}
+                aria-label={t('removeExistingAriaLabel', { index: index + 1 })}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -226,7 +228,7 @@ export function ImageUploader({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={previewUrl}
-                  alt={`Nouvelle image ${index + 1}: ${file.name}`}
+                  alt={t('newImageAlt', { index: index + 1, name: file.name })}
                   className="h-full w-full object-cover"
                   onLoad={() => URL.revokeObjectURL(previewUrl)}
                 />
@@ -241,7 +243,7 @@ export function ImageUploader({
                   type="button"
                   onClick={() => onImageRemove(globalIndex)}
                   className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-foreground/70 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 hover:bg-destructive"
-                  aria-label={`Supprimer l'image ${file.name}`}
+                  aria-label={t('removeImageAriaLabel', { name: file.name })}
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -258,7 +260,7 @@ export function ImageUploader({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="flex aspect-square items-center justify-center rounded-[var(--radius-sm)] border border-dashed border-border-light hover:border-muted-foreground hover:bg-surface-warm transition-colors duration-150"
-              aria-label="Ajouter une image"
+              aria-label={t('addImageAriaLabel')}
             >
               <ImageIcon className="h-5 w-5 text-muted-foreground/50" />
             </button>

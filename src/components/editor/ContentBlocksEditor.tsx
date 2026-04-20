@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Upload,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { VzBtn } from '@/components/ui/vizly'
 import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
@@ -39,18 +40,13 @@ type ContentItem =
 const inputClass =
   'w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-foreground'
 
-const BLOCK_TYPES = [
-  { kind: 'block' as const, icon: Type, label: 'Texte', desc: 'Un titre et un paragraphe' },
-  { kind: 'kpi' as const, icon: BarChart3, label: 'Chiffres clés', desc: 'Tes KPI et stats' },
-  { kind: 'layout' as const, icon: Columns, label: 'Colonnes', desc: 'Contenu côte à côte en 2 ou 3 colonnes' },
+const BLOCK_KINDS = [
+  { kind: 'block' as const, icon: Type },
+  { kind: 'kpi' as const, icon: BarChart3 },
+  { kind: 'layout' as const, icon: Columns },
 ]
 
-const COLUMN_CONTENT_TYPES: { value: ColumnContentType; label: string }[] = [
-  { value: 'text', label: 'Texte' },
-  { value: 'image', label: 'Image' },
-  { value: 'kpi', label: 'KPI' },
-  { value: 'empty', label: 'Vide' },
-]
+const COLUMN_CONTENT_KEYS: ColumnContentType[] = ['text', 'image', 'kpi', 'empty']
 
 function stripHtml(html: string): string {
   if (typeof document !== 'undefined') {
@@ -79,6 +75,7 @@ export function ContentBlocksEditor({
   kpis, onKpisChange,
   layoutBlocks, onLayoutBlocksChange,
 }: ContentBlocksEditorProps) {
+  const t = useTranslations('editor.contentBlocks')
   const [modalType, setModalType] = useState<ModalType>(null)
   const [editingIndex, setEditingIndex] = useState(-1)
   const [showDropdown, setShowDropdown] = useState(false)
@@ -210,7 +207,7 @@ export function ContentBlocksEditor({
   function ModalFooter({ onSave, disabled, label }: { onSave: () => void; disabled: boolean; label: string }) {
     return (
       <div className="shrink-0 px-8 py-4 bg-surface border-t border-border-light flex items-center justify-end gap-3">
-        <VzBtn variant="ghost" size="sm" onClick={closeModal}>Annuler</VzBtn>
+        <VzBtn variant="ghost" size="sm" onClick={closeModal}>{t('cancel')}</VzBtn>
         <VzBtn variant="primary" onClick={onSave} disabled={disabled}>{label}</VzBtn>
       </div>
     )
@@ -223,17 +220,17 @@ export function ContentBlocksEditor({
   return (
     <div className="flex-1 mt-8 lg:mt-0 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">Blocs de contenu</h3>
+        <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{t('title')}</h3>
         <div className="relative" ref={dropdownRef}>
           <button type="button" onClick={() => setShowDropdown(!showDropdown)} className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-muted transition-colors">
-            <Plus className="h-4 w-4" strokeWidth={1.5} /> Ajouter <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-150', showDropdown && 'rotate-180')} strokeWidth={1.5} />
+            <Plus className="h-4 w-4" strokeWidth={1.5} /> {t('addLabel')} <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-150', showDropdown && 'rotate-180')} strokeWidth={1.5} />
           </button>
           {showDropdown && (
             <div className="absolute right-0 top-full mt-2 w-[260px] rounded-[var(--radius-md)] border border-border-light bg-surface p-1.5 z-10 shadow-[var(--shadow-card-hover)]">
-              {BLOCK_TYPES.map((bt) => (
+              {BLOCK_KINDS.map((bt) => (
                 <button key={bt.kind} type="button" onClick={() => { if (bt.kind === 'block') openAddBlock(); else if (bt.kind === 'kpi') openAddKpi(); else openAddLayout() }} className="flex items-start gap-3 w-full rounded-[var(--radius-sm)] px-3 py-2.5 text-left hover:bg-surface-warm transition-colors duration-150">
                   <bt.icon className="h-4 w-4 text-muted mt-0.5 shrink-0" strokeWidth={1.5} />
-                  <div><p className="text-sm font-medium text-foreground">{bt.label}</p><p className="text-xs text-muted-foreground">{bt.desc}</p></div>
+                  <div><p className="text-sm font-medium text-foreground">{t(`types.${bt.kind}.label`)}</p><p className="text-xs text-muted-foreground">{t(`types.${bt.kind}.desc`)}</p></div>
                 </button>
               ))}
             </div>
@@ -242,22 +239,22 @@ export function ContentBlocksEditor({
       </div>
 
       {contentItems.length === 0 ? (
-        <p className="py-8 text-sm text-muted-foreground">Aucun bloc de contenu</p>
+        <p className="py-8 text-sm text-muted-foreground">{t('empty')}</p>
       ) : (
         <div className="space-y-2">
           {contentItems.map((item) => {
             const key = `${item.kind}-${item.index}`
             let icon: React.ReactNode, title: string, preview: string
-            if (item.kind === 'block') { icon = <Type className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = item.data.title || 'Sans titre'; preview = stripHtml(item.data.content).slice(0, 60) }
+            if (item.kind === 'block') { icon = <Type className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = item.data.title || t('untitled'); preview = stripHtml(item.data.content).slice(0, 60) }
             else if (item.kind === 'kpi') { icon = <BarChart3 className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = `${item.data.value}${item.data.unit}`; preview = item.data.label }
-            else { icon = <Columns className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = `${item.data.columnCount} colonnes`; preview = item.data.columns.map((c) => c.title || c.type).join(' / ') }
+            else { icon = <Columns className="h-3.5 w-3.5 text-muted" strokeWidth={1.5} />; title = t('columnsSummary', { count: item.data.columnCount }); preview = item.data.columns.map((c) => c.title || c.type).join(' / ') }
             return (
               <div key={key} className="group flex items-center gap-2.5 rounded-[var(--radius-md)] border border-border-light bg-surface p-3 transition-colors duration-150 hover:border-border">
                 <div className="shrink-0 flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-surface-warm">{icon}</div>
                 <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{title}</p>{preview && <p className="text-xs text-muted truncate">{preview}</p>}</div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button type="button" onClick={() => editContentItem(item)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label="Modifier"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} /></button>
-                  <button type="button" onClick={() => deleteContentItem(item)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors" aria-label="Supprimer"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} /></button>
+                  <button type="button" onClick={() => editContentItem(item)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label={t('editAriaLabel')}><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} /></button>
+                  <button type="button" onClick={() => deleteContentItem(item)} className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors" aria-label={t('deleteAriaLabel')}><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} /></button>
                 </div>
               </div>
             )
@@ -271,26 +268,26 @@ export function ContentBlocksEditor({
           <div className="absolute inset-0 bg-foreground/30" onClick={closeModal} onKeyDown={() => {}} role="presentation" />
           <div className={cn('relative w-full max-h-[85vh] flex flex-col bg-surface rounded-[var(--radius-lg)] border border-border-light overflow-hidden mx-4', modalType === 'layout' ? 'max-w-[1060px]' : 'max-w-[560px]')}>
             <div className="flex-1 overflow-y-auto p-8 space-y-5">
-              <button type="button" onClick={closeModal} className="absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label="Fermer">
+              <button type="button" onClick={closeModal} className="absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors" aria-label={t('closeAriaLabel')}>
                 <X className="h-4 w-4" />
               </button>
 
               {/* Block modal */}
               {modalType === 'block' && (
                 <>
-                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? 'Modifier le bloc texte' : 'Nouveau bloc texte'}</h3>
-                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Titre</label><input type="text" value={editingBlock.title} onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })} placeholder="Titre du bloc" className={inputClass} /></div>
-                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Sous-titre</label><input type="text" value={editingBlock.subtitle} onChange={(e) => setEditingBlock({ ...editingBlock, subtitle: e.target.value })} placeholder="Optionnel" className={inputClass} /></div>
-                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Contenu</label><RichTextEditor value={editingBlock.content} onChange={(v) => setEditingBlock({ ...editingBlock, content: v })} /></div>
+                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? t('block.modalEditTitle') : t('block.modalNewTitle')}</h3>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">{t('block.titleLabel')}</label><input type="text" value={editingBlock.title} onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })} placeholder={t('block.titlePlaceholder')} className={inputClass} /></div>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">{t('block.subtitleLabel')}</label><input type="text" value={editingBlock.subtitle} onChange={(e) => setEditingBlock({ ...editingBlock, subtitle: e.target.value })} placeholder={t('block.subtitlePlaceholder')} className={inputClass} /></div>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">{t('block.contentLabel')}</label><RichTextEditor value={editingBlock.content} onChange={(v) => setEditingBlock({ ...editingBlock, content: v })} /></div>
                 </>
               )}
 
               {/* KPI modal */}
               {modalType === 'kpi' && (
                 <>
-                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? 'Modifier le chiffre clé' : 'Nouveau chiffre clé'}</h3>
+                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? t('kpi.modalEditTitle') : t('kpi.modalNewTitle')}</h3>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Type de visualisation</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t('kpi.typeLabel')}</label>
                     <div className="grid grid-cols-5 gap-1.5">
                       {KPI_TYPES.slice(0, 10).map((t) => (
                         <button key={t.type} type="button" onClick={() => setEditingKpi({ ...editingKpi, type: t.type })}
@@ -301,14 +298,14 @@ export function ContentBlocksEditor({
                       ))}
                     </div>
                   </div>
-                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">Label</label><input type="text" value={editingKpi.label} onChange={(e) => setEditingKpi({ ...editingKpi, label: e.target.value })} placeholder="clients satisfaits" className={inputClass} /></div>
+                  <div><label className="mb-1.5 block text-sm font-medium text-foreground">{t('kpi.labelLabel')}</label><input type="text" value={editingKpi.label} onChange={(e) => setEditingKpi({ ...editingKpi, label: e.target.value })} placeholder={t('kpi.labelPlaceholder')} className={inputClass} /></div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">Valeur</label><input type="number" value={editingKpi.value || ''} onChange={(e) => setEditingKpi({ ...editingKpi, value: parseFloat(e.target.value) || 0 })} placeholder="42" className={inputClass} /></div>
-                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">Max</label><input type="number" value={editingKpi.maxValue || ''} onChange={(e) => setEditingKpi({ ...editingKpi, maxValue: parseFloat(e.target.value) || 100 })} placeholder="100" className={inputClass} /></div>
-                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">Unité</label><input type="text" value={editingKpi.unit} onChange={(e) => setEditingKpi({ ...editingKpi, unit: e.target.value })} placeholder="%" className={inputClass} /></div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">{t('kpi.valueLabel')}</label><input type="number" value={editingKpi.value || ''} onChange={(e) => setEditingKpi({ ...editingKpi, value: parseFloat(e.target.value) || 0 })} placeholder={t('kpi.valuePlaceholder')} className={inputClass} /></div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">{t('kpi.maxLabel')}</label><input type="number" value={editingKpi.maxValue || ''} onChange={(e) => setEditingKpi({ ...editingKpi, maxValue: parseFloat(e.target.value) || 100 })} placeholder={t('kpi.maxPlaceholder')} className={inputClass} /></div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-foreground">{t('kpi.unitLabel')}</label><input type="text" value={editingKpi.unit} onChange={(e) => setEditingKpi({ ...editingKpi, unit: e.target.value })} placeholder={t('kpi.unitPlaceholder')} className={inputClass} /></div>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Aperçu</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t('kpi.previewLabel')}</label>
                     <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface-warm p-6 flex items-center justify-center min-h-[100px]">
                       <KpiRenderer kpi={editingKpi} primaryColor={DEFAULT_PORTFOLIO_COLOR} />
                     </div>
@@ -319,13 +316,13 @@ export function ContentBlocksEditor({
               {/* Layout modal */}
               {modalType === 'layout' && (
                 <>
-                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? 'Modifier les colonnes' : 'Nouvelles colonnes'}</h3>
+                  <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">{editingIndex >= 0 ? t('layout.modalEditTitle') : t('layout.modalNewTitle')}</h3>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Nombre de colonnes</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t('layout.columnCountLabel')}</label>
                     <div className="flex gap-2">
                       {([2, 3] as const).map((n) => (
                         <button key={n} type="button" onClick={() => setLayoutColumnCount(n)} className={cn('h-10 px-5 rounded-[var(--radius-md)] text-sm font-medium transition-colors duration-150', editingLayout.columnCount === n ? 'bg-foreground text-white' : 'border border-border-light text-foreground hover:bg-surface-warm')}>
-                          {n} colonnes
+                          {t('layout.columnCountOption', { count: n })}
                         </button>
                       ))}
                     </div>
@@ -334,15 +331,15 @@ export function ContentBlocksEditor({
                     {editingLayout.columns.map((col, colIdx) => (
                       <div key={colIdx} className="space-y-2 rounded-[var(--radius-md)] border border-border-light p-3">
                         <div className="flex items-center justify-between">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Colonne {colIdx + 1}</p>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('layout.columnLabel', { number: colIdx + 1 })}</p>
                           <select value={col.type} onChange={(e) => setColumnType(colIdx, e.target.value as ColumnContentType)} className="text-xs text-muted border border-border-light rounded-[var(--radius-sm)] px-2 py-1 bg-surface focus:outline-none">
-                            {COLUMN_CONTENT_TYPES.map((ct) => (<option key={ct.value} value={ct.value}>{ct.label}</option>))}
+                            {COLUMN_CONTENT_KEYS.map((ct) => (<option key={ct} value={ct}>{t(`columnTypes.${ct}`)}</option>))}
                           </select>
                         </div>
                         {col.type === 'text' && (
                           <div className="space-y-2">
-                            <input type="text" value={col.title ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { title: e.target.value })} placeholder="Titre" className={inputClass} />
-                            <input type="text" value={(col as LayoutColumn & { subtitle?: string }).subtitle ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { subtitle: e.target.value } as Partial<LayoutColumn>)} placeholder="Sous-titre (optionnel)" className={inputClass} />
+                            <input type="text" value={col.title ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { title: e.target.value })} placeholder={t('layout.titlePlaceholder')} className={inputClass} />
+                            <input type="text" value={(col as LayoutColumn & { subtitle?: string }).subtitle ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { subtitle: e.target.value } as Partial<LayoutColumn>)} placeholder={t('layout.subtitlePlaceholder')} className={inputClass} />
                             <RichTextEditor value={col.content ?? ''} onChange={(v) => updateLayoutColumn(colIdx, { content: v })} />
                           </div>
                         )}
@@ -376,11 +373,11 @@ export function ContentBlocksEditor({
                               ) : (
                                 <>
                                   <Upload className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-                                  <p className="text-xs text-muted-foreground">Cliquer pour importer</p>
+                                  <p className="text-xs text-muted-foreground">{t('layout.imageUpload')}</p>
                                 </>
                               )}
                             </div>
-                            <input type="text" value={col.imageAlt ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { imageAlt: e.target.value })} placeholder="Texte alternatif" className={inputClass} />
+                            <input type="text" value={col.imageAlt ?? ''} onChange={(e) => updateLayoutColumn(colIdx, { imageAlt: e.target.value })} placeholder={t('layout.imageAltPlaceholder')} className={inputClass} />
                           </div>
                         )}
                         {col.type === 'kpi' && col.kpi && (
@@ -397,11 +394,11 @@ export function ContentBlocksEditor({
                                 </button>
                               )})}
                             </div>
-                            <input type="text" value={col.kpi.label} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, label: e.target.value } }) }} placeholder="Label" className={inputClass} />
+                            <input type="text" value={col.kpi.label} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, label: e.target.value } }) }} placeholder={t('layout.labelPlaceholder')} className={inputClass} />
                             <div className="grid grid-cols-3 gap-2">
-                              <input type="number" value={col.kpi.value || ''} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, value: parseFloat(e.target.value) || 0 } }) }} placeholder="Valeur" className={inputClass} />
-                              <input type="number" value={col.kpi.maxValue || ''} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, maxValue: parseFloat(e.target.value) || 100 } }) }} placeholder="Max" className={inputClass} />
-                              <input type="text" value={col.kpi.unit} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, unit: e.target.value } }) }} placeholder="Unité" className={inputClass} />
+                              <input type="number" value={col.kpi.value || ''} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, value: parseFloat(e.target.value) || 0 } }) }} placeholder={t('layout.valuePlaceholder')} className={inputClass} />
+                              <input type="number" value={col.kpi.maxValue || ''} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, maxValue: parseFloat(e.target.value) || 100 } }) }} placeholder={t('layout.maxPlaceholder')} className={inputClass} />
+                              <input type="text" value={col.kpi.unit} onChange={(e) => { const k = col.kpi; if (k) updateLayoutColumn(colIdx, { kpi: { ...k, unit: e.target.value } }) }} placeholder={t('layout.unitPlaceholder')} className={inputClass} />
                             </div>
                             <div className="rounded-[var(--radius-md)] border border-border-light bg-surface-warm p-3 flex items-center justify-center min-h-[60px]">
                               <KpiRenderer kpi={col.kpi} primaryColor={DEFAULT_PORTFOLIO_COLOR} />
@@ -409,7 +406,7 @@ export function ContentBlocksEditor({
                           </div>
                         )}
                         {col.type === 'empty' && (
-                          <p className="py-4 text-center text-xs text-muted-foreground">Vide — espace libre</p>
+                          <p className="py-4 text-center text-xs text-muted-foreground">{t('layout.emptyColumn')}</p>
                         )}
                       </div>
                     ))}
@@ -419,9 +416,9 @@ export function ContentBlocksEditor({
             </div>
 
             {/* Sticky footer */}
-            {modalType === 'block' && <ModalFooter onSave={saveBlock} disabled={!editingBlock.title.trim()} label={editingIndex >= 0 ? 'Enregistrer' : 'Ajouter'} />}
-            {modalType === 'kpi' && <ModalFooter onSave={saveKpi} disabled={!editingKpi.label.trim()} label={editingIndex >= 0 ? 'Enregistrer' : 'Ajouter'} />}
-            {modalType === 'layout' && <ModalFooter onSave={saveLayout} disabled={false} label={editingIndex >= 0 ? 'Enregistrer' : 'Ajouter'} />}
+            {modalType === 'block' && <ModalFooter onSave={saveBlock} disabled={!editingBlock.title.trim()} label={editingIndex >= 0 ? t('save') : t('add')} />}
+            {modalType === 'kpi' && <ModalFooter onSave={saveKpi} disabled={!editingKpi.label.trim()} label={editingIndex >= 0 ? t('save') : t('add')} />}
+            {modalType === 'layout' && <ModalFooter onSave={saveLayout} disabled={false} label={editingIndex >= 0 ? t('save') : t('add')} />}
           </div>
         </div>,
         document.body

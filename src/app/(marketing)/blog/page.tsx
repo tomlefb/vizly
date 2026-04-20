@@ -1,23 +1,27 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { BLOG_POSTS, formatBlogDate } from '@/lib/blog'
 import { VzHighlight } from '@/components/ui/vizly'
 
-export const metadata: Metadata = {
-  title: 'Blog',
-  description:
-    'Conseils pour creer un portfolio en ligne professionnel. Guides, tips et comparatifs.',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('blog.index')
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  }
 }
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const t = await getTranslations('blog.index')
   return (
     <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-10 lg:pt-16 pb-16 lg:pb-24">
         <div className="max-w-2xl mb-10">
           <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl leading-[1.08]">
-            Le <VzHighlight>blog</VzHighlight>
+            {t('titleStart')} <VzHighlight>{t('titleAccent')}</VzHighlight>
           </h1>
           <p className="mt-3 text-lg text-muted leading-relaxed">
-            Guides, conseils et inspiration pour creer un portfolio qui te demarque.
+            {t('description')}
           </p>
         </div>
 

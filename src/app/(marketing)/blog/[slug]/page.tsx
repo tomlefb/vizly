@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { BLOG_POSTS, getPost, formatBlogDate } from '@/lib/blog'
 import { getArticleContent } from '@/lib/blog-content'
 import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
@@ -31,6 +32,7 @@ export default async function BlogArticlePage({ params }: Props) {
   if (!post) notFound()
 
   const content = getArticleContent(slug)
+  const t = await getTranslations('blog.article')
 
   return (
     <main className="mx-auto max-w-3xl px-6 lg:px-8 py-16 lg:py-24">
@@ -40,7 +42,7 @@ export default async function BlogArticlePage({ params }: Props) {
           className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors duration-200 mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
-          Retour au blog
+          {t('back')}
         </Link>
 
         {/* Header */}
@@ -48,7 +50,7 @@ export default async function BlogArticlePage({ params }: Props) {
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
             <span aria-hidden="true">&middot;</span>
-            <span>{post.readingTime} de lecture</span>
+            <span>{t('readingTime', { time: post.readingTime })}</span>
           </div>
           <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl leading-[1.1]">
             {post.title}
@@ -84,7 +86,7 @@ export default async function BlogArticlePage({ params }: Props) {
                     href="/register"
                     className={vzBtnClasses({ variant: 'primary', size: 'md' })}
                   >
-                    Creer mon portfolio gratuitement
+                    {t('inlineCta')}
                   </Link>
                 </div>
               )
@@ -98,16 +100,16 @@ export default async function BlogArticlePage({ params }: Props) {
         {/* Bottom CTA */}
         <div className="mt-16 rounded-[var(--radius-xl)] border border-border-light bg-surface p-8 sm:p-10 text-center">
           <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold text-foreground mb-3 leading-[1.1]">
-            Prêt à créer <VzHighlight>ton portfolio</VzHighlight> ?
+            {t('ctaTitleStart')} <VzHighlight>{t('ctaTitleAccent')}</VzHighlight> {t('ctaTitleEnd')}
           </h2>
           <p className="text-muted mb-6 text-sm">
-            Gratuit pour commencer. Publication a partir de 4,99 EUR/mois.
+            {t('ctaDescription')}
           </p>
           <Link
             href="/register"
             className={vzBtnClasses({ variant: 'primary', size: 'lg' })}
           >
-            Commencer gratuitement
+            {t('ctaPrimary')}
           </Link>
         </div>
     </main>

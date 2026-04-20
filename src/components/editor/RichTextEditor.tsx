@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useEffect } from 'react'
 import { Bold, Italic, Heading1, Heading2, List, AlignLeft, AlignCenter, Type } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 
 interface RichTextEditorProps {
@@ -10,7 +11,9 @@ interface RichTextEditorProps {
   placeholder?: string
 }
 
-export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte ici...' }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+  const t = useTranslations('editor.richText')
+  const effectivePlaceholder = placeholder ?? t('defaultPlaceholder')
   const editorRef = useRef<HTMLDivElement>(null)
   const isInitializedRef = useRef(false)
 
@@ -36,19 +39,19 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
   }, [onChange])
 
   const tools = [
-    { icon: Bold, command: 'bold', label: 'Gras' },
-    { icon: Italic, command: 'italic', label: 'Italique' },
-    { icon: Heading1, command: 'formatBlock', value: 'h2', label: 'Titre' },
-    { icon: Heading2, command: 'formatBlock', value: 'h3', label: 'Sous-titre' },
-    { icon: List, command: 'insertUnorderedList', label: 'Liste' },
-    { icon: AlignLeft, command: 'justifyLeft', label: 'Aligner a gauche' },
-    { icon: AlignCenter, command: 'justifyCenter', label: 'Centrer' },
+    { icon: Bold, command: 'bold', label: t('bold') },
+    { icon: Italic, command: 'italic', label: t('italic') },
+    { icon: Heading1, command: 'formatBlock', value: 'h2', label: t('heading') },
+    { icon: Heading2, command: 'formatBlock', value: 'h3', label: t('subheading') },
+    { icon: List, command: 'insertUnorderedList', label: t('list') },
+    { icon: AlignLeft, command: 'justifyLeft', label: t('alignLeft') },
+    { icon: AlignCenter, command: 'justifyCenter', label: t('alignCenter') },
   ]
 
   const sizes = [
-    { value: '1', label: 'P', title: 'Petit' },
-    { value: '3', label: 'M', title: 'Moyen' },
-    { value: '5', label: 'G', title: 'Grand' },
+    { value: '1', label: 'P', title: t('sizeSmall') },
+    { value: '3', label: 'M', title: t('sizeMedium') },
+    { value: '5', label: 'G', title: t('sizeLarge') },
   ]
 
   return (
@@ -110,7 +113,7 @@ export function RichTextEditor({ value, onChange, placeholder = 'Ecris ton texte
           '[&_p]:my-1',
           'empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50'
         )}
-        data-placeholder={placeholder}
+        data-placeholder={effectivePlaceholder}
       />
     </div>
   )

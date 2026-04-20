@@ -7,6 +7,7 @@ import {
   Trash2,
   ImageIcon,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { VzBtn } from '@/components/ui/vizly'
 import { ProjectForm } from './ProjectForm'
@@ -33,6 +34,7 @@ export function StepProjects({
   onProjectsChange,
   className,
 }: StepProjectsProps) {
+  const t = useTranslations('editor.stepProjects')
   const [editingIndex, setEditingIndex] = useState(-1)
   const [editingProject, setEditingProject] = useState<ProjectFormData>({
     ...EMPTY_PROJECT,
@@ -178,10 +180,10 @@ export function StepProjects({
         <div className="flex-1 space-y-4">
           <div>
             <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-              {isEditing ? 'Modifier le projet' : 'Nouveau projet'}
+              {isEditing ? t('editTitle') : t('newTitle')}
             </h3>
             <p className="text-sm text-muted mt-1">
-              {isEditing ? 'Modifie les informations de ton projet' : 'Ajoute un projet à ton portfolio'}
+              {isEditing ? t('editDescription') : t('newDescription')}
             </p>
           </div>
 
@@ -197,11 +199,11 @@ export function StepProjects({
               onClick={handleSave}
               disabled={!editingProject.title.trim()}
             >
-              {isEditing ? 'Enregistrer' : 'Ajouter le projet'}
+              {isEditing ? t('save') : t('add')}
             </VzBtn>
             {isEditing && (
               <VzBtn variant="ghost" size="sm" onClick={resetToNew}>
-                Annuler
+                {t('cancel')}
               </VzBtn>
             )}
           </div>
@@ -213,10 +215,10 @@ export function StepProjects({
           {/* Images */}
           <div>
             <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-              Images
+              {t('imagesTitle')}
             </h3>
             <p className="mb-3 mt-1 text-sm text-muted">
-              {isUploadingImages ? 'Upload en cours…' : 'Ajoute jusqu\u2019à 5 images'}
+              {isUploadingImages ? t('imagesUploading') : t('imagesHelper')}
             </p>
             <ImageUploader
               images={localFiles}
@@ -233,13 +235,15 @@ export function StepProjects({
           <div>
             <h3 className="mb-3 text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
               {projects.length > 0
-                ? `${projects.length} projet${projects.length > 1 ? 's' : ''}`
-                : 'Tes projets'}
+                ? projects.length === 1
+                  ? t('projectsCountOne')
+                  : t('projectsCountMany', { count: projects.length })
+                : t('projectsLabel')}
             </h3>
 
             {projects.length === 0 ? (
               <div className="flex items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-border-light bg-surface-warm py-10">
-                <p className="text-sm text-muted-foreground">Tes projets apparaîtront ici</p>
+                <p className="text-sm text-muted-foreground">{t('emptyHint')}</p>
               </div>
             ) : (
               <div className="space-y-2" data-testid="project-list" role="list">
@@ -275,7 +279,7 @@ export function StepProjects({
 
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">
-                        {project.title || 'Sans titre'}
+                        {project.title || t('untitled')}
                       </p>
                       {project.tags.length > 0 && (
                         <p className="mt-0.5 truncate text-xs text-muted-foreground">
@@ -290,7 +294,7 @@ export function StepProjects({
                         type="button"
                         onClick={() => openEditProject(index)}
                         className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-warm transition-colors"
-                        aria-label={`Modifier ${project.title}`}
+                        aria-label={t('editAriaLabel', { title: project.title })}
                       >
                         <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
                       </button>
@@ -298,7 +302,7 @@ export function StepProjects({
                         type="button"
                         onClick={() => handleDelete(index)}
                         className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-muted hover:text-destructive hover:bg-destructive/5 transition-colors"
-                        aria-label={`Supprimer ${project.title}`}
+                        aria-label={t('deleteAriaLabel', { title: project.title })}
                       >
                         <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                       </button>
