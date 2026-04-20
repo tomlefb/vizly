@@ -125,12 +125,16 @@ export async function addCustomDomain(
     return { ok: false, error: `Impossible d'enregistrer le domaine côté infra : ${message}` }
   }
 
-  // Railway expose les recordType sous forme enum ("DNS_RECORD_TYPE_CNAME"),
-  // pas juste "CNAME" — on teste via includes pour être tolérants aux deux.
-  const cname = railwayDomain.status.dnsRecords.find((r) =>
-    (r.recordType ?? '').toUpperCase().includes('CNAME'),
-  )
-  const dnsTarget = cname?.requiredValue ?? null
+  // Railway renvoie un CNAME pour les subdomains (portfolio.monsite.com) et
+  // un A record pour les apex (monsite.com). On prend le premier record
+  // quel que soit le type — la UI affichera le bon type via la colonne
+  // `recordType` stockée plus bas dans custom_domain_dns_target (format
+  // "CNAME:xxx" ou "A:1.2.3.4"). Fallback null si Railway n'a pas encore
+  // calculé les records.
+  const firstRecord = railwayDomain.status.dnsRecords[0]
+  const dnsTarget = firstRecord?.requiredValue
+    ? `${normalizeRecordType(firstRecord.recordType)}:${firstRecord.requiredValue}`
+    : null
 
   const { error: updateError } = await supabase
     .from('portfolios')
@@ -197,11 +201,11 @@ export async function verifyCustomDomain(
   // bien vers le host Railway attendu. Railway fait le même check, mais
   // doubler la vérif nous permet d'afficher un message précis si l'user
   // n'a juste pas encore configuré son DNS.
-  const expectedCname = status.status.dnsRecords.find((r) =>
-    (r.recordType ?? '').toUpperCase().includes('CNAME'),
-  )?.requiredValue
+  const firstRecord = status.status.dnsRecords[0]
+  const expectedType = firstRecord ? normalizeRecordType(firstRecord.recordType) : 'CNAME'
+  const expectedValue = firstRecord?.requiredValue ?? null
 
-  const dnsOk = await probeDns(row.custom_domain, expectedCname ?? null)
+  const dnsOk = await probeDns(row.custom_domain, expectedType, expectedValue)
 
   const nowVerified = status.status.verified && dnsOk
 
@@ -222,15 +226,37 @@ export async function verifyCustomDomain(
     ok: false,
     error: dnsOk
       ? 'Railway n\'a pas encore fini de provisionner le certificat TLS. Réessaie dans 1 à 2 minutes.'
-      : `Le DNS n\'est pas encore propagé. Crée un CNAME de "${row.custom_domain}" vers "${expectedCname ?? 'cname.vizly.fr'}" puis réessaie.`,
+      : `Le DNS n\'est pas encore propagé. Crée un ${expectedType} pour "${row.custom_domain}" vers "${expectedValue ?? '—'}" puis réessaie.`,
   }
 }
 
-async function probeDns(domain: string, expectedTarget: string | null): Promise<boolean> {
+function normalizeRecordType(raw: string | null | undefined): 'CNAME' | 'A' | 'AAAA' {
+  const upper = (raw ?? '').toUpperCase()
+  if (upper.includes('CNAME')) return 'CNAME'
+  if (upper.includes('AAAA')) return 'AAAA'
+  return 'A'
+}
+
+async function probeDns(
+  domain: string,
+  recordType: 'CNAME' | 'A' | 'AAAA',
+  expectedTarget: string | null,
+): Promise<boolean> {
   try {
-    const records = await dns.resolveCname(domain)
+    if (recordType === 'CNAME') {
+      const records = await dns.resolveCname(domain)
+      if (!expectedTarget) return records.length > 0
+      return records.some((r) => r.toLowerCase() === expectedTarget.toLowerCase())
+    }
+    if (recordType === 'AAAA') {
+      const records = await dns.resolve6(domain)
+      if (!expectedTarget) return records.length > 0
+      return records.includes(expectedTarget)
+    }
+    // A
+    const records = await dns.resolve4(domain)
     if (!expectedTarget) return records.length > 0
-    return records.some((r) => r.toLowerCase() === expectedTarget.toLowerCase())
+    return records.includes(expectedTarget)
   } catch {
     return false
   }

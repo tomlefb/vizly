@@ -35,7 +35,15 @@ export function DomainAssignmentForm({
     | null
   >(null)
   const [dnsTargetOverride, setDnsTargetOverride] = useState<string | null>(null)
-  const dnsTarget = dnsTargetOverride ?? currentDnsTarget
+  const rawDnsTarget = dnsTargetOverride ?? currentDnsTarget
+  // rawDnsTarget stocké en DB sous forme "TYPE:VALUE" (ex "CNAME:x.up.railway.app",
+  // "A:76.76.21.21"). Format introduit pour supporter les apex domains qui
+  // nécessitent un A record au lieu d'un CNAME.
+  const dnsParts = rawDnsTarget?.includes(':')
+    ? { type: rawDnsTarget.split(':')[0], value: rawDnsTarget.split(':').slice(1).join(':') }
+    : rawDnsTarget
+      ? { type: 'CNAME', value: rawDnsTarget }
+      : null
   const [isPending, startTransition] = useTransition()
 
   const hasDomain = currentDomain !== ''
@@ -167,17 +175,19 @@ export function DomainAssignmentForm({
         <div className="rounded-[var(--radius-md)] border border-border-light bg-surface-warm px-4 py-3 text-xs text-foreground">
           <p className="font-medium">Configuration DNS à faire chez ton registrar :</p>
           <p className="mt-2">
-            Crée un <Code>CNAME</Code> pour <Code>{currentDomain}</Code> pointant
-            vers{' '}
-            {dnsTarget ? (
-              <Code>{dnsTarget}</Code>
+            {dnsParts ? (
+              <>
+                Crée un <Code>{dnsParts.type}</Code> pour{' '}
+                <Code>{currentDomain}</Code> pointant vers{' '}
+                <Code>{dnsParts.value}</Code>.
+              </>
             ) : (
               <em>
-                (l&apos;hôte exact s&apos;affichera après un premier clic
-                « Vérifier »)
+                La cible DNS exacte s&apos;affichera après un premier clic
+                « Vérifier ».
               </em>
-            )}
-            . La propagation prend en général entre 1 minute et quelques heures.
+            )}{' '}
+            La propagation prend en général entre 1 minute et quelques heures.
             Une fois faite, clique sur « Vérifier ».
           </p>
         </div>
