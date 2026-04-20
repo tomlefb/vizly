@@ -12,7 +12,7 @@ import {
   deleteProject,
 } from '@/actions/projects'
 import { getBillingStatus } from '@/actions/billing'
-import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
+import { APP_DOMAIN, DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
@@ -545,7 +545,11 @@ export function useEditorState({
         return { error: publishResult.error }
       }
 
-      router.push(`/portfolio/${slug}`)
+      // Send the user to the public subdomain URL (slug.vizly.fr) rather
+      // than the internal /portfolio/[slug] rewrite target — that's the
+      // real address they'll share. window.location (not router.push) is
+      // required for cross-origin navigation.
+      window.location.href = `https://${slug}.${APP_DOMAIN}`
       // Note: we don't reset isPublishing on the success path — the
       // navigation unmounts this component, so the loading state visually
       // persists until the new page paints (which is the desired UX).
@@ -556,7 +560,7 @@ export function useEditorState({
       setIsPublishing(false)
       return { error: message }
     }
-  }, [portfolioId, slug, router, setSaveError])
+  }, [portfolioId, slug, setSaveError])
 
   // ---- Derived data for step components --------------------------
 
