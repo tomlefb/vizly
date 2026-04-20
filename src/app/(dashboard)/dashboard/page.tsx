@@ -16,6 +16,7 @@ import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis } from '@/types/kpis'
 import { parseLayoutBlocks } from '@/types/layout-blocks'
 import { AutoOpenSubscriptionModal } from '@/components/billing/AutoOpenSubscriptionModal'
+import { OnboardingTour } from '@/components/dashboard/OnboardingTour'
 
 interface DashboardPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -49,9 +50,11 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from('users')
-    .select('name, plan')
+    .select('name, plan, onboarding_completed')
     .eq('id', user.id)
     .single()
+
+  const showOnboarding = profile?.onboarding_completed === false
 
   const plan = (profile?.plan ?? 'free') as PlanType
   const planInfo = PLANS[plan]
@@ -90,7 +93,10 @@ export default async function DashboardPage({
               accent: (chunks) => <VzHighlight>{chunks}</VzHighlight>,
             })}
           </h1>
-          <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+          <p
+            data-onboarding="plan"
+            className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted"
+          >
             <span>{t('planLabel', { plan: planInfo.name })}</span>
             <span className="text-border" aria-hidden="true">·</span>
             <span>{statusFragment}</span>
@@ -109,6 +115,7 @@ export default async function DashboardPage({
         </div>
         <Link
           href="/editor"
+          data-onboarding="new-project"
           className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'shrink-0' })}
         >
           <Plus className="h-4 w-4" strokeWidth={2} />
@@ -273,6 +280,8 @@ export default async function DashboardPage({
       {autoOpenPlan && (
         <AutoOpenSubscriptionModal plan={autoOpenPlan} interval={autoOpenInterval} />
       )}
+
+      {showOnboarding && !autoOpenPlan && <OnboardingTour />}
     </>
   )
 }

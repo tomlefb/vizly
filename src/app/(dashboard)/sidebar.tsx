@@ -62,6 +62,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
   return (
     <aside
       data-dashboard-sidebar
+      data-onboarding="sidebar"
       className={cn(
         'fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-border-light bg-surface overflow-hidden',
         mounted && 'transition-[width] duration-200 ease-out',

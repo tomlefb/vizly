@@ -597,6 +597,31 @@
       "unexpected": "An unexpected error occurred"
     }
   },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "back": "Back",
+    "finish": "Let's go",
+    "step": "Step {current} of {total}",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to Vizly",
+        "description": "Take 30 seconds to explore your new workspace. We'll walk you through the essentials."
+      },
+      "sidebar": {
+        "title": "Your navigation",
+        "description": "Find your projects, templates, plan and account settings here. One click per section."
+      },
+      "newProject": {
+        "title": "Start a new project",
+        "description": "This button opens the guided editor. Add your info, pick a template, publish on pseudo.vizly.fr."
+      },
+      "plan": {
+        "title": "Your plan at a glance",
+        "description": "Your current plan and the count of live projects show here. Upgrade to Pro to publish without limits."
+      }
+    }
+  },
   "dashboard": {
     "title": "My projects",
     "titleRich": "My <accent>projects</accent>",

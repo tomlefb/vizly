@@ -597,6 +597,31 @@
       "unexpected": "Une erreur inattendue est survenue"
     }
   },
+  "onboarding": {
+    "skip": "Passer",
+    "next": "Suivant",
+    "back": "Précédent",
+    "finish": "C'est parti",
+    "step": "Étape {current} sur {total}",
+    "steps": {
+      "welcome": {
+        "title": "Bienvenue sur Vizly",
+        "description": "Prends 30 secondes pour découvrir ton nouvel espace. On te montre l'essentiel."
+      },
+      "sidebar": {
+        "title": "Ta navigation",
+        "description": "Retrouve ici tes projets, tes templates, ton plan et tes réglages de compte. Un clic, une section."
+      },
+      "newProject": {
+        "title": "Crée un nouveau projet",
+        "description": "Ce bouton lance l'éditeur guidé. Remplis tes infos, choisis un template, publie sur pseudo.vizly.fr."
+      },
+      "plan": {
+        "title": "Ton plan, tes projets",
+        "description": "Ton plan actuel et le nombre de projets en ligne s'affichent ici. Passe en Pro pour publier sans limite."
+      }
+    }
+  },
   "dashboard": {
     "title": "Mes projets",
     "titleRich": "Mes <accent>projets</accent>",
