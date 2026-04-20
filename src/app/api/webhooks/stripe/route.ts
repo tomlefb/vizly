@@ -332,13 +332,30 @@ async function handleSubscriptionCreated(
 
   // 2. Update the legacy users columns (still source of truth for parts of
   // the app until Phase 6 cuts it over). plan + customer_id + sub_id.
+  //
+  // `plan` is gated on subscription status: a freshly-created subscription
+  // starts in `incomplete` (awaiting PaymentElement confirmation). Writing
+  // users.plan = 'starter'|'pro' at that point grants access before the
+  // user has actually paid — if they dismiss the modal, they'd see the paid
+  // plan in /billing. We only flip users.plan on active/trialing; when the
+  // PaymentIntent succeeds Stripe fires `customer.subscription.updated`
+  // with status=active and updateUserPlanFromSubscription bumps it then.
+  const isPaidActive =
+    subscription.status === 'active' || subscription.status === 'trialing'
+
+  const userUpdate: {
+    plan?: 'starter' | 'pro'
+    stripe_customer_id: string | null
+    stripe_subscription_id: string | null
+  } = {
+    stripe_customer_id: row.stripe_customer_id,
+    stripe_subscription_id: row.stripe_subscription_id,
+  }
+  if (isPaidActive && row.plan !== 'free') userUpdate.plan = row.plan
+
   const { error: userError } = await supabase
     .from('users')
-    .update({
-      plan: row.plan,
-      stripe_customer_id: row.stripe_customer_id,
-      stripe_subscription_id: row.stripe_subscription_id,
-    })
+    .update(userUpdate)
     .eq('id', userId)
 
   if (userError) {
@@ -349,7 +366,7 @@ async function handleSubscriptionCreated(
 
   console.log(
     `[stripe webhook] ${handlerName} done: ${event.id} sub ${subscription.id} ` +
-      `user ${userId} plan ${row.plan} ${row.interval} status ${row.status}`,
+      `user ${userId} plan ${isPaidActive ? row.plan : 'free (gated)'} ${row.interval} status ${row.status}`,
   )
 }
 
@@ -613,6 +630,19 @@ async function updateUserPlanFromSubscription(
   const plan = getPlanFromPriceId(priceId)
   if (!plan) {
     console.error(`[stripe webhook] Unknown price ID on update: ${priceId}`)
+    return
+  }
+
+  // Gate on active/trialing to avoid granting a paid plan while the
+  // subscription is still `incomplete` (awaiting first PaymentIntent) or
+  // has fallen into `past_due`/`unpaid`. Same rationale as
+  // handleSubscriptionCreated's gate.
+  const isPaidActive =
+    subscription.status === 'active' || subscription.status === 'trialing'
+  if (!isPaidActive) {
+    console.log(
+      `[stripe webhook] updateUserPlanFromSubscription: user ${userId} skipped (status=${subscription.status})`,
+    )
     return
   }
 
