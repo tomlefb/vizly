@@ -112,6 +112,9 @@ html[data-sidebar-collapsed] main[data-dashboard-main] {
 }
 
 /* ---------- Signature: marker highlight ---------- */
+:where(h1, h2, h3, h4, h5, h6, p, span, div):has(> .vz-highlight) {
+  isolation: isolate;
+}
 .vz-highlight {
   position: relative;
   display: inline-block;
@@ -124,7 +127,7 @@ html[data-sidebar-collapsed] main[data-dashboard-main] {
   background: var(--color-accent);
   border-radius: 3px;
   transform: rotate(-1.5deg);
-  z-index: 0;
+  z-index: -1;
 }
 .vz-highlight > span {
   position: relative;

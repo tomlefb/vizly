@@ -13,7 +13,7 @@ export default async function BillingPage() {
     <div>
       <header className="mb-10">
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          {t('titlePrefix')} <VzHighlight>{t('titleAccent')}</VzHighlight>.
+          {t('titlePrefix')} <VzHighlight>{t('titleAccent')}</VzHighlight>
         </h1>
         <p className="mt-2 text-sm text-muted">{t('subtitle')}</p>
       </header>

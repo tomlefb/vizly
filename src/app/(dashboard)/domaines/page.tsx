@@ -59,7 +59,7 @@ export default async function DomainesPage() {
     <div>
       <header className="mb-10">
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          Mes <VzHighlight>domaines</VzHighlight>.
+          Mes <VzHighlight>domaines</VzHighlight>
         </h1>
         <p className="mt-2 text-sm text-muted">
           Connecte ton propre nom de domaine à tes portfolios.
