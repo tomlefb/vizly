@@ -78,6 +78,7 @@
     "perYear": "i.e. {price}€/yr",
     "popular": "Popular",
     "note": "All prices in euros, tax included \u00b7 Cancel anytime",
+    "currentPlanCta": "Current plan",
     "plans": {
       "free": {
         "name": "Free",

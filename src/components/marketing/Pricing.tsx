@@ -77,6 +77,11 @@ interface PricingProps {
   onIntervalChange?: (interval: BillingInterval) => void
   showHeader?: boolean
   onPlanClick?: (planId: 'free' | 'starter' | 'pro') => void
+  /**
+   * When provided, the card matching this plan is rendered in a disabled
+   * "Plan actuel" state so the user doesn't click a silent no-op.
+   */
+  currentPlan?: 'free' | 'starter' | 'pro'
 }
 
 export function Pricing({
@@ -84,6 +89,7 @@ export function Pricing({
   onIntervalChange,
   showHeader = true,
   onPlanClick,
+  currentPlan,
 }: PricingProps = {}) {
   const t = useTranslations('pricing')
   const [localInterval, setLocalInterval] = useState<BillingInterval>('monthly')
@@ -234,19 +240,27 @@ export function Pricing({
                 </ul>
 
                 {/* CTA */}
-                <button
-                  type="button"
-                  onClick={() => onPlanClick?.(plan.id)}
-                  className={cn(
-                    'mt-8 block w-full',
-                    vzBtnClasses({
-                      variant: plan.featured ? 'primary' : 'secondary',
-                      size: 'md',
-                    })
-                  )}
-                >
-                  {t(`plans.${plan.id}.cta`)}
-                </button>
+                {(() => {
+                  const isCurrent = currentPlan === plan.id
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => onPlanClick?.(plan.id)}
+                      disabled={isCurrent}
+                      aria-disabled={isCurrent}
+                      className={cn(
+                        'mt-8 block w-full',
+                        vzBtnClasses({
+                          variant: plan.featured ? 'primary' : 'secondary',
+                          size: 'md',
+                        }),
+                        isCurrent && 'cursor-not-allowed opacity-60 hover:bg-inherit',
+                      )}
+                    >
+                      {isCurrent ? t('currentPlanCta') : t(`plans.${plan.id}.cta`)}
+                    </button>
+                  )
+                })()}
               </StaggerItem>
             )
           })}

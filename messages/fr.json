@@ -78,6 +78,7 @@
     "perYear": "soit {price}€/an",
     "popular": "Populaire",
     "note": "Tous les prix sont en euros, TTC \u00b7 Annulation possible à tout moment",
+    "currentPlanCta": "Plan actuel",
     "plans": {
       "free": {
         "name": "Gratuit",

@@ -1,14 +1,12 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { Pricing, type BillingInterval } from '@/components/marketing/Pricing'
+import { PricingSection } from '@/components/marketing/PricingSection'
+import { type BillingInterval } from '@/components/marketing/Pricing'
 import { ScrollReveal } from '@/components/shared/ScrollReveal'
 import { VzHighlight } from '@/components/ui/vizly'
-import { SubscriptionCheckoutModal } from '@/components/billing/SubscriptionCheckoutModal'
-import { changeSubscriptionPlanAction } from '@/actions/billing'
 
 interface TarifsClientProps {
   isAuthenticated: boolean
@@ -17,54 +15,7 @@ interface TarifsClientProps {
 
 export function TarifsClient({ isAuthenticated, currentPlan }: TarifsClientProps) {
   const t = useTranslations('pricing')
-  const router = useRouter()
   const [interval, setInterval] = useState<BillingInterval>('monthly')
-  const [modalPlan, setModalPlan] = useState<'starter' | 'pro' | null>(null)
-  const [feedback, setFeedback] = useState<
-    | { kind: 'success'; message: string }
-    | { kind: 'error'; message: string }
-    | null
-  >(null)
-
-  const handlePlanClick = useCallback(
-    async (planId: 'free' | 'starter' | 'pro') => {
-      if (planId === 'free') {
-        if (!isAuthenticated) {
-          router.push('/register')
-        }
-        return
-      }
-
-      if (!isAuthenticated) {
-        router.push(`/register?plan=${planId}&interval=${interval}`)
-        return
-      }
-
-      if (currentPlan === planId) {
-        return
-      }
-
-      if (currentPlan === 'free') {
-        setModalPlan(planId)
-        return
-      }
-
-      setFeedback(null)
-      const result = await changeSubscriptionPlanAction({
-        plan: planId,
-        interval,
-      })
-
-      if (!result.ok) {
-        setFeedback({ kind: 'error', message: result.error })
-        return
-      }
-
-      setFeedback({ kind: 'success', message: result.message })
-      router.refresh()
-    },
-    [isAuthenticated, currentPlan, interval, router],
-  )
 
   return (
     <>
@@ -120,38 +71,13 @@ export function TarifsClient({ isAuthenticated, currentPlan }: TarifsClientProps
         </div>
       </section>
 
-      {/* Inline feedback after a direct plan change */}
-      {feedback && (
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 -mt-4 mb-4">
-          <p
-            className={cn(
-              'text-sm',
-              feedback.kind === 'success' ? 'text-foreground' : 'text-destructive',
-            )}
-            role={feedback.kind === 'error' ? 'alert' : undefined}
-          >
-            {feedback.message}
-          </p>
-        </div>
-      )}
-
-      {/* ── Pricing cards ── */}
-      <Pricing
+      <PricingSection
+        isAuthenticated={isAuthenticated}
+        currentPlan={currentPlan}
+        showHeader={false}
         interval={interval}
         onIntervalChange={setInterval}
-        showHeader={false}
-        onPlanClick={(planId) => void handlePlanClick(planId)}
       />
-
-      {modalPlan && (
-        <SubscriptionCheckoutModal
-          open={modalPlan !== null}
-          onClose={() => setModalPlan(null)}
-          plan={modalPlan}
-          interval={interval}
-          onSuccess={() => router.refresh()}
-        />
-      )}
     </>
   )
 }
