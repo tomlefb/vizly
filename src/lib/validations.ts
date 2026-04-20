@@ -19,7 +19,7 @@ export const slugSchema = z
   .refine((s) => !s.includes('--'), 'Le pseudo ne peut pas contenir deux tirets consécutifs')
 
 export const socialLinksSchema = z
-  .record(z.enum(SOCIAL_PLATFORMS), z.string().or(z.literal('')))
+  .partialRecord(z.enum(SOCIAL_PLATFORMS), z.string().or(z.literal('')))
   .optional()
 
 const sectionBlockSchema = z.object({
