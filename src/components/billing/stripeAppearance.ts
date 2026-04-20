@@ -20,7 +20,6 @@
 // trade-off for PCI safety.
 
 import type { Appearance } from '@stripe/stripe-js'
-import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 
 // ---- Vizly design tokens (mirror of globals.css) -----------------------------
 
@@ -29,7 +28,13 @@ const VIZLY_FOREGROUND = '#1A1A1A'
 const VIZLY_MUTED = '#6B6560'
 const VIZLY_MUTED_FOREGROUND = '#9C958E'
 const VIZLY_BORDER = '#E8E3DE'
-const VIZLY_ACCENT = DEFAULT_PORTFOLIO_COLOR // terracotta — the only vivid color in Vizly
+// Safran — la couleur signature de l'app (mirror de --color-accent dans
+// globals.css). L'ancienne valeur pointait vers DEFAULT_PORTFOLIO_COLOR
+// (#D4634E terracotta), la couleur par défaut des portfolios publics, ce
+// qui donnait un contour orange sur la modale Stripe alors que le reste
+// du site est safran.
+const VIZLY_ACCENT = '#F1B434'
+const VIZLY_ACCENT_DEEP = '#C2831A' // --color-accent-deep, utilisé pour les focus rings
 const VIZLY_DESTRUCTIVE = '#DC2626'
 const VIZLY_RADIUS_MD = '10px' // matches --radius-md, used for buttons/inputs
 const VIZLY_FONT_BODY = '"DM Sans", system-ui, sans-serif'
@@ -43,8 +48,10 @@ const VIZLY_FONT_BODY = '"DM Sans", system-ui, sans-serif'
 export const vizlyAppearance: Appearance = {
   theme: 'flat',
   variables: {
-    // Brand
+    // Brand — safran (signature Vizly). Le texte posé sur un fond safran
+    // doit rester noir (--color-accent-fg) pour un contraste suffisant.
     colorPrimary: VIZLY_ACCENT,
+    colorPrimaryText: VIZLY_FOREGROUND,
     // Surfaces & text
     colorBackground: VIZLY_BACKGROUND,
     colorText: VIZLY_FOREGROUND,
