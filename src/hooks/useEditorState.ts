@@ -119,6 +119,8 @@ export function useEditorState({
     initialPortfolio?.id ?? null
   )
   const [slug, setSlug] = useState(initialPortfolio?.slug ?? '')
+  const publishedSlug = initialPortfolio?.published ? (initialPortfolio.slug ?? '') : ''
+  const isPortfolioPublished = initialPortfolio?.published ?? false
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // ---- Billing state ---------------------------------------------
@@ -575,6 +577,8 @@ export function useEditorState({
     setPortfolioId,
     slug,
     setSlug,
+    publishedSlug,
+    isPortfolioPublished,
     errors,
     billingPlan,
     purchasedTemplates,

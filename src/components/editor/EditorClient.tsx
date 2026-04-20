@@ -154,6 +154,8 @@ export function EditorClient({
             onSlugChange={editor.setSlug}
             onSaveDraft={editor.saveDraft}
             onPublishNow={editor.publishNow}
+            isPublished={editor.isPortfolioPublished}
+            publishedSlug={editor.publishedSlug}
             billingPlan={editor.billingPlan}
             selectedTemplateNeedsPurchase={editor.selectedTemplateNeedsPurchase}
           />

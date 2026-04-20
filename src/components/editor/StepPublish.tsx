@@ -39,6 +39,13 @@ interface StepPublishProps {
    */
   onPublishNow: () => Promise<{ error: string | null }>
   isPublished?: boolean
+  /**
+   * Slug under which the portfolio is currently live. Empty when the
+   * portfolio has never been published. Used to detect that the user
+   * has edited the URL after publication, which flips the publish CTA
+   * from "Portfolio déjà publié" to "Republier sur la nouvelle URL".
+   */
+  publishedSlug?: string
   billingPlan?: 'free' | 'starter' | 'pro'
   selectedTemplateNeedsPurchase?: boolean
   className?: string
@@ -52,6 +59,7 @@ export function StepPublish({
   onSaveDraft,
   onPublishNow,
   isPublished = false,
+  publishedSlug = '',
   billingPlan = 'free',
   selectedTemplateNeedsPurchase = false,
   className,
@@ -197,12 +205,13 @@ export function StepPublish({
     }
   }, [])
 
-  const handleCopyLink = useCallback(() => {
-    const url = `https://${slug}.${APP_DOMAIN}`
+  const handleCopyPublishedUrl = useCallback(() => {
+    if (!publishedSlug) return
+    const url = `https://${publishedSlug}.${APP_DOMAIN}`
     void navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }, [slug])
+  }, [publishedSlug])
 
   const statusIcon = {
     idle: null,
@@ -214,88 +223,61 @@ export function StepPublish({
 
   const isFreeUser = billingPlan === 'free'
 
+  // A published portfolio stays "déjà publié" as long as the slug hasn't
+  // been edited. Changing the slug flips the CTA back to "Republier" so
+  // the new URL goes live (and Stripe plan is re-checked server-side).
+  const slugChanged = isPublished && slug !== publishedSlug
+
   const canPublish =
     slugStatus === 'available' &&
     data.title.trim() !== '' &&
     !isPublishing &&
-    !selectedTemplateNeedsPurchase
+    !selectedTemplateNeedsPurchase &&
+    (!isPublished || slugChanged)
 
-  const portfolioUrl = `https://${slug}.${APP_DOMAIN}`
-
-  // ── Success screen ──
-  if (isPublished) {
-    return (
-      <div className={cn('space-y-6 max-w-xl mx-auto', className)} data-testid="step-publish">
-        <div className="flex justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-success-bg)]">
-            <Check className="h-7 w-7 text-[var(--color-success-fg)]" strokeWidth={2} />
-          </div>
-        </div>
-
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-semibold text-foreground font-[family-name:var(--font-satoshi)] tracking-tight">
-            Ton portfolio est en ligne
-          </h2>
-          <p className="text-sm text-muted">
-            Ton portfolio est maintenant accessible à tout le monde.
-          </p>
-        </div>
-
-        {/* URL copy box */}
-        <div className="flex items-center gap-2 bg-surface border border-border-light rounded-[var(--radius-md)] p-1.5">
-          <input
-            type="text"
-            readOnly
-            value={portfolioUrl}
-            className="flex-1 bg-transparent px-3 py-2 text-sm font-mono text-foreground outline-none"
-          />
-          <VzBtn
-            variant={copied ? 'secondary' : 'primary'}
-            size="sm"
-            onClick={handleCopyLink}
-          >
-            {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-            {copied ? 'Copié !' : 'Copier'}
-          </VzBtn>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex flex-col gap-2.5">
-          <a
-            href={portfolioUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={vzBtnClasses({ variant: 'primary', size: 'lg', className: 'w-full' })}
-          >
-            Voir mon portfolio
-            <ExternalLink className="h-4 w-4" />
-          </a>
-          <div className="flex gap-2.5">
-            <a
-              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(portfolioUrl)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={vzBtnClasses({ variant: 'secondary', size: 'sm', className: 'flex-1' })}
-            >
-              Partager sur LinkedIn
-            </a>
-            <a
-              href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(portfolioUrl)}&text=${encodeURIComponent('Mon portfolio est en ligne !')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={vzBtnClasses({ variant: 'secondary', size: 'sm', className: 'flex-1' })}
-            >
-              Partager sur X
-            </a>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const publishedUrl = `https://${publishedSlug}.${APP_DOMAIN}`
 
   // ── Main publish form ──
   return (
     <div className={cn('space-y-6 max-w-xl mx-auto', className)} data-testid="step-publish">
+      {isPublished && (
+        <div className="rounded-[var(--radius-md)] border border-[var(--color-success-fg)]/20 bg-[var(--color-success-bg)] p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-success-fg)]/10">
+              <Check className="h-3.5 w-3.5 text-[var(--color-success-fg)]" strokeWidth={2.5} />
+            </div>
+            <p className="text-sm font-medium text-foreground">
+              Portfolio en ligne
+            </p>
+          </div>
+          <div className="flex items-center gap-2 rounded-[var(--radius-md)] bg-surface border border-border-light p-1.5">
+            <input
+              type="text"
+              readOnly
+              value={publishedUrl}
+              className="flex-1 bg-transparent px-2 py-1 text-xs font-mono text-foreground outline-none"
+            />
+            <VzBtn
+              variant={copied ? 'secondary' : 'primary'}
+              size="sm"
+              onClick={handleCopyPublishedUrl}
+            >
+              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+              {copied ? 'Copié !' : 'Copier'}
+            </VzBtn>
+            <a
+              href={publishedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={vzBtnClasses({ variant: 'secondary', size: 'sm' })}
+              aria-label="Voir le portfolio en ligne"
+            >
+              <ExternalLink className="h-3 w-3" />
+              Voir
+            </a>
+          </div>
+        </div>
+      )}
       {/* Slug input */}
       <div className="space-y-2">
         <label
@@ -400,13 +382,25 @@ export function StepPublish({
           onClick={() => void handlePublishClick()}
           disabled={!canPublish}
           className="w-full"
-          aria-label={isFreeUser ? "S'abonner pour publier" : 'Publier mon portfolio'}
+          aria-label={
+            isPublished && !slugChanged
+              ? 'Portfolio déjà publié'
+              : isPublished && slugChanged
+                ? 'Republier sur la nouvelle URL'
+                : isFreeUser
+                  ? "S'abonner pour publier"
+                  : 'Publier mon portfolio'
+          }
         >
           {isPublishing ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
               Publication en cours...
             </>
+          ) : isPublished && !slugChanged ? (
+            'Portfolio déjà publié'
+          ) : isPublished && slugChanged ? (
+            'Republier sur la nouvelle URL'
           ) : isFreeUser ? (
             "S'abonner pour publier (4,99 €/mois)"
           ) : (
@@ -421,9 +415,13 @@ export function StepPublish({
         )}
 
         <p className="text-xs text-muted-foreground text-center">
-          {isFreeUser
-            ? "Sauvegarde, puis paiement, puis mise en ligne. Tout en restant dans l'éditeur."
-            : "Ton portfolio sera accessible publiquement."}
+          {isPublished && !slugChanged
+            ? "Modifie l'URL ci-dessus pour republier sur un nouveau pseudo."
+            : isPublished && slugChanged
+              ? "L'ancienne URL restera hors ligne une fois la nouvelle publiée."
+              : isFreeUser
+                ? "Sauvegarde, puis paiement, puis mise en ligne. Tout en restant dans l'éditeur."
+                : "Ton portfolio sera accessible publiquement."}
         </p>
       </div>
 
