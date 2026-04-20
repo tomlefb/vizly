@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { registerUser, verifyUserOtp, resendSignupOtp } from '@/actions/auth'
 import { getDashboardUrl } from '@/lib/auth/dashboardUrl'
 import { VzBtn } from '@/components/ui/vizly'
+import { cn } from '@/lib/utils'
 import { z } from 'zod'
 
 type Step = 'form' | 'otp' | 'redirecting'
@@ -53,17 +54,34 @@ function RegisterPageInner() {
   const [password, setPassword] = useState('')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [otpError, setOtpError] = useState<string | null>(null)
   const [resendInfo, setResendInfo] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
 
+  function clearFieldError(field: string) {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setFieldErrors({})
 
     const parsed = registerSchema.safeParse({ name, email, password })
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t('errors.invalidData'))
+      const next: Record<string, string> = {}
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0]
+        if (typeof key === 'string' && !next[key]) next[key] = issue.message
+      }
+      setFieldErrors(next)
       return
     }
 
@@ -96,11 +114,12 @@ function RegisterPageInner() {
   async function handleVerify(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setOtpError(null)
     setResendInfo(null)
 
     const parsed = otpSchema.safeParse(otp)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t('verify.errors.invalidFormat'))
+      setOtpError(parsed.error.issues[0]?.message ?? t('verify.errors.invalidFormat'))
       return
     }
 
@@ -111,7 +130,7 @@ function RegisterPageInner() {
 
       if (!result.ok) {
         if (result.code === 'invalid_token') {
-          setError(t('verify.errors.invalidToken'))
+          setOtpError(t('verify.errors.invalidToken'))
         } else if (result.code === 'rate_limited') {
           setError(t('verify.errors.rateLimited'))
         } else {
@@ -162,6 +181,7 @@ function RegisterPageInner() {
     setStep('form')
     setOtp('')
     setError(null)
+    setOtpError(null)
     setResendInfo(null)
   }
 
@@ -222,7 +242,7 @@ function RegisterPageInner() {
           </div>
         )}
 
-        <form onSubmit={handleVerify} className="mt-7 space-y-4">
+        <form onSubmit={handleVerify} noValidate className="mt-7 space-y-4">
           <div>
             <label
               htmlFor="otp"
@@ -235,14 +255,22 @@ function RegisterPageInner() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              pattern="\d{6}"
               maxLength={6}
-              required
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => {
+                setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
+                if (otpError) setOtpError(null)
+              }}
               placeholder={t('verify.codePlaceholder')}
-              className={OTP_INPUT_CLASSES}
+              className={cn(OTP_INPUT_CLASSES, otpError && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+              aria-invalid={!!otpError}
+              aria-describedby={otpError ? 'otp-error' : undefined}
             />
+            {otpError && (
+              <p id="otp-error" role="alert" className="mt-1 text-xs text-destructive">
+                {otpError}
+              </p>
+            )}
           </div>
 
           <VzBtn
@@ -300,7 +328,7 @@ function RegisterPageInner() {
         </div>
       )}
 
-      <form onSubmit={handleRegister} className="mt-7 space-y-4">
+      <form onSubmit={handleRegister} noValidate className="mt-7 space-y-4">
         <div>
           <label
             htmlFor="name"
@@ -312,12 +340,21 @@ function RegisterPageInner() {
             id="name"
             type="text"
             autoComplete="name"
-            required
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value)
+              clearFieldError('name')
+            }}
             placeholder={t('register.namePlaceholder')}
-            className={INPUT_CLASSES}
+            className={cn(INPUT_CLASSES, fieldErrors.name && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+            aria-invalid={!!fieldErrors.name}
+            aria-describedby={fieldErrors.name ? 'name-error' : undefined}
           />
+          {fieldErrors.name && (
+            <p id="name-error" role="alert" className="mt-1 text-xs text-destructive">
+              {fieldErrors.name}
+            </p>
+          )}
         </div>
 
         <div>
@@ -331,12 +368,21 @@ function RegisterPageInner() {
             id="email"
             type="email"
             autoComplete="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              clearFieldError('email')
+            }}
             placeholder={t('register.emailPlaceholder')}
-            className={INPUT_CLASSES}
+            className={cn(INPUT_CLASSES, fieldErrors.email && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+            aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
           />
+          {fieldErrors.email && (
+            <p id="email-error" role="alert" className="mt-1 text-xs text-destructive">
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
 
         <div>
@@ -350,13 +396,21 @@ function RegisterPageInner() {
             id="password"
             type="password"
             autoComplete="new-password"
-            required
-            minLength={6}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              clearFieldError('password')
+            }}
             placeholder={t('register.passwordPlaceholder')}
-            className={INPUT_CLASSES}
+            className={cn(INPUT_CLASSES, fieldErrors.password && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+            aria-invalid={!!fieldErrors.password}
+            aria-describedby={fieldErrors.password ? 'password-error' : undefined}
           />
+          {fieldErrors.password && (
+            <p id="password-error" role="alert" className="mt-1 text-xs text-destructive">
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
 
         <VzBtn

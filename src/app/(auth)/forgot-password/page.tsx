@@ -9,6 +9,7 @@ import {
   updateUserPassword,
 } from '@/actions/auth'
 import { VzBtn } from '@/components/ui/vizly'
+import { cn } from '@/lib/utils'
 import { z } from 'zod'
 
 type Step = 'email' | 'otp' | 'password' | 'done' | 'redirecting'
@@ -37,17 +38,28 @@ export default function ForgotPasswordPage() {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [sessionFullAfterUpdate, setSessionFullAfterUpdate] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [resendInfo, setResendInfo] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
 
+  function clearFieldError(field: string) {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
   async function handleRequestEmail(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setFieldErrors({})
 
     const parsed = emailSchema.safeParse(email)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t('errors.invalidEmail'))
+      setFieldErrors({ email: parsed.error.issues[0]?.message ?? t('errors.invalidEmail') })
       return
     }
 
@@ -76,11 +88,12 @@ export default function ForgotPasswordPage() {
   async function handleVerifyOtp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setFieldErrors({})
     setResendInfo(null)
 
     const parsed = otpSchema.safeParse(otp)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t('verify.errors.invalidFormat'))
+      setFieldErrors({ otp: parsed.error.issues[0]?.message ?? t('verify.errors.invalidFormat') })
       return
     }
 
@@ -91,7 +104,7 @@ export default function ForgotPasswordPage() {
 
       if (!result.ok) {
         if (result.code === 'invalid_token') {
-          setError(t('verify.errors.invalidToken'))
+          setFieldErrors({ otp: t('verify.errors.invalidToken') })
         } else if (result.code === 'rate_limited') {
           setError(t('verify.errors.rateLimited'))
         } else {
@@ -111,15 +124,16 @@ export default function ForgotPasswordPage() {
   async function handleUpdatePassword(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setFieldErrors({})
 
     const parsed = passwordSchema.safeParse(password)
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t('resetPassword.errors.passwordMin'))
+      setFieldErrors({ password: parsed.error.issues[0]?.message ?? t('resetPassword.errors.passwordMin') })
       return
     }
 
     if (password !== passwordConfirm) {
-      setError(t('resetPassword.errors.passwordMismatch'))
+      setFieldErrors({ passwordConfirm: t('resetPassword.errors.passwordMismatch') })
       return
     }
 
@@ -173,6 +187,7 @@ export default function ForgotPasswordPage() {
     setStep('email')
     setOtp('')
     setError(null)
+    setFieldErrors({})
     setResendInfo(null)
   }
 
@@ -267,7 +282,7 @@ export default function ForgotPasswordPage() {
           </div>
         )}
 
-        <form onSubmit={handleUpdatePassword} className="mt-7 space-y-4">
+        <form onSubmit={handleUpdatePassword} noValidate className="mt-7 space-y-4">
           <div>
             <label
               htmlFor="password"
@@ -279,13 +294,21 @@ export default function ForgotPasswordPage() {
               id="password"
               type="password"
               autoComplete="new-password"
-              required
-              minLength={6}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                clearFieldError('password')
+              }}
               placeholder={t('resetPassword.passwordPlaceholder')}
-              className={INPUT_CLASSES}
+              className={cn(INPUT_CLASSES, fieldErrors.password && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby={fieldErrors.password ? 'password-error' : undefined}
             />
+            {fieldErrors.password && (
+              <p id="password-error" role="alert" className="mt-1 text-xs text-destructive">
+                {fieldErrors.password}
+              </p>
+            )}
           </div>
 
           <div>
@@ -299,13 +322,21 @@ export default function ForgotPasswordPage() {
               id="passwordConfirm"
               type="password"
               autoComplete="new-password"
-              required
-              minLength={6}
               value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
+              onChange={(e) => {
+                setPasswordConfirm(e.target.value)
+                clearFieldError('passwordConfirm')
+              }}
               placeholder={t('resetPassword.passwordConfirmPlaceholder')}
-              className={INPUT_CLASSES}
+              className={cn(INPUT_CLASSES, fieldErrors.passwordConfirm && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+              aria-invalid={!!fieldErrors.passwordConfirm}
+              aria-describedby={fieldErrors.passwordConfirm ? 'passwordConfirm-error' : undefined}
             />
+            {fieldErrors.passwordConfirm && (
+              <p id="passwordConfirm-error" role="alert" className="mt-1 text-xs text-destructive">
+                {fieldErrors.passwordConfirm}
+              </p>
+            )}
           </div>
 
           <VzBtn
@@ -359,7 +390,7 @@ export default function ForgotPasswordPage() {
           </div>
         )}
 
-        <form onSubmit={handleVerifyOtp} className="mt-7 space-y-4">
+        <form onSubmit={handleVerifyOtp} noValidate className="mt-7 space-y-4">
           <div>
             <label
               htmlFor="otp"
@@ -372,14 +403,22 @@ export default function ForgotPasswordPage() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              pattern="\d{6}"
               maxLength={6}
-              required
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => {
+                setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
+                clearFieldError('otp')
+              }}
               placeholder={t('resetPassword.codePlaceholder')}
-              className={OTP_INPUT_CLASSES}
+              className={cn(OTP_INPUT_CLASSES, fieldErrors.otp && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+              aria-invalid={!!fieldErrors.otp}
+              aria-describedby={fieldErrors.otp ? 'otp-error' : undefined}
             />
+            {fieldErrors.otp && (
+              <p id="otp-error" role="alert" className="mt-1 text-xs text-destructive">
+                {fieldErrors.otp}
+              </p>
+            )}
           </div>
 
           <VzBtn
@@ -439,7 +478,7 @@ export default function ForgotPasswordPage() {
         </div>
       )}
 
-      <form onSubmit={handleRequestEmail} className="mt-7 space-y-4">
+      <form onSubmit={handleRequestEmail} noValidate className="mt-7 space-y-4">
         <div>
           <label
             htmlFor="email"
@@ -451,12 +490,21 @@ export default function ForgotPasswordPage() {
             id="email"
             type="email"
             autoComplete="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              clearFieldError('email')
+            }}
             placeholder={t('forgotPassword.emailPlaceholder')}
-            className={INPUT_CLASSES}
+            className={cn(INPUT_CLASSES, fieldErrors.email && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+            aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
           />
+          {fieldErrors.email && (
+            <p id="email-error" role="alert" className="mt-1 text-xs text-destructive">
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
 
         <VzBtn

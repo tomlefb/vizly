@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { getDashboardUrl } from '@/lib/auth/dashboardUrl'
 import { VzBtn } from '@/components/ui/vizly'
+import { cn } from '@/lib/utils'
 import { z } from 'zod'
 
 export default function LoginPage() {
@@ -36,15 +37,31 @@ function LoginPageInner() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
+
+  function clearFieldError(field: string) {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
 
   async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setFieldErrors({})
 
     const parsed = loginSchema.safeParse({ email, password })
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? t('errors.invalidData'))
+      const next: Record<string, string> = {}
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0]
+        if (typeof key === 'string' && !next[key]) next[key] = issue.message
+      }
+      setFieldErrors(next)
       return
     }
 
@@ -111,7 +128,7 @@ function LoginPageInner() {
         </div>
       )}
 
-      <form onSubmit={handleEmailLogin} className="mt-7 space-y-4">
+      <form onSubmit={handleEmailLogin} noValidate className="mt-7 space-y-4">
         <div>
           <label
             htmlFor="email"
@@ -123,12 +140,21 @@ function LoginPageInner() {
             id="email"
             type="email"
             autoComplete="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              clearFieldError('email')
+            }}
             placeholder={t('login.emailPlaceholder')}
-            className={INPUT_CLASSES}
+            className={cn(INPUT_CLASSES, fieldErrors.email && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+            aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
           />
+          {fieldErrors.email && (
+            <p id="email-error" role="alert" className="mt-1 text-xs text-destructive">
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
 
         <div>
@@ -150,12 +176,21 @@ function LoginPageInner() {
             id="password"
             type="password"
             autoComplete="current-password"
-            required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              clearFieldError('password')
+            }}
             placeholder={t('login.passwordPlaceholder')}
-            className={INPUT_CLASSES}
+            className={cn(INPUT_CLASSES, fieldErrors.password && 'border-destructive focus:border-destructive focus:ring-destructive/20')}
+            aria-invalid={!!fieldErrors.password}
+            aria-describedby={fieldErrors.password ? 'password-error' : undefined}
           />
+          {fieldErrors.password && (
+            <p id="password-error" role="alert" className="mt-1 text-xs text-destructive">
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
 
         <VzBtn
