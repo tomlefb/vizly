@@ -128,6 +128,10 @@ export function BillingClient({
   const [loadingAction, setLoadingAction] = useState<LoadingAction>(null)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  // Distinct titre pour un changement programmé (pas "Abonnement mis à
+  // jour" qui laisserait croire à un effet immédiat). Booléen plutôt qu'un
+  // objet complet pour limiter le refactor côté reste du fichier.
+  const [successIsScheduled, setSuccessIsScheduled] = useState(false)
   const [showAllInvoices, setShowAllInvoices] = useState(false)
   const [subscriptionModalPlan, setSubscriptionModalPlan] =
     useState<PaidPlan | null>(null)
@@ -141,14 +145,16 @@ export function BillingClient({
     interval: BillingInterval
   } | null>(null)
 
-  // Auto-clear the success banner after a delay so it doesn't pile up after
-  // multiple changes. Errors stay visible until next user action.
+  // Auto-clear the success banner après un délai pour éviter qu'il s'empile
+  // après plusieurs changements. Les erreurs restent visibles jusqu'à l'action
+  // suivante de l'user. On reset aussi le flag "scheduled" en même temps pour
+  // que le titre revienne à sa valeur neutre au prochain affichage.
   useEffect(() => {
     if (!successMessage) return
-    const timer = setTimeout(
-      () => setSuccessMessage(null),
-      SUCCESS_MESSAGE_TTL_MS,
-    )
+    const timer = setTimeout(() => {
+      setSuccessMessage(null)
+      setSuccessIsScheduled(false)
+    }, SUCCESS_MESSAGE_TTL_MS)
     return () => clearTimeout(timer)
   }, [successMessage])
 
@@ -190,10 +196,16 @@ export function BillingClient({
     }
 
     setLoadingAction(null)
+    const isImmediate =
+      subscription === null ||
+      isChangePlanImmediate(plan, subscription.interval, changePlanTarget)
     setChangePlanTarget(null)
-    setSuccessMessage(t('successUpdateBody'))
+    setSuccessIsScheduled(!isImmediate)
+    setSuccessMessage(
+      isImmediate ? t('successUpdateBody') : t('successUpdateBodyScheduled'),
+    )
     router.refresh()
-  }, [changePlanTarget, t, router])
+  }, [changePlanTarget, plan, subscription, t, router])
 
   const openSubscriptionModal = useCallback((target: PaidPlan) => {
     setError(null)
@@ -232,6 +244,24 @@ export function BillingClient({
     }
     setCancelDialogOpen(false)
     setSuccessMessage(t('cancelSuccessBody'))
+    router.refresh()
+  }, [t, router])
+
+  // Reactivate inline depuis la bannière cancel — pas de confirmation (par
+  // symétrie avec "Annuler ce changement" sur la bannière downgrade, et
+  // parce que la réactivation est 100% réversible).
+  const handleReactivateInline = useCallback(async () => {
+    setError(null)
+    setSuccessMessage(null)
+    setSuccessIsScheduled(false)
+    setLoadingAction('reactivate')
+    const result = await reactivateSubscriptionAction()
+    setLoadingAction(null)
+    if (!result.ok) {
+      setError(getErrorMessage(result.error))
+      return
+    }
+    setSuccessMessage(t('reactivateSuccessBody'))
     router.refresh()
   }, [t, router])
 
@@ -321,18 +351,38 @@ export function BillingClient({
 
   return (
     <div className="space-y-10">
-      {/* 1. Cancel banner (above everything when applicable) */}
+      {/* 1. Cancel banner (above everything when applicable) — parité
+         visuelle + action avec la bannière "downgrade programmé" : l'user
+         peut annuler l'annulation directement sans scroller. */}
       {showCancelBanner && subscription && (
-        <Banner variant="info">
-          {subscription.current_period_end
-            ? t('cancelBannerWithDate', {
-                plan: planName(plan as PaidPlan),
-                date: formatLongDate(subscription.current_period_end),
-              })
-            : t('cancelBannerNoDate', {
-                plan: planName(plan as PaidPlan),
-              })}
-        </Banner>
+        <div className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-border-light bg-surface-warm px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <Check
+              className="mt-0.5 h-4 w-4 shrink-0 text-foreground"
+              strokeWidth={2}
+            />
+            <p className="text-sm text-foreground">
+              {subscription.current_period_end
+                ? t('cancelBannerWithDate', {
+                    plan: planName(plan as PaidPlan),
+                    date: formatLongDate(subscription.current_period_end),
+                  })
+                : t('cancelBannerNoDate', {
+                    plan: planName(plan as PaidPlan),
+                  })}
+            </p>
+          </div>
+          <VzBtn
+            variant="ghost"
+            size="sm"
+            onClick={handleReactivateInline}
+            disabled={loadingAction === 'reactivate'}
+          >
+            {loadingAction === 'reactivate'
+              ? t('ctaLoading')
+              : t('cancelBannerReactivateCta')}
+          </VzBtn>
+        </div>
       )}
 
       {/* 1bis. Pending plan change banner (downgrade programmé) */}
@@ -369,7 +419,10 @@ export function BillingClient({
 
       {/* 2. Success banner — auto-clears after 5s */}
       {successMessage && (
-        <Banner variant="success" title={t('successUpdateTitle')}>
+        <Banner
+          variant="success"
+          title={t(successIsScheduled ? 'successUpdateTitleScheduled' : 'successUpdateTitle')}
+        >
           {successMessage}
         </Banner>
       )}
