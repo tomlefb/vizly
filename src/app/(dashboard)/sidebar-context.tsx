@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, useLayoutEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import { SIDEBAR_COOKIE, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH } from './sidebar-constants'
 
-const EXPANDED_WIDTH = 220
-const COLLAPSED_WIDTH = 56
-export const SIDEBAR_COOKIE = 'vizly-sidebar-expanded'
+const EXPANDED_WIDTH = SIDEBAR_EXPANDED_WIDTH
+const COLLAPSED_WIDTH = SIDEBAR_COLLAPSED_WIDTH
 const COLLAPSED_ATTR = 'data-sidebar-collapsed'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 // 1 an
 
