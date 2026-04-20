@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Check, ChevronDown, Copy, Loader2, RefreshCcw, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { VzBadge, VzBtn } from '@/components/ui/vizly'
+import { ConfirmActionDialog } from '@/components/billing/ConfirmActionDialog'
 import {
   addCustomDomain,
   verifyCustomDomain,
@@ -39,6 +40,8 @@ export function DomainAssignmentForm({
     | null
   >(null)
   const [dnsTargetOverride, setDnsTargetOverride] = useState<string | null>(null)
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false)
+  const [removeDialogError, setRemoveDialogError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const rawDnsTarget = dnsTargetOverride ?? currentDnsTarget
@@ -111,21 +114,23 @@ export function DomainAssignmentForm({
     })
   }
 
-  function handleRemove() {
-    if (!window.confirm('Retirer ce domaine ? Le portfolio redeviendra accessible uniquement sur son sous-domaine vizly.fr.')) {
+  function handleOpenRemove() {
+    setMessage(null)
+    setRemoveDialogError(null)
+    setRemoveDialogOpen(true)
+  }
+
+  async function handleConfirmRemove() {
+    setRemoveDialogError(null)
+    const result = await removeCustomDomain(portfolioId)
+    if (!result.ok) {
+      setRemoveDialogError(result.error ?? 'Suppression échouée.')
       return
     }
-    setMessage(null)
-    startTransition(async () => {
-      const result = await removeCustomDomain(portfolioId)
-      if (!result.ok) {
-        setMessage({ kind: 'error', text: result.error ?? 'Suppression échouée.' })
-        return
-      }
-      setMessage({ kind: 'success', text: 'Domaine retiré.' })
-      setDnsTargetOverride(null)
-      router.refresh()
-    })
+    setRemoveDialogOpen(false)
+    setMessage({ kind: 'success', text: 'Domaine retiré.' })
+    setDnsTargetOverride(null)
+    router.refresh()
   }
 
   // Etat vide : formulaire d'ajout
@@ -195,7 +200,7 @@ export function DomainAssignmentForm({
             type="button"
             variant="destructive"
             size="sm"
-            onClick={handleRemove}
+            onClick={handleOpenRemove}
             disabled={isPending}
             aria-label="Retirer le domaine"
           >
@@ -237,6 +242,18 @@ export function DomainAssignmentForm({
       )}
 
       <MessageLine message={message} />
+
+      <ConfirmActionDialog
+        open={removeDialogOpen}
+        onClose={() => setRemoveDialogOpen(false)}
+        onConfirm={handleConfirmRemove}
+        title="Retirer ce domaine ?"
+        description={`${currentDomain} sera supprimé côté Railway et le portfolio redeviendra accessible uniquement sur son sous-domaine vizly.fr. Tu pourras le rajouter à tout moment.`}
+        confirmLabel="Retirer le domaine"
+        cancelLabel="Annuler"
+        confirmVariant="destructive"
+        error={removeDialogError}
+      />
     </div>
   )
 }
