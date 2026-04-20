@@ -1034,6 +1034,156 @@
     "fr": "FR",
     "en": "EN"
   },
+  "common": {
+    "portfolioDefault": "Mon portfolio",
+    "portfolioUntitled": "Sans titre"
+  },
+  "tarifs": {
+    "metaTitle": "Tarifs",
+    "metaDescription": "Simple, transparent. Commence gratuitement, tu ne paies que quand tu décides de publier ton portfolio.",
+    "faqQuestion": "Une question sur les plans ?",
+    "faqLink": "Consulte la FAQ complète →"
+  },
+  "stats": {
+    "upgradeTitle": "Statistiques",
+    "upgradeDescription": "Suis le nombre de vues sur tes portfolios et découvre d'où viennent tes visiteurs. Disponible avec le plan Pro.",
+    "upgradeCta": "Passer au Pro",
+    "titleStart": "Mes",
+    "titleAccent": "statistiques",
+    "subtitle": "Performances et vues de tes portfolios.",
+    "emptyNone": "Crée et publie un projet pour commencer à voir tes statistiques.",
+    "emptyCta": "Créer un projet",
+    "emptyUnpublished": "Publie un projet pour commencer à voir ses statistiques.",
+    "notPublished": "Non publié",
+    "kpiTotal": "Vues totales",
+    "kpiLast30": "30 derniers jours",
+    "kpiToday": "Aujourd'hui",
+    "trendSuffix": "% vs 30j préc.",
+    "sourcesTitle": "Sources",
+    "last30Days": "30 derniers jours",
+    "sourceCol": "Source",
+    "visitorsCol": "Visiteurs",
+    "noSources": "Pas encore de données sur les sources.",
+    "dailyTitle": "Vues par jour",
+    "tooltipViews": "{count, plural, one {1 vue} other {# vues}} · {label}",
+    "sourceDirect": "Direct",
+    "sourceOther": "Autre"
+  },
+  "domains": {
+    "upgradeTitle": "Domaines personnalisés",
+    "upgradeDescription": "Connecte ton propre nom de domaine à chacun de tes portfolios. Disponible avec le plan Pro.",
+    "upgradeCta": "Passer au Pro",
+    "titleStart": "Mes",
+    "titleAccent": "domaines",
+    "subtitle": "Connecte ton propre nom de domaine à tes portfolios.",
+    "tutoTitle": "Comment ça marche",
+    "tutoSubtitle": "Trois étapes pour relier ton domaine à ton portfolio Vizly.",
+    "tutoStep1Title": "Achète un domaine",
+    "tutoStep1Description": "Chez un registrar comme OVH, Namecheap, Cloudflare ou Gandi. Si tu en as déjà un, passe à l'étape 2.",
+    "tutoStep2Title": "Ajoute-le ici",
+    "tutoStep2Description": "Entre ton domaine dans le champ ci-dessous et clique Ajouter. On te donne ensuite l'hôte CNAME exact à configurer chez ton registrar.",
+    "tutoStep3Title": "Configure le DNS + Vérifie",
+    "tutoStep3DescStart": "Dans les paramètres DNS de ton registrar, ajoute le ",
+    "tutoStep3DescEnd": " indiqué dans la card du portfolio. Reviens ici et clique « Vérifier » — le SSL est automatique.",
+    "portfoliosTitle": "Tes portfolios",
+    "portfoliosSubtitle": "Assigne un domaine personnalisé à chaque portfolio.",
+    "emptyText": "Crée un projet pour lui assigner un domaine personnalisé.",
+    "emptyCta": "Créer un projet",
+    "notPublished": "Non publié",
+    "badgeOnline": "En ligne",
+    "form": {
+      "placeholder": "portfolio.tonsite.com",
+      "saving": "Enregistrement…",
+      "add": "Ajouter",
+      "tip": "Astuce : un sous-domaine type",
+      "tipEnd": "a une config DNS plus simple qu'un domaine racine",
+      "savedInfo": "Domaine enregistré. Configure ton DNS — on vérifie automatiquement dès que c'est propagé.",
+      "genericError": "Erreur inconnue.",
+      "verifyFailed": "Vérification échouée.",
+      "verifySuccess": "Domaine vérifié, il est maintenant actif.",
+      "removeFailed": "Suppression échouée.",
+      "removeSuccess": "Domaine retiré.",
+      "verify": "Vérifier",
+      "remove": "Retirer",
+      "removeAriaLabel": "Retirer le domaine",
+      "dnsStep": "Étape 1 · Configure ton DNS chez ton registrar",
+      "dnsType": "Type",
+      "dnsHost": "Nom / Hôte",
+      "dnsValue": "Valeur / Cible",
+      "dnsUnknown": "La cible DNS exacte s'affichera après un premier clic « Vérifier ».",
+      "propagation": "La propagation DNS prend en général entre 1 minute et 1 heure (parfois plus). On vérifie automatiquement toutes les 30 secondes — tu peux fermer cette page et revenir plus tard, tu verras le badge passer en « Actif » quand c'est bon.",
+      "removeDialogTitle": "Retirer ce domaine ?",
+      "removeDialogDescription": "{domain} sera supprimé côté Railway et le portfolio redeviendra accessible uniquement sur son sous-domaine vizly.fr. Tu pourras le rajouter à tout moment.",
+      "removeDialogConfirm": "Retirer le domaine",
+      "removeDialogCancel": "Annuler",
+      "statusActive": "Actif",
+      "statusFailed": "Échec",
+      "statusPending": "En attente du DNS",
+      "copied": "Copié",
+      "copyAriaLabel": "Copier {value}",
+      "registrarToggle": "Comment faire chez mon registrar ?",
+      "registrar": {
+        "ovh": {
+          "label": "OVH",
+          "steps": [
+            "Va dans Espace Client → Web Cloud → Noms de domaine, puis clique sur ton domaine.",
+            "Ouvre l'onglet \"Zone DNS\" en haut de page.",
+            "Clique sur \"Ajouter une entrée\" en haut à droite de la liste des enregistrements.",
+            "Sélectionne le type affiché plus haut (CNAME ou A), puis clique Suivant.",
+            "Dans \"Sous-domaine\", colle la valeur \"Nom / Hôte\" (ou laisse vide si c'est \"@\").",
+            "Dans \"Cible\", colle la valeur \"Valeur / Cible\" indiquée plus haut.",
+            "Clique Suivant puis Confirmer. OVH met à jour la zone en quelques minutes."
+          ]
+        },
+        "gandi": {
+          "label": "Gandi",
+          "steps": [
+            "Depuis ton dashboard Gandi, clique sur ton domaine dans la liste.",
+            "Ouvre l'onglet \"DNS Records\" à gauche.",
+            "Clique sur le bouton \"Add\" (en haut à droite).",
+            "Choisis le type indiqué plus haut (CNAME ou A).",
+            "Dans \"Name\", colle la valeur \"Nom / Hôte\" (ou laisse \"@\").",
+            "Dans \"Hostname\" ou \"Value\", colle la valeur \"Valeur / Cible\".",
+            "Laisse le TTL par défaut, clique \"Create\"."
+          ]
+        },
+        "cloudflare": {
+          "label": "Cloudflare",
+          "steps": [
+            "Depuis le dashboard Cloudflare, clique sur ton domaine.",
+            "Va dans DNS → Records.",
+            "Clique \"Add record\".",
+            "Choisis le type (CNAME ou A), puis colle \"Nom / Hôte\" dans Name et \"Valeur / Cible\" dans Target.",
+            "IMPORTANT : passe \"Proxy status\" sur \"DNS only\" (nuage gris, pas orange) — sinon Railway ne pourra pas valider le certificat.",
+            "Clique \"Save\"."
+          ]
+        },
+        "namecheap": {
+          "label": "Namecheap",
+          "steps": [
+            "Depuis le Dashboard → Domain List, clique \"Manage\" à côté de ton domaine.",
+            "Ouvre l'onglet \"Advanced DNS\".",
+            "Clique \"Add New Record\".",
+            "Choisis le type : \"CNAME Record\" ou \"A Record\".",
+            "Dans \"Host\", colle \"Nom / Hôte\" (ou \"@\" pour un apex).",
+            "Dans \"Value\", colle \"Valeur / Cible\".",
+            "Clique sur l'icône check verte pour sauvegarder."
+          ]
+        },
+        "other": {
+          "label": "Autre",
+          "steps": [
+            "Ouvre l'interface DNS de ton registrar (souvent dans \"DNS\", \"Zone DNS\" ou \"Nameservers\").",
+            "Ajoute un nouvel enregistrement du type indiqué ci-dessus (CNAME ou A).",
+            "Le champ \"Nom/Hôte/Host/Name\" reçoit la valeur \"Nom / Hôte\" que tu vois plus haut.",
+            "Le champ \"Valeur/Target/Points to\" reçoit la valeur \"Valeur / Cible\".",
+            "Garde le TTL par défaut (souvent 3600 ou automatique).",
+            "Sauvegarde et reviens vérifier ici dans 1 à 60 minutes."
+          ]
+        }
+      }
+    }
+  },
   "fonctionnalites": {
     "metaTitle": "Fonctionnalités",
     "metaDescription": "Tout ce qu'il faut pour publier un portfolio qui te ressemble. Profil, projets, KPIs, design personnalisable et publication en un clic.",

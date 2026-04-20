@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { BarChart3 } from 'lucide-react'
 import { DEFAULT_PORTFOLIO_COLOR, type PlanType } from '@/lib/constants'
@@ -12,6 +13,8 @@ import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 import { StatsClient, type PortfolioStats } from './stats-client'
 
 export default async function StatistiquesPage() {
+  const t = await getTranslations('stats')
+  const tCommon = await getTranslations('common')
   const supabase = await createClient()
   const {
     data: { user },
@@ -37,17 +40,16 @@ export default async function StatistiquesPage() {
           />
         </div>
         <h3 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
-          Statistiques
+          {t('upgradeTitle')}
         </h3>
         <p className="mt-2 text-sm text-muted">
-          Suis le nombre de vues sur tes portfolios et découvre d&apos;où
-          viennent tes visiteurs. Disponible avec le plan Pro.
+          {t('upgradeDescription')}
         </p>
         <Link
           href="/billing"
           className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'mt-7' })}
         >
-          Passer au Pro
+          {t('upgradeCta')}
         </Link>
       </div>
     )
@@ -67,21 +69,21 @@ export default async function StatistiquesPage() {
       <div>
         <header className="mb-10">
           <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Mes <VzHighlight>statistiques</VzHighlight>
+            {t('titleStart')} <VzHighlight>{t('titleAccent')}</VzHighlight>
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Performances et vues de tes portfolios.
+            {t('subtitle')}
           </p>
         </header>
         <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-warm p-8 text-center">
           <p className="text-sm text-muted">
-            Crée et publie un projet pour commencer à voir tes statistiques.
+            {t('emptyNone')}
           </p>
           <Link
             href="/editor"
             className="mt-4 inline-flex items-center text-sm font-medium text-accent-deep transition-colors hover:text-foreground"
           >
-            Créer un projet
+            {t('emptyCta')}
           </Link>
         </div>
       </div>
@@ -99,6 +101,9 @@ export default async function StatistiquesPage() {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
   const sixtyDaysAgo = new Date(startOfToday)
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60)
+
+  const directLabel = t('sourceDirect')
+  const otherLabel = t('sourceOther')
 
   const [totalCountsResult, recentViewsResult] = await Promise.all([
     Promise.all(
@@ -155,7 +160,7 @@ export default async function StatistiquesPage() {
     }
     if (viewedAt >= thirtyDaysAgo) {
       entry.viewsLast30++
-      const source = extractDomain(row.referrer)
+      const source = extractDomain(row.referrer, directLabel, otherLabel)
       entry.referrerCounts.set(
         source,
         (entry.referrerCounts.get(source) ?? 0) + 1,
@@ -177,7 +182,7 @@ export default async function StatistiquesPage() {
 
     const templateProps: TemplateProps = {
       portfolio: {
-        title: p.title || 'Mon portfolio',
+        title: p.title || tCommon('portfolioDefault'),
         bio: p.bio ?? null,
         photo_url: p.photo_url ?? null,
         primary_color: p.primary_color || DEFAULT_PORTFOLIO_COLOR,
@@ -208,7 +213,7 @@ export default async function StatistiquesPage() {
 
     return {
       id: p.id,
-      title: p.title ?? 'Sans titre',
+      title: p.title ?? tCommon('portfolioUntitled'),
       slug: p.slug,
       published: p.published ?? false,
       template: p.template ?? 'classique',
@@ -225,8 +230,12 @@ export default async function StatistiquesPage() {
   return <StatsClient portfolios={portfolioStats} />
 }
 
-function extractDomain(referrer: string | null): string {
-  if (!referrer) return 'Direct'
+function extractDomain(
+  referrer: string | null,
+  directLabel: string,
+  otherLabel: string,
+): string {
+  if (!referrer) return directLabel
   try {
     const url = new URL(referrer)
     const host = url.hostname.replace(/^www\./, '')
@@ -239,6 +248,6 @@ function extractDomain(referrer: string | null): string {
     if (host.includes('vizly')) return 'Vizly'
     return host
   } catch {
-    return 'Autre'
+    return otherLabel
   }
 }

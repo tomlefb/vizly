@@ -1,17 +1,21 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { CTASectionTarifs } from '@/components/marketing/CTASection'
 import { TarifsClient } from '@/components/marketing/TarifsClient'
 import { ComparisonTable } from '@/components/marketing/ComparisonTable'
 import { createClient } from '@/lib/supabase/server'
 
-export const metadata: Metadata = {
-  title: 'Tarifs',
-  description:
-    'Simple, transparent. Commence gratuitement, tu ne paies que quand tu décides de publier ton portfolio.',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('tarifs')
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  }
 }
 
 export default async function TarifsPage() {
+  const t = await getTranslations('tarifs')
   const supabase = await createClient()
   const {
     data: { user },
@@ -33,12 +37,12 @@ export default async function TarifsPage() {
       <ComparisonTable />
       <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-8 lg:pb-12">
         <p className="text-center text-sm text-muted">
-          Une question sur les plans ?{' '}
+          {t('faqQuestion')}{' '}
           <Link
             href="/legal/faq"
             className="text-foreground font-medium underline-offset-4 hover:underline"
           >
-            Consulte la FAQ complète →
+            {t('faqLink')}
           </Link>
         </p>
       </div>

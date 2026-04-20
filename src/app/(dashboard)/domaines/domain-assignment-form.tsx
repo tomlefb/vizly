@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, ChevronDown, Copy, Loader2, RefreshCcw, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { VzBadge, VzBtn } from '@/components/ui/vizly'
 import { ConfirmActionDialog } from '@/components/billing/ConfirmActionDialog'
@@ -33,6 +34,7 @@ export function DomainAssignmentForm({
   currentStatus,
   currentDnsTarget,
 }: DomainAssignmentFormProps) {
+  const t = useTranslations('domains.form')
   const router = useRouter()
   const [draft, setDraft] = useState('')
   const [message, setMessage] = useState<
@@ -88,13 +90,13 @@ export function DomainAssignmentForm({
     startTransition(async () => {
       const result = await addCustomDomain(portfolioId, draft.trim())
       if (!result.ok) {
-        setMessage({ kind: 'error', text: result.error ?? 'Erreur inconnue.' })
+        setMessage({ kind: 'error', text: result.error ?? t('genericError') })
         return
       }
       if (result.dnsTarget) setDnsTargetOverride(result.dnsTarget)
       setMessage({
         kind: 'info',
-        text: 'Domaine enregistré. Configure ton DNS — on vérifie automatiquement dès que c\'est propagé.',
+        text: t('savedInfo'),
       })
       setDraft('')
       router.refresh()
@@ -106,10 +108,10 @@ export function DomainAssignmentForm({
     startTransition(async () => {
       const result = await verifyCustomDomain(portfolioId)
       if (!result.ok) {
-        setMessage({ kind: 'error', text: result.error ?? 'Vérification échouée.' })
+        setMessage({ kind: 'error', text: result.error ?? t('verifyFailed') })
         return
       }
-      setMessage({ kind: 'success', text: 'Domaine vérifié, il est maintenant actif.' })
+      setMessage({ kind: 'success', text: t('verifySuccess') })
       router.refresh()
     })
   }
@@ -124,11 +126,11 @@ export function DomainAssignmentForm({
     setRemoveDialogError(null)
     const result = await removeCustomDomain(portfolioId)
     if (!result.ok) {
-      setRemoveDialogError(result.error ?? 'Suppression échouée.')
+      setRemoveDialogError(result.error ?? t('removeFailed'))
       return
     }
     setRemoveDialogOpen(false)
-    setMessage({ kind: 'success', text: 'Domaine retiré.' })
+    setMessage({ kind: 'success', text: t('removeSuccess') })
     setDnsTargetOverride(null)
     router.refresh()
   }
@@ -145,7 +147,7 @@ export function DomainAssignmentForm({
               setDraft(e.target.value)
               setMessage(null)
             }}
-            placeholder="portfolio.tonsite.com"
+            placeholder={t('placeholder')}
             className="h-10 min-w-0 flex-1 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent-deep focus:outline-none focus:ring-2 focus:ring-accent/30"
           />
           <VzBtn
@@ -157,16 +159,15 @@ export function DomainAssignmentForm({
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
-                Enregistrement…
+                {t('saving')}
               </>
             ) : (
-              'Ajouter'
+              t('add')
             )}
           </VzBtn>
         </form>
         <p className="text-xs text-muted-foreground">
-          Astuce : un sous-domaine type <span className="font-mono">portfolio.tonsite.com</span> a
-          une config DNS plus simple qu&apos;un domaine racine (<span className="font-mono">tonsite.com</span>).
+          {t('tip')} <span className="font-mono">portfolio.tonsite.com</span> {t('tipEnd')} (<span className="font-mono">tonsite.com</span>).
         </p>
         <MessageLine message={message} />
       </div>
@@ -193,7 +194,7 @@ export function DomainAssignmentForm({
               ) : (
                 <RefreshCcw className="h-4 w-4" strokeWidth={2} />
               )}
-              Vérifier
+              {t('verify')}
             </VzBtn>
           )}
           <VzBtn
@@ -202,10 +203,10 @@ export function DomainAssignmentForm({
             size="sm"
             onClick={handleOpenRemove}
             disabled={isPending}
-            aria-label="Retirer le domaine"
+            aria-label={t('removeAriaLabel')}
           >
             <Trash2 className="h-4 w-4" strokeWidth={2} />
-            Retirer
+            {t('remove')}
           </VzBtn>
         </div>
       </div>
@@ -213,19 +214,19 @@ export function DomainAssignmentForm({
       {currentStatus !== 'verified' && (
         <div className="space-y-3 rounded-[var(--radius-md)] border border-border-light bg-surface-warm px-4 py-3 text-xs text-foreground">
           <div>
-            <p className="font-medium">Étape 1 · Configure ton DNS chez ton registrar</p>
+            <p className="font-medium">{t('dnsStep')}</p>
             {dnsParts ? (
               <div className="mt-2 space-y-2">
-                <DnsRow label="Type" value={dnsParts.type} />
+                <DnsRow label={t('dnsType')} value={dnsParts.type} />
                 <DnsRow
-                  label="Nom / Hôte"
+                  label={t('dnsHost')}
                   value={extractHostLabel(currentDomain)}
                 />
-                <DnsRow label="Valeur / Cible" value={dnsParts.value} />
+                <DnsRow label={t('dnsValue')} value={dnsParts.value} />
               </div>
             ) : (
               <p className="mt-2 text-muted">
-                La cible DNS exacte s&apos;affichera après un premier clic « Vérifier ».
+                {t('dnsUnknown')}
               </p>
             )}
           </div>
@@ -233,10 +234,7 @@ export function DomainAssignmentForm({
           <RegistrarGuide />
 
           <p className="text-muted-foreground">
-            La propagation DNS prend en général entre 1 minute et 1 heure (parfois
-            plus). On vérifie automatiquement toutes les 30 secondes — tu peux
-            fermer cette page et revenir plus tard, tu verras le badge passer en
-            « Actif » quand c&apos;est bon.
+            {t('propagation')}
           </p>
         </div>
       )}
@@ -247,10 +245,10 @@ export function DomainAssignmentForm({
         open={removeDialogOpen}
         onClose={() => setRemoveDialogOpen(false)}
         onConfirm={handleConfirmRemove}
-        title="Retirer ce domaine ?"
-        description={`${currentDomain} sera supprimé côté Railway et le portfolio redeviendra accessible uniquement sur son sous-domaine vizly.fr. Tu pourras le rajouter à tout moment.`}
-        confirmLabel="Retirer le domaine"
-        cancelLabel="Annuler"
+        title={t('removeDialogTitle')}
+        description={t('removeDialogDescription', { domain: currentDomain })}
+        confirmLabel={t('removeDialogConfirm')}
+        cancelLabel={t('removeDialogCancel')}
         confirmVariant="destructive"
         error={removeDialogError}
       />
@@ -263,6 +261,7 @@ export function DomainAssignmentForm({
 // ----------------------------------------------------------------------------
 
 function CopyablePill({ value }: { value: string }) {
+  const t = useTranslations('domains.form')
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -289,7 +288,7 @@ function CopyablePill({ value }: { value: string }) {
       type="button"
       onClick={handleCopy}
       className="group inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] bg-surface px-2.5 py-1 font-mono text-sm text-foreground transition-colors hover:bg-surface-warm"
-      aria-label={copied ? 'Copié' : `Copier ${value}`}
+      aria-label={copied ? t('copied') : t('copyAriaLabel', { value })}
     >
       <span>{value}</span>
       {copied ? (
@@ -322,9 +321,15 @@ function extractHostLabel(domain: string): string {
   return parts.slice(0, parts.length - 2).join('.')
 }
 
+type RegistrarKey = 'ovh' | 'gandi' | 'cloudflare' | 'namecheap' | 'other'
+const REGISTRAR_KEYS: RegistrarKey[] = ['ovh', 'gandi', 'cloudflare', 'namecheap', 'other']
+
 function RegistrarGuide() {
+  const t = useTranslations('domains.form')
   const [open, setOpen] = useState(false)
-  const [registrar, setRegistrar] = useState<keyof typeof REGISTRAR_GUIDES>('ovh')
+  const [registrar, setRegistrar] = useState<RegistrarKey>('ovh')
+
+  const steps = t.raw(`registrar.${registrar}.steps`) as string[]
 
   return (
     <div>
@@ -338,31 +343,29 @@ function RegistrarGuide() {
           className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-180')}
           strokeWidth={2}
         />
-        Comment faire chez mon registrar ?
+        {t('registrarToggle')}
       </button>
       {open && (
         <div className="mt-3 space-y-3 rounded-[var(--radius-sm)] border border-border-light bg-surface px-3 py-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-surface-warm p-0.5">
-            {(Object.keys(REGISTRAR_GUIDES) as Array<keyof typeof REGISTRAR_GUIDES>).map(
-              (key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setRegistrar(key)}
-                  className={cn(
-                    'rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
-                    registrar === key
-                      ? 'bg-surface text-foreground border border-border'
-                      : 'text-muted hover:text-foreground',
-                  )}
-                >
-                  {REGISTRAR_GUIDES[key].label}
-                </button>
-              ),
-            )}
+            {REGISTRAR_KEYS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setRegistrar(key)}
+                className={cn(
+                  'rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
+                  registrar === key
+                    ? 'bg-surface text-foreground border border-border'
+                    : 'text-muted hover:text-foreground',
+                )}
+              >
+                {t(`registrar.${key}.label`)}
+              </button>
+            ))}
           </div>
           <ol className="list-decimal space-y-1.5 pl-5 text-xs leading-relaxed text-muted">
-            {REGISTRAR_GUIDES[registrar].steps.map((step, i) => (
+            {steps.map((step, i) => (
               <li key={i}>{step}</li>
             ))}
           </ol>
@@ -372,82 +375,22 @@ function RegistrarGuide() {
   )
 }
 
-const REGISTRAR_GUIDES = {
-  ovh: {
-    label: 'OVH',
-    steps: [
-      'Va dans Espace Client → Web Cloud → Noms de domaine, puis clique sur ton domaine.',
-      'Ouvre l\'onglet "Zone DNS" en haut de page.',
-      'Clique sur "Ajouter une entrée" en haut à droite de la liste des enregistrements.',
-      'Sélectionne le type affiché plus haut (CNAME ou A), puis clique Suivant.',
-      'Dans "Sous-domaine", colle la valeur "Nom / Hôte" (ou laisse vide si c\'est "@").',
-      'Dans "Cible", colle la valeur "Valeur / Cible" indiquée plus haut.',
-      'Clique Suivant puis Confirmer. OVH met à jour la zone en quelques minutes.',
-    ],
-  },
-  gandi: {
-    label: 'Gandi',
-    steps: [
-      'Depuis ton dashboard Gandi, clique sur ton domaine dans la liste.',
-      'Ouvre l\'onglet "DNS Records" à gauche.',
-      'Clique sur le bouton "Add" (en haut à droite).',
-      'Choisis le type indiqué plus haut (CNAME ou A).',
-      'Dans "Name", colle la valeur "Nom / Hôte" (ou laisse "@").',
-      'Dans "Hostname" ou "Value", colle la valeur "Valeur / Cible".',
-      'Laisse le TTL par défaut, clique "Create".',
-    ],
-  },
-  cloudflare: {
-    label: 'Cloudflare',
-    steps: [
-      'Depuis le dashboard Cloudflare, clique sur ton domaine.',
-      'Va dans DNS → Records.',
-      'Clique "Add record".',
-      'Choisis le type (CNAME ou A), puis colle "Nom / Hôte" dans Name et "Valeur / Cible" dans Target.',
-      'IMPORTANT : passe "Proxy status" sur "DNS only" (nuage gris, pas orange) — sinon Railway ne pourra pas valider le certificat.',
-      'Clique "Save".',
-    ],
-  },
-  namecheap: {
-    label: 'Namecheap',
-    steps: [
-      'Depuis le Dashboard → Domain List, clique "Manage" à côté de ton domaine.',
-      'Ouvre l\'onglet "Advanced DNS".',
-      'Clique "Add New Record".',
-      'Choisis le type : "CNAME Record" ou "A Record".',
-      'Dans "Host", colle "Nom / Hôte" (ou "@" pour un apex).',
-      'Dans "Value", colle "Valeur / Cible".',
-      'Clique sur l\'icône check verte pour sauvegarder.',
-    ],
-  },
-  other: {
-    label: 'Autre',
-    steps: [
-      'Ouvre l\'interface DNS de ton registrar (souvent dans "DNS", "Zone DNS" ou "Nameservers").',
-      'Ajoute un nouvel enregistrement du type indiqué ci-dessus (CNAME ou A).',
-      'Le champ "Nom/Hôte/Host/Name" reçoit la valeur "Nom / Hôte" que tu vois plus haut.',
-      'Le champ "Valeur/Target/Points to" reçoit la valeur "Valeur / Cible".',
-      'Garde le TTL par défaut (souvent 3600 ou automatique).',
-      'Sauvegarde et reviens vérifier ici dans 1 à 60 minutes.',
-    ],
-  },
-} satisfies Record<string, { label: string; steps: string[] }>
-
 function StatusBadge({ status }: { status: DomainStatus }) {
+  const t = useTranslations('domains.form')
   if (status === 'verified') {
-    return <VzBadge variant="online">Actif</VzBadge>
+    return <VzBadge variant="online">{t('statusActive')}</VzBadge>
   }
   if (status === 'failed') {
     return (
       <span className="inline-flex items-center rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
-        Échec
+        {t('statusFailed')}
       </span>
     )
   }
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-accent-light px-2.5 py-0.5 text-xs font-medium text-accent-deep">
       <Loader2 className="h-3 w-3 animate-spin" strokeWidth={2.5} />
-      En attente du DNS
+      {t('statusPending')}
     </span>
   )
 }

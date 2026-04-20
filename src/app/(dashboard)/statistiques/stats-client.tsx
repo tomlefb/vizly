@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { VzHighlight } from '@/components/ui/vizly'
@@ -27,6 +28,10 @@ interface StatsClientProps {
 }
 
 export function StatsClient({ portfolios }: StatsClientProps) {
+  const t = useTranslations('stats')
+  const locale = useLocale()
+  const numberLocale = locale === 'fr' ? 'fr-FR' : 'en-US'
+
   const publishedPortfolios = useMemo(
     () => portfolios.filter((p) => p.published),
     [portfolios],
@@ -59,7 +64,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
         <Header />
         <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-warm p-8 text-center">
           <p className="text-sm text-muted">
-            Publie un projet pour commencer à voir ses statistiques.
+            {t('emptyUnpublished')}
           </p>
         </div>
       </div>
@@ -103,7 +108,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                   <div className="max-w-[180px] truncate rounded-[2px] border border-border-light bg-surface px-2 py-px font-mono text-[9px] text-muted">
                     {selected.slug
                       ? `${selected.slug}.vizly.fr`
-                      : 'Non publié'}
+                      : t('notPublished')}
                   </div>
                 </div>
               </div>
@@ -115,13 +120,15 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             </div>
 
             <div className="divide-y divide-border-light self-start overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface">
-              <KpiRow label="Vues totales" value={selected.totalViews} />
+              <KpiRow label={t('kpiTotal')} value={selected.totalViews} numberLocale={numberLocale} trendSuffix={t('trendSuffix')} />
               <KpiRow
-                label="30 derniers jours"
+                label={t('kpiLast30')}
                 value={selected.viewsLast30}
                 trend={trendPercent}
+                numberLocale={numberLocale}
+                trendSuffix={t('trendSuffix')}
               />
-              <KpiRow label="Aujourd'hui" value={selected.viewsToday} />
+              <KpiRow label={t('kpiToday')} value={selected.viewsToday} numberLocale={numberLocale} trendSuffix={t('trendSuffix')} />
             </div>
           </div>
 
@@ -130,9 +137,9 @@ export function StatsClient({ portfolios }: StatsClientProps) {
             <div>
               <div className="flex items-baseline justify-between gap-4">
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Sources
+                  {t('sourcesTitle')}
                 </h2>
-                <span className="text-xs text-muted">30 derniers jours</span>
+                <span className="text-xs text-muted">{t('last30Days')}</span>
               </div>
 
               {selected.sources.length > 0 ? (
@@ -141,10 +148,10 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                     <thead>
                       <tr className="border-b border-border-light bg-surface-warm">
                         <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Source
+                          {t('sourceCol')}
                         </th>
                         <th className="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Visiteurs
+                          {t('visitorsCol')}
                         </th>
                       </tr>
                     </thead>
@@ -158,7 +165,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                             {s.source}
                           </td>
                           <td className="px-4 py-2.5 text-right font-medium tabular-nums text-foreground">
-                            {s.count.toLocaleString('fr-FR')}
+                            {s.count.toLocaleString(numberLocale)}
                           </td>
                         </tr>
                       ))}
@@ -167,7 +174,7 @@ export function StatsClient({ portfolios }: StatsClientProps) {
                 </div>
               ) : (
                 <p className="mt-4 text-sm text-muted">
-                  Pas encore de données sur les sources.
+                  {t('noSources')}
                 </p>
               )}
             </div>
@@ -181,13 +188,14 @@ export function StatsClient({ portfolios }: StatsClientProps) {
 }
 
 function Header() {
+  const t = useTranslations('stats')
   return (
     <header className="mb-8">
       <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-        Mes <VzHighlight>statistiques</VzHighlight>
+        {t('titleStart')} <VzHighlight>{t('titleAccent')}</VzHighlight>
       </h1>
       <p className="mt-2 text-sm text-muted">
-        Performances et vues de tes portfolios.
+        {t('subtitle')}
       </p>
     </header>
   )
@@ -197,10 +205,14 @@ function KpiRow({
   label,
   value,
   trend,
+  numberLocale,
+  trendSuffix,
 }: {
   label: string
   value: number
   trend?: number
+  numberLocale: string
+  trendSuffix: string
 }) {
   return (
     <div className="flex items-center justify-between gap-4 bg-surface px-6 py-5">
@@ -228,13 +240,13 @@ function KpiRow({
               )}
             >
               {trend > 0 ? '+' : ''}
-              {trend} % vs 30j préc.
+              {trend} {trendSuffix}
             </span>
           </div>
         )}
       </div>
       <p className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tabular-nums text-foreground">
-        {value.toLocaleString('fr-FR')}
+        {value.toLocaleString(numberLocale)}
       </p>
     </div>
   )
@@ -245,6 +257,7 @@ function DailyChart({
 }: {
   days: Array<{ date: string; count: number }>
 }) {
+  const t = useTranslations('stats')
   const maxCount = Math.max(...days.map((d) => d.count), 1)
   const ySteps = buildYScale(maxCount)
   const barsRef = useRef<HTMLDivElement>(null)
@@ -266,9 +279,9 @@ function DailyChart({
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Vues par jour
+          {t('dailyTitle')}
         </h2>
-        <span className="text-xs text-muted">30 derniers jours</span>
+        <span className="text-xs text-muted">{t('last30Days')}</span>
       </div>
 
       <div className="mt-3 flex min-h-[160px] flex-1 overflow-hidden rounded-[var(--radius-lg)] border border-border-light bg-surface p-4 pl-2">
@@ -299,7 +312,7 @@ function DailyChart({
                     style={{ height: barH }}
                   />
                   <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-[var(--radius-sm)] bg-foreground px-2 py-1 text-[10px] font-medium text-surface-warm group-hover:block">
-                    {day.count} vue{day.count !== 1 ? 's' : ''} · {label}
+                    {t('tooltipViews', { count: day.count, label })}
                   </div>
                 </div>
               )

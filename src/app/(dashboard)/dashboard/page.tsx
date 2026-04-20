@@ -25,6 +25,7 @@ export default async function DashboardPage({
   searchParams,
 }: DashboardPageProps) {
   const t = await getTranslations('dashboard')
+  const tCommon = await getTranslations('common')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -121,7 +122,7 @@ export default async function DashboardPage({
           {allPortfolios.map((portfolio) => {
             const templateProps = {
               portfolio: {
-                title: portfolio.title || 'Mon portfolio',
+                title: portfolio.title || tCommon('portfolioDefault'),
                 bio: portfolio.bio ?? null,
                 photo_url: portfolio.photo_url ?? null,
                 primary_color: portfolio.primary_color || DEFAULT_PORTFOLIO_COLOR,

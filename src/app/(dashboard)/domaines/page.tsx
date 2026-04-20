@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { getPortfoliosWithDomains } from '@/actions/portfolio'
 import { Globe } from 'lucide-react'
@@ -12,6 +13,8 @@ import { DomainAssignmentForm } from './domain-assignment-form'
 import type { PlanType } from '@/lib/constants'
 
 export default async function DomainesPage() {
+  const t = await getTranslations('domains')
+  const tCommon = await getTranslations('common')
   const supabase = await createClient()
   const {
     data: { user },
@@ -37,17 +40,16 @@ export default async function DomainesPage() {
           />
         </div>
         <h3 className="mt-5 font-[family-name:var(--font-satoshi)] text-lg font-semibold text-foreground">
-          Domaines personnalisés
+          {t('upgradeTitle')}
         </h3>
         <p className="mt-2 text-sm text-muted">
-          Connecte ton propre nom de domaine à chacun de tes portfolios.
-          Disponible avec le plan Pro.
+          {t('upgradeDescription')}
         </p>
         <Link
           href="/billing"
           className={vzBtnClasses({ variant: 'primary', size: 'md', className: 'mt-7' })}
         >
-          Passer au Pro
+          {t('upgradeCta')}
         </Link>
       </div>
     )
@@ -59,10 +61,10 @@ export default async function DomainesPage() {
     <div>
       <header className="mb-10">
         <h1 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          Mes <VzHighlight>domaines</VzHighlight>
+          {t('titleStart')} <VzHighlight>{t('titleAccent')}</VzHighlight>
         </h1>
         <p className="mt-2 text-sm text-muted">
-          Connecte ton propre nom de domaine à tes portfolios.
+          {t('subtitle')}
         </p>
       </header>
 
@@ -70,31 +72,31 @@ export default async function DomainesPage() {
         {/* ─── Tuto : comment ça marche ─── */}
         <section className="pb-10">
           <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
-            Comment ça marche
+            {t('tutoTitle')}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            Trois étapes pour relier ton domaine à ton portfolio Vizly.
+            {t('tutoSubtitle')}
           </p>
 
           <ol className="mt-6 grid gap-6 sm:grid-cols-3">
             <TutoStep
               step={1}
-              title="Achète un domaine"
-              description="Chez un registrar comme OVH, Namecheap, Cloudflare ou Gandi. Si tu en as déjà un, passe à l'étape 2."
+              title={t('tutoStep1Title')}
+              description={t('tutoStep1Description')}
             />
             <TutoStep
               step={2}
-              title="Ajoute-le ici"
-              description="Entre ton domaine dans le champ ci-dessous et clique Ajouter. On te donne ensuite l'hôte CNAME exact à configurer chez ton registrar."
+              title={t('tutoStep2Title')}
+              description={t('tutoStep2Description')}
             />
             <TutoStep
               step={3}
-              title="Configure le DNS + Vérifie"
+              title={t('tutoStep3Title')}
               description={
                 <>
-                  Dans les paramètres DNS de ton registrar, ajoute le{' '}
-                  <Code>CNAME</Code> indiqué dans la card du portfolio. Reviens
-                  ici et clique « Vérifier » — le SSL est automatique.
+                  {t('tutoStep3DescStart')}
+                  <Code>CNAME</Code>
+                  {t('tutoStep3DescEnd')}
                 </>
               }
             />
@@ -104,10 +106,10 @@ export default async function DomainesPage() {
         {/* ─── Liste des portfolios + formulaire domaine ─── */}
         <section className="pt-10">
           <h2 className="font-[family-name:var(--font-satoshi)] text-base font-semibold text-foreground">
-            Tes portfolios
+            {t('portfoliosTitle')}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            Assigne un domaine personnalisé à chaque portfolio.
+            {t('portfoliosSubtitle')}
           </p>
 
           {portfolios.length > 0 ? (
@@ -120,16 +122,16 @@ export default async function DomainesPage() {
                   <div className="mb-3 flex items-center gap-3">
                     <div className="min-w-0 flex-1">
                       <h3 className="truncate text-sm font-medium text-foreground">
-                        {portfolio.title || 'Sans titre'}
+                        {portfolio.title || tCommon('portfolioUntitled')}
                       </h3>
                       <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted">
                         <span className="font-mono">
                           {portfolio.slug
                             ? `${portfolio.slug}.vizly.fr`
-                            : 'Non publié'}
+                            : t('notPublished')}
                         </span>
                         {portfolio.published && (
-                          <VzBadge variant="online">En ligne</VzBadge>
+                          <VzBadge variant="online">{t('badgeOnline')}</VzBadge>
                         )}
                       </p>
                     </div>
@@ -146,13 +148,13 @@ export default async function DomainesPage() {
           ) : (
             <div className="mt-6 rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-warm p-8 text-center">
               <p className="text-sm text-muted">
-                Crée un projet pour lui assigner un domaine personnalisé.
+                {t('emptyText')}
               </p>
               <Link
                 href="/editor"
                 className="mt-4 inline-flex items-center text-sm font-medium text-accent-deep transition-colors hover:text-foreground"
               >
-                Créer un projet
+                {t('emptyCta')}
               </Link>
             </div>
           )}
