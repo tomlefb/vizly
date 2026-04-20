@@ -411,70 +411,14 @@ export async function deletePortfolio(
   }
 }
 
-export async function updateCustomDomain(
-  portfolioId: string,
-  domain: string
-): Promise<{ error: string | null }> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { error: 'Non authentifié' }
-    }
-
-    // Check user is Pro
-    const { data: profile } = await supabase
-      .from('users')
-      .select('plan')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.plan !== 'pro') {
-      return { error: 'Le domaine personnalisé est réservé au plan Pro' }
-    }
-
-    // Verify portfolio belongs to the authenticated user
-    const { data: portfolio } = await supabase
-      .from('portfolios')
-      .select('id')
-      .eq('id', portfolioId)
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    if (!portfolio) {
-      return { error: 'Portfolio introuvable' }
-    }
-
-    const trimmed = domain.trim().toLowerCase()
-
-    // Allow empty to remove custom domain
-    if (trimmed && !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(trimmed)) {
-      return { error: 'Nom de domaine invalide (ex: monsite.com)' }
-    }
-
-    const { error } = await supabase
-      .from('portfolios')
-      .update({ custom_domain: trimmed || null })
-      .eq('id', portfolio.id)
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    return { error: null }
-  } catch {
-    return { error: 'Erreur lors de la mise à jour du domaine' }
-  }
-}
-
 export interface PortfolioWithDomain {
   id: string
   title: string
   slug: string | null
   custom_domain: string | null
+  custom_domain_status: 'pending' | 'verified' | 'failed' | null
+  custom_domain_verified_at: string | null
+  custom_domain_dns_target: string | null
   published: boolean
 }
 
@@ -494,7 +438,9 @@ export async function getPortfoliosWithDomains(): Promise<{
 
     const { data, error } = await supabase
       .from('portfolios')
-      .select('id, title, slug, custom_domain, published')
+      .select(
+        'id, title, slug, custom_domain, custom_domain_status, custom_domain_verified_at, custom_domain_dns_target, published',
+      )
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
@@ -502,7 +448,26 @@ export async function getPortfoliosWithDomains(): Promise<{
       return { data: [], error: error.message }
     }
 
-    return { data: data ?? [], error: null }
+    // Narrow custom_domain_status en union stricte (la colonne est `text`
+    // en DB, le check postgres garantit déjà la validité — on cast ici
+    // pour que le reste de l'app consomme l'union typée.)
+    const narrowed: PortfolioWithDomain[] = (data ?? []).map((row) => ({
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      custom_domain: row.custom_domain,
+      custom_domain_status:
+        row.custom_domain_status === 'pending'
+          || row.custom_domain_status === 'verified'
+          || row.custom_domain_status === 'failed'
+          ? row.custom_domain_status
+          : null,
+      custom_domain_verified_at: row.custom_domain_verified_at,
+      custom_domain_dns_target: row.custom_domain_dns_target,
+      published: row.published,
+    }))
+
+    return { data: narrowed, error: null }
   } catch {
     return { data: [], error: 'Erreur lors de la récupération des portfolios' }
   }

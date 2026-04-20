@@ -115,6 +115,10 @@ export type Database = {
           created_at: string
           custom_blocks: Json | null
           custom_domain: string | null
+          custom_domain_dns_target: string | null
+          custom_domain_railway_id: string | null
+          custom_domain_status: string | null
+          custom_domain_verified_at: string | null
           font: string
           font_body: string
           id: string
@@ -140,6 +144,10 @@ export type Database = {
           created_at?: string
           custom_blocks?: Json | null
           custom_domain?: string | null
+          custom_domain_dns_target?: string | null
+          custom_domain_railway_id?: string | null
+          custom_domain_status?: string | null
+          custom_domain_verified_at?: string | null
           font?: string
           font_body?: string
           id?: string
@@ -165,6 +173,10 @@ export type Database = {
           created_at?: string
           custom_blocks?: Json | null
           custom_domain?: string | null
+          custom_domain_dns_target?: string | null
+          custom_domain_railway_id?: string | null
+          custom_domain_status?: string | null
+          custom_domain_verified_at?: string | null
           font?: string
           font_body?: string
           id?: string

@@ -1,29 +1,87 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
+// Trois types de hôtes possibles :
+//
+//   1. Vizly "racine" : vizly.fr, www.vizly.fr, localhost, *.up.railway.app
+//      → flux standard (updateSession), l'app-web tourne dessus
+//
+//   2. Subdomain Vizly : <pseudo>.vizly.fr
+//      → rewrite interne vers /portfolio/<pseudo>
+//
+//   3. Custom domain d'un user Pro : portfolio.monsite.com
+//      → lookup DB portfolios.custom_domain, rewrite vers /portfolio/<slug>
+//      uniquement si custom_domain_status='verified' ET published=true
+//
+// Les domaines custom ne servent QUE des portfolios publics (pas d'auth, pas
+// de dashboard dessus), donc on ne passe pas par updateSession sur eux.
+
 export async function middleware(request: NextRequest) {
-  const hostname = request.headers.get('host') ?? ''
-  const rootDomain = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
+  const rawHost = (request.headers.get('host') ?? '').toLowerCase()
+  const hostname = rawHost.replace(/:\d+$/, '')
+  const rootDomain = (process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr').toLowerCase()
 
-  // Extract subdomain
-  const subdomain = hostname.replace(`.${rootDomain}`, '').replace(`:${request.nextUrl.port}`, '')
+  const isVizlyRoot =
+    hostname === rootDomain || hostname === `www.${rootDomain}`
+  const isVizlySubdomain =
+    hostname.endsWith(`.${rootDomain}`) && !isVizlyRoot
+  const isLocalhost =
+    hostname === 'localhost' || hostname === '127.0.0.1'
+  const isRailwayInternal = hostname.endsWith('.railway.app') || hostname.endsWith('.up.railway.app')
 
-  // If it's the main domain, www, or localhost, continue normally
-  if (
-    subdomain === 'www' ||
-    subdomain === rootDomain ||
-    hostname === rootDomain ||
-    hostname === 'localhost' ||
-    hostname.startsWith('localhost:') ||
-    hostname.endsWith('.railway.app')
-  ) {
+  // --- 1. Hôte app-web : flux session normal ---
+  if (isVizlyRoot || isLocalhost || isRailwayInternal) {
     return await updateSession(request)
   }
 
-  // Rewrite subdomain to /portfolio/[slug]
-  const url = request.nextUrl.clone()
-  url.pathname = `/portfolio/${subdomain}${url.pathname === '/' ? '' : url.pathname}`
-  return NextResponse.rewrite(url)
+  // --- 2. Subdomain Vizly : rewrite vers /portfolio/<subdomain> ---
+  if (isVizlySubdomain) {
+    const subdomain = hostname.replace(`.${rootDomain}`, '')
+    const url = request.nextUrl.clone()
+    url.pathname = `/portfolio/${subdomain}${url.pathname === '/' ? '' : url.pathname}`
+    return NextResponse.rewrite(url)
+  }
+
+  // --- 3. Custom domain : lookup DB puis rewrite si verified+published ---
+  const slug = await resolveCustomDomainSlug(hostname, request)
+  if (slug) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/portfolio/${slug}${url.pathname === '/' ? '' : url.pathname}`
+    return NextResponse.rewrite(url)
+  }
+
+  // Hôte inconnu : laisse la chaîne Next.js gérer (→ 404 par défaut).
+  return NextResponse.next()
+}
+
+async function resolveCustomDomainSlug(
+  domain: string,
+  request: NextRequest,
+): Promise<string | null> {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll() {
+          // read-only query, pas de setAll nécessaire
+        },
+      },
+    },
+  )
+
+  const { data } = await supabase
+    .from('portfolios')
+    .select('slug')
+    .eq('custom_domain', domain)
+    .eq('custom_domain_status', 'verified')
+    .eq('published', true)
+    .maybeSingle()
+
+  return data?.slug ?? null
 }
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password']

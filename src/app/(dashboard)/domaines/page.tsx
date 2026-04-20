@@ -84,19 +84,19 @@ export default async function DomainesPage() {
             />
             <TutoStep
               step={2}
-              title="Configure le DNS"
-              description={
-                <>
-                  Dans les paramètres DNS de ton registrar, ajoute un
-                  enregistrement <Code>CNAME</Code> pointant vers{' '}
-                  <Code>cname.vizly.fr</Code>.
-                </>
-              }
+              title="Ajoute-le ici"
+              description="Entre ton domaine dans le champ ci-dessous et clique Ajouter. On te donne ensuite l'hôte CNAME exact à configurer chez ton registrar."
             />
             <TutoStep
               step={3}
-              title="Assigne-le ici"
-              description="Entre ton domaine dans le champ ci-dessous et clique Enregistrer. Le SSL est automatique."
+              title="Configure le DNS + Vérifie"
+              description={
+                <>
+                  Dans les paramètres DNS de ton registrar, ajoute le{' '}
+                  <Code>CNAME</Code> indiqué dans la card du portfolio. Reviens
+                  ici et clique « Vérifier » — le SSL est automatique.
+                </>
+              }
             />
           </ol>
         </section>
@@ -137,6 +137,8 @@ export default async function DomainesPage() {
                   <DomainAssignmentForm
                     portfolioId={portfolio.id}
                     currentDomain={portfolio.custom_domain ?? ''}
+                    currentStatus={portfolio.custom_domain_status}
+                    currentDnsTarget={portfolio.custom_domain_dns_target}
                   />
                 </li>
               ))}
