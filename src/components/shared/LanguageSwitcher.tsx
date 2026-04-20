@@ -14,7 +14,7 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <div className="inline-flex items-center rounded-full bg-[#F3F4F6] p-0.5 text-xs font-medium">
+    <div className="inline-flex items-center rounded-full bg-surface-warm p-0.5 text-xs font-medium">
       {locales.map((locale) => (
         <button
           key={locale}
@@ -23,8 +23,8 @@ export function LanguageSwitcher() {
           className={cn(
             'rounded-full px-2.5 py-1 transition-colors duration-150',
             currentLocale === locale
-              ? 'bg-white text-[#111827] border border-[#E5E7EB]'
-              : 'text-[#6B7280] hover:text-[#111827]'
+              ? 'bg-surface text-foreground border border-border'
+              : 'text-muted hover:text-foreground',
           )}
           aria-label={locale === 'fr' ? 'Français' : 'English'}
           aria-current={currentLocale === locale ? 'true' : undefined}
