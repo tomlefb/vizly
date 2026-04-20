@@ -101,6 +101,10 @@ export function EditorLayout({
       font_body: portfolioData.font_body ?? portfolioData.font,
       social_links: portfolioData.social_links ?? null,
       contact_email: portfolioData.contact_email ?? null,
+      contact_form_enabled: portfolioData.contact_form_enabled ?? false,
+      contact_form_title: portfolioData.contact_form_title ?? 'Me contacter',
+      contact_form_description: portfolioData.contact_form_description ?? '',
+      slug: null,
     },
     projects: projects.map((p) => ({
       id: p.title,

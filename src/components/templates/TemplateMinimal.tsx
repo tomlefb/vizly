@@ -5,6 +5,7 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail } from 'lucide-react'
 
@@ -17,6 +18,10 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -178,33 +183,46 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
           </section>
         )
 
-      case 'contact':
-        if (!contact_email) return null
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (!showForm && !contact_email) return null
         return (
           <section key="contact" className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
-            <div className="mx-auto max-w-4xl text-center">
-              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A' }} className="mb-3">
-                Me contacter
-              </h2>
-              <p style={{ color: '#6B6B6B', fontSize: '0.95rem' }} className="mb-6">
-                Interesse par mon profil ? N&apos;hesite pas a me contacter.
-              </p>
-              {isPreview ? (
-                <span aria-label={contact_email}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: primary_color, color: '#FFFFFF', padding: '12px 28px', borderRadius: 10, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
-                  <Mail size={18} />
-                  {contact_email}
-                </span>
-              ) : (
-                <a href={`mailto:${contact_email}`}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: primary_color, color: '#FFFFFF', padding: '12px 28px', borderRadius: 10, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
-                  <Mail size={18} />
-                  {contact_email}
-                </a>
-              )}
-            </div>
+            {showForm ? (
+              <ContactFormWidget
+                slug={slug as string}
+                primaryColor={primary_color}
+                title={contact_form_title ?? 'Me contacter'}
+                description={contact_form_description ?? ''}
+                textColor="#1A1A1A"
+                surfaceColor="#FFFFFF"
+              />
+            ) : (
+              <div className="mx-auto max-w-4xl text-center">
+                <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A' }} className="mb-3">
+                  Me contacter
+                </h2>
+                <p style={{ color: '#6B6B6B', fontSize: '0.95rem' }} className="mb-6">
+                  Interesse par mon profil ? N&apos;hesite pas a me contacter.
+                </p>
+                {isPreview ? (
+                  <span aria-label={contact_email ?? ''}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: primary_color, color: '#FFFFFF', padding: '12px 28px', borderRadius: 10, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
+                    <Mail size={18} />
+                    {contact_email}
+                  </span>
+                ) : (
+                  <a href={`mailto:${contact_email}`}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: primary_color, color: '#FFFFFF', padding: '12px 28px', borderRadius: 10, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none' }}>
+                    <Mail size={18} />
+                    {contact_email}
+                  </a>
+                )}
+              </div>
+            )}
           </section>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null

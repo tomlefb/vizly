@@ -125,7 +125,7 @@ export function EditorClient({
             errors={editor.errors}
           />
         )}
-        {/* Step 2: Contenu (projets + blocs texte + KPIs + colonnes) */}
+        {/* Step 2: Contenu (projets + blocs texte + KPIs + colonnes + formulaire de contact Pro) */}
         {editor.currentStep === 2 && (
           <StepContent
             projects={editor.projectsForUI}
@@ -136,8 +136,12 @@ export function EditorClient({
             onKpisChange={(kpis) => editor.handleFieldChange('kpis', kpis)}
             layoutBlocks={(editor.portfolioData.layout_blocks ?? []) as LayoutBlock[]}
             onLayoutBlocksChange={(blocks) => editor.handleFieldChange('layout_blocks', blocks)}
-            contactEmail={editor.portfolioData.contact_email ?? ''}
-            onContactEmailChange={(email) => editor.handleFieldChange('contact_email', email)}
+            contactFormEnabled={editor.portfolioData.contact_form_enabled ?? false}
+            onContactFormEnabledChange={(v) => editor.handleFieldChange('contact_form_enabled', v)}
+            contactFormTitle={editor.portfolioData.contact_form_title ?? 'Me contacter'}
+            onContactFormTitleChange={(v) => editor.handleFieldChange('contact_form_title', v)}
+            contactFormDescription={editor.portfolioData.contact_form_description ?? ''}
+            onContactFormDescriptionChange={(v) => editor.handleFieldChange('contact_form_description', v)}
             billingPlan={editor.billingPlan}
           />
         )}

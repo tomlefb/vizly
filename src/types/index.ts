@@ -30,6 +30,10 @@ export interface TemplateProps {
     font_body: string
     social_links: Record<string, string> | null
     contact_email: string | null
+    contact_form_enabled?: boolean
+    contact_form_title?: string
+    contact_form_description?: string
+    slug?: string | null
   }
   projects: Array<{
     id: string

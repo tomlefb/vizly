@@ -5,6 +5,7 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail } from 'lucide-react'
 
@@ -17,6 +18,7 @@ export function TemplateBrutalist({
   kpis,
   layoutBlocks,
   isPremium,
+  isPreview,
 }: TemplateProps) {
   const {
     title,
@@ -26,6 +28,10 @@ export function TemplateBrutalist({
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -414,7 +420,25 @@ export function TemplateBrutalist({
           </section>
         )
 
-      case 'contact':
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) {
+          return (
+            <section key="contact" className="px-5 py-12 md:px-10">
+              <div className="mx-auto max-w-5xl">
+                <div style={{ height: 4, backgroundColor: borderColor, marginBottom: 32 }} />
+                <ContactFormWidget
+                  slug={slug as string}
+                  primaryColor={primary_color}
+                  title={contact_form_title ?? 'Me contacter'}
+                  description={contact_form_description ?? ''}
+                  textColor={textColor}
+                  surfaceColor={isDark ? '#1a1a1a' : '#FFFFFF'}
+                />
+              </div>
+            </section>
+          )
+        }
         if (!contact_email) return null
         return (
           <section key="contact" className="px-5 py-12 md:px-10">
@@ -469,6 +493,7 @@ export function TemplateBrutalist({
             </div>
           </section>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null

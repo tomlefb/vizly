@@ -113,6 +113,9 @@ export type Database = {
           background_color: string
           bio: string | null
           contact_email: string | null
+          contact_form_description: string
+          contact_form_enabled: boolean
+          contact_form_title: string
           created_at: string
           custom_blocks: Json | null
           custom_domain: string | null
@@ -143,6 +146,9 @@ export type Database = {
           background_color?: string
           bio?: string | null
           contact_email?: string | null
+          contact_form_description?: string
+          contact_form_enabled?: boolean
+          contact_form_title?: string
           created_at?: string
           custom_blocks?: Json | null
           custom_domain?: string | null
@@ -173,6 +179,9 @@ export type Database = {
           background_color?: string
           bio?: string | null
           contact_email?: string | null
+          contact_form_description?: string
+          contact_form_enabled?: boolean
+          contact_form_title?: string
           created_at?: string
           custom_blocks?: Json | null
           custom_domain?: string | null

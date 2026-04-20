@@ -5,6 +5,7 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail } from 'lucide-react'
 
@@ -17,6 +18,7 @@ export function TemplateCreatif({
   kpis,
   layoutBlocks,
   isPremium,
+  isPreview,
 }: TemplateProps) {
   const {
     title,
@@ -26,6 +28,10 @@ export function TemplateCreatif({
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -444,7 +450,25 @@ export function TemplateCreatif({
           </section>
         )
 
-      case 'contact':
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) {
+          return (
+            <section key="contact" className="px-5 py-14 md:px-12 lg:px-20">
+              <div className="mx-auto max-w-6xl">
+                <div style={{ height: 1, backgroundColor: '#E5E5E0', marginBottom: 40 }} />
+                <ContactFormWidget
+                  slug={slug as string}
+                  primaryColor={primary_color}
+                  title={contact_form_title ?? 'Me contacter'}
+                  description={contact_form_description ?? ''}
+                  textColor="#1A1A1A"
+                  surfaceColor="#FFFFFF"
+                />
+              </div>
+            </section>
+          )
+        }
         if (!contact_email) return null
         return (
           <section key="contact" className="px-5 py-14 md:px-12 lg:px-20">
@@ -503,6 +527,7 @@ export function TemplateCreatif({
             </div>
           </section>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null

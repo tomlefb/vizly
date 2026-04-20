@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useId } from 'react'
-import { Lock, Mail } from 'lucide-react'
+import { Lock, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ProjectsEditor } from './ProjectsEditor'
 import { ContentBlocksEditor } from './ContentBlocksEditor'
@@ -20,8 +20,12 @@ interface StepContentProps {
   onKpisChange: (kpis: KpiItem[]) => void
   layoutBlocks: LayoutBlock[]
   onLayoutBlocksChange: (blocks: LayoutBlock[]) => void
-  contactEmail: string
-  onContactEmailChange: (email: string) => void
+  contactFormEnabled: boolean
+  onContactFormEnabledChange: (enabled: boolean) => void
+  contactFormTitle: string
+  onContactFormTitleChange: (title: string) => void
+  contactFormDescription: string
+  onContactFormDescriptionChange: (desc: string) => void
   billingPlan: 'free' | 'starter' | 'pro'
   className?: string
 }
@@ -31,13 +35,15 @@ export function StepContent({
   customBlocks, onCustomBlocksChange,
   kpis, onKpisChange,
   layoutBlocks, onLayoutBlocksChange,
-  contactEmail, onContactEmailChange,
+  contactFormEnabled, onContactFormEnabledChange,
+  contactFormTitle, onContactFormTitleChange,
+  contactFormDescription, onContactFormDescriptionChange,
   billingPlan,
   className,
 }: StepContentProps) {
   return (
-    <div className={cn('space-y-10', className)} data-testid="step-content">
-      <div className="flex flex-col lg:flex-row lg:gap-12">
+    <div className={cn(className)} data-testid="step-content">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-10">
         <ProjectsEditor
           projects={projects}
           onProjectsChange={onProjectsChange}
@@ -50,44 +56,53 @@ export function StepContent({
           layoutBlocks={layoutBlocks}
           onLayoutBlocksChange={onLayoutBlocksChange}
         />
+        <ContactFormColumn
+          billingPlan={billingPlan}
+          enabled={contactFormEnabled}
+          onEnabledChange={onContactFormEnabledChange}
+          title={contactFormTitle}
+          onTitleChange={onContactFormTitleChange}
+          description={contactFormDescription}
+          onDescriptionChange={onContactFormDescriptionChange}
+        />
       </div>
-
-      <div className="border-b border-border-light" />
-
-      <ContactFormSection
-        billingPlan={billingPlan}
-        contactEmail={contactEmail}
-        onContactEmailChange={onContactEmailChange}
-      />
     </div>
   )
 }
 
-interface ContactFormSectionProps {
+interface ContactFormColumnProps {
   billingPlan: 'free' | 'starter' | 'pro'
-  contactEmail: string
-  onContactEmailChange: (email: string) => void
+  enabled: boolean
+  onEnabledChange: (enabled: boolean) => void
+  title: string
+  onTitleChange: (title: string) => void
+  description: string
+  onDescriptionChange: (desc: string) => void
 }
 
-function ContactFormSection({
+function ContactFormColumn({
   billingPlan,
-  contactEmail,
-  onContactEmailChange,
-}: ContactFormSectionProps) {
+  enabled,
+  onEnabledChange,
+  title,
+  onTitleChange,
+  description,
+  onDescriptionChange,
+}: ContactFormColumnProps) {
   const id = useId()
   const isPro = billingPlan === 'pro'
 
+  const inputClass =
+    'w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-foreground disabled:cursor-not-allowed disabled:bg-surface-warm disabled:text-muted-foreground'
+  const textareaClass =
+    'w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[72px] focus:outline-none focus:border-foreground disabled:cursor-not-allowed disabled:bg-surface-warm disabled:text-muted-foreground'
+
   return (
-    <section className="space-y-4" data-testid="contact-form-section">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-            Formulaire de contact
-          </h3>
-          <p className="text-sm text-muted mt-1">
-            Les visiteurs de ton portfolio peuvent t&apos;envoyer un message directement.
-          </p>
-        </div>
+    <section className="space-y-4 mt-8 lg:mt-0" data-testid="contact-form-column">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
+          Formulaire de contact
+        </h3>
         {!isPro && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-light px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
             <Lock className="h-3 w-3" strokeWidth={2} />
@@ -96,50 +111,102 @@ function ContactFormSection({
         )}
       </div>
 
-      {isPro ? (
-        <div className="max-w-md">
-          <label
-            htmlFor={`${id}-contact-email`}
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            Email de réception
-          </label>
-          <div className="relative">
-            <Mail
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              strokeWidth={1.5}
-            />
-            <input
-              id={`${id}-contact-email`}
-              data-testid="input-contact-email"
-              type="email"
-              value={contactEmail}
-              onChange={(e) => onContactEmailChange(e.target.value)}
-              placeholder="contact@example.com"
-              className="h-10 w-full rounded-[var(--radius-md)] border border-border-light bg-surface pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:border-foreground focus:outline-none"
-            />
+      {!isPro ? (
+        <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface-warm p-5">
+          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-accent/10">
+            <MessageSquare className="h-5 w-5 text-accent" strokeWidth={1.5} />
           </div>
-          <p className="mt-1 text-xs text-muted">
-            Les messages envoyés depuis ton portfolio arriveront à cette adresse.
+          <p className="text-sm font-medium text-foreground">
+            Laisse les visiteurs t&apos;écrire
           </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-border-light bg-surface-warm p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="max-w-md">
-            <p className="text-sm font-medium text-foreground">
-              Active le formulaire de contact avec le plan Pro
-            </p>
-            <p className="mt-1 text-sm text-muted">
-              Reçois les messages de tes visiteurs directement par email, sans exposer ton adresse.
-            </p>
-          </div>
+          <p className="mt-1 text-sm text-muted leading-relaxed">
+            Un formulaire affiché sur ton portfolio. Les messages arrivent dans ta boîte mail, sans exposer ton adresse.
+          </p>
           <Link
             href="/billing"
-            className="inline-flex shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
+            className="mt-5 inline-flex w-full items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-accent-hover"
           >
             Passer au Pro
           </Link>
         </div>
+      ) : (
+        <>
+          {/* Toggle activation */}
+          <div className="flex items-start justify-between gap-3 rounded-[var(--radius-md)] border border-border-light bg-surface p-3">
+            <div className="flex-1">
+              <label
+                htmlFor={`${id}-enabled`}
+                className="text-sm font-medium text-foreground cursor-pointer"
+              >
+                Activer sur mon portfolio
+              </label>
+              <p className="mt-0.5 text-xs text-muted">
+                Affiche le formulaire dans la section contact.
+              </p>
+            </div>
+            <button
+              id={`${id}-enabled`}
+              type="button"
+              role="switch"
+              aria-checked={enabled}
+              onClick={() => onEnabledChange(!enabled)}
+              className={cn(
+                'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200',
+                enabled ? 'bg-accent' : 'bg-border'
+              )}
+            >
+              <span
+                className={cn(
+                  'inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform duration-200',
+                  enabled ? 'translate-x-[18px]' : 'translate-x-[2px]'
+                )}
+              />
+            </button>
+          </div>
+
+          {/* Title */}
+          <div>
+            <label
+              htmlFor={`${id}-title`}
+              className="mb-1.5 block text-sm font-medium text-foreground"
+            >
+              Titre
+            </label>
+            <input
+              id={`${id}-title`}
+              type="text"
+              value={title}
+              onChange={(e) => onTitleChange(e.target.value)}
+              disabled={!enabled}
+              placeholder="Me contacter"
+              maxLength={100}
+              className={inputClass}
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label
+              htmlFor={`${id}-description`}
+              className="mb-1.5 block text-sm font-medium text-foreground"
+            >
+              Phrase d&apos;accroche
+            </label>
+            <textarea
+              id={`${id}-description`}
+              value={description}
+              onChange={(e) => onDescriptionChange(e.target.value)}
+              disabled={!enabled}
+              placeholder="Intéressé par mon profil ? N'hésite pas à m'écrire."
+              maxLength={300}
+              rows={3}
+              className={textareaClass}
+            />
+            <p className="mt-1 text-right text-xs text-muted-foreground">
+              {description.length}/300
+            </p>
+          </div>
+        </>
       )}
     </section>
   )

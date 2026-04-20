@@ -6,6 +6,7 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import {
   Mail,
@@ -57,6 +58,7 @@ export function TemplateBento({
   kpis,
   layoutBlocks,
   isPremium,
+  isPreview,
 }: TemplateProps) {
   const {
     title,
@@ -66,6 +68,10 @@ export function TemplateBento({
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -554,6 +560,21 @@ export function TemplateBento({
       }
 
       case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) {
+          return (
+            <div key="contact" className="col-span-2 sm:col-span-4 md:col-span-4" style={{ padding: 'clamp(16px, 2vw, 24px)' }}>
+              <ContactFormWidget
+                slug={slug as string}
+                primaryColor={primary_color}
+                title={contact_form_title ?? 'Me contacter'}
+                description={contact_form_description ?? ''}
+                textColor="#1A1A1A"
+                surfaceColor="#FFFFFF"
+              />
+            </div>
+          )
+        }
         if (!contact_email) return null
         return (
           <div

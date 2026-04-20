@@ -5,6 +5,7 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail, Sparkles } from 'lucide-react'
 
@@ -25,7 +26,7 @@ function lightenColor(hex: string, amount: number): string {
   return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`
 }
 
-export function TemplateColore({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
+export function TemplateColore({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
   const {
     title,
     bio,
@@ -34,6 +35,10 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -461,7 +466,22 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
           </section>
         )
 
-      case 'contact':
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) {
+          return (
+            <section key="contact" className="px-6 py-12 md:px-10">
+              <ContactFormWidget
+                slug={slug as string}
+                primaryColor={primary_color}
+                title={contact_form_title ?? 'Me contacter'}
+                description={contact_form_description ?? ''}
+                textColor="#2A2A2A"
+                surfaceColor="#FFFFFF"
+              />
+            </section>
+          )
+        }
         if (!contact_email) return null
         return (
           <section key="contact" className="px-6 py-12 md:px-10">
@@ -511,6 +531,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
             </div>
           </section>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null

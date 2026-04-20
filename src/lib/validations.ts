@@ -49,6 +49,9 @@ export const portfolioSchema = z.object({
   font_body: z.string().default('DM Sans'),
   social_links: socialLinksSchema,
   contact_email: z.string().optional().or(z.literal('')),
+  contact_form_enabled: z.boolean().default(false),
+  contact_form_title: z.string().max(100).default('Me contacter'),
+  contact_form_description: z.string().max(300).default('Intéressé par mon profil ? N\'hésite pas à m\'écrire.'),
   skills: z.array(z.string().max(50)).max(30).default([]),
   sections: z.array(sectionBlockSchema).optional(),
   layout_blocks: z.array(z.object({

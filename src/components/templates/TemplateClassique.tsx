@@ -5,10 +5,11 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail } from 'lucide-react'
 
-export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
+export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
   const {
     title,
     bio,
@@ -17,6 +18,10 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -193,7 +198,22 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
           </div>
         )
 
-      case 'contact':
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) {
+          return (
+            <div key="contact" style={{ marginTop: 28 }}>
+              <ContactFormWidget
+                slug={slug as string}
+                primaryColor={primary_color}
+                title={contact_form_title ?? 'Me contacter'}
+                description={contact_form_description ?? ''}
+                textColor="#1A1A1A"
+                surfaceColor="#FFFFFF"
+              />
+            </div>
+          )
+        }
         if (!contact_email) return null
         return (
           <div key="contact" style={{ marginTop: 28 }}>
@@ -229,6 +249,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
             </a>
           </div>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null
@@ -435,7 +456,9 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
           </div>
         )
 
-      case 'contact':
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) return null
         if (!contact_email) return null
         return (
           <div key="contact" className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
@@ -456,6 +479,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
             </a>
           </div>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null

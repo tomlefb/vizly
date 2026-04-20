@@ -5,10 +5,11 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail } from 'lucide-react'
 
-export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium }: TemplateProps) {
+export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
   const {
     title,
     bio,
@@ -17,6 +18,10 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -428,7 +433,25 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
           </section>
         )
 
-      case 'contact':
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) {
+          return (
+            <section key="contact" className="px-6 py-12 md:px-10">
+              <div className="mx-auto max-w-4xl">
+                <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${primary_color}20, transparent)`, marginBottom: 32 }} />
+                <ContactFormWidget
+                  slug={slug as string}
+                  primaryColor={primary_color}
+                  title={contact_form_title ?? 'Me contacter'}
+                  description={contact_form_description ?? ''}
+                  textColor="#F0F0F5"
+                  surfaceColor="#141420"
+                />
+              </div>
+            </section>
+          )
+        }
         if (!contact_email) return null
         return (
           <section key="contact" className="px-6 py-12 md:px-10">
@@ -488,6 +511,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
             </div>
           </section>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null

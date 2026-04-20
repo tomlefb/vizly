@@ -134,6 +134,10 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
       font_body: portfolio.font_body ?? portfolio.font,
       social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
       contact_email: portfolio.contact_email,
+      contact_form_enabled: portfolio.contact_form_enabled ?? false,
+      contact_form_title: portfolio.contact_form_title ?? 'Me contacter',
+      contact_form_description: portfolio.contact_form_description ?? '',
+      slug: portfolio.slug,
     },
     projects: projects.map((p) => ({
       id: p.id,

@@ -5,6 +5,7 @@ import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
+import { ContactFormWidget } from './ContactFormWidget'
 import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
 import { Mail } from 'lucide-react'
 
@@ -17,6 +18,7 @@ export function TemplateElegant({
   kpis,
   layoutBlocks,
   isPremium,
+  isPreview,
 }: TemplateProps) {
   const {
     title,
@@ -26,6 +28,10 @@ export function TemplateElegant({
     secondary_color,
     social_links,
     contact_email,
+    contact_form_enabled,
+    contact_form_title,
+    contact_form_description,
+    slug,
   } = portfolio
 
   const sortedProjects = getSortedProjects(projects)
@@ -406,7 +412,24 @@ export function TemplateElegant({
           </section>
         )
 
-      case 'contact':
+      case 'contact': {
+        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        if (showForm) {
+          return (
+            <section key="contact" className="px-6 py-16 md:px-16 lg:px-24">
+              <div className="mx-auto max-w-3xl">
+                <ContactFormWidget
+                  slug={slug as string}
+                  primaryColor={primary_color}
+                  title={contact_form_title ?? 'Me contacter'}
+                  description={contact_form_description ?? ''}
+                  textColor="#1A1A1A"
+                  surfaceColor="#FFFFFF"
+                />
+              </div>
+            </section>
+          )
+        }
         if (!contact_email) return null
         return (
           <section key="contact" className="px-6 py-16 md:px-16 lg:px-24" style={{ textAlign: 'center' }}>
@@ -460,6 +483,7 @@ export function TemplateElegant({
             </div>
           </section>
         )
+      }
 
       case 'kpis':
         if (kpis.length === 0) return null
