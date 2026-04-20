@@ -109,6 +109,7 @@ export function LivePreview({
         className="flex-1 overflow-y-auto p-5"
         style={{
           fontFamily: `"${data.font}", system-ui, sans-serif`,
+          backgroundColor: data.background_color ?? undefined,
         }}
       >
         {!showContent ? (

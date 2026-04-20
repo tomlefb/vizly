@@ -25,6 +25,7 @@ export interface TemplateProps {
     photo_url: string | null
     primary_color: string
     secondary_color: string
+    background_color: string
     font: string
     font_body: string
     social_links: Record<string, string> | null

@@ -129,6 +129,7 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
       photo_url: portfolio.photo_url,
       primary_color: portfolio.primary_color,
       secondary_color: portfolio.secondary_color,
+      background_color: portfolio.background_color ?? '#FFFFFF',
       font: portfolio.font,
       font_body: portfolio.font_body ?? portfolio.font,
       social_links: Object.keys(socialLinks).length > 0 ? socialLinks : null,
@@ -160,9 +161,9 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
   }
 
   return (
-    <>
+    <div style={{ backgroundColor: portfolio.background_color ?? '#FFFFFF' }}>
       <TrackView portfolioId={portfolio.id} />
       <TemplateComponent {...templateProps} />
-    </>
+    </div>
   )
 }

@@ -96,6 +96,7 @@ export function EditorLayout({
       photo_url: portfolioData.photo_url || null,
       primary_color: portfolioData.primary_color,
       secondary_color: portfolioData.secondary_color,
+      background_color: portfolioData.background_color ?? '#FFFFFF',
       font: portfolioData.font,
       font_body: portfolioData.font_body ?? portfolioData.font,
       social_links: portfolioData.social_links ?? null,
@@ -138,9 +139,10 @@ export function EditorLayout({
     </div>
   )
 
-  const previewBg = portfolioData.template === 'dark' ? '#0A0A0A'
-    : portfolioData.template === 'colore' ? '#FFF5E6'
-    : '#FAF8F6'
+  const previewBg = portfolioData.background_color
+    ?? (portfolioData.template === 'dark' ? '#0A0A0A'
+      : portfolioData.template === 'colore' ? '#FFF5E6'
+      : '#FAF8F6')
 
   // ── Bottom bar (shared across all layouts) ──
   const bottomBar = (
@@ -151,7 +153,7 @@ export function EditorLayout({
           {bottomBarExtra}
           {currentStepIndex > 0 && (
             <VzBtn
-              variant="ghost"
+              variant="secondary"
               size="sm"
               onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) onStepChange(prev.id) }}
             >

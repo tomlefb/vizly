@@ -136,6 +136,9 @@ export function EditorClient({
             onKpisChange={(kpis) => editor.handleFieldChange('kpis', kpis)}
             layoutBlocks={(editor.portfolioData.layout_blocks ?? []) as LayoutBlock[]}
             onLayoutBlocksChange={(blocks) => editor.handleFieldChange('layout_blocks', blocks)}
+            contactEmail={editor.portfolioData.contact_email ?? ''}
+            onContactEmailChange={(email) => editor.handleFieldChange('contact_email', email)}
+            billingPlan={editor.billingPlan}
           />
         )}
         {/* Step 3: Design */}

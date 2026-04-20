@@ -170,8 +170,7 @@ function computePricing(
 }
 
 const PLAN_DESCRIPTIONS: Record<'starter' | 'pro', string> = {
-  starter:
-    'Accès à la publication d\u2019un portfolio en ligne et au formulaire de contact.',
+  starter: 'Accès à la publication d\u2019un portfolio en ligne.',
   pro: 'Portfolios en ligne illimités, domaine personnalisé, analytics et formulaire de contact.',
 }
 

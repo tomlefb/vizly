@@ -114,49 +114,67 @@ export function TemplateSelector({
     [onChange]
   )
 
-  const freeTemplates = TEMPLATE_CONFIGS.filter((t) => !t.isPremium)
-  const premiumTemplates = TEMPLATE_CONFIGS.filter((t) => t.isPremium)
+  const myTemplates = TEMPLATE_CONFIGS.filter(
+    (t) => !t.isPremium || purchasedTemplates.includes(t.name)
+  )
+  const lockedTemplates = TEMPLATE_CONFIGS.filter(
+    (t) => t.isPremium && !purchasedTemplates.includes(t.name)
+  )
 
   return (
     <div className={cn('space-y-6', className)} data-testid="template-selector">
-      {/* Free templates */}
+      {/* My templates (free + purchased) */}
       <div>
         <h3 className="mb-3 text-xs font-semibold text-muted uppercase tracking-wider">
-          Templates gratuits
+          Mes templates
         </h3>
         <div className="grid grid-cols-2 gap-4">
-          {freeTemplates.map((template) => (
-            <FreeTemplateCard
-              key={template.name}
-              name={template.name}
-              label={template.label}
-              idealFor={template.idealFor}
-              isSelected={value === template.name}
-              onSelect={handleSelect}
-            />
-          ))}
+          {myTemplates.map((template) =>
+            template.isPremium ? (
+              <PremiumTemplateCard
+                key={template.name}
+                name={template.name}
+                label={template.label}
+                idealFor={template.idealFor}
+                isSelected={value === template.name}
+                isLocked={false}
+                onSelect={handleSelect}
+              />
+            ) : (
+              <FreeTemplateCard
+                key={template.name}
+                name={template.name}
+                label={template.label}
+                idealFor={template.idealFor}
+                isSelected={value === template.name}
+                onSelect={handleSelect}
+              />
+            )
+          )}
         </div>
       </div>
 
-      {/* Premium templates */}
-      <div>
-        <h3 className="mb-3 text-xs font-semibold text-muted uppercase tracking-wider">
-          Templates premium
-        </h3>
-        <div className="grid grid-cols-2 gap-4">
-          {premiumTemplates.map((template) => (
-            <PremiumTemplateCard
-              key={template.name}
-              name={template.name}
-              label={template.label}
-              idealFor={template.idealFor}
-              isSelected={value === template.name}
-              isLocked={!purchasedTemplates.includes(template.name)}
-              onSelect={handleSelect}
-            />
-          ))}
+      {/* Other templates (locked premium) */}
+      {lockedTemplates.length > 0 && (
+        <div>
+          <h3 className="mb-3 text-xs font-semibold text-muted uppercase tracking-wider">
+            Autres templates
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            {lockedTemplates.map((template) => (
+              <PremiumTemplateCard
+                key={template.name}
+                name={template.name}
+                label={template.label}
+                idealFor={template.idealFor}
+                isSelected={value === template.name}
+                isLocked={true}
+                onSelect={handleSelect}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

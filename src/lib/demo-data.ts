@@ -10,6 +10,7 @@ export const DEMO_PORTFOLIO: TemplateProps = {
     photo_url: null,
     primary_color: DEFAULT_PORTFOLIO_COLOR,
     secondary_color: '#1A1A1A',
+    background_color: '#FFFFFF',
     font: 'default',
     font_body: 'default',
     social_links: {

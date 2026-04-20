@@ -29,11 +29,6 @@ function isValidUrl(str: string): boolean {
   try { new URL(str); return true } catch { return false }
 }
 
-function isValidEmail(str: string): boolean {
-  if (!str) return true
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)
-}
-
 interface StepPersonalInfoProps {
   data: PortfolioFormData
   onChange: (field: string, value: unknown) => void
@@ -68,14 +63,6 @@ export function StepPersonalInfo({
       setFieldError(field, 'URL invalide (doit commencer par https://)')
     } else {
       setFieldError(field, null)
-    }
-  }, [setFieldError])
-
-  const validateEmailOnBlur = useCallback((value: string) => {
-    if (value && !isValidEmail(value)) {
-      setFieldError('contact_email', 'Email invalide')
-    } else {
-      setFieldError('contact_email', null)
     }
   }, [setFieldError])
 
@@ -212,54 +199,6 @@ export function StepPersonalInfo({
             </div>
           </section>
 
-          <div className="border-b border-border-light" />
-
-          {/* Contact */}
-          <section className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground font-[family-name:var(--font-satoshi)]">
-                Contact
-              </h3>
-              <p className="text-sm text-muted mt-1">
-                L&apos;email affiché sur ton portfolio
-              </p>
-            </div>
-
-            <div>
-              <label htmlFor={`${id}-email`} className="mb-1.5 block text-sm font-medium text-foreground">
-                Email de contact
-              </label>
-              <input
-                id={`${id}-email`}
-                data-testid="input-contact-email"
-                type="email"
-                value={data.contact_email ?? ''}
-                onChange={(e) => {
-                  onChange('contact_email', e.target.value)
-                  if (fieldErrors['contact_email']) setFieldError('contact_email', null)
-                }}
-                onBlur={() => validateEmailOnBlur(data.contact_email ?? '')}
-                placeholder="contact@example.com"
-                className={cn(
-                  inputBase,
-                  (errors['contact_email'] || fieldErrors['contact_email'])
-                    ? 'border-destructive'
-                    : 'border-border-light'
-                )}
-                aria-invalid={!!(errors['contact_email'] || fieldErrors['contact_email'])}
-                aria-describedby={(errors['contact_email'] || fieldErrors['contact_email']) ? `${id}-email-error` : `${id}-email-hint`}
-              />
-              {(errors['contact_email'] || fieldErrors['contact_email']) ? (
-                <p id={`${id}-email-error`} className="mt-1 text-xs text-destructive" role="alert">
-                  {errors['contact_email'] || fieldErrors['contact_email']}
-                </p>
-              ) : (
-                <p id={`${id}-email-hint`} className="mt-1 text-xs text-muted">
-                  Cet email sera visible sur ton portfolio.
-                </p>
-              )}
-            </div>
-          </section>
         </div>
 
         {/* ── Right: Compétences + Réseaux sociaux ── */}

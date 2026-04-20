@@ -187,6 +187,7 @@ export default async function StatistiquesPage() {
         photo_url: p.photo_url ?? null,
         primary_color: p.primary_color || DEFAULT_PORTFOLIO_COLOR,
         secondary_color: p.secondary_color || '#1A1A1A',
+        background_color: p.background_color || '#FFFFFF',
         font: p.font || 'DM Sans',
         font_body: p.font_body ?? p.font ?? 'DM Sans',
         social_links:

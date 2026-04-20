@@ -15,13 +15,15 @@ import type { TemplateName } from '@/types/templates'
 // Palettes de couleurs pour les portfolios des utilisateurs — ce sont
 // des choix pour LEUR site, pas l'UI Vizly. La couleur de marque Vizly
 // reste le lime et n'apparaît pas comme preset.
+// Chaque palette = 3 couleurs : accent (primary_color), texte (secondary_color),
+// fond (background_color).
 const COLOR_PALETTES = [
-  { name: 'Terracotta', primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#FAF8F6', accent: '#1A1A1A' },
-  { name: 'Océan', primary: '#2563EB', secondary: '#EFF6FF', accent: '#1E293B' },
-  { name: 'Forêt', primary: '#16A34A', secondary: '#F0FDF4', accent: '#1A1A1A' },
-  { name: 'Crépuscule', primary: '#7C3AED', secondary: '#F5F3FF', accent: '#1E1B3A' },
-  { name: 'Minuit', primary: '#1E293B', secondary: '#F8FAFC', accent: DEFAULT_PORTFOLIO_COLOR },
-  { name: 'Aurore', primary: '#E07A48', secondary: '#FFFBEB', accent: '#292524' },
+  { name: 'Terracotta', accent: DEFAULT_PORTFOLIO_COLOR, text: '#1A1A1A', background: '#FAF8F6' },
+  { name: 'Océan', accent: '#2563EB', text: '#1E293B', background: '#EFF6FF' },
+  { name: 'Forêt', accent: '#16A34A', text: '#1A1A1A', background: '#F0FDF4' },
+  { name: 'Crépuscule', accent: '#7C3AED', text: '#1E1B3A', background: '#F5F3FF' },
+  { name: 'Minuit', accent: DEFAULT_PORTFOLIO_COLOR, text: '#F8FAFC', background: '#1E293B' },
+  { name: 'Aurore', accent: '#E07A48', text: '#292524', background: '#FFFBEB' },
 ]
 
 interface StepCustomizationProps {
@@ -56,6 +58,13 @@ export function StepCustomization({
   const handleSecondaryColorChange = useCallback(
     (color: string) => {
       onChange('secondary_color', color)
+    },
+    [onChange]
+  )
+
+  const handleBackgroundColorChange = useCallback(
+    (color: string) => {
+      onChange('background_color', color)
     },
     [onChange]
   )
@@ -111,15 +120,18 @@ export function StepCustomization({
         {/* Color palette dots */}
         <div className="grid grid-cols-3 gap-3">
           {COLOR_PALETTES.map((palette) => {
-            const isActive = data.primary_color.toLowerCase() === palette.primary.toLowerCase() &&
-              data.secondary_color.toLowerCase() === palette.secondary.toLowerCase()
+            const isActive =
+              data.primary_color.toLowerCase() === palette.accent.toLowerCase() &&
+              data.secondary_color.toLowerCase() === palette.text.toLowerCase() &&
+              (data.background_color ?? '#FFFFFF').toLowerCase() === palette.background.toLowerCase()
             return (
               <button
                 key={palette.name}
                 type="button"
                 onClick={() => {
-                  handlePrimaryColorChange(palette.primary)
-                  handleSecondaryColorChange(palette.secondary)
+                  handlePrimaryColorChange(palette.accent)
+                  handleSecondaryColorChange(palette.text)
+                  handleBackgroundColorChange(palette.background)
                 }}
                 className={cn(
                   'relative flex items-center gap-2.5 rounded-[var(--radius-md)] border bg-surface px-3 py-2.5 transition-colors duration-200',
@@ -128,10 +140,10 @@ export function StepCustomization({
                     : 'border-border-light hover:border-border'
                 )}
               >
-                {/* Color dots */}
+                {/* Color dots : fond, texte, accent */}
                 <div className="flex items-center -space-x-1">
-                  <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.primary }} />
-                  <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.secondary }} />
+                  <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.background }} />
+                  <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.text }} />
                   <span className="w-5 h-5 rounded-full border-2 border-surface" style={{ backgroundColor: palette.accent }} />
                 </div>
                 <span className="text-xs font-medium text-foreground">{palette.name}</span>
@@ -152,16 +164,21 @@ export function StepCustomization({
         </button>
 
         {showCustomColors && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <ColorPicker
-              value={data.primary_color}
-              onChange={handlePrimaryColorChange}
-              label="Couleur principale"
+              value={data.background_color ?? '#FFFFFF'}
+              onChange={handleBackgroundColorChange}
+              label="Fond"
             />
             <ColorPicker
               value={data.secondary_color}
               onChange={handleSecondaryColorChange}
-              label="Couleur secondaire"
+              label="Texte"
+            />
+            <ColorPicker
+              value={data.primary_color}
+              onChange={handlePrimaryColorChange}
+              label="Accent"
             />
           </div>
         )}

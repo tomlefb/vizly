@@ -99,7 +99,7 @@ export function StepNavigation({
       <div className="flex items-center justify-end gap-3 pt-6 px-1 border-t border-border-light">
         {!isFirst && (
           <VzBtn
-            variant="ghost"
+            variant="secondary"
             size="sm"
             data-testid="step-prev"
             onClick={onPrevious}

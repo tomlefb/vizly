@@ -36,6 +36,7 @@ export function StepPreview({
         photo_url: data.photo_url || null,
         primary_color: data.primary_color,
         secondary_color: data.secondary_color,
+        background_color: data.background_color ?? '#FFFFFF',
         font: data.font,
         font_body: data.font_body ?? data.font,
         social_links: (data.social_links as Record<string, string> | null) ?? null,
@@ -93,7 +94,10 @@ export function StepPreview({
         </div>
 
         {/* Template render (scaled down) */}
-        <div className="max-h-[600px] overflow-y-auto">
+        <div
+          className="max-h-[600px] overflow-y-auto"
+          style={{ backgroundColor: data.background_color ?? '#FFFFFF' }}
+        >
           {TemplateComponent && (
             <TemplateComponent {...templateProps} />
           )}

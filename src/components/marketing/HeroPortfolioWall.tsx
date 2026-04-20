@@ -67,6 +67,7 @@ function makeProps(input: PortfolioInput): TemplateProps {
       photo_url: null,
       primary_color: colors.primary,
       secondary_color: colors.secondary,
+      background_color: '#FFFFFF',
       font: 'default',
       font_body: 'default',
       social_links: { github: '#', linkedin: '#', dribbble: '#' },

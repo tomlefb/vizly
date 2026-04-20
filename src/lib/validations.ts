@@ -41,6 +41,10 @@ export const portfolioSchema = z.object({
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide')
     .default('#1A1A1A'),
+  background_color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide')
+    .default('#FFFFFF'),
   font: z.string().default('DM Sans'),
   font_body: z.string().default('DM Sans'),
   social_links: socialLinksSchema,

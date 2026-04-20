@@ -110,6 +110,7 @@ export type Database = {
       }
       portfolios: {
         Row: {
+          background_color: string
           bio: string | null
           contact_email: string | null
           created_at: string
@@ -139,6 +140,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          background_color?: string
           bio?: string | null
           contact_email?: string | null
           created_at?: string
@@ -168,6 +170,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          background_color?: string
           bio?: string | null
           contact_email?: string | null
           created_at?: string
