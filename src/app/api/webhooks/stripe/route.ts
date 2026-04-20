@@ -474,9 +474,20 @@ async function handleSubscriptionUpdated(
       break
     }
 
-    case 'plan-changed':
-      await sendPlanChangedEmail(subscription, userBefore, change)
+    case 'plan-changed': {
+      // On a downgrade Pro → Starter, Starter n'autorise qu'1 portfolio en
+      // ligne (cf. PLANS.starter.publishLimit). On garde le plus récemment
+      // publié et on dépublie les autres + on libère leur custom_domain.
+      // L'user devra cliquer Republier (et ressaisir un domaine) au réupgrade.
+      let unpublishedCount = 0
+      if (change.changeType === 'downgrade' && change.newPlan === 'Starter') {
+        unpublishedCount = await enforceStarterPublishLimit(userId, supabase)
+      }
+      await sendPlanChangedEmail(subscription, userBefore, change, {
+        unpublishedCount,
+      })
       break
+    }
 
     case 'billing-period-changed':
       await sendBillingPeriodChangedEmail(subscription, userBefore, change)
@@ -484,6 +495,60 @@ async function handleSubscriptionUpdated(
   }
 
   console.log(`[stripe webhook] ${handlerName} done: ${event.id}`)
+}
+
+/**
+ * Applique la limite Starter (1 portfolio publié max) après un downgrade.
+ *
+ * Garde le portfolio le plus récemment publié (`published_at DESC`) et
+ * dépublie les autres. Libère aussi leur `custom_domain` — le champ est
+ * une feature Pro, et le réupgrade fait repartir l'user de zéro côté
+ * republish + saisie du domaine (choix produit, pas de restore auto).
+ *
+ * Retourne le nombre de portfolios effectivement dépubliés (peut être 0
+ * si l'user n'avait rien publié ou seulement 1). Ce count est ensuite
+ * passé à l'email plan-changed pour afficher le bloc d'avertissement.
+ */
+async function enforceStarterPublishLimit(
+  userId: string,
+  supabase: ReturnType<typeof createAdminClient>,
+): Promise<number> {
+  const { data: publishedPortfolios, error: fetchError } = await supabase
+    .from('portfolios')
+    .select('id, published_at')
+    .eq('user_id', userId)
+    .eq('published', true)
+    .order('published_at', { ascending: false, nullsFirst: false })
+
+  if (fetchError) {
+    console.error(
+      `[stripe webhook] enforceStarterPublishLimit: failed to fetch portfolios for ${userId}: ${fetchError.message}`,
+    )
+    return 0
+  }
+
+  if (!publishedPortfolios || publishedPortfolios.length <= 1) {
+    return 0
+  }
+
+  const toUnpublish = publishedPortfolios.slice(1).map((p) => p.id)
+
+  const { error: unpublishError } = await supabase
+    .from('portfolios')
+    .update({ published: false, custom_domain: null })
+    .in('id', toUnpublish)
+
+  if (unpublishError) {
+    console.error(
+      `[stripe webhook] enforceStarterPublishLimit: failed to unpublish portfolios for ${userId}: ${unpublishError.message}`,
+    )
+    return 0
+  }
+
+  console.log(
+    `[stripe webhook] enforceStarterPublishLimit: user ${userId} — kept 1, unpublished ${toUnpublish.length}`,
+  )
+  return toUnpublish.length
 }
 
 async function updateUserPlanFromSubscription(
@@ -584,10 +649,12 @@ async function handleSubscriptionDeleted(
     )
   }
 
-  // 3. Unpublish all of the user's portfolios
+  // 3. Unpublish all of the user's portfolios et libère les custom_domain
+  // (feature Pro — l'user repart de zéro au résubscribe, même choix produit
+  // que le downgrade Pro → Starter).
   const { error: portfolioError } = await supabase
     .from('portfolios')
-    .update({ published: false })
+    .update({ published: false, custom_domain: null })
     .eq('user_id', targetUserId)
 
   if (portfolioError) {

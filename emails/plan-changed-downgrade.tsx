@@ -32,6 +32,9 @@ const downgradeData: EmailDataMap['plan-changed'] = {
   // payment will be charged ONE month later (= effectiveDate + 1 month for
   // a monthly sub). NOT the same as effectiveDate.
   nextBillingDate: '2026-06-13',
+  // Preview du bloc "portfolios dépubliés" — reflète un user Pro qui avait
+  // 4 portfolios en ligne : 1 reste actif, 3 sont dépubliés.
+  unpublishedCount: 3,
 }
 
 interface PlanChangedDowngradeEmailProps {

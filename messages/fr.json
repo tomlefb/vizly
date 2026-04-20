@@ -892,6 +892,9 @@
       "cta": "Gérer mon abonnement",
       "outroUpgrade": "Les features Pro sont déjà actives sur ton compte.",
       "outroDowngrade": "Tu conserves tes features Pro jusqu'au {date}. Tu peux revenir en Pro à tout moment depuis ton espace.",
+      "unpublishedHeading": "Tes portfolios en ligne",
+      "unpublishedBodyOne": "Le plan Starter ne permet qu'un seul portfolio en ligne. 1 portfolio a été dépublié automatiquement, le plus récent reste actif. Tu peux le republier à tout moment en repassant en Pro.",
+      "unpublishedBodyMany": "Le plan Starter ne permet qu'un seul portfolio en ligne. {count} portfolios ont été dépubliés automatiquement, le plus récent reste actif. Tu peux les republier à tout moment en repassant en Pro.",
       "footerNote": "Si tu as une question, réponds simplement à ce message."
     },
     "renewalReminder": {

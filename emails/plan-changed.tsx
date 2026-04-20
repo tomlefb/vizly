@@ -106,6 +106,30 @@ function formatDate(iso: string, locale: EmailLocale): string {
   }).format(new Date(iso))
 }
 
+const noticeBox = {
+  backgroundColor: colors.accentLight,
+  border: `1px solid ${colors.border}`,
+  borderRadius: radius.md,
+  padding: spacing.lg,
+  margin: `0 0 ${spacing.lg} 0`,
+}
+
+const noticeHeading = {
+  fontFamily: fonts.sans,
+  fontSize: '14px',
+  fontWeight: 600,
+  color: colors.foreground,
+  margin: `0 0 ${spacing.xs} 0`,
+}
+
+const noticeBody = {
+  fontFamily: fonts.sans,
+  fontSize: '14px',
+  lineHeight: 1.5,
+  color: colors.foreground,
+  margin: 0,
+}
+
 export default function PlanChangedEmail({
   data,
   locale = 'fr',
@@ -128,6 +152,18 @@ export default function PlanChangedEmail({
   const effectiveDateValue = data.isImmediate
     ? t.valueImmediate
     : formattedEffectiveDate
+
+  // Downgrade uniquement : si on a dépublié 1+ portfolios pour respecter
+  // la limite Starter (1 publié max), on l'annonce ici pour éviter la
+  // surprise "pourquoi mon site est down" côté user.
+  const showUnpublishedNotice =
+    !isUpgrade && typeof data.unpublishedCount === 'number' && data.unpublishedCount > 0
+  const unpublishedBodyTemplate =
+    data.unpublishedCount === 1 ? t.unpublishedBodyOne : t.unpublishedBodyMany
+  const unpublishedBody = unpublishedBodyTemplate.replace(
+    '{count}',
+    String(data.unpublishedCount ?? 0),
+  )
 
   // Locale-aware "Nouveau montant mensuel/annuel" label so the periodicity
   // is integrated into the row that shows the price — removes the need for
@@ -177,6 +213,13 @@ export default function PlanChangedEmail({
           <Column style={receiptValueCol}>{formattedNextBilling}</Column>
         </Row>
       </Section>
+
+      {showUnpublishedNotice && (
+        <Section style={noticeBox}>
+          <Text style={noticeHeading}>{t.unpublishedHeading}</Text>
+          <Text style={noticeBody}>{unpublishedBody}</Text>
+        </Section>
+      )}
 
       <Section style={ctaSection}>
         <Button href={billingUrl} style={button}>

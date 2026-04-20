@@ -892,6 +892,9 @@
       "cta": "Manage subscription",
       "outroUpgrade": "Pro features are already active on your account.",
       "outroDowngrade": "You keep your Pro features until {date}. You can switch back to Pro anytime from your account.",
+      "unpublishedHeading": "Your published portfolios",
+      "unpublishedBodyOne": "The Starter plan only allows one published portfolio. 1 portfolio was automatically unpublished; the most recent one stays live. You can republish it anytime by switching back to Pro.",
+      "unpublishedBodyMany": "The Starter plan only allows one published portfolio. {count} portfolios were automatically unpublished; the most recent one stays live. You can republish them anytime by switching back to Pro.",
       "footerNote": "If you have any questions, just reply to this email."
     },
     "renewalReminder": {

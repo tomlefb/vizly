@@ -65,6 +65,11 @@ export interface EmailDataMap {
     // (immediate upgrade with proration disabled and aligned cycles) or
     // different (typical downgrade case).
     nextBillingDate: string
+    // Nombre de portfolios dépubliés automatiquement suite au downgrade
+    // Pro → Starter (Starter = 1 portfolio max). Optionnel, uniquement
+    // renseigné pour un downgrade — l'upgrade laisse ça absent. Si > 0,
+    // le template affiche un bloc d'avertissement.
+    unpublishedCount?: number
   }
   'billing-period-changed': {
     name: string

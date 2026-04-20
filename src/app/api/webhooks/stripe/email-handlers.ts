@@ -166,6 +166,7 @@ export async function sendPlanChangedEmail(
   subscription: Stripe.Subscription,
   user: UserBefore,
   change: Extract<SubscriptionChange, { kind: 'plan-changed' }>,
+  options: { unpublishedCount?: number } = {},
 ) {
   const item = subscription.items.data[0]
   if (!item) {
@@ -213,6 +214,9 @@ export async function sendPlanChangedEmail(
       effectiveDate,
       isImmediate,
       nextBillingDate,
+      ...(options.unpublishedCount && options.unpublishedCount > 0
+        ? { unpublishedCount: options.unpublishedCount }
+        : {}),
     },
   })
 
