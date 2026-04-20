@@ -1,9 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { VzLogo, VzHighlight, VzBtn, vzBtnClasses } from '@/components/ui/vizly'
+import { APP_URL } from '@/lib/constants'
 
 interface ErrorPageProps {
   error: Error & { digest?: string }
@@ -23,9 +23,9 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
       <div className="relative z-10 flex flex-col items-center">
-        <Link href="/" className="mb-10 inline-block">
+        <a href={APP_URL} className="mb-10 inline-block">
           <VzLogo size={32} />
-        </Link>
+        </a>
 
         <h1 className="font-[family-name:var(--font-satoshi)] text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
           {t('titleLead')} <VzHighlight>{t('titleAccent')}</VzHighlight>
@@ -37,9 +37,9 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           <VzBtn variant="primary" size="lg" onClick={reset}>
             {t('retry')}
           </VzBtn>
-          <Link href="/" className={vzBtnClasses({ variant: 'secondary', size: 'lg' })}>
+          <a href={APP_URL} className={vzBtnClasses({ variant: 'secondary', size: 'lg' })}>
             {t('home')}
-          </Link>
+          </a>
         </div>
       </div>
     </div>

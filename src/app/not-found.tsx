@@ -1,9 +1,16 @@
-import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { VzLogo, VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
+import { APP_URL } from '@/lib/constants'
 
 export default async function NotFound() {
   const t = await getTranslations('notFound')
+
+  // Les 404 déclenchées depuis un sous-domaine portfolio (slug.vizly.fr)
+  // ne doivent pas renvoyer vers slug.vizly.fr/ ou slug.vizly.fr/templates
+  // qui retomberaient en 404 aussi. On pointe systématiquement vers le
+  // marketing sur le domaine racine.
+  const homeHref = APP_URL
+  const templatesHref = `${APP_URL}/templates`
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
@@ -16,9 +23,9 @@ export default async function NotFound() {
       </span>
 
       <div className="relative z-10 flex flex-col items-center">
-        <Link href="/" className="mb-10 inline-block">
+        <a href={homeHref} className="mb-10 inline-block">
           <VzLogo size={32} />
-        </Link>
+        </a>
 
         <h1 className="font-[family-name:var(--font-satoshi)] text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
           {t('titleLead')} <VzHighlight>{t('titleAccent')}</VzHighlight>
@@ -27,12 +34,12 @@ export default async function NotFound() {
           {t('description')}
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <Link href="/" className={vzBtnClasses({ variant: 'primary', size: 'lg' })}>
+          <a href={homeHref} className={vzBtnClasses({ variant: 'primary', size: 'lg' })}>
             {t('home')}
-          </Link>
-          <Link href="/templates" className={vzBtnClasses({ variant: 'secondary', size: 'lg' })}>
+          </a>
+          <a href={templatesHref} className={vzBtnClasses({ variant: 'secondary', size: 'lg' })}>
             {t('templates')}
-          </Link>
+          </a>
         </div>
       </div>
     </div>
