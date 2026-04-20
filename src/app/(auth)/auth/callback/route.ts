@@ -3,9 +3,13 @@ import { createClient } from '@/lib/supabase/server'
 
 /**
  * OAuth Google return handler. Exchanges the provider code for a
- * Supabase session, then redirects to /editor (if the user has no
- * portfolio yet) or to the `next` query param (defaulting to
- * /dashboard). Google users don't receive the Vizly Welcome email.
+ * Supabase session, then redirects to the `next` query param
+ * (defaulting to /dashboard). Google users don't receive the Vizly
+ * Welcome email.
+ *
+ * First-time users land on /dashboard with an empty state + the
+ * onboarding tour — same experience as a fresh email signup. We used
+ * to bounce them straight to /editor, but that skipped the onboarding.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -34,25 +38,6 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      // First-time user detection: a dashboard-bound user (even with
-      // ?plan=&interval= from the pricing CTA) with no portfolio yet
-      // is bounced to the editor to create one before anything else.
-      if (user && next.startsWith('/dashboard')) {
-        const { data: portfolio } = await supabase
-          .from('portfolios')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1)
-          .maybeSingle()
-
-        if (!portfolio) {
-          return NextResponse.redirect(`${origin}/editor`)
-        }
-      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
