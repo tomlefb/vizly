@@ -77,8 +77,8 @@ export default async function DashboardPage({
     publishLimit === 0
       ? t('previewOnly')
       : publishLimit === Infinity
-        ? t('projectsOnline', { count: publishedCount })
-        : `${publishedCount}/${publishLimit} ${t('projectsOnline', { count: publishedCount })}`
+        ? `${publishedCount} ${t('projectsOnline', { count: publishedCount })}`
+        : `${publishedCount}/${publishLimit} ${t('projectsOnline', { count: publishLimit })}`
 
   // Avoid TS "unused import" on default-sections; keep for parity w/ preview
   void DEFAULT_SECTIONS

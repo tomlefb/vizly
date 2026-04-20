@@ -642,7 +642,7 @@
     "upgradePro": "Upgrade to Pro",
     "toPublish": "to publish",
     "forMore": "for more",
-    "projectsOnline": "{count} project{count, plural, one {} other {s}} online",
+    "projectsOnline": "project{count, plural, one {} other {s}} online",
     "projectCount": "{count} project{count, plural, one {} other {s}}",
     "publishLimit0": "Preview only — {link} to publish",
     "publishLimit1": "{count}/1 project online — {link} for more",
