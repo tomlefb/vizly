@@ -136,6 +136,10 @@ export function BillingClient({
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
+  const [changePlanTarget, setChangePlanTarget] = useState<{
+    plan: PaidPlan
+    interval: BillingInterval
+  } | null>(null)
 
   // Auto-clear the success banner after a delay so it doesn't pile up after
   // multiple changes. Errors stay visible until next user action.
@@ -160,26 +164,36 @@ export function BillingClient({
 
   // ---- Plan change handler (in-place for paid users) ----------------------
 
-  const runPlanChange = useCallback(
-    async (target: { plan: PaidPlan; interval: BillingInterval }) => {
+  // Ouvre la modale de confirmation. Le changement effectif se joue dans
+  // handleConfirmChangePlan, déclenché quand l'user clique "Confirmer".
+  const openChangePlanDialog = useCallback(
+    (target: { plan: PaidPlan; interval: BillingInterval }) => {
       setError(null)
       setSuccessMessage(null)
-      setLoadingAction('change-plan')
-
-      const result = await changeSubscriptionPlanAction(target)
-
-      if (!result.ok) {
-        setError(result.error)
-        setLoadingAction(null)
-        return
-      }
-
-      setSuccessMessage(t('successUpdateBody'))
-      setLoadingAction(null)
-      router.refresh()
+      setDialogError(null)
+      setChangePlanTarget(target)
     },
-    [t, router],
+    [],
   )
+
+  const handleConfirmChangePlan = useCallback(async () => {
+    if (!changePlanTarget) return
+    setDialogError(null)
+    setLoadingAction('change-plan')
+
+    const result = await changeSubscriptionPlanAction(changePlanTarget)
+
+    if (!result.ok) {
+      setDialogError(getErrorMessage(result.error))
+      setLoadingAction(null)
+      return
+    }
+
+    setLoadingAction(null)
+    setChangePlanTarget(null)
+    setSuccessMessage(t('successUpdateBody'))
+    router.refresh()
+  }, [changePlanTarget, t, router])
 
   const openSubscriptionModal = useCallback((target: PaidPlan) => {
     setError(null)
@@ -379,7 +393,7 @@ export function BillingClient({
           onUpdateCard={handleOpenUpdateCard}
           onCancel={handleOpenCancel}
           onReactivate={handleOpenReactivate}
-          onChangePlan={runPlanChange}
+          onChangePlan={openChangePlanDialog}
         />
       )}
 
@@ -391,7 +405,7 @@ export function BillingClient({
         onIntervalChange={setBillingInterval}
         loadingAction={loadingAction}
         onOpenModal={openSubscriptionModal}
-        onChangePlan={runPlanChange}
+        onChangePlan={openChangePlanDialog}
         formatPlanPriceLabel={formatPlanPriceLabel}
       />
 
@@ -471,6 +485,48 @@ export function BillingClient({
       />
 
       <ConfirmActionDialog
+        open={changePlanTarget !== null}
+        onClose={() => {
+          if (loadingAction === 'change-plan') return
+          setChangePlanTarget(null)
+          setDialogError(null)
+        }}
+        onConfirm={handleConfirmChangePlan}
+        title={t('changePlanDialogTitle')}
+        description={(() => {
+          if (!changePlanTarget || !subscription) return ''
+          const isImmediate = isChangePlanImmediate(
+            plan,
+            subscription.interval,
+            changePlanTarget,
+          )
+          return isImmediate
+            ? t('changePlanDialogDescriptionImmediate')
+            : t('changePlanDialogDescriptionScheduled', {
+                date: formatLongDate(subscription.current_period_end),
+              })
+        })()}
+        confirmLabel={
+          loadingAction === 'change-plan'
+            ? t('ctaLoading')
+            : t('changePlanDialogConfirm')
+        }
+        cancelLabel={t('cancelDialogCancel')}
+        confirmVariant="primary"
+        error={dialogError}
+      >
+        {changePlanTarget && subscription && plan !== 'free' && (
+          <ChangePlanRecap
+            currentPlan={plan as PaidPlan}
+            currentInterval={subscription.interval}
+            target={changePlanTarget}
+            periodEndIso={subscription.current_period_end}
+            t={t}
+          />
+        )}
+      </ConfirmActionDialog>
+
+      <ConfirmActionDialog
         open={reactivateDialogOpen}
         onClose={() => {
           if (loadingAction === 'reactivate') return
@@ -503,6 +559,111 @@ export function BillingClient({
 // Sub-components — kept in the same file for now (no shared external use).
 // Moving them out is a polish-only refactor reserved for a future cleanup.
 // ============================================================================
+
+// ---- Change plan helpers ------------------------------------------------
+
+/**
+ * Rank utility pour classifier un changement de plan en upgrade (immédiat)
+ * ou downgrade (programmé au period_end). Mirroir de classifySubscriptionChange
+ * côté action — dupliqué ici pour éviter un import depuis une lib serveur
+ * dans un composant client.
+ */
+function planRank(plan: PaidPlan, interval: BillingInterval): number {
+  return (plan === 'pro' ? 2 : 1) * 10 + (interval === 'yearly' ? 2 : 1)
+}
+
+function isChangePlanImmediate(
+  currentPlan: 'free' | 'starter' | 'pro',
+  currentInterval: BillingInterval,
+  target: { plan: PaidPlan; interval: BillingInterval },
+): boolean {
+  if (currentPlan === 'free') return true
+  const currentRank = planRank(currentPlan as PaidPlan, currentInterval)
+  const targetRank = planRank(target.plan, target.interval)
+  return targetRank > currentRank
+}
+
+interface ChangePlanRecapProps {
+  currentPlan: PaidPlan
+  currentInterval: BillingInterval
+  target: { plan: PaidPlan; interval: BillingInterval }
+  periodEndIso: string | null
+  t: ReturnType<typeof useTranslations<'billing'>>
+}
+
+/**
+ * Récap compact rendu dans la modale de confirmation avant un changement
+ * de plan. Pattern 2-col label/value, aligné avec l'email plan-changed.
+ */
+function ChangePlanRecap({
+  currentPlan,
+  currentInterval,
+  target,
+  periodEndIso,
+  t,
+}: ChangePlanRecapProps) {
+  const isImmediate = isChangePlanImmediate(currentPlan, currentInterval, target)
+  const targetAmount = planPriceCents(target.plan, target.interval)
+  const intervalLabel =
+    target.interval === 'yearly' ? t('perYear') : t('perMonth')
+
+  const transition = `${planName(currentPlan)} (${
+    currentInterval === 'yearly' ? t('intervalYearlyShort') : t('intervalMonthlyShort')
+  }) → ${planName(target.plan)} (${
+    target.interval === 'yearly' ? t('intervalYearlyShort') : t('intervalMonthlyShort')
+  })`
+
+  const effectiveDateLabel = isImmediate
+    ? t('changePlanRecapEffectiveImmediate')
+    : formatLongDate(periodEndIso)
+
+  const nextBillingIso = (() => {
+    if (!periodEndIso) return null
+    const base = new Date(periodEndIso)
+    if (isImmediate) {
+      // Pour un upgrade immédiat, le prochain renouvellement reste la fin
+      // de période actuelle (le prorata est appliqué sur la facture suivante).
+      return periodEndIso
+    }
+    // Downgrade programmé : la première facture au nouveau tarif est
+    // émise period_end + 1 intervalle du NOUVEAU cycle.
+    if (target.interval === 'yearly') {
+      base.setUTCFullYear(base.getUTCFullYear() + 1)
+    } else {
+      base.setUTCMonth(base.getUTCMonth() + 1)
+    }
+    return base.toISOString()
+  })()
+
+  return (
+    <div className="rounded-[var(--radius-md)] border border-border-light bg-surface-warm px-4 py-3 text-sm">
+      <dl className="space-y-2">
+        <RecapRow label={t('changePlanRecapPlan')} value={transition} />
+        <RecapRow
+          label={t('changePlanRecapNewAmount')}
+          value={`${formatEur(targetAmount)}${intervalLabel}`}
+        />
+        <RecapRow
+          label={t('changePlanRecapEffectiveDate')}
+          value={effectiveDateLabel}
+        />
+        <RecapRow
+          label={t('changePlanRecapNextBilling')}
+          value={formatLongDate(nextBillingIso)}
+        />
+      </dl>
+    </div>
+  )
+}
+
+function RecapRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <dt className="text-muted">{label}</dt>
+      <dd className="text-right font-medium text-foreground">{value}</dd>
+    </div>
+  )
+}
 
 // ---- Banner --------------------------------------------------------------
 

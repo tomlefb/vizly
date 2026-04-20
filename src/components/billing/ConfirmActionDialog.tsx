@@ -34,6 +34,12 @@ interface ConfirmActionDialogProps {
    */
   confirmVariant: 'destructive' | 'primary'
   error?: string | null
+  /**
+   * Contenu additionnel rendu entre la description et les boutons.
+   * Utilisé pour afficher un récap (plan, montant, dates) avant que
+   * l'user confirme un changement de plan.
+   */
+  children?: React.ReactNode
 }
 
 export function ConfirmActionDialog({
@@ -46,6 +52,7 @@ export function ConfirmActionDialog({
   cancelLabel,
   confirmVariant,
   error,
+  children,
 }: ConfirmActionDialogProps) {
   const [mounted, setMounted] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -171,6 +178,8 @@ export function ConfirmActionDialog({
               >
                 {description}
               </p>
+
+              {children && <div className="mt-5">{children}</div>}
 
               {error && (
                 <p className="mt-3 text-sm text-destructive" role="alert">
