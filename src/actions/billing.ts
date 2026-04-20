@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe/client'
@@ -415,6 +416,7 @@ export async function cancelScheduledChangeAction(): Promise<CancelSubscriptionR
       })
       .eq('user_id', user.id)
 
+    revalidatePath('/billing')
     return { ok: true }
   } catch (err) {
     console.error('[cancelScheduledChangeAction]', err)
@@ -467,6 +469,7 @@ export async function cancelSubscriptionAction(): Promise<CancelSubscriptionResu
     const { error } = await cancelSubscriptionAtPeriodEnd({ subscriptionId })
     if (error) return { ok: false, error }
 
+    revalidatePath('/billing')
     return { ok: true }
   } catch (err) {
     console.error('[cancelSubscriptionAction]', err)
@@ -495,6 +498,7 @@ export async function reactivateSubscriptionAction(): Promise<CancelSubscription
     const { error } = await reactivateSubscription({ subscriptionId })
     if (error) return { ok: false, error }
 
+    revalidatePath('/billing')
     return { ok: true }
   } catch (err) {
     console.error('[reactivateSubscriptionAction]', err)
@@ -970,6 +974,7 @@ export async function changeSubscriptionPlanAction({
         })
         .eq('user_id', user.id)
 
+      revalidatePath('/billing')
       return { ok: true, message: 'Changement de plan annulé.' }
     }
 
@@ -1003,6 +1008,7 @@ export async function changeSubscriptionPlanAction({
         newPriceId,
       })
       if (updateError) return { ok: false, error: updateError }
+      revalidatePath('/billing')
       return { ok: true, message: 'Plan mis à jour.' }
     }
 
@@ -1098,6 +1104,7 @@ export async function changeSubscriptionPlanAction({
       }
     }
 
+    revalidatePath('/billing')
     return { ok: true, message: 'Changement programmé à la fin de la période.' }
   } catch (err) {
     console.error('[changeSubscriptionPlanAction]', err)
