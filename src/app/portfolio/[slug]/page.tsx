@@ -159,5 +159,10 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
     notFound()
   }
 
-  return <TemplateComponent {...templateProps} />
+  return (
+    <>
+      <TrackView portfolioId={portfolio.id} />
+      <TemplateComponent {...templateProps} />
+    </>
+  )
 }
