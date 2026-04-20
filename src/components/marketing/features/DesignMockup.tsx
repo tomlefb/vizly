@@ -1,15 +1,18 @@
+import { getTranslations } from 'next-intl/server'
 import { BrowserFrame } from './BrowserFrame'
 
 const PALETTE_COLORS = ['#1A1A1A', '#F1B434', '#FAF8F6', '#2563EB', '#7C3AED', '#059669']
 
-const SECTIONS = [
-  { label: 'Profil', active: true },
-  { label: 'Projets', active: true },
-  { label: 'KPIs', active: true },
-  { label: 'Contact', active: false },
-]
+const SECTION_KEYS = [
+  { key: 'sectionProfile', active: true },
+  { key: 'sectionProjects', active: true },
+  { key: 'sectionKpis', active: true },
+  { key: 'sectionContact', active: false },
+] as const
 
-export function DesignMockup() {
+export async function DesignMockup() {
+  const t = await getTranslations('fonctionnalites.mockup.design')
+
   return (
     <BrowserFrame url="vizly.fr/editeur/design">
       <div className="flex divide-x divide-border-light">
@@ -17,9 +20,9 @@ export function DesignMockup() {
         <div className="w-2/5 p-4 space-y-4 bg-surface">
           {/* Template */}
           <div>
-            <div className="text-[10px] text-muted-foreground mb-1.5">Template</div>
+            <div className="text-[10px] text-muted-foreground mb-1.5">{t('templateLabel')}</div>
             <div className="h-7 rounded-[var(--radius-sm)] border border-border-light px-2.5 flex items-center justify-between text-[10px] text-foreground">
-              <span>Minimal</span>
+              <span>{t('templateValue')}</span>
               <svg className="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -28,7 +31,7 @@ export function DesignMockup() {
 
           {/* Palette */}
           <div>
-            <div className="text-[10px] text-muted-foreground mb-1.5">Palette</div>
+            <div className="text-[10px] text-muted-foreground mb-1.5">{t('paletteLabel')}</div>
             <div className="flex gap-1.5">
               {PALETTE_COLORS.map((color, i) => (
                 <div
@@ -46,7 +49,7 @@ export function DesignMockup() {
 
           {/* Police */}
           <div>
-            <div className="text-[10px] text-muted-foreground mb-1.5">Police</div>
+            <div className="text-[10px] text-muted-foreground mb-1.5">{t('fontLabel')}</div>
             <div className="h-7 rounded-[var(--radius-sm)] border border-border-light px-2.5 flex items-center justify-between text-[10px] text-foreground">
               <span>DM Sans</span>
               <svg className="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -57,12 +60,12 @@ export function DesignMockup() {
 
           {/* Sections */}
           <div>
-            <div className="text-[10px] text-muted-foreground mb-1.5">Sections</div>
+            <div className="text-[10px] text-muted-foreground mb-1.5">{t('sectionsLabel')}</div>
             <div className="space-y-1.5">
-              {SECTIONS.map(section => (
-                <div key={section.label} className="flex items-center justify-between">
+              {SECTION_KEYS.map(section => (
+                <div key={section.key} className="flex items-center justify-between">
                   <span className={`text-[10px] ${section.active ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {section.label}
+                    {t(section.key)}
                   </span>
                   <div
                     className={`w-6 h-3.5 rounded-full flex items-center px-0.5 ${
@@ -79,14 +82,14 @@ export function DesignMockup() {
 
         {/* Panneau droit — Preview */}
         <div className="flex-1 bg-surface-warm p-4">
-          <div className="text-[9px] text-muted-foreground mb-2 text-center">Aperçu</div>
+          <div className="text-[9px] text-muted-foreground mb-2 text-center">{t('previewLabel')}</div>
           <div className="rounded-[var(--radius-sm)] bg-surface border border-border-light p-3 space-y-2.5">
             {/* Mini portfolio */}
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-[5px] bg-accent" />
               <div>
-                <div className="text-[9px] font-semibold text-foreground">Thomas Lefèvre</div>
-                <div className="text-[7px] text-muted-foreground">Développeur backend</div>
+                <div className="text-[9px] font-semibold text-foreground">{t('miniName')}</div>
+                <div className="text-[7px] text-muted-foreground">{t('miniRole')}</div>
               </div>
             </div>
             <div className="h-px bg-border-light" />

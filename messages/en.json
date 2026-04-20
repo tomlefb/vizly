@@ -1034,6 +1034,100 @@
     "fr": "FR",
     "en": "EN"
   },
+  "fonctionnalites": {
+    "metaTitle": "Features",
+    "metaDescription": "Everything you need to publish a portfolio that feels like you. Profile, projects, KPIs, customizable design and one-click publishing.",
+    "hero": {
+      "titleStart": "Everything you need to publish a portfolio that",
+      "titleAccent": "feels like you",
+      "titleEnd": ".",
+      "description": "From idea to live site, with no compromise on customization."
+    },
+    "step1": {
+      "titleStart": "1. You set who",
+      "titleAccent": "you are",
+      "titleEnd": ".",
+      "description": "Name, bio, photo, contact, social networks, skills. Everything is structured so you don't forget a thing. Your bio is capped at 500 characters — long enough to introduce yourself, short enough to stay sharp. Your social links show as clickable buttons on your published portfolio, and your skills turn into elegant tags recruiters can scan in three seconds."
+    },
+    "step2": {
+      "titleStart": "2. You build your",
+      "titleAccent": "content",
+      "titleEnd": ".",
+      "description": "Projects with images and tags, custom text blocks, and above all ten kinds of visual KPIs: counters, progress rings, stars, timelines, before/after comparisons. Because a portfolio with no measurable data is just a CV. Organize it all in grids from one to three columns, mix whatever you want wherever you want."
+    },
+    "step3": {
+      "titleStart": "3. You customize without",
+      "titleAccent": "coding",
+      "titleEnd": ".",
+      "description": "Pick your template from eight styles, your palette from six presets or fully custom, your typography from the entire Google Fonts library. Enable or disable each section, reorder them any way you like. And you see it all live in the preview, on desktop, tablet or mobile, without publishing or refreshing."
+    },
+    "step4": {
+      "titleStart": "4. You publish on your",
+      "titleAccent": "subdomain",
+      "titleEnd": ".",
+      "description": "Choose your username, check it's available in real time, and publish with one click. Your portfolio is live on username.vizly.fr instantly, shareable by link. You can edit it any time from your dashboard, and republish your changes without breaking anything."
+    },
+    "detailsTitle": {
+      "start": "The details that",
+      "accent": "change everything",
+      "end": "."
+    },
+    "details": {
+      "autosaveTitle": "Permanent auto-save.",
+      "autosaveDescription": "You never lose your work. Every change is saved as you go.",
+      "previewTitle": "Instant responsive preview.",
+      "previewDescription": "You see exactly what a visitor will see on mobile, tablet or desktop, without publishing.",
+      "validationTitle": "Validation at every step.",
+      "validationDescription": "No risk of publishing an incomplete or broken portfolio — we check along the way.",
+      "premiumTitle": "Premium templates, one at a time.",
+      "premiumDescription": "Got a crush on a paid template? Buy just that one for €2.99, no subscription."
+    },
+    "mockup": {
+      "profile": {
+        "fullName": "Full name",
+        "fullNameValue": "Thomas Lefèvre",
+        "bio": "Bio",
+        "bioValue": "Backend developer passionate about distributed architectures and high-performance APIs. 5 years of experience with Node.js and PostgreSQL.",
+        "email": "Email",
+        "social": "Social networks",
+        "skills": "Skills"
+      },
+      "kpi": {
+        "counterLabel": "projects delivered",
+        "satisfactionLabel": "Client satisfaction",
+        "ratingLabel": "Average rating",
+        "experienceLabel": "Experience"
+      },
+      "design": {
+        "templateLabel": "Template",
+        "templateValue": "Minimal",
+        "paletteLabel": "Palette",
+        "fontLabel": "Font",
+        "sectionsLabel": "Sections",
+        "previewLabel": "Preview",
+        "miniName": "Thomas Lefèvre",
+        "miniRole": "Backend developer",
+        "sectionProfile": "Profile",
+        "sectionProjects": "Projects",
+        "sectionKpis": "KPIs",
+        "sectionContact": "Contact"
+      },
+      "publish": {
+        "heading": "My portfolio",
+        "portfolioName": "Thomas L.'s portfolio",
+        "updatedAt": "Updated 2 hours ago",
+        "badgeOnline": "Online",
+        "urlLabel": "URL:",
+        "editButton": "Edit"
+      },
+      "stepper": {
+        "profile": "Profile",
+        "content": "Content",
+        "design": "Design",
+        "publish": "Publish"
+      }
+    }
+  },
   "blog": {
     "index": {
       "metaTitle": "Blog",

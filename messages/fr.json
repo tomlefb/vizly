@@ -1034,6 +1034,100 @@
     "fr": "FR",
     "en": "EN"
   },
+  "fonctionnalites": {
+    "metaTitle": "Fonctionnalités",
+    "metaDescription": "Tout ce qu'il faut pour publier un portfolio qui te ressemble. Profil, projets, KPIs, design personnalisable et publication en un clic.",
+    "hero": {
+      "titleStart": "Tout ce qu'il faut pour publier un portfolio qui",
+      "titleAccent": "te ressemble",
+      "titleEnd": ".",
+      "description": "De l'idée à la mise en ligne, sans rien sacrifier sur la personnalisation."
+    },
+    "step1": {
+      "titleStart": "1. Tu poses qui",
+      "titleAccent": "tu es",
+      "titleEnd": ".",
+      "description": "Nom, bio, photo, contact, réseaux sociaux, compétences. Tout est structuré pour ne rien oublier. Ta bio est limitée à 500 caractères — assez pour te présenter, assez court pour rester percutant. Tes réseaux sociaux s'affichent en boutons cliquables sur ton portfolio publié, et tes compétences deviennent des tags élégants que les recruteurs peuvent scanner en trois secondes."
+    },
+    "step2": {
+      "titleStart": "2. Tu construis ton",
+      "titleAccent": "contenu",
+      "titleEnd": ".",
+      "description": "Projets avec images et tags, blocs texte personnalisés, et surtout dix types de KPIs visuels : compteurs, anneaux de progression, étoiles, timelines, comparaisons avant/après. Parce qu'un portfolio sans données mesurables, c'est juste un CV. Organise tout ça en grilles d'une à trois colonnes, mélange ce que tu veux où tu veux."
+    },
+    "step3": {
+      "titleStart": "3. Tu personnalises sans",
+      "titleAccent": "coder",
+      "titleEnd": ".",
+      "description": "Choisis ton template parmi huit styles, ta palette parmi six presets ou en custom, ta typographie parmi toute la bibliothèque Google Fonts. Active ou désactive chaque section, réorganise-les dans l'ordre que tu veux. Et tu vois tout en direct sur la preview, en desktop, tablette ou mobile, sans publier ni rafraîchir."
+    },
+    "step4": {
+      "titleStart": "4. Tu publies sur ton",
+      "titleAccent": "sous-domaine",
+      "titleEnd": ".",
+      "description": "Choisis ton pseudo, vérifie qu'il est disponible en temps réel, et publie en un clic. Ton portfolio est live sur pseudo.vizly.fr immédiatement, partageable par lien. Tu peux le modifier à tout moment depuis ton dashboard, et republier les changements sans rien casser."
+    },
+    "detailsTitle": {
+      "start": "Les détails qui",
+      "accent": "changent tout",
+      "end": "."
+    },
+    "details": {
+      "autosaveTitle": "Auto-save permanent.",
+      "autosaveDescription": "Tu ne perds jamais ton travail. Chaque modification est enregistrée au fur et à mesure.",
+      "previewTitle": "Preview responsive instantanée.",
+      "previewDescription": "Tu vois exactement ce que verra un visiteur sur mobile, tablette ou desktop, sans publier.",
+      "validationTitle": "Validation à chaque étape.",
+      "validationDescription": "Pas de risque de publier un portfolio incomplet ou cassé, on vérifie au passage.",
+      "premiumTitle": "Templates premium à l'unité.",
+      "premiumDescription": "Tu craques sur un template payant ? Achète-le seul pour 2,99 €, sans abonnement."
+    },
+    "mockup": {
+      "profile": {
+        "fullName": "Nom complet",
+        "fullNameValue": "Thomas Lefèvre",
+        "bio": "Bio",
+        "bioValue": "Développeur backend passionné par les architectures distribuées et les APIs performantes. 5 ans d'expérience en Node.js et PostgreSQL.",
+        "email": "Email",
+        "social": "Réseaux sociaux",
+        "skills": "Compétences"
+      },
+      "kpi": {
+        "counterLabel": "projets livrés",
+        "satisfactionLabel": "Satisfaction client",
+        "ratingLabel": "Note moyenne",
+        "experienceLabel": "Expérience"
+      },
+      "design": {
+        "templateLabel": "Template",
+        "templateValue": "Minimal",
+        "paletteLabel": "Palette",
+        "fontLabel": "Police",
+        "sectionsLabel": "Sections",
+        "previewLabel": "Aperçu",
+        "miniName": "Thomas Lefèvre",
+        "miniRole": "Développeur backend",
+        "sectionProfile": "Profil",
+        "sectionProjects": "Projets",
+        "sectionKpis": "KPIs",
+        "sectionContact": "Contact"
+      },
+      "publish": {
+        "heading": "Mon portfolio",
+        "portfolioName": "Portfolio de Thomas L.",
+        "updatedAt": "Mis à jour il y a 2 heures",
+        "badgeOnline": "En ligne",
+        "urlLabel": "URL :",
+        "editButton": "Modifier"
+      },
+      "stepper": {
+        "profile": "Profil",
+        "content": "Contenu",
+        "design": "Design",
+        "publish": "Publication"
+      }
+    }
+  },
   "blog": {
     "index": {
       "metaTitle": "Blog",

@@ -1,13 +1,16 @@
+import { getTranslations } from 'next-intl/server'
 import { BrowserFrame } from './BrowserFrame'
 import { VzAvatar, VzBadge } from '@/components/ui/vizly'
 
-export function PublishMockup() {
+export async function PublishMockup() {
+  const t = await getTranslations('fonctionnalites.mockup.publish')
+
   return (
     <BrowserFrame url="vizly.fr/dashboard">
       <div className="p-5 sm:p-6">
         {/* En-tête dashboard */}
         <div className="text-xs font-semibold text-foreground font-[family-name:var(--font-satoshi)] mb-3">
-          Mon portfolio
+          {t('heading')}
         </div>
 
         {/* Carte projet */}
@@ -16,22 +19,22 @@ export function PublishMockup() {
             <div className="flex items-center gap-2.5">
               <VzAvatar initials="TL" size={28} />
               <div>
-                <div className="text-[11px] font-semibold text-foreground">Portfolio de Thomas L.</div>
-                <div className="text-[9px] text-muted-foreground">Mis à jour il y a 2 heures</div>
+                <div className="text-[11px] font-semibold text-foreground">{t('portfolioName')}</div>
+                <div className="text-[9px] text-muted-foreground">{t('updatedAt')}</div>
               </div>
             </div>
-            <VzBadge variant="online">En ligne</VzBadge>
+            <VzBadge variant="online">{t('badgeOnline')}</VzBadge>
           </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-muted-foreground">URL :</span>
+              <span className="text-[10px] text-muted-foreground">{t('urlLabel')}</span>
               <span className="rounded-[var(--radius-sm)] bg-surface-warm border border-border-light px-2 py-0.5 text-[10px] text-foreground font-mono">
                 thomas-l.vizly.fr
               </span>
             </div>
             <span className="rounded-[var(--radius-sm)] bg-foreground px-2.5 py-1 text-[9px] font-semibold text-surface">
-              Modifier
+              {t('editButton')}
             </span>
           </div>
         </div>

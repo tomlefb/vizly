@@ -1,7 +1,10 @@
 import { Star } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { BrowserFrame } from './BrowserFrame'
 
-export function KpiMockup() {
+export async function KpiMockup() {
+  const t = await getTranslations('fonctionnalites.mockup.kpi')
+
   return (
     <BrowserFrame url="vizly.fr/editeur/contenu">
       <div className="p-5 sm:p-6">
@@ -11,7 +14,7 @@ export function KpiMockup() {
             <div className="text-2xl font-bold text-foreground font-[family-name:var(--font-satoshi)]">
               127
             </div>
-            <div className="text-[10px] text-muted mt-0.5">projets livrés</div>
+            <div className="text-[10px] text-muted mt-0.5">{t('counterLabel')}</div>
           </div>
 
           {/* Anneau de progression */}
@@ -37,7 +40,7 @@ export function KpiMockup() {
                 87%
               </text>
             </svg>
-            <div className="text-[10px] text-muted mt-1">Satisfaction client</div>
+            <div className="text-[10px] text-muted mt-1">{t('satisfactionLabel')}</div>
           </div>
 
           {/* Étoiles */}
@@ -51,7 +54,7 @@ export function KpiMockup() {
             <div className="text-lg font-bold text-foreground font-[family-name:var(--font-satoshi)]">
               4.8<span className="text-xs font-normal text-muted">/5</span>
             </div>
-            <div className="text-[10px] text-muted mt-0.5">Note moyenne</div>
+            <div className="text-[10px] text-muted mt-0.5">{t('ratingLabel')}</div>
           </div>
 
           {/* Timeline */}
@@ -71,7 +74,7 @@ export function KpiMockup() {
               <span>2024</span>
               <span>2025</span>
             </div>
-            <div className="text-[10px] text-muted mt-1.5 text-center">Expérience</div>
+            <div className="text-[10px] text-muted mt-1.5 text-center">{t('experienceLabel')}</div>
           </div>
         </div>
       </div>

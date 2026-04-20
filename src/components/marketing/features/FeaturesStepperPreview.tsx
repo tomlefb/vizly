@@ -1,17 +1,20 @@
 import { Fragment } from 'react'
+import { getTranslations } from 'next-intl/server'
 
 const STEPS = [
-  { label: 'Profil', active: true },
-  { label: 'Contenu', active: false },
-  { label: 'Design', active: false },
-  { label: 'Publication', active: false },
-]
+  { key: 'profile', active: true },
+  { key: 'content', active: false },
+  { key: 'design', active: false },
+  { key: 'publish', active: false },
+] as const
 
-export function FeaturesStepperPreview() {
+export async function FeaturesStepperPreview() {
+  const t = await getTranslations('fonctionnalites.mockup.stepper')
+
   return (
     <div className="flex items-start">
       {STEPS.map((step, i) => (
-        <Fragment key={step.label}>
+        <Fragment key={step.key}>
           <div className="flex flex-col items-center gap-1.5">
             <div
               className={`w-2.5 h-2.5 rounded-full ${
@@ -23,7 +26,7 @@ export function FeaturesStepperPreview() {
                 step.active ? 'text-foreground' : 'text-muted'
               }`}
             >
-              {step.label}
+              {t(step.key)}
             </span>
           </div>
           {i < STEPS.length - 1 && (
