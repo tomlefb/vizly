@@ -11,11 +11,19 @@ export function MobileTopBar() {
   const { toggleMobile } = useSidebar()
   const pathname = usePathname()
 
-  // L'editor a son propre header fullscreen — pas de topbar.
-  if (pathname.startsWith('/editor')) return null
+  // Sur l'editor, la topbar est fixed (pas sticky) pour chevaucher le panneau
+  // éditeur qui est lui-même fixed, et elle est au-dessus en z-index.
+  const isEditor = pathname.startsWith('/editor')
 
   return (
-    <div className="lg:hidden sticky top-0 z-30 flex h-14 items-center border-b border-border-light bg-background/90 backdrop-blur-md px-4">
+    <div
+      className={
+        isEditor
+          ? 'lg:hidden fixed top-0 inset-x-0 z-[60] flex h-14 items-center justify-between border-b border-border-light bg-background/90 backdrop-blur-md px-4'
+          : 'lg:hidden sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border-light bg-background/90 backdrop-blur-md px-4'
+      }
+    >
+      <VzLogo size={20} href="/dashboard" />
       <button
         type="button"
         onClick={toggleMobile}
@@ -24,9 +32,6 @@ export function MobileTopBar() {
       >
         <Menu className="h-5 w-5" strokeWidth={1.5} />
       </button>
-      <div className="ml-3">
-        <VzLogo size={20} href="/dashboard" />
-      </div>
     </div>
   )
 }

@@ -76,8 +76,8 @@ export function EditorClient({
 
   return (
     <>
-    <style>{`.vizly-editor{left:0}@media(min-width:1024px){.vizly-editor{left:${sidebarWidth}px;transition:left 200ms ease-out}}`}</style>
-    <div className="vizly-editor fixed inset-y-0 right-0 z-40 bg-surface-warm">
+    <style>{`.vizly-editor{left:0;top:56px}@media(min-width:1024px){.vizly-editor{left:${sidebarWidth}px;top:0;transition:left 200ms ease-out}}`}</style>
+    <div className="vizly-editor fixed bottom-0 right-0 z-40 bg-surface-warm">
       <EditorLayout
         saveStatus={saveStatus}
         saveError={saveError}
