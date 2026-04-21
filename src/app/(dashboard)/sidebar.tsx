@@ -79,10 +79,13 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       data-dashboard-sidebar
       data-onboarding="sidebar"
       className={cn(
-        'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border-light bg-surface overflow-hidden',
-        // Mobile : drawer slide-in 260px (override width via !important pour battre l'inline style desktop)
-        'max-lg:!w-[260px] max-lg:transition-transform max-lg:duration-200 max-lg:ease-out',
-        mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+        'fixed inset-y-0 z-50 flex flex-col bg-surface overflow-hidden',
+        // Desktop : ancrée à gauche avec border-r.
+        'lg:left-0 lg:border-r lg:border-border-light',
+        // Mobile : drawer 260px slide-in depuis la droite (même côté que le burger),
+        // border-l + !important sur width pour battre l'inline style desktop.
+        'max-lg:right-0 max-lg:border-l max-lg:border-border-light max-lg:!w-[260px] max-lg:transition-transform max-lg:duration-200 max-lg:ease-out',
+        mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:translate-x-full',
         mounted && 'lg:transition-[width] lg:duration-200 lg:ease-out',
       )}
       style={{ width: sidebarWidth }}
