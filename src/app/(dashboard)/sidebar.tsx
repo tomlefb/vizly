@@ -13,6 +13,7 @@ import {
   User,
   LogOut,
   ChevronLeft,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -46,7 +47,8 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
 
   const pathname = usePathname()
   const router = useRouter()
-  const { expanded, toggle, sidebarWidth, mounted } = useSidebar()
+  const { expanded, toggle, sidebarWidth, mounted, mobileOpen, setMobileOpen } = useSidebar()
+  const uiExpanded = mobileOpen ? true : expanded
 
   const initials = userName
     ? userName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
@@ -60,17 +62,47 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
   }
 
   return (
+    <>
+      {/* Mobile overlay */}
+      <div
+        role="button"
+        tabIndex={-1}
+        aria-hidden={!mobileOpen}
+        onClick={() => setMobileOpen(false)}
+        className={cn(
+          'fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm transition-opacity duration-200 lg:hidden',
+          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
+        )}
+      />
+
     <aside
       data-dashboard-sidebar
       data-onboarding="sidebar"
       className={cn(
-        'fixed inset-y-0 left-0 z-50 hidden lg:flex flex-col border-r border-border-light bg-surface overflow-hidden',
-        mounted && 'transition-[width] duration-200 ease-out',
+        'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border-light bg-surface overflow-hidden',
+        // Mobile : drawer slide-in 260px (override width via !important pour battre l'inline style desktop)
+        'max-lg:!w-[260px] max-lg:transition-transform max-lg:duration-200 max-lg:ease-out',
+        mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+        mounted && 'lg:transition-[width] lg:duration-200 lg:ease-out',
       )}
       style={{ width: sidebarWidth }}
     >
-      {/* Logo + toggle chevron */}
+      {/* Logo + toggle chevron (desktop) / close (mobile) */}
       <div className="flex h-14 items-center shrink-0 px-4">
+        {/* Mobile close button */}
+        <div className="lg:hidden flex w-full items-center">
+          <VzLogo size={20} href="/dashboard" />
+          <button
+            type="button"
+            onClick={() => setMobileOpen(false)}
+            className="ml-auto flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-foreground"
+            aria-label={t('closeMenu')}
+          >
+            <X className="h-4 w-4" strokeWidth={1.5} />
+          </button>
+        </div>
+        {/* Desktop expand/collapse */}
+        <div className="hidden lg:flex w-full items-center">
         {expanded ? (
           <>
             <VzLogo size={20} href="/dashboard" />
@@ -93,6 +125,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
             <ChevronLeft className="h-4 w-4 rotate-180" strokeWidth={1.5} />
           </button>
         )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -108,14 +141,14 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
               icon={Icon}
               label={label}
               active={pathname === href || pathname.startsWith(`${href}/`)}
-              expanded={expanded}
+              expanded={uiExpanded}
             />
           ))}
         </div>
         <div
           className={cn(
             'mx-2 my-3 h-px bg-border-light',
-            !expanded && 'mx-1',
+            !uiExpanded && 'mx-1',
           )}
         />
         <div className="space-y-0.5">
@@ -126,7 +159,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
               icon={Icon}
               label={label}
               active={pathname === href || pathname.startsWith(`${href}/`)}
-              expanded={expanded}
+              expanded={uiExpanded}
             />
           ))}
         </div>
@@ -139,24 +172,24 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
           icon={ArrowLeft}
           label={t('home')}
           active={false}
-          expanded={expanded}
+          expanded={uiExpanded}
         />
         <button
           type="button"
           onClick={() => void handleLogout()}
-          title={expanded ? undefined : t('logout')}
+          title={uiExpanded ? undefined : t('logout')}
           className={cn(
             'group relative flex h-9 w-full items-center rounded-[var(--radius-sm)] text-muted transition-colors duration-150 hover:bg-surface-warm hover:text-destructive',
-            expanded ? 'pl-3' : 'justify-center',
+            uiExpanded ? 'pl-3' : 'justify-center',
           )}
         >
           <LogOut className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
-          {expanded && (
+          {uiExpanded && (
             <span className="ml-3 whitespace-nowrap text-[13px]">
               {t('logout')}
             </span>
           )}
-          {!expanded && (
+          {!uiExpanded && (
             <span className="pointer-events-none absolute left-full z-50 ml-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-foreground/90 px-2.5 py-1 text-[11px] font-medium text-surface-warm opacity-0 transition-opacity duration-150 group-hover:opacity-100">
               {t('logout')}
             </span>
@@ -168,11 +201,11 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       <div
         className={cn(
           'flex h-14 shrink-0 items-center border-t border-border-light px-3',
-          !expanded && 'justify-center px-2',
+          !uiExpanded && 'justify-center px-2',
         )}
       >
         <VzAvatar initials={initials} size={32} />
-        {expanded && (
+        {uiExpanded && (
           <div className="ml-3 min-w-0 pr-2">
             <p className="truncate text-[12.5px] font-semibold text-foreground">
               {userName || t('user')}
@@ -184,6 +217,7 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
         )}
       </div>
     </aside>
+    </>
   )
 }
 

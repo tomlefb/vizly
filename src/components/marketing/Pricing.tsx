@@ -97,11 +97,11 @@ export function Pricing({
   const setInterval = onIntervalChange ?? setLocalInterval
 
   return (
-    <section id="pricing" className="py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section id="pricing" className="py-12 sm:py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         {/* Header */}
         {showHeader && (
-          <ScrollReveal className="mb-10 lg:mb-14">
+          <ScrollReveal className="mb-8 sm:mb-10 lg:mb-14">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
               <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0 leading-[1.08]">
                 {t('title')} <VzHighlight>{t('titleAccent')}</VzHighlight>
@@ -160,7 +160,7 @@ export function Pricing({
                 key={plan.id}
                 index={i}
                 className={cn(
-                  'relative rounded-[var(--radius-lg)] flex flex-col p-7 lg:p-8 bg-surface',
+                  'relative rounded-[var(--radius-lg)] flex flex-col p-5 sm:p-7 lg:p-8 bg-surface',
                   plan.featured
                     ? 'border-[1.5px] border-accent md:-translate-y-2'
                     : 'border border-border-light'

@@ -35,7 +35,7 @@ export default async function TarifsPage() {
     <main>
       <TarifsClient isAuthenticated={user !== null} currentPlan={currentPlan} />
       <ComparisonTable />
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-8 lg:pb-12">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pb-8 lg:pb-12">
         <p className="text-center text-sm text-muted">
           {t('faqQuestion')}{' '}
           <Link

@@ -81,9 +81,9 @@ export function ComparisonTable() {
   const t = useTranslations('comparison')
 
   return (
-    <section className="pt-6 pb-16 lg:pt-8 lg:pb-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <ScrollReveal className="mb-10 lg:mb-14">
+    <section className="pt-6 pb-12 sm:pb-16 lg:pt-8 lg:pb-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <ScrollReveal className="mb-8 sm:mb-10 lg:mb-14">
           <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
             {t('title')} <VzHighlight>{t('titleAccent')}</VzHighlight>
           </h2>

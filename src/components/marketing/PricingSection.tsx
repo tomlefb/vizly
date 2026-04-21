@@ -93,7 +93,7 @@ export function PricingSection({
   return (
     <>
       {feedback && (
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-4">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pt-4">
           <p
             className={cn(
               'text-sm',

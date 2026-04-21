@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function TemplatesPage() {
   return (
     <>
-      <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-16 pb-8 lg:pt-24 lg:pb-12">
+      <main className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pt-12 pb-8 sm:pt-16 lg:pt-24 lg:pb-12">
         <TemplateShowcase
           header={
             <ScrollReveal className="max-w-2xl">

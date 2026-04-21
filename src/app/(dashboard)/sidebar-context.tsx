@@ -34,6 +34,9 @@ interface SidebarContextValue {
   toggle: () => void
   sidebarWidth: number
   mounted: boolean
+  mobileOpen: boolean
+  setMobileOpen: (open: boolean) => void
+  toggleMobile: () => void
 }
 
 const SidebarContext = createContext<SidebarContextValue>({
@@ -41,6 +44,9 @@ const SidebarContext = createContext<SidebarContextValue>({
   toggle: () => {},
   sidebarWidth: EXPANDED_WIDTH,
   mounted: false,
+  mobileOpen: false,
+  setMobileOpen: () => {},
+  toggleMobile: () => {},
 })
 
 export function useSidebar() {
@@ -58,6 +64,24 @@ export function SidebarProvider({ children, defaultExpanded = true }: SidebarPro
 
   const [expanded, setExpanded] = useState(defaultExpanded)
   const [mounted, setMounted] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Ferme le drawer mobile à chaque navigation.
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
+  // Bloque le scroll du body quand le drawer mobile est ouvert.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    if (mobileOpen) {
+      const prev = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = prev
+      }
+    }
+  }, [mobileOpen])
 
   // Sync React state + data attribute lors du mount et des navigations
   // client-side. Au mount, corrige l'état si le SSR a passé la mauvaise
@@ -91,8 +115,14 @@ export function SidebarProvider({ children, defaultExpanded = true }: SidebarPro
 
   const sidebarWidth = expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH
 
+  const toggleMobile = useCallback(() => {
+    setMobileOpen((prev) => !prev)
+  }, [])
+
   return (
-    <SidebarContext.Provider value={{ expanded, toggle, sidebarWidth, mounted }}>
+    <SidebarContext.Provider
+      value={{ expanded, toggle, sidebarWidth, mounted, mobileOpen, setMobileOpen, toggleMobile }}
+    >
       {children}
     </SidebarContext.Provider>
   )

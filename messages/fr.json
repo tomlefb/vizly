@@ -686,6 +686,8 @@
     "logout": "Déconnexion",
     "collapse": "Réduire la sidebar",
     "expand": "Étendre la sidebar",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
     "user": "Utilisateur"
   },
   "editor": {
@@ -716,6 +718,7 @@
       "tablet": "Vue tablette",
       "mobile": "Vue mobile",
       "fullscreen": "Plein écran",
+      "mobilePreview": "Aperçu",
       "close": "Fermer",
       "noTemplate": "Aucun template sélectionné"
     },

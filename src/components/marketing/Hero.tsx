@@ -22,14 +22,14 @@ export function Hero() {
   const t = useTranslations('hero')
 
   return (
-    <section className="relative overflow-hidden h-dvh min-h-[640px] pt-20">
-      {/* Scrolling portfolio wall -- right half, behind text on mobile */}
+    <section className="relative overflow-hidden md:h-dvh md:min-h-[640px] pt-12 pb-16 md:pt-20 md:pb-0">
+      {/* Scrolling portfolio wall -- right half, hidden on mobile */}
       <HeroPortfolioWall />
 
-      <div className="relative z-2 h-full flex flex-col justify-center pb-[10vh] pl-[clamp(1.5rem,7.78vw,20rem)] pr-6 lg:pr-8">
-        <div className="max-w-xl md:max-w-[min(38.82vw,80rem)] space-y-8">
+      <div className="relative z-2 md:h-full flex flex-col justify-center md:pb-[10vh] px-5 sm:px-6 md:pl-[clamp(1.5rem,7.78vw,20rem)] md:pr-8">
+        <div className="max-w-xl md:max-w-[min(38.82vw,80rem)] space-y-6 md:space-y-8">
           <motion.h1
-            className="font-[family-name:var(--font-satoshi)] text-balance text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl xl:text-[clamp(4.25rem,4.72vw,9.5rem)]"
+            className="font-[family-name:var(--font-satoshi)] text-balance text-[32px] font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl xl:text-[clamp(4.25rem,4.72vw,9.5rem)]"
             variants={fadeUp}
             initial="hidden"
             animate="visible"
@@ -41,7 +41,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p
-            className="max-w-[55ch] text-lg leading-relaxed text-muted sm:text-[clamp(1.25rem,1.39vw,1.75rem)]"
+            className="max-w-[55ch] text-base leading-relaxed text-muted sm:text-[clamp(1.25rem,1.39vw,1.75rem)]"
             variants={fadeUp}
             initial="hidden"
             animate="visible"

@@ -25,8 +25,8 @@ export default async function FonctionnalitesPage() {
   return (
     <main>
         {/* ── Section 1 — Hero ── */}
-        <section className="pt-16 pb-4 lg:pt-24 lg:pb-8">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section className="pt-12 pb-4 sm:pt-16 lg:pt-24 lg:pb-8">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6">
               <ScrollReveal className="max-w-2xl">
                 <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl leading-[1.08]">
@@ -45,8 +45,8 @@ export default async function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 1 — Profil ── */}
-        <section className="py-12 lg:py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section className="py-10 sm:py-12 lg:py-16">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <ScrollReveal margin="0% 0px">
                 <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
@@ -64,8 +64,8 @@ export default async function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 2 — Contenu ── */}
-        <section className="py-12 lg:py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section className="py-10 sm:py-12 lg:py-16">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <ScrollReveal className="max-w-xl mx-auto lg:mx-0 order-2 lg:order-1" margin="0% 0px" delay={0.15}>
                 <KpiMockup />
@@ -83,8 +83,8 @@ export default async function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 3 — Design ── */}
-        <section className="py-12 lg:py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section className="py-10 sm:py-12 lg:py-16">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <ScrollReveal margin="0% 0px">
                 <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
@@ -102,8 +102,8 @@ export default async function FonctionnalitesPage() {
         </section>
 
         {/* ── Étape 4 — Publication ── */}
-        <section className="py-12 lg:py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section className="py-10 sm:py-12 lg:py-16">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <ScrollReveal className="max-w-xl mx-auto lg:mx-0 order-2 lg:order-1" margin="0% 0px" delay={0.15}>
                 <PublishMockup />
@@ -121,8 +121,8 @@ export default async function FonctionnalitesPage() {
         </section>
 
         {/* ── Détails ── */}
-        <section className="py-12 lg:py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section className="py-10 sm:py-12 lg:py-16">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <ScrollReveal className="mb-8 lg:mb-10">
               <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight sm:text-3xl leading-[1.1]">
                 {t('detailsTitle.start')} <VzHighlight>{t('detailsTitle.accent')}</VzHighlight>{t('detailsTitle.end')}

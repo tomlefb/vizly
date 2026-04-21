@@ -9,11 +9,11 @@ export async function FeaturesGrid() {
   const ft = await getTranslations('features')
 
   return (
-    <section id="features" className="py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section id="features" className="py-12 sm:py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
 
         {/* Header -- matching pricing pattern */}
-        <ScrollReveal className="mb-10 lg:mb-14">
+        <ScrollReveal className="mb-8 sm:mb-10 lg:mb-14">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
             <h2 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl shrink-0 leading-[1.08]">
               <VzHighlight>{ft('titleAccent')}</VzHighlight> {ft('titleEnd')}

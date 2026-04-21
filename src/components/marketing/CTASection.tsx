@@ -31,16 +31,18 @@ export function CTASection({
   secondaryCTA,
 }: CTASectionProps) {
   const figureSizeClass =
-    figureSize === 'wide' ? 'text-[140px] lg:text-[200px]' : 'text-[140px] lg:text-[240px]'
+    figureSize === 'wide'
+      ? 'text-[96px] sm:text-[140px] lg:text-[200px]'
+      : 'text-[96px] sm:text-[140px] lg:text-[240px]'
 
   return (
-    <section className="pt-16 pb-12 lg:pt-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="pt-12 pb-10 sm:pt-16 sm:pb-12 lg:pt-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <ScrollReveal>
-          <div className="rounded-[var(--radius-xl)] bg-foreground px-6 py-10 lg:px-12 lg:py-16">
-            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.6fr_1fr] lg:items-center lg:gap-12">
+          <div className="rounded-[var(--radius-xl)] bg-foreground px-5 py-8 sm:px-6 sm:py-10 lg:px-12 lg:py-16">
+            <div className="grid grid-cols-1 gap-8 sm:gap-10 lg:grid-cols-[1.6fr_1fr] lg:items-center lg:gap-12">
               <div>
-                <h2 className="font-[family-name:var(--font-satoshi)] text-5xl font-extrabold tracking-tight text-white leading-[0.95] lg:text-6xl">
+                <h2 className="font-[family-name:var(--font-satoshi)] text-4xl font-extrabold tracking-tight text-white leading-[0.95] sm:text-5xl lg:text-6xl">
                   {titleRich}
                 </h2>
                 <p className="mt-6 max-w-md text-base leading-relaxed text-foreground-muted">

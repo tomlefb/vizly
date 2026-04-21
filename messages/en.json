@@ -686,6 +686,8 @@
     "logout": "Log out",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "user": "User"
   },
   "editor": {
@@ -716,6 +718,7 @@
       "tablet": "Tablet view",
       "mobile": "Mobile view",
       "fullscreen": "Fullscreen",
+      "mobilePreview": "Preview",
       "close": "Close",
       "noTemplate": "No template selected"
     },

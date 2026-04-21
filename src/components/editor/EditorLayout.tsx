@@ -175,11 +175,22 @@ export function EditorLayout({
 
   // ── Bottom bar (shared across all layouts) ──
   const bottomBar = (
-    <div className="shrink-0 h-16 bg-surface border-t border-border-light px-6 flex items-center">
-      <div className="flex items-center justify-between w-full">
-        {saveIndicator}
-        <div className="flex items-center gap-3">
+    <div className="shrink-0 h-16 bg-surface border-t border-border-light px-4 sm:px-6 flex items-center">
+      <div className="flex items-center justify-between w-full gap-2">
+        <div className="min-w-0 hidden sm:block">{saveIndicator}</div>
+        <div className="flex items-center gap-2 sm:gap-3 ml-auto">
           {bottomBarExtra}
+          {isDesignStep && (
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              className="md:hidden inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-md)] border border-border px-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-warm"
+              aria-label={t('preview.fullscreen')}
+            >
+              <Maximize2 className="h-4 w-4" strokeWidth={1.5} />
+              {t('preview.mobilePreview')}
+            </button>
+          )}
           {currentStepIndex > 0 && (
             <VzBtn
               variant="secondary"
@@ -256,15 +267,15 @@ export function EditorLayout({
 
         {/* ── Main content ── */}
         {isDesignStep ? (
-          /* Step 4: Split — config left (35%) + preview right (65%) */
+          /* Step 4: Split — config left (35%) + preview right (65%). Mobile: config plein écran, preview accessible via bouton fullscreen */
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-1 flex min-h-0">
               {/* Config panel */}
-              <div className="w-[35%] overflow-y-auto border-r border-border-light bg-surface-warm px-4 sm:px-5 py-5">
+              <div className="w-full md:w-[38%] lg:w-[35%] overflow-y-auto border-r border-border-light bg-surface-warm px-4 sm:px-5 py-5">
                 {children}
               </div>
-              {/* Preview panel */}
-              <div className="flex-1 flex flex-col overflow-hidden bg-surface-warm">
+              {/* Preview panel — hidden on mobile (accessible via fullscreen modal) */}
+              <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface-warm">
                 {/* Minimal preview bar — no browser chrome */}
                 <div className="shrink-0 flex items-center justify-between border-b border-border-light bg-surface/60 backdrop-blur-sm px-4 h-10">
                   <span />

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { SidebarProvider } from './sidebar-context'
 import { SIDEBAR_COOKIE } from './sidebar-constants'
 import { Sidebar } from './sidebar'
+import { MobileTopBar } from './mobile-topbar'
 import { DashboardContent } from './dashboard-content'
 import type { PlanType } from '@/lib/constants'
 
@@ -46,7 +47,12 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider defaultExpanded={defaultExpanded}>
       <Sidebar userName={userName} userEmail={userEmail} isPro={isPro} />
-      <DashboardContent>{children}</DashboardContent>
+      <DashboardContent>
+        <MobileTopBar />
+        <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 mx-auto max-w-6xl w-full">
+          {children}
+        </div>
+      </DashboardContent>
     </SidebarProvider>
   )
 }

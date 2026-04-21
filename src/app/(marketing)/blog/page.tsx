@@ -15,8 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BlogPage() {
   const t = await getTranslations('blog.index')
   return (
-    <main className="mx-auto max-w-7xl px-6 lg:px-8 pt-10 lg:pt-16 pb-16 lg:pb-24">
-        <div className="max-w-2xl mb-10">
+    <main className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-16 pb-12 sm:pb-16 lg:pb-24">
+        <div className="max-w-2xl mb-8 sm:mb-10">
           <h1 className="font-[family-name:var(--font-satoshi)] text-3xl font-bold tracking-tight sm:text-4xl leading-[1.08]">
             {t('titleStart')} <VzHighlight>{t('titleAccent')}</VzHighlight>
           </h1>

@@ -48,7 +48,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
   return (
     <main>
         {/* Hero */}
-        <section className="mx-auto max-w-7xl px-6 lg:px-8 pt-12 pb-16">
+        <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pt-10 sm:pt-12 pb-12 sm:pb-16">
           <Link
             href="/templates"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground mb-8"
@@ -139,8 +139,8 @@ export default async function TemplateDetailPage({ params }: PageProps) {
         </section>
 
         {/* Full-width preview */}
-        <section className="border-t border-border-light bg-surface-warm/30 pt-12 pb-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8 mb-8">
+        <section className="border-t border-border-light bg-surface-warm/30 pt-10 pb-12 sm:pt-12 sm:pb-16">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 mb-8">
             <h2 className="font-[family-name:var(--font-satoshi)] text-2xl font-bold tracking-tight">
               Preview complète
             </h2>
@@ -149,7 +149,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
             <div className="rounded-[var(--radius-lg)] border border-border-light bg-surface overflow-hidden">
               {/* Browser chrome */}
               <div className="flex items-center gap-2 border-b border-border-light bg-surface-warm px-4 py-2.5">
