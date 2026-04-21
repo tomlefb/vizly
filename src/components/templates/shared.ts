@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { DEFAULT_SECTIONS, type SectionBlock } from '@/types/sections'
 import type { TemplateProps } from '@/types'
+import { isSafeUrl } from '@/lib/sanitize'
 
 // ------------------------------------------------------------------
 // Social icons — shared across all templates
@@ -44,7 +45,7 @@ export function getSortedProjects(projects: TemplateProps['projects']) {
 
 export function getSocialEntries(socialLinks: Record<string, string> | null) {
   if (!socialLinks) return []
-  return Object.entries(socialLinks).filter(([, url]) => url)
+  return Object.entries(socialLinks).filter(([, url]) => url && isSafeUrl(url))
 }
 
 // ------------------------------------------------------------------

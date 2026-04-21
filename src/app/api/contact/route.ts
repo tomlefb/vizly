@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { contactFormSchema } from '@/lib/validations'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/emails/send'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { z } from 'zod'
 
 /**
@@ -16,6 +17,18 @@ const contactBodySchema = contactFormSchema.extend({
 
 export async function POST(request: NextRequest) {
   try {
+    const rl = rateLimit(getClientIdentifier(request), {
+      key: 'contact-portfolio',
+      limit: 5,
+      windowMs: 10 * 60_000,
+    })
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Trop de messages envoyés, réessaye plus tard' },
+        { status: 429 }
+      )
+    }
+
     const body: unknown = await request.json()
 
     // 1. Validate input

@@ -20,6 +20,16 @@ const FROM_HELLO = process.env.EMAIL_FROM_HELLO ?? 'Vizly <hello@vizly.fr>'
 const FROM_BILLING = process.env.EMAIL_FROM_BILLING ?? 'Vizly <billing@vizly.fr>'
 const REPLY_TO = process.env.EMAIL_REPLY_TO ?? 'hello@vizly.fr'
 
+// RFC 5321 simple pattern : on refuse CR/LF et tout caractère de contrôle
+// pour couper court à toute tentative d'injection de header via l'adresse.
+const STRICT_EMAIL_REGEX = /^[^\s\r\n<>"'\0]+@[^\s\r\n<>"'\0]+\.[^\s\r\n<>"'\0]+$/
+
+function sanitizeEmailAddress(raw: string | undefined): string | undefined {
+  if (!raw) return undefined
+  const trimmed = raw.trim()
+  return STRICT_EMAIL_REGEX.test(trimmed) ? trimmed : undefined
+}
+
 interface RenderedTemplate {
   from: string
   subject: string
@@ -40,12 +50,19 @@ export async function sendEmail(
   try {
     const rendered = await renderTemplate(params)
 
+    const safeTo = sanitizeEmailAddress(params.to)
+    if (!safeTo) {
+      return { ok: false, error: 'Invalid recipient address' }
+    }
+    const safeReplyTo =
+      sanitizeEmailAddress(params.replyTo) ?? REPLY_TO
+
     const { data, error } = await resend.emails.send({
       from: rendered.from,
-      to: params.to,
+      to: safeTo,
       subject: rendered.subject,
       html: rendered.html,
-      replyTo: params.replyTo ?? REPLY_TO,
+      replyTo: safeReplyTo,
     })
 
     if (error) {

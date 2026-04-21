@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/emails/send'
+import { getActionClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { z } from 'zod'
 
 // ---------------------------------------------------------------------------
@@ -63,6 +64,19 @@ export async function registerUser(
       ok: false,
       error: firstIssue?.message ?? 'Donnees invalides',
       code: 'validation',
+    }
+  }
+
+  const rl = rateLimit(await getActionClientIdentifier(), {
+    key: 'register',
+    limit: 5,
+    windowMs: 10 * 60_000,
+  })
+  if (!rl.success) {
+    return {
+      ok: false,
+      error: 'Trop de tentatives, reessaie plus tard',
+      code: 'unknown',
     }
   }
 
@@ -152,6 +166,19 @@ export async function verifyUserOtp(
       ok: false,
       error: firstIssue?.message ?? 'Donnees invalides',
       code: 'validation',
+    }
+  }
+
+  const rl = rateLimit(await getActionClientIdentifier(), {
+    key: 'verify-otp-signup',
+    limit: 10,
+    windowMs: 15 * 60_000,
+  })
+  if (!rl.success) {
+    return {
+      ok: false,
+      error: 'Trop de tentatives, reessaie plus tard',
+      code: 'rate_limited',
     }
   }
 
@@ -314,6 +341,19 @@ export async function resendSignupOtp(
     }
   }
 
+  const rl = rateLimit(await getActionClientIdentifier(), {
+    key: 'resend-otp',
+    limit: 5,
+    windowMs: 15 * 60_000,
+  })
+  if (!rl.success) {
+    return {
+      ok: false,
+      error: 'Trop de demandes, reessaie plus tard',
+      code: 'rate_limited',
+    }
+  }
+
   try {
     const supabase = await createClient()
 
@@ -380,6 +420,22 @@ export async function requestPasswordReset(
     }
   }
 
+  const rl = rateLimit(await getActionClientIdentifier(), {
+    key: 'password-reset-request',
+    limit: 3,
+    windowMs: 15 * 60_000,
+  })
+  if (!rl.success) {
+    // Même enveloppe anti-enumeration : ne révèle pas le rate-limit par IP
+    // comme un signal distinct de "email existe", mais cap explicitement
+    // l'abus depuis une même source.
+    return {
+      ok: false,
+      error: 'Trop de demandes, reessaie plus tard',
+      code: 'rate_limited',
+    }
+  }
+
   try {
     const supabase = await createClient()
 
@@ -442,6 +498,19 @@ export async function verifyPasswordResetOtp(
       ok: false,
       error: firstIssue?.message ?? 'Donnees invalides',
       code: 'validation',
+    }
+  }
+
+  const rl = rateLimit(await getActionClientIdentifier(), {
+    key: 'verify-otp-reset',
+    limit: 10,
+    windowMs: 15 * 60_000,
+  })
+  if (!rl.success) {
+    return {
+      ok: false,
+      error: 'Trop de tentatives, reessaie plus tard',
+      code: 'rate_limited',
     }
   }
 
@@ -781,6 +850,8 @@ export async function updateProfile(
 // Delete account (DANGER)
 // ---------------------------------------------------------------------------
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function deleteAccount(): Promise<{ error: string | null }> {
   try {
     const supabase = await createClient()
@@ -790,6 +861,14 @@ export async function deleteAccount(): Promise<{ error: string | null }> {
 
     if (!user) {
       return { error: 'Non authentifie' }
+    }
+
+    // Defense-in-depth : l'admin client court-circuite RLS. Avant tout DELETE
+    // on refuse d'aller plus loin si l'id n'a pas la forme d'un UUID ou
+    // l'email est vide — couvre un getUser() dégénéré.
+    if (!UUID_REGEX.test(user.id) || !user.email) {
+      console.error('[Auth] Refusing deleteAccount: invalid user context')
+      return { error: 'Erreur interne' }
     }
 
     const admin = createAdminClient()

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import type { SectionBlock } from '@/types/sections'
+import { sanitizeHtml } from '@/lib/sanitize'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
@@ -597,7 +598,7 @@ export function TemplateElegant({
                   <div
                     style={{ fontSize: '0.92rem', lineHeight: 1.85, color: p.muted, fontWeight: 300, textAlign: 'left' }}
                     className="mx-auto max-w-lg [&_h2]:text-xl [&_h2]:font-normal [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:tracking-wider [&_h2]:uppercase [&_h3]:text-lg [&_h3]:font-normal [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:italic [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-medium [&_i]:italic"
-                    dangerouslySetInnerHTML={{ __html: block.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.content) }}
                   />
                 )}
                 <div

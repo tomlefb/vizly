@@ -150,8 +150,20 @@ export async function addCustomDomain(
   if (updateError) {
     // Rollback best-effort : si la DB a échoué après l'enregistrement
     // Railway, on nettoie côté Railway pour éviter un domaine orphelin.
+    // Ce chemin couvre aussi la race « deux users qui réclament le même
+    // domaine simultanément » : un des deux UPDATE remonte un 23505 sur
+    // l'index unique custom_domain, on rollback Railway et on renvoie un
+    // message clair.
     await removeRailwayCustomDomain(railwayDomain.id)
-    return { ok: false, error: updateError.message }
+    const is23505 =
+      (updateError as { code?: string }).code === '23505' ||
+      /duplicate key/i.test(updateError.message)
+    return {
+      ok: false,
+      error: is23505
+        ? 'Ce domaine vient d\'être réclamé par un autre portfolio. Merci d\'en choisir un autre.'
+        : updateError.message,
+    }
   }
 
   revalidatePath('/domaines')

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 const trackViewSchema = z.object({
   portfolio_id: z.string().uuid(),
@@ -21,6 +22,15 @@ function cleanupOldEntries() {
 
 export async function POST(request: NextRequest) {
   try {
+    const rl = rateLimit(getClientIdentifier(request), {
+      key: 'track-view',
+      limit: 60,
+      windowMs: 60_000,
+    })
+    if (!rl.success) {
+      return NextResponse.json({ ok: true, rateLimited: true })
+    }
+
     const body: unknown = await request.json()
     const parsed = trackViewSchema.safeParse(body)
 

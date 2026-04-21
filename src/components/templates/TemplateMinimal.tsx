@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import type { SectionBlock } from '@/types/sections'
+import { sanitizeHtml } from '@/lib/sanitize'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
@@ -316,7 +317,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                   <div
                     style={{ fontSize: '0.95rem', lineHeight: 1.7, color: p.body }}
                     className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
-                    dangerouslySetInnerHTML={{ __html: block.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.content) }}
                   />
                 )}
               </div>

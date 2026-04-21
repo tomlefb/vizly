@@ -8,6 +8,27 @@ import {
   SOCIAL_PLATFORMS,
 } from './constants'
 
+const SAFE_URL_PROTOCOLS = new Set(['http:', 'https:'])
+
+function isSafeHttpUrl(raw: string): boolean {
+  if (!raw) return true
+  try {
+    const url = new URL(raw)
+    return SAFE_URL_PROTOCOLS.has(url.protocol)
+  } catch {
+    return false
+  }
+}
+
+const safeUrlSchema = z
+  .string()
+  .url()
+  .refine(isSafeHttpUrl, 'URL invalide (seuls http et https sont autorisés)')
+
+const safeUrlOrEmpty = z
+  .string()
+  .refine((v) => v === '' || isSafeHttpUrl(v), 'URL invalide (seuls http et https sont autorisés)')
+
 export const slugSchema = z
   .string()
   .min(SLUG_MIN_LENGTH, `Le pseudo doit contenir au moins ${SLUG_MIN_LENGTH} caractères`)
@@ -19,7 +40,16 @@ export const slugSchema = z
   .refine((s) => !s.includes('--'), 'Le pseudo ne peut pas contenir deux tirets consécutifs')
 
 export const socialLinksSchema = z
-  .partialRecord(z.enum(SOCIAL_PLATFORMS), z.string().or(z.literal('')))
+  .partialRecord(
+    z.enum(SOCIAL_PLATFORMS),
+    z
+      .string()
+      .refine(
+        (v) => v === '' || isSafeHttpUrl(v),
+        'URL invalide (seuls http et https sont autorisés)'
+      )
+      .or(z.literal(''))
+  )
   .optional()
 
 const sectionBlockSchema = z.object({
@@ -31,7 +61,7 @@ const sectionBlockSchema = z.object({
 export const portfolioSchema = z.object({
   title: z.string().min(1, 'Le titre est requis').max(100),
   bio: z.string().max(MAX_BIO_LENGTH).optional(),
-  photo_url: z.string().optional().or(z.literal('')),
+  photo_url: safeUrlOrEmpty.optional().or(z.literal('')),
   template: z.string().min(1, 'Choisis un template'),
   primary_color: z
     .string()
@@ -66,7 +96,7 @@ export const portfolioSchema = z.object({
       title: z.string().max(200).optional(),
       content: z.string().max(10000).optional(),
       kpi: z.any().optional(),
-      imageUrl: z.string().optional(),
+      imageUrl: safeUrlOrEmpty.optional(),
       imageAlt: z.string().max(200).optional(),
     })),
   })).max(20).optional(),
@@ -97,8 +127,8 @@ export const projectSchema = z.object({
     .max(MAX_PROJECT_DESCRIPTION_LENGTH)
     .optional()
     .or(z.literal('')),
-  images: z.array(z.string().url()).max(5).default([]),
-  external_link: z.string().url().optional().or(z.literal('')),
+  images: z.array(safeUrlSchema).max(5).default([]),
+  external_link: safeUrlOrEmpty.optional().or(z.literal('')),
   tags: z.array(z.string().max(30)).max(10).default([]),
   display_order: z.number().int().min(0).default(0),
 })

@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/sanitize'
 import { KpiRenderer } from './KpiRenderer'
 import type { LayoutBlock } from '@/types/layout-blocks'
 
@@ -38,7 +39,7 @@ export function LayoutBlockRenderer({ block, primaryColor, dark = false }: Layou
                 <div
                   style={{ fontSize: '0.92rem', lineHeight: 1.7, color: mutedColor }}
                   className="[&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_b]:font-bold [&_i]:italic"
-                  dangerouslySetInnerHTML={{ __html: col.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(col.content) }}
                 />
               )}
             </div>

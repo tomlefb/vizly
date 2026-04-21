@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
+import { safeUrlOrEmpty } from '@/lib/sanitize'
 
 interface ProjectModalProps {
   project: {
@@ -163,9 +164,9 @@ export function ProjectModal({ project, primaryColor, onClose, dark = false }: P
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: textColor, margin: 0 }}>
               {project.title}
             </h2>
-            {project.external_link && (
+            {project.external_link && safeUrlOrEmpty(project.external_link) && (
               <a
-                href={project.external_link}
+                href={safeUrlOrEmpty(project.external_link)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

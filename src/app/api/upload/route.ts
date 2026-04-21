@@ -26,6 +26,52 @@ function getExtensionFromMime(mime: AllowedMimeType): string {
   return map[mime]
 }
 
+function detectImageMimeFromBytes(bytes: Uint8Array): AllowedMimeType | null {
+  if (bytes.length < 12) return null
+  // JPEG: FF D8 FF
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return 'image/jpeg'
+  }
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  ) {
+    return 'image/png'
+  }
+  // GIF: 47 49 46 38 (37|39) 61  → GIF87a / GIF89a
+  if (
+    bytes[0] === 0x47 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x38 &&
+    (bytes[4] === 0x37 || bytes[4] === 0x39) &&
+    bytes[5] === 0x61
+  ) {
+    return 'image/gif'
+  }
+  // WebP: "RIFF" (52 49 46 46) ... "WEBP" (57 45 42 50) at offset 8
+  if (
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  ) {
+    return 'image/webp'
+  }
+  return null
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
@@ -71,20 +117,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Read bytes and verify magic number matches the declared MIME.
+    // file.type is client-supplied and spoofable, so we must inspect the
+    // actual bytes before trusting the content.
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = new Uint8Array(arrayBuffer)
+    const detectedMime = detectImageMimeFromBytes(buffer)
+    if (!detectedMime || detectedMime !== file.type) {
+      return NextResponse.json(
+        {
+          error:
+            'Le contenu du fichier ne correspond pas au type déclaré. Formats acceptés : JPEG, PNG, WebP, GIF',
+        },
+        { status: 400 }
+      )
+    }
+
     // Generate unique filename
-    const ext = getExtensionFromMime(file.type)
+    const ext = getExtensionFromMime(detectedMime)
     const uniqueId = crypto.randomUUID()
     const filePath = `${user.id}/${uniqueId}.${ext}`
 
     // Upload to Supabase Storage using admin client (bypasses RLS for storage)
     const adminClient = createAdminClient()
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = new Uint8Array(arrayBuffer)
 
     const { error: uploadError } = await adminClient.storage
       .from('portfolio-images')
       .upload(filePath, buffer, {
-        contentType: file.type,
+        contentType: detectedMime,
         upsert: false,
       })
 

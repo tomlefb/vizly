@@ -1,9 +1,22 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { slugSchema } from '@/lib/validations'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
+    const rl = rateLimit(getClientIdentifier(request), {
+      key: 'check-slug',
+      limit: 30,
+      windowMs: 60_000,
+    })
+    if (!rl.success) {
+      return NextResponse.json(
+        { available: false, message: 'Trop de requêtes, réessaye dans un instant' },
+        { status: 429 }
+      )
+    }
+
     const { searchParams } = request.nextUrl
     const slug = searchParams.get('slug')
 

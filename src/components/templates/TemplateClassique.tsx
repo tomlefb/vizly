@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { TemplateProps } from '@/types'
 import { type SectionBlock } from '@/types/sections'
+import { sanitizeHtml } from '@/lib/sanitize'
 import { ClickableProject } from './ClickableProject'
 import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
@@ -322,7 +323,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 <div
                   style={{ fontSize: '0.84rem', lineHeight: 1.65, color: p.muted }}
                   className="[&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
-                  dangerouslySetInnerHTML={{ __html: block.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.content) }}
                 />
               )}
             </div>
@@ -549,7 +550,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 <div
                   style={{ fontSize: '0.88rem', lineHeight: 1.65, color: p.muted, maxWidth: 420, margin: '0 auto', textAlign: 'center' }}
                   className="[&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ul]:text-left [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
-                  dangerouslySetInnerHTML={{ __html: block.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.content) }}
                 />
               )}
             </div>

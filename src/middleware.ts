@@ -96,6 +96,19 @@ async function resolveCustomDomainSlug(
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password']
 
+// Routes exigeant une session. Le layout (dashboard) fait déjà ce check,
+// mais on l'ajoute ici en defense-in-depth au cas où une route serait un
+// jour ajoutée en-dehors du groupe de layout.
+const PROTECTED_PREFIXES = [
+  '/dashboard',
+  '/editor',
+  '/billing',
+  '/domaines',
+  '/settings',
+  '/statistiques',
+  '/mes-templates',
+]
+
 async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
 
@@ -132,6 +145,20 @@ async function updateSession(request: NextRequest) {
     const target = new URL('/dashboard', request.url)
     target.search = request.nextUrl.search
     return NextResponse.redirect(target, 307)
+  }
+
+  // Unauthenticated users hitting a protected section are sent to /login.
+  // Le layout côté Server Component le fait déjà, ce gate au middleware
+  // évite toute fenêtre d'exposition si une route est ajoutée hors layout.
+  if (!user) {
+    const pathname = request.nextUrl.pathname
+    const isProtected = PROTECTED_PREFIXES.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    )
+    if (isProtected) {
+      const target = new URL('/login', request.url)
+      return NextResponse.redirect(target, 307)
+    }
   }
 
   // Expose pathname to server components via a header so the dashboard

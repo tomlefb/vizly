@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { sendEmail } from '@/lib/emails/send'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 const contactSchema = z.object({
   name: z.string().min(1).max(100),
@@ -10,6 +11,18 @@ const contactSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const rl = rateLimit(getClientIdentifier(request), {
+      key: 'contact-page',
+      limit: 3,
+      windowMs: 10 * 60_000,
+    })
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Trop de messages envoyés, réessaye plus tard' },
+        { status: 429 }
+      )
+    }
+
     const body: unknown = await request.json()
     const parsed = contactSchema.safeParse(body)
 
