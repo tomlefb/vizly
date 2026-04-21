@@ -63,14 +63,14 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile overlay — z-[65] pour passer au-dessus de la topbar editor (z-60) */}
       <div
         role="button"
         tabIndex={-1}
         aria-hidden={!mobileOpen}
         onClick={() => setMobileOpen(false)}
         className={cn(
-          'fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm transition-opacity duration-200 lg:hidden',
+          'fixed inset-0 z-[65] bg-foreground/30 backdrop-blur-sm transition-opacity duration-200 lg:hidden',
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
         )}
       />
@@ -79,7 +79,8 @@ export function Sidebar({ userName, userEmail, isPro }: SidebarProps) {
       data-dashboard-sidebar
       data-onboarding="sidebar"
       className={cn(
-        'fixed inset-y-0 z-50 flex flex-col bg-surface overflow-hidden',
+        // Desktop z-50, mobile z-[70] pour couvrir la topbar editor (z-60).
+        'fixed inset-y-0 z-50 max-lg:!z-[70] flex flex-col bg-surface overflow-hidden',
         // Desktop : ancrée à gauche avec border-r.
         'lg:left-0 lg:border-r lg:border-border-light',
         // Mobile : drawer 260px slide-in depuis la droite (même côté que le burger),
