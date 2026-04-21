@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { templateMap } from '@/components/templates'
 import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
@@ -93,14 +94,20 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
     notFound()
   }
 
-  // Load projects and user plan in parallel
+  // Load projects and user plan in parallel.
+  // User plan lookup uses the admin client because RLS on `users` only
+  // allows reading your own row, and visitors on a public portfolio have
+  // no auth — without this, userPlan always fell back to 'free' and Pro
+  // features (contact form, no watermark) never activated on published
+  // portfolios.
+  const adminSupabase = createAdminClient()
   const [projectsResult, userResult] = await Promise.all([
     supabase
       .from('projects')
       .select('*')
       .eq('portfolio_id', portfolio.id)
       .order('display_order', { ascending: true }),
-    supabase
+    adminSupabase
       .from('users')
       .select('plan')
       .eq('id', portfolio.user_id)
