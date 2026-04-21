@@ -413,7 +413,7 @@ export function TemplateElegant({
         )
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (showForm) {
           return (
             <section key="contact" className="px-6 py-16 md:px-16 lg:px-24">
@@ -423,6 +423,7 @@ export function TemplateElegant({
                   primaryColor={primary_color}
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
+                isPreview={isPreview}
                   textColor="#1A1A1A"
                   surfaceColor="#FFFFFF"
                 />

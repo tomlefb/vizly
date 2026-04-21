@@ -10,6 +10,7 @@ interface ContactFormWidgetProps {
   description: string
   textColor?: string
   surfaceColor?: string
+  isPreview?: boolean
 }
 
 /**
@@ -25,6 +26,7 @@ export function ContactFormWidget({
   description,
   textColor = '#1A1A1A',
   surfaceColor = '#FFFFFF',
+  isPreview = false,
 }: ContactFormWidgetProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -35,6 +37,7 @@ export function ContactFormWidget({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
+      if (isPreview) return
       if (!name.trim() || !email.trim() || !message.trim()) return
       setStatus('sending')
       setErrorMsg('')
@@ -59,7 +62,7 @@ export function ContactFormWidget({
         setErrorMsg('Impossible de contacter le serveur')
       }
     },
-    [name, email, message, slug]
+    [name, email, message, slug, isPreview]
   )
 
   const inputStyle: React.CSSProperties = {

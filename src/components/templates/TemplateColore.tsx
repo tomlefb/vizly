@@ -467,7 +467,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
         )
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (showForm) {
           return (
             <section key="contact" className="px-6 py-12 md:px-10">
@@ -476,6 +476,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                 primaryColor={primary_color}
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
+                isPreview={isPreview}
                 textColor="#2A2A2A"
                 surfaceColor="#FFFFFF"
               />

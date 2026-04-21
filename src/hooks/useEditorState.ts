@@ -14,7 +14,7 @@ import {
 import { getBillingStatus } from '@/actions/billing'
 import { APP_DOMAIN, DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
-import { parseSections, parseSkills, DEFAULT_SECTIONS } from '@/types/sections'
+import { parseSections, parseSkills } from '@/types/sections'
 import { parseCustomBlocks } from '@/types/custom-blocks'
 import { parseKpis } from '@/types/kpis'
 import { parseLayoutBlocks } from '@/types/layout-blocks'
@@ -233,25 +233,6 @@ export function useEditorState({
           updated.sections = currentSections.filter(
             (s) => !s.id.startsWith('custom-') || newCustomIds.has(s.id)
           )
-        }
-
-        // Activer le formulaire force la section contact à visible — sinon
-        // le template filtre 'contact' (visible=false par défaut) et le
-        // widget ne s'affiche jamais.
-        if (field === 'contact_form_enabled' && value === true) {
-          const baseSections = updated.sections ?? DEFAULT_SECTIONS
-          const currentSections = [...baseSections] as Array<{ id: string; visible: boolean; order: number }>
-          const contactIdx = currentSections.findIndex((s) => s.id === 'contact')
-          if (contactIdx >= 0) {
-            const existing = currentSections[contactIdx]
-            if (existing && !existing.visible) {
-              currentSections[contactIdx] = { ...existing, visible: true }
-            }
-          } else {
-            const maxOrder = currentSections.reduce((max, s) => Math.max(max, s.order), 0)
-            currentSections.push({ id: 'contact', visible: true, order: maxOrder + 1 })
-          }
-          updated.sections = currentSections
         }
 
         return updated

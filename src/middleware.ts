@@ -34,8 +34,17 @@ export async function middleware(request: NextRequest) {
     return await updateSession(request)
   }
 
+  // Les routes techniques (/api/*, /_next/*) doivent être servies
+  // directement par l'app-web quelle que soit l'origine — sans ça, un POST
+  // depuis pseudo.vizly.fr/api/contact serait réécrit en
+  // /portfolio/pseudo/api/contact qui n'existe pas (404 → formulaire ko).
+  const isTechnicalRoute =
+    request.nextUrl.pathname.startsWith('/api/') ||
+    request.nextUrl.pathname.startsWith('/_next/')
+
   // --- 2. Subdomain Vizly : rewrite vers /portfolio/<subdomain> ---
   if (isVizlySubdomain) {
+    if (isTechnicalRoute) return NextResponse.next()
     const subdomain = hostname.replace(`.${rootDomain}`, '')
     const url = request.nextUrl.clone()
     url.pathname = `/portfolio/${subdomain}${url.pathname === '/' ? '' : url.pathname}`
@@ -43,6 +52,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- 3. Custom domain : lookup DB puis rewrite si verified+published ---
+  if (isTechnicalRoute) return NextResponse.next()
   const slug = await resolveCustomDomainSlug(hostname, request)
   if (slug) {
     const url = request.nextUrl.clone()

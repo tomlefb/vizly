@@ -560,7 +560,7 @@ export function TemplateBento({
       }
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (showForm) {
           return (
             <div key="contact" className="col-span-2 sm:col-span-4 md:col-span-4" style={{ padding: 'clamp(16px, 2vw, 24px)' }}>
@@ -569,6 +569,7 @@ export function TemplateBento({
                 primaryColor={primary_color}
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
+                isPreview={isPreview}
                 textColor="#1A1A1A"
                 surfaceColor="#FFFFFF"
               />

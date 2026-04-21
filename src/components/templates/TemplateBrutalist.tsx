@@ -421,7 +421,7 @@ export function TemplateBrutalist({
         )
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (showForm) {
           return (
             <section key="contact" className="px-5 py-12 md:px-10">
@@ -432,6 +432,7 @@ export function TemplateBrutalist({
                   primaryColor={primary_color}
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
+                isPreview={isPreview}
                   textColor={textColor}
                   surfaceColor={isDark ? '#1a1a1a' : '#FFFFFF'}
                 />

@@ -20,8 +20,6 @@ interface StepContentProps {
   onKpisChange: (kpis: KpiItem[]) => void
   layoutBlocks: LayoutBlock[]
   onLayoutBlocksChange: (blocks: LayoutBlock[]) => void
-  contactFormEnabled: boolean
-  onContactFormEnabledChange: (enabled: boolean) => void
   contactFormTitle: string
   onContactFormTitleChange: (title: string) => void
   contactFormDescription: string
@@ -35,7 +33,6 @@ export function StepContent({
   customBlocks, onCustomBlocksChange,
   kpis, onKpisChange,
   layoutBlocks, onLayoutBlocksChange,
-  contactFormEnabled, onContactFormEnabledChange,
   contactFormTitle, onContactFormTitleChange,
   contactFormDescription, onContactFormDescriptionChange,
   billingPlan,
@@ -58,8 +55,6 @@ export function StepContent({
         />
         <ContactFormColumn
           billingPlan={billingPlan}
-          enabled={contactFormEnabled}
-          onEnabledChange={onContactFormEnabledChange}
           title={contactFormTitle}
           onTitleChange={onContactFormTitleChange}
           description={contactFormDescription}
@@ -72,8 +67,6 @@ export function StepContent({
 
 interface ContactFormColumnProps {
   billingPlan: 'free' | 'starter' | 'pro'
-  enabled: boolean
-  onEnabledChange: (enabled: boolean) => void
   title: string
   onTitleChange: (title: string) => void
   description: string
@@ -82,8 +75,6 @@ interface ContactFormColumnProps {
 
 function ContactFormColumn({
   billingPlan,
-  enabled,
-  onEnabledChange,
   title,
   onTitleChange,
   description,
@@ -93,9 +84,9 @@ function ContactFormColumn({
   const isPro = billingPlan === 'pro'
 
   const inputClass =
-    'w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-foreground disabled:cursor-not-allowed disabled:bg-surface-warm disabled:text-muted-foreground'
+    'w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-foreground'
   const textareaClass =
-    'w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[72px] focus:outline-none focus:border-foreground disabled:cursor-not-allowed disabled:bg-surface-warm disabled:text-muted-foreground'
+    'w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[72px] focus:outline-none focus:border-foreground'
 
   return (
     <section className="space-y-4 mt-8 lg:mt-0" data-testid="contact-form-column">
@@ -131,40 +122,10 @@ function ContactFormColumn({
         </div>
       ) : (
         <>
-          {/* Toggle activation */}
-          <div className="flex items-start justify-between gap-3 rounded-[var(--radius-md)] border border-border-light bg-surface p-3">
-            <div className="flex-1">
-              <label
-                htmlFor={`${id}-enabled`}
-                className="text-sm font-medium text-foreground cursor-pointer"
-              >
-                Activer sur mon portfolio
-              </label>
-              <p className="mt-0.5 text-xs text-muted">
-                Affiche le formulaire dans la section contact.
-              </p>
-            </div>
-            <button
-              id={`${id}-enabled`}
-              type="button"
-              role="switch"
-              aria-checked={enabled}
-              onClick={() => onEnabledChange(!enabled)}
-              className={cn(
-                'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200',
-                enabled ? 'bg-accent' : 'bg-border'
-              )}
-            >
-              <span
-                className={cn(
-                  'inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform duration-200',
-                  enabled ? 'translate-x-[18px]' : 'translate-x-[2px]'
-                )}
-              />
-            </button>
-          </div>
+          <p className="text-sm text-muted">
+            La visibilité se gère dans l&apos;étape <span className="font-medium text-foreground">Design</span> (section Contact).
+          </p>
 
-          {/* Title */}
           <div>
             <label
               htmlFor={`${id}-title`}
@@ -177,14 +138,12 @@ function ContactFormColumn({
               type="text"
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
-              disabled={!enabled}
               placeholder="Me contacter"
               maxLength={100}
               className={inputClass}
             />
           </div>
 
-          {/* Description */}
           <div>
             <label
               htmlFor={`${id}-description`}
@@ -196,7 +155,6 @@ function ContactFormColumn({
               id={`${id}-description`}
               value={description}
               onChange={(e) => onDescriptionChange(e.target.value)}
-              disabled={!enabled}
               placeholder="Intéressé par mon profil ? N'hésite pas à m'écrire."
               maxLength={300}
               rows={3}

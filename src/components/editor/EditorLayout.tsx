@@ -61,6 +61,8 @@ interface EditorLayoutProps {
   saveError?: string | null
   bottomBarExtra?: React.ReactNode
   children: React.ReactNode
+  billingPlan?: 'free' | 'starter' | 'pro'
+  portfolioSlug?: string | null
 }
 
 export function EditorLayout({
@@ -74,6 +76,8 @@ export function EditorLayout({
   saveError,
   bottomBarExtra,
   children,
+  billingPlan = 'free',
+  portfolioSlug = null,
 }: EditorLayoutProps) {
   const t = useTranslations('editor')
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -104,7 +108,7 @@ export function EditorLayout({
       contact_form_enabled: portfolioData.contact_form_enabled ?? false,
       contact_form_title: portfolioData.contact_form_title ?? 'Me contacter',
       contact_form_description: portfolioData.contact_form_description ?? '',
-      slug: null,
+      slug: portfolioSlug ?? 'preview',
     },
     projects: projects.map((p) => ({
       id: p.title,
@@ -120,7 +124,8 @@ export function EditorLayout({
     customBlocks: portfolioData.custom_blocks ?? [],
     kpis: parseKpis(portfolioData.kpis ?? []),
     layoutBlocks: parseLayoutBlocks(portfolioData.layout_blocks ?? []),
-    isPremium: false,
+    isPremium: billingPlan === 'pro',
+    isPreview: true,
   }
 
   const saveIndicator = (

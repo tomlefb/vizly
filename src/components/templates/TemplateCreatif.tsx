@@ -451,7 +451,7 @@ export function TemplateCreatif({
         )
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (showForm) {
           return (
             <section key="contact" className="px-5 py-14 md:px-12 lg:px-20">
@@ -462,6 +462,7 @@ export function TemplateCreatif({
                   primaryColor={primary_color}
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
+                isPreview={isPreview}
                   textColor="#1A1A1A"
                   surfaceColor="#FFFFFF"
                 />

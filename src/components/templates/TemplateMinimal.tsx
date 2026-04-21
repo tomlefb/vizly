@@ -184,7 +184,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
         )
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (!showForm && !contact_email) return null
         return (
           <section key="contact" className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
@@ -194,6 +194,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                 primaryColor={primary_color}
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
+                isPreview={isPreview}
                 textColor="#1A1A1A"
                 surfaceColor="#FFFFFF"
               />

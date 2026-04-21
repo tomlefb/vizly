@@ -199,7 +199,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         )
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (showForm) {
           return (
             <div key="contact" style={{ marginTop: 28 }}>
@@ -208,6 +208,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 primaryColor={primary_color}
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
+                isPreview={isPreview}
                 textColor="#1A1A1A"
                 surfaceColor="#FFFFFF"
               />
@@ -457,7 +458,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         )
 
       case 'contact': {
-        const showForm = contact_form_enabled && isPremium && !!slug && !isPreview
+        const showForm = isPremium && !!slug
         if (showForm) return null
         if (!contact_email) return null
         return (

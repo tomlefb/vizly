@@ -89,6 +89,8 @@ export function EditorClient({
         canGoNext={editor.canGoNext}
         portfolioData={editor.portfolioData}
         projects={editor.projectsForUI}
+        billingPlan={editor.billingPlan}
+        portfolioSlug={editor.slug || editor.publishedSlug || null}
         bottomBarExtra={
           editor.currentStep === 3 && editor.selectedTemplateNeedsPurchase && editor.selectedTemplateConfig ? (
             <div className="flex items-center gap-2">
@@ -136,8 +138,6 @@ export function EditorClient({
             onKpisChange={(kpis) => editor.handleFieldChange('kpis', kpis)}
             layoutBlocks={(editor.portfolioData.layout_blocks ?? []) as LayoutBlock[]}
             onLayoutBlocksChange={(blocks) => editor.handleFieldChange('layout_blocks', blocks)}
-            contactFormEnabled={editor.portfolioData.contact_form_enabled ?? false}
-            onContactFormEnabledChange={(v) => editor.handleFieldChange('contact_form_enabled', v)}
             contactFormTitle={editor.portfolioData.contact_form_title ?? 'Me contacter'}
             onContactFormTitleChange={(v) => editor.handleFieldChange('contact_form_title', v)}
             contactFormDescription={editor.portfolioData.contact_form_description ?? ''}
