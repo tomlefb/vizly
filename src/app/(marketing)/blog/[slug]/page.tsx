@@ -19,10 +19,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = getPost(slug)
   if (!post) return {}
+  const canonical = `/blog/${post.slug}`
   return {
     title: post.title,
     description: post.description,
-    openGraph: { title: post.title, description: post.description, type: 'article' },
+    alternates: { canonical },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url: canonical,
+      type: 'article',
+      publishedTime: post.date,
+      authors: ['Vizly'],
+      siteName: 'Vizly',
+      locale: 'fr_FR',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
+    },
   }
 }
 
@@ -34,8 +50,50 @@ export default async function BlogArticlePage({ params }: Props) {
   const content = getArticleContent(slug)
   const t = await getTranslations('blog.article')
 
+  const articleUrl = `https://www.vizly.fr/blog/${post.slug}`
+
+  // BlogPosting + BreadcrumbList — active les rich snippets article dans la
+  // SERP (date, auteur, readingTime) et signale la hiérarchie de navigation.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.description,
+        url: articleUrl,
+        datePublished: post.date,
+        dateModified: post.date,
+        inLanguage: 'fr-FR',
+        author: {
+          '@type': 'Organization',
+          name: 'Vizly',
+          url: 'https://www.vizly.fr',
+        },
+        publisher: { '@id': 'https://www.vizly.fr/#organization' },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': articleUrl,
+        },
+        isPartOf: { '@id': 'https://www.vizly.fr/#website' },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://www.vizly.fr' },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.vizly.fr/blog' },
+          { '@type': 'ListItem', position: 3, name: post.title, item: articleUrl },
+        ],
+      },
+    ],
+  }
+
   return (
     <main className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {/* Back link */}
         <Link
           href="/blog"

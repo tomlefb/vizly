@@ -1,4 +1,20 @@
+import type { Metadata } from 'next'
 import { VzLogo } from '@/components/ui/vizly'
+
+// Pages d'authentification : aucun intérêt SEO, pas de contenu indexable.
+// noindex empêche Google de les lister + évite les doublons dans la Search
+// Console (login/register n'ont rien à faire dans les résultats de recherche).
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+}
 
 export default function AuthLayout({
   children,

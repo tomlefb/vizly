@@ -38,7 +38,7 @@ export async function generateMetadata({
 
   const { data: portfolio } = await supabase
     .from('portfolios')
-    .select('title, bio')
+    .select('title, bio, custom_domain, custom_domain_status')
     .eq('slug', slug)
     .eq('published', true)
     .maybeSingle()
@@ -52,7 +52,19 @@ export async function generateMetadata({
   const description = portfolio.bio?.trim()
     ? truncateDescription(portfolio.bio, 160)
     : `Découvre le portfolio de ${name}, créé avec Vizly.`
-  const url = `https://${slug}.${APP_DOMAIN}`
+
+  // Canonical URL — si l'utilisateur a configuré un custom domain vérifié,
+  // on le préfère au subdomain vizly.fr : le middleware sert le portfolio
+  // sur les deux hosts, donc sans cette préférence Google verrait deux URLs
+  // avec le même contenu et choisirait au hasard.
+  const customDomainVerified =
+    portfolio.custom_domain_status === 'verified' && portfolio.custom_domain
+      ? portfolio.custom_domain
+      : null
+
+  const url = customDomainVerified
+    ? `https://${customDomainVerified}`
+    : `https://${slug}.${APP_DOMAIN}`
 
   // Note: og:image and twitter:image are auto-detected by Next.js from the
   // sibling opengraph-image.tsx file. No need to reference them manually.

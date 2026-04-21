@@ -27,6 +27,12 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans',
 })
 
+// Canonical host unique pour tout le site. Le next.config redirige en 301
+// `vizly.fr` → `www.vizly.fr`, donc on fige `https://www.vizly.fr` ici pour
+// que tous les canonicals, OG URLs et metadataBase soient cohérents — ça évite
+// les "pages en double sans URL canonique" signalées par Google Search Console.
+const CANONICAL_URL = 'https://www.vizly.fr'
+
 export const metadata: Metadata = {
   title: {
     default: 'Vizly · Crée ton portfolio en 5 minutes',
@@ -34,27 +40,54 @@ export const metadata: Metadata = {
   },
   description:
     'Crée un portfolio en ligne professionnel en quelques minutes. Choisis un template, remplis tes infos, et ton site est live sur pseudo.vizly.fr.',
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? `https://${process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'}`
-  ),
+  metadataBase: new URL(CANONICAL_URL),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Vizly · Crée ton portfolio en 5 minutes',
     description:
       'Le builder de portfolios le plus simple. Remplis, personnalise, publie.',
+    url: CANONICAL_URL,
     siteName: 'Vizly',
     locale: 'fr_FR',
     type: 'website',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Vizly — Crée ton portfolio en ligne',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Vizly · Crée ton portfolio en 5 minutes',
     description:
       'Le builder de portfolios le plus simple. Remplis, personnalise, publie.',
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
   },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/logo.png',
+  },
+  applicationName: 'Vizly',
+  authors: [{ name: 'Vizly', url: CANONICAL_URL }],
+  creator: 'Vizly',
+  publisher: 'Vizly',
+  category: 'technology',
 }
 
 export default async function RootLayout({
@@ -65,22 +98,57 @@ export default async function RootLayout({
   const locale = await getLocale()
   const messages = await getMessages()
 
+  // Graph JSON-LD global : Organization (identité entreprise pour Knowledge
+  // Panel), WebSite (avec SearchAction pour sitelinks search box), et
+  // SoftwareApplication (produit avec AggregateOffer). Les @id croisés
+  // permettent à Google de lier les entités.
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'Vizly',
-    applicationCategory: 'DesignApplication',
-    operatingSystem: 'Web',
-    description:
-      'Crée un portfolio en ligne professionnel en quelques minutes.',
-    url: 'https://vizly.fr',
-    offers: {
-      '@type': 'AggregateOffer',
-      priceCurrency: 'EUR',
-      lowPrice: '0',
-      highPrice: '9.99',
-      offerCount: '3',
-    },
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${CANONICAL_URL}/#organization`,
+        name: 'Vizly',
+        url: CANONICAL_URL,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${CANONICAL_URL}/logo.png`,
+          width: 512,
+          height: 512,
+        },
+        description:
+          'Builder de portfolios en ligne. Crée ton site portfolio professionnel en quelques minutes.',
+        email: 'tom@vizly.fr',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${CANONICAL_URL}/#website`,
+        url: CANONICAL_URL,
+        name: 'Vizly',
+        description:
+          'Crée un portfolio en ligne professionnel en quelques minutes.',
+        publisher: { '@id': `${CANONICAL_URL}/#organization` },
+        inLanguage: ['fr-FR', 'en-US'],
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': `${CANONICAL_URL}/#software`,
+        name: 'Vizly',
+        applicationCategory: 'DesignApplication',
+        operatingSystem: 'Web',
+        description:
+          'Crée un portfolio en ligne professionnel en quelques minutes.',
+        url: CANONICAL_URL,
+        publisher: { '@id': `${CANONICAL_URL}/#organization` },
+        offers: {
+          '@type': 'AggregateOffer',
+          priceCurrency: 'EUR',
+          lowPrice: '0',
+          highPrice: '9.99',
+          offerCount: '3',
+        },
+      },
+    ],
   }
 
   // Pre-paint sidebar state : fire avant le premier paint pour poser

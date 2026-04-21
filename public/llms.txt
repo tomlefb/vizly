@@ -1,0 +1,49 @@
+# Vizly
+
+> Vizly est un builder de portfolios en ligne. Les utilisateurs remplissent un formulaire guidé, choisissent un template, et leur site portfolio est mis en ligne sur pseudo.vizly.fr en quelques minutes. Un plan Pro permet de brancher un nom de domaine personnalisé, un formulaire de contact et des analytics.
+
+Stack publique : Next.js 15 (App Router), hébergé sur Railway, base Supabase, paiements Stripe.
+
+## Plans
+
+- Gratuit : création et preview illimitées, pas de mise en ligne.
+- Starter (4,99 €/mois ou 50,90 €/an) : un portfolio en ligne sur pseudo.vizly.fr, badge "Fait avec Vizly".
+- Pro (9,99 €/mois ou 101,90 €/an) : portfolios illimités en ligne, domaine personnalisé, formulaire de contact, analytics, sans badge.
+- Templates premium : 2,99 € l'unité, achat unique, à vie.
+
+## Pages principales
+
+- [Accueil](https://www.vizly.fr/) : présentation produit, tarifs, CTA création de portfolio.
+- [Fonctionnalités](https://www.vizly.fr/fonctionnalites) : détail des features (templates, personnalisation, domaine, formulaire de contact, analytics).
+- [Tarifs](https://www.vizly.fr/tarifs) : comparaison des plans Gratuit / Starter / Pro et achat de templates premium.
+- [Templates](https://www.vizly.fr/templates) : vitrine des 8 templates (Minimal, Dark, Classique, Coloré, Créatif, Brutalist, Elegant, Bento).
+- [FAQ](https://www.vizly.fr/legal/faq) : questions fréquentes sur le produit, la facturation, le droit de rétractation, la sécurité des données.
+- [Contact](https://www.vizly.fr/legal/contact) : formulaire de contact et email tom@vizly.fr.
+
+## Pages par persona
+
+- [Portfolio photographe](https://www.vizly.fr/portfolio-photographe)
+- [Portfolio développeur](https://www.vizly.fr/portfolio-developpeur)
+- [Portfolio designer](https://www.vizly.fr/portfolio-designer)
+- [Portfolio étudiant](https://www.vizly.fr/portfolio-etudiant)
+- [Portfolio freelance](https://www.vizly.fr/portfolio-freelance)
+
+## Blog
+
+- [Comment créer un portfolio en ligne en 5 minutes](https://www.vizly.fr/blog/creer-portfolio-en-ligne-5-minutes)
+- [Portfolio développeur : les 10 erreurs à éviter en 2026](https://www.vizly.fr/blog/portfolio-developpeur-erreurs)
+- [Quel template de portfolio choisir selon ton métier](https://www.vizly.fr/blog/quel-template-choisir)
+- [Portfolio étudiant : décrocher ton stage ou alternance](https://www.vizly.fr/blog/portfolio-etudiant-stage-alternance)
+- [Créer un site portfolio gratuit : comparatif des outils 2026](https://www.vizly.fr/blog/comparatif-outils-portfolio-2026)
+
+## Légal
+
+- [CGU](https://www.vizly.fr/legal/cgu)
+- [Politique de confidentialité](https://www.vizly.fr/legal/confidentialite)
+- [Mentions légales](https://www.vizly.fr/legal/mentions)
+
+## Contact
+
+- Email : tom@vizly.fr
+- Domaine principal : https://www.vizly.fr
+- Sitemap : https://www.vizly.fr/sitemap.xml
