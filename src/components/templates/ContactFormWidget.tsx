@@ -49,6 +49,14 @@ function buildVariant(
   surface: string,
 ): VariantStyles {
   const alpha = (hex: string, a: string) => `${hex}${a}`
+  const isLight = (hex: string): boolean => {
+    const clean = hex.replace('#', '')
+    if (clean.length !== 6) return true
+    const r = parseInt(clean.substring(0, 2), 16)
+    const g = parseInt(clean.substring(2, 4), 16)
+    const b = parseInt(clean.substring(4, 6), 16)
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55
+  }
 
   switch (variant) {
     case 'dark': {
@@ -592,12 +600,19 @@ function buildVariant(
     }
 
     case 'bento': {
+      const surfaceIsLight = isLight(surface)
+      const bentoBorder = surfaceIsLight ? '#E8E7E2' : alpha(text, '1F')
+      const inputBg = surfaceIsLight ? '#FAFAF7' : alpha(text, '0A')
+      const inputBorder = surfaceIsLight ? '#E8E7E2' : alpha(text, '1F')
+      // When the surface is dark, text is light → using it as button bg makes
+      // the white label invisible. Use the accent instead in that case.
+      const buttonBg = surfaceIsLight ? text : primary
       return {
         container: {
           padding: 'clamp(24px, 3vw, 34px)',
           borderRadius: 18,
           background: surface,
-          border: `1px solid #E8E7E2`,
+          border: `1px solid ${bentoBorder}`,
           width: '100%',
         },
         title: {
@@ -630,8 +645,8 @@ function buildVariant(
           padding: '11px 14px',
           fontSize: '0.9rem',
           borderRadius: 10,
-          border: `1px solid #E8E7E2`,
-          background: '#FAFAF7',
+          border: `1px solid ${inputBorder}`,
+          background: inputBg,
           color: text,
           outline: 'none',
           transition: 'border-color 150ms ease, background 150ms ease',
@@ -642,7 +657,7 @@ function buildVariant(
           width: '100%',
           padding: '12px 20px',
           borderRadius: 999,
-          background: text,
+          background: buttonBg,
           color: '#FFFFFF',
           fontSize: '0.88rem',
           fontWeight: 600,

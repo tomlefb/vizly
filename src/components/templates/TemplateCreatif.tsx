@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, getTemplatePalette } from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateCreatif({
@@ -26,6 +26,7 @@ export function TemplateCreatif({
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -37,7 +38,13 @@ export function TemplateCreatif({
 
   const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
   const bgColor = userPickedBg ? background_color! : '#F8F7F4'
-  const textColor = secondary_color ?? '#1A1A1A'
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? '#1A1A1A',
+    body_color ?? secondary_color ?? '#1A1A1A',
+    bgColor,
+  )
+  const textColor = p.body
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -63,7 +70,7 @@ export function TemplateCreatif({
                       fontSize: 'clamp(2.5rem, 7vw, 5rem)',
                       lineHeight: 0.95,
                       letterSpacing: '-0.04em',
-                      color: '#1A1A1A',
+                      color: p.title,
                     }}
                   >
                     <span
@@ -138,7 +145,7 @@ export function TemplateCreatif({
                 style={{
                   fontSize: '1.05rem',
                   lineHeight: 1.7,
-                  color: '#6A6A6A',
+                  color: p.muted,
                   fontWeight: 400,
                 }}
               >
@@ -170,7 +177,7 @@ export function TemplateCreatif({
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 6,
-                        color: '#8A8A8A',
+                        color: p.meta,
                         fontSize: '0.85rem',
                         fontWeight: 500,
                         textDecoration: 'none',
@@ -229,7 +236,7 @@ export function TemplateCreatif({
                     fontSize: '0.85rem',
                     textTransform: 'uppercase',
                     letterSpacing: '0.15em',
-                    color: '#AAAAAA',
+                    color: p.meta,
                     marginBottom: 48,
                   }}
                 >
@@ -261,7 +268,7 @@ export function TemplateCreatif({
                                   fontFamily: "'Syne', sans-serif",
                                   fontWeight: 700,
                                   fontSize: 'clamp(1.4rem, 3vw, 2rem)',
-                                  color: '#1A1A1A',
+                                  color: p.title,
                                   letterSpacing: '-0.02em',
                                   lineHeight: 1.2,
                                 }}
@@ -278,7 +285,7 @@ export function TemplateCreatif({
                                   fontFamily: "'Syne', sans-serif",
                                   fontSize: '0.82rem',
                                   fontWeight: 500,
-                                  color: '#999999',
+                                  color: p.meta,
                                   letterSpacing: '0.02em',
                                 }}
                               >
@@ -376,7 +383,7 @@ export function TemplateCreatif({
                                     style={{
                                       fontSize: '0.95rem',
                                       lineHeight: 1.75,
-                                      color: '#5A5A5A',
+                                      color: p.body,
                                       display: '-webkit-box',
                                       WebkitLineClamp: 6,
                                       WebkitBoxOrient: 'vertical',
@@ -401,7 +408,7 @@ export function TemplateCreatif({
                   <p
                     style={{
                       fontFamily: "'Syne', sans-serif",
-                      color: '#AAAAAA',
+                      color: p.meta,
                       fontSize: '1rem',
                     }}
                   >
@@ -425,7 +432,7 @@ export function TemplateCreatif({
                   fontSize: '0.85rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.15em',
-                  color: '#AAAAAA',
+                  color: p.meta,
                   marginBottom: 24,
                 }}
               >
@@ -439,7 +446,7 @@ export function TemplateCreatif({
                       fontFamily: "'Syne', sans-serif",
                       fontSize: '0.85rem',
                       fontWeight: 600,
-                      color: '#4A4A4A',
+                      color: p.body,
                       backgroundColor: `${primary_color}08`,
                       padding: '8px 18px',
                       borderRadius: 6,
@@ -461,7 +468,7 @@ export function TemplateCreatif({
           return (
             <section key="contact" className="px-5 py-14 md:px-12 lg:px-20">
               <div className="mx-auto max-w-6xl">
-                <div style={{ height: 1, backgroundColor: '#E5E5E0', marginBottom: 40 }} />
+                <div style={{ height: 1, backgroundColor: p.borderLight, marginBottom: 40 }} />
                 <ContactFormWidget
                   slug={slug as string}
                   primaryColor={primary_color}
@@ -483,7 +490,7 @@ export function TemplateCreatif({
               <div
                 style={{
                   height: 1,
-                  backgroundColor: '#E5E5E0',
+                  backgroundColor: p.borderLight,
                   marginBottom: 40,
                 }}
               />
@@ -493,7 +500,7 @@ export function TemplateCreatif({
                     fontFamily: "'Syne', sans-serif",
                     fontWeight: 700,
                     fontSize: 'clamp(1.4rem, 3vw, 2rem)',
-                    color: '#1A1A1A',
+                    color: p.title,
                     letterSpacing: '-0.02em',
                   }}
                   className="mb-3"
@@ -504,7 +511,7 @@ export function TemplateCreatif({
                   style={{
                     fontSize: '0.95rem',
                     lineHeight: 1.7,
-                    color: '#6A6A6A',
+                    color: p.muted,
                   }}
                   className="mb-6"
                 >
@@ -548,7 +555,7 @@ export function TemplateCreatif({
                   fontSize: '0.85rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.15em',
-                  color: '#AAAAAA',
+                  color: p.meta,
                   marginBottom: 24,
                 }}
               >
@@ -594,7 +601,7 @@ export function TemplateCreatif({
                       fontSize: '0.85rem',
                       textTransform: 'uppercase',
                       letterSpacing: '0.15em',
-                      color: '#AAAAAA',
+                      color: p.meta,
                       marginBottom: 16,
                     }}
                   >
@@ -602,11 +609,11 @@ export function TemplateCreatif({
                   </h2>
                 )}
                 {block.subtitle && (
-                  <p style={{ fontSize: '0.95rem', color: '#999999', fontWeight: 500, marginBottom: 16, letterSpacing: '0.02em' }}>{block.subtitle}</p>
+                  <p style={{ fontSize: '0.95rem', color: p.meta, fontWeight: 500, marginBottom: 16, letterSpacing: '0.02em' }}>{block.subtitle}</p>
                 )}
                 {block.content && (
                   <div
-                    style={{ fontSize: '0.95rem', lineHeight: 1.75, color: '#5A5A5A' }}
+                    style={{ fontSize: '0.95rem', lineHeight: 1.75, color: p.body }}
                     className="max-w-3xl [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
                     dangerouslySetInnerHTML={{ __html: block.content }}
                   />
@@ -655,13 +662,13 @@ export function TemplateCreatif({
             fontFamily: "'Syne', sans-serif",
             fontSize: '0.78rem',
             fontWeight: 600,
-            color: '#BBBBBB',
+            color: p.meta,
             letterSpacing: '0.05em',
           }}
           badgeStyle={{
             fontFamily: "'Syne', sans-serif",
             fontSize: '0.75rem',
-            color: '#BBBBBB',
+            color: p.meta,
             fontWeight: 500,
             letterSpacing: '0.02em',
           }}

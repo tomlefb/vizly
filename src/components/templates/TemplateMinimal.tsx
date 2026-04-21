@@ -6,7 +6,13 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import {
+  SOCIAL_ICONS,
+  getVisibleSections,
+  getSortedProjects,
+  getSocialEntries,
+  getTemplatePalette,
+} from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateMinimal({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
@@ -16,6 +22,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -25,17 +32,32 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
     slug,
   } = portfolio
 
-  const bgColor = background_color ?? '#FAFAFA'
-  const textColor = secondary_color ?? '#1A1A1A'
+  const userBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
+    ? background_color
+    : '#FAFAFA'
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? '#1A1A1A',
+    body_color ?? secondary_color ?? '#1A1A1A',
+    userBg,
+  )
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
+
+  const h2Style = {
+    fontFamily: "'Outfit', sans-serif",
+    fontWeight: 600,
+    fontSize: '1.35rem',
+    color: p.title,
+    letterSpacing: '-0.01em',
+  } as const
 
   function renderSection(section: SectionBlock) {
     switch (section.id) {
       case 'hero':
         return (
-          <header key="hero" style={{ borderBottom: `1px solid ${secondary_color}22` }} className="px-6 pt-16 pb-12 md:pt-24 md:pb-16">
+          <header key="hero" style={{ borderBottom: `1px solid ${p.borderLight}` }} className="px-6 pt-16 pb-12 md:pt-24 md:pb-16">
             <div className="mx-auto max-w-4xl">
               <div className="flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-10">
                 {photo_url ? (
@@ -44,7 +66,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                   </div>
                 ) : null}
                 <div className="text-center md:text-left">
-                  <h1 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', lineHeight: 1.15, color: '#1A1A1A', letterSpacing: '-0.02em' }}>
+                  <h1 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', lineHeight: 1.15, color: p.title, letterSpacing: '-0.02em' }}>
                     {title}
                   </h1>
                 </div>
@@ -58,7 +80,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
         return (
           <section key="bio" className="px-6 py-8">
             <div className="mx-auto max-w-4xl">
-              <p style={{ fontSize: '1.05rem', lineHeight: 1.65, color: '#5A5A5A' }}>{bio}</p>
+              <p style={{ fontSize: '1.05rem', lineHeight: 1.65, color: p.body }}>{bio}</p>
             </div>
           </section>
         )
@@ -66,6 +88,19 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
       case 'socials': {
         const socialEntries = getSocialEntries(social_links)
         if (socialEntries.length === 0 && !contact_email) return null
+        const pillStyle = {
+          color: p.body,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '6px 14px',
+          borderRadius: 8,
+          border: `1px solid ${p.border}`,
+          backgroundColor: p.surface,
+          fontSize: '0.82rem',
+          fontWeight: 500,
+          textDecoration: 'none',
+        } as const
         return (
           <section key="socials" className="px-6 py-6">
             <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-2">
@@ -73,7 +108,6 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                 const entry = SOCIAL_ICONS[platform]
                 if (!entry || !url) return null
                 const IconComponent = entry.icon
-                const pillStyle = { color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' } as const
                 const content = (
                   <>
                     <IconComponent size={15} />
@@ -92,13 +126,12 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
               })}
               {contact_email ? (
                 isPreview ? (
-                  <span aria-label="Email" style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
+                  <span aria-label="Email" style={pillStyle}>
                     <Mail size={15} />
                     <span>Email</span>
                   </span>
                 ) : (
-                  <a href={`mailto:${contact_email}`} aria-label="Envoyer un email"
-                    style={{ color: '#5A5A5A', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #E8E8E8', backgroundColor: '#FFFFFF', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none' }}>
+                  <a href={`mailto:${contact_email}`} aria-label="Envoyer un email" style={pillStyle}>
                     <Mail size={15} />
                     <span>Email</span>
                   </a>
@@ -113,14 +146,14 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
         return (
           <section key="projects" className="px-6 py-12 md:py-16">
             <div className="mx-auto max-w-5xl">
-              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A', letterSpacing: '-0.01em' }} className="mb-8">
+              <h2 style={h2Style} className="mb-8">
                 Projets
               </h2>
               {sortedProjects.length > 0 ? (
                 <div className={`grid grid-cols-1 gap-6 ${sortedProjects.length === 1 ? 'sm:grid-cols-1 max-w-2xl' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
                   {sortedProjects.map((project) => (
                     <ClickableProject key={project.id} project={project} primaryColor={primary_color}>
-                      <article className="group overflow-hidden transition-all duration-250 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] h-full" style={{ backgroundColor: '#FFFFFF', borderRadius: 12, border: '1px solid #EBEBEB' }}>
+                      <article className="group overflow-hidden transition-all duration-250 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] h-full" style={{ backgroundColor: p.surface, borderRadius: 12, border: `1px solid ${p.borderLight}` }}>
                         {project.images[0] ? (
                           <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
                             <Image src={project.images[0]} alt={project.title} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
@@ -132,14 +165,14 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                             )}
                           </div>
                         ) : (
-                          <div style={{ aspectRatio: '16/10', backgroundColor: `${primary_color}08`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div style={{ aspectRatio: '16/10', backgroundColor: p.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '2rem', fontWeight: 600, color: `${primary_color}30` }}>{project.title.charAt(0)}</span>
                           </div>
                         )}
                         <div className="p-5">
-                          <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.05rem', color: '#1A1A1A' }}>{project.title}</h3>
+                          <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.05rem', color: p.title }}>{project.title}</h3>
                           {project.description ? (
-                            <p className="mt-2" style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#6B6B6B', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            <p className="mt-2" style={{ fontSize: '0.9rem', lineHeight: 1.6, color: p.muted, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                               {project.description}
                             </p>
                           ) : null}
@@ -149,7 +182,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                                 <span key={tag} style={{ fontSize: '0.75rem', fontWeight: 500, color: primary_color, backgroundColor: `${primary_color}0C`, padding: '3px 10px', borderRadius: 6 }}>{tag}</span>
                               ))}
                               {project.tags.length > 5 && (
-                                <span style={{ fontSize: '0.75rem', color: '#8A8A8A' }}>+{project.tags.length - 5}</span>
+                                <span style={{ fontSize: '0.75rem', color: p.meta }}>+{project.tags.length - 5}</span>
                               )}
                             </div>
                           ) : null}
@@ -162,7 +195,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                   ))}
                 </div>
               ) : (
-                <p style={{ color: '#8A8A8A', fontSize: '0.95rem' }}>Aucun projet pour le moment.</p>
+                <p style={{ color: p.meta, fontSize: '0.95rem' }}>Aucun projet pour le moment.</p>
               )}
             </div>
           </section>
@@ -171,14 +204,14 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
       case 'skills':
         if (skills.length === 0) return null
         return (
-          <section key="skills" className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+          <section key="skills" className="px-6 py-12" style={{ borderTop: `1px solid ${p.borderLight}` }}>
             <div className="mx-auto max-w-5xl">
-              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A', letterSpacing: '-0.01em' }} className="mb-6">
+              <h2 style={h2Style} className="mb-6">
                 Competences
               </h2>
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill) => (
-                  <span key={skill} style={{ fontSize: '0.85rem', fontWeight: 500, color: '#4A4A4A', backgroundColor: '#F3F3F3', padding: '6px 14px', borderRadius: 8 }}>
+                  <span key={skill} style={{ fontSize: '0.85rem', fontWeight: 500, color: p.body, backgroundColor: p.surfaceWarm, padding: '6px 14px', borderRadius: 8 }}>
                     {skill}
                   </span>
                 ))}
@@ -188,10 +221,10 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
         )
 
       case 'contact': {
-        const showForm = isPremium && !!slug
+        const showForm = isPremium && !!slug && !!contact_form_enabled
         if (!showForm && !contact_email) return null
         return (
-          <section key="contact" className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+          <section key="contact" className="px-6 py-12" style={{ borderTop: `1px solid ${p.borderLight}` }}>
             {showForm ? (
               <ContactFormWidget
                 slug={slug as string}
@@ -199,16 +232,16 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
                 isPreview={isPreview}
-                textColor={textColor}
-                surfaceColor="#FFFFFF"
+                textColor={p.title}
+                surfaceColor={p.surface}
                 variant="minimal"
               />
             ) : (
               <div className="mx-auto max-w-4xl text-center">
-                <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A' }} className="mb-3">
+                <h2 style={h2Style} className="mb-3">
                   Me contacter
                 </h2>
-                <p style={{ color: '#6B6B6B', fontSize: '0.95rem' }} className="mb-6">
+                <p style={{ color: p.muted, fontSize: '0.95rem' }} className="mb-6">
                   Interesse par mon profil ? N&apos;hesite pas a me contacter.
                 </p>
                 {isPreview ? (
@@ -233,9 +266,9 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
       case 'kpis':
         if (kpis.length === 0) return null
         return (
-          <section key="kpis" className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+          <section key="kpis" className="px-6 py-12" style={{ borderTop: `1px solid ${p.borderLight}` }}>
             <div className="mx-auto max-w-5xl">
-              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A', letterSpacing: '-0.01em' }} className="mb-6">
+              <h2 style={h2Style} className="mb-6">
                 Chiffres cles
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -254,7 +287,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
           const block = layoutBlocks.find((b) => b.id === blockId)
           if (!block) return null
           return (
-            <section key={section.id} className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+            <section key={section.id} className="px-6 py-12" style={{ borderTop: `1px solid ${p.borderLight}` }}>
               <div className="mx-auto max-w-5xl">
                 <LayoutBlockRenderer block={block} primaryColor={primary_color} />
               </div>
@@ -268,19 +301,19 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
           const block = customBlocks.find((b) => b.id === blockId)
           if (!block) return null
           return (
-            <section key={section.id} className="px-6 py-12" style={{ borderTop: '1px solid #EBEBEB' }}>
+            <section key={section.id} className="px-6 py-12" style={{ borderTop: `1px solid ${p.borderLight}` }}>
               <div className="mx-auto max-w-4xl">
                 {block.title && (
-                  <h2 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: '1.35rem', color: '#1A1A1A', letterSpacing: '-0.01em' }} className="mb-2">
+                  <h2 style={h2Style} className="mb-2">
                     {block.title}
                   </h2>
                 )}
                 {block.subtitle && (
-                  <p style={{ fontSize: '0.95rem', color: '#8A8A8A', marginBottom: 16 }}>{block.subtitle}</p>
+                  <p style={{ fontSize: '0.95rem', color: p.meta, marginBottom: 16 }}>{block.subtitle}</p>
                 )}
                 {block.content && (
                   <div
-                    style={{ fontSize: '0.95rem', lineHeight: 1.7, color: '#5A5A5A' }}
+                    style={{ fontSize: '0.95rem', lineHeight: 1.7, color: p.body }}
                     className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
                     dangerouslySetInnerHTML={{ __html: block.content }}
                   />
@@ -300,7 +333,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
 
-      <div style={{ fontFamily: "'Source Sans 3', sans-serif", backgroundColor: bgColor, color: textColor, minHeight: '100vh' }}>
+      <div style={{ fontFamily: "'Source Sans 3', sans-serif", backgroundColor: p.bg, color: p.body, minHeight: '100vh' }}>
         {visibleSections.map(renderSection)}
 
         <TemplateFooter isPremium={isPremium} primaryColor={primary_color} />

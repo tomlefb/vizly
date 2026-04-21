@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, isLightColor } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, isLightColor, getTemplatePalette } from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
@@ -16,6 +16,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -31,10 +32,13 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
   // hue (navy, plum, etc.) still gets it.
   const pickedBgIsDark = background_color && !isLightColor(background_color)
   const bgColor = pickedBgIsDark ? background_color! : '#0A0A0F'
-  const textColor = secondary_color && !isLightColor(bgColor) && isLightColor(secondary_color)
-    ? secondary_color
-    : '#F0F0F5'
-  const surfaceColor = '#141420'
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? '#F0F0F5',
+    body_color ?? secondary_color ?? '#C8C8D0',
+    bgColor,
+  )
+  const surfaceColor = p.surface
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -107,7 +111,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                       fontWeight: 700,
                       fontSize: 'clamp(1.8rem, 4.5vw, 2.8rem)',
                       lineHeight: 1.1,
-                      color: '#F0F0F5',
+                      color: p.title,
                       letterSpacing: '-0.03em',
                     }}
                   >
@@ -129,7 +133,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                 style={{
                   fontSize: '1rem',
                   lineHeight: 1.7,
-                  color: '#8888A0',
+                  color: p.body,
                 }}
               >
                 {bio}
@@ -251,7 +255,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                       <article
                         className="group overflow-hidden transition-all duration-300 h-full hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                         style={{
-                          backgroundColor: '#12121A',
+                          backgroundColor: p.surface,
                           borderRadius: 10,
                           border: `1px solid ${primary_color}15`,
                           boxShadow: glowBorder,
@@ -304,7 +308,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                           <div
                             style={{
                               aspectRatio: '16/9',
-                              backgroundColor: '#16161F',
+                              backgroundColor: p.surfaceWarm,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -331,7 +335,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                               fontFamily: "'JetBrains Mono', monospace",
                               fontWeight: 600,
                               fontSize: '1rem',
-                              color: '#E8E8F0',
+                              color: p.title,
                               letterSpacing: '-0.01em',
                             }}
                           >
@@ -344,7 +348,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                               style={{
                                 fontSize: '0.88rem',
                                 lineHeight: 1.6,
-                                color: '#6E6E85',
+                                color: p.muted,
                                 display: '-webkit-box',
                                 WebkitLineClamp: 3,
                                 WebkitBoxOrient: 'vertical',
@@ -377,7 +381,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                                 </span>
                               ))}
                               {project.tags.length > 5 && (
-                                <span style={{ fontSize: '0.7rem', color: '#555568' }}>+{project.tags.length - 5}</span>
+                                <span style={{ fontSize: '0.7rem', color: p.meta }}>+{project.tags.length - 5}</span>
                               )}
                             </div>
                           ) : null}
@@ -396,7 +400,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: '0.85rem',
-                    color: '#555568',
+                    color: p.meta,
                   }}
                 >
                   <span style={{ color: primary_color }}>{'> '}</span>
@@ -441,8 +445,8 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                       fontFamily: "'JetBrains Mono', monospace",
                       fontSize: '0.75rem',
                       fontWeight: 500,
-                      color: '#C8C8D0',
-                      backgroundColor: '#16161F',
+                      color: p.body,
+                      backgroundColor: p.surfaceWarm,
                       padding: '6px 14px',
                       borderRadius: 6,
                       border: `1px solid ${primary_color}20`,
@@ -470,7 +474,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
                   isPreview={isPreview}
-                  textColor={textColor}
+                  textColor={p.body}
                   surfaceColor={surfaceColor}
                   variant="dark"
                 />
@@ -495,7 +499,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                     fontFamily: "'JetBrains Mono', monospace",
                     fontWeight: 600,
                     fontSize: '1.1rem',
-                    color: '#F0F0F5',
+                    color: p.title,
                     letterSpacing: '-0.01em',
                   }}
                   className="mb-3"
@@ -506,7 +510,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: '0.82rem',
-                    color: '#555568',
+                    color: p.meta,
                   }}
                   className="mb-6"
                 >
@@ -628,11 +632,11 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                   </h2>
                 )}
                 {block.subtitle && (
-                  <p style={{ fontSize: '0.85rem', color: '#555568', fontFamily: "'JetBrains Mono', monospace", marginBottom: 16 }}>{block.subtitle}</p>
+                  <p style={{ fontSize: '0.85rem', color: p.meta, fontFamily: "'JetBrains Mono', monospace", marginBottom: 16 }}>{block.subtitle}</p>
                 )}
                 {block.content && (
                   <div
-                    style={{ fontSize: '0.92rem', lineHeight: 1.7, color: '#8888A0' }}
+                    style={{ fontSize: '0.92rem', lineHeight: 1.7, color: p.body }}
                     className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-[#E8E8F0] [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-[#C8C8D0] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
                     dangerouslySetInnerHTML={{ __html: block.content }}
                   />
@@ -663,7 +667,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
         style={{
           fontFamily: "'IBM Plex Sans', sans-serif",
           backgroundColor: bgColor,
-          color: textColor,
+          color: p.body,
           minHeight: '100vh',
         }}
       >
@@ -697,12 +701,12 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
             yearStyle={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.7rem',
-              color: '#444458',
+              color: p.meta,
             }}
             badgeStyle={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.7rem',
-              color: '#444458',
+              color: p.meta,
             }}
           />
         </div>

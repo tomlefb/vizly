@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, isLightColor } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, isLightColor, getTemplatePalette } from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateBrutalist({
@@ -26,6 +26,7 @@ export function TemplateBrutalist({
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -43,12 +44,16 @@ export function TemplateBrutalist({
   const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
   const bgColor = userPickedBg ? background_color! : (isLightColor(secondary_color) ? '#0D0D0D' : '#FAFAFA')
   const isDark = !isLightColor(bgColor)
-  const textColor = secondary_color && secondary_color.toUpperCase() !== '#1A1A1A'
-    ? secondary_color
-    : (isDark ? '#F5F5F5' : '#0D0D0D')
-  const mutedColor = isDark ? '#777777' : '#888888'
-  const borderColor = isDark ? '#333333' : '#0D0D0D'
-  const surfaceColor = isDark ? '#161616' : '#FFFFFF'
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? (isDark ? '#F5F5F5' : '#0D0D0D'),
+    body_color ?? secondary_color ?? (isDark ? '#F5F5F5' : '#0D0D0D'),
+    bgColor,
+  )
+  const textColor = p.body
+  const mutedColor = p.meta
+  const borderColor = isDark ? p.borderStrong : p.title
+  const surfaceColor = p.surface
 
   function renderSection(section: SectionBlock) {
     switch (section.id) {

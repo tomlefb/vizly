@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, getTemplatePalette } from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateElegant({
@@ -26,6 +26,7 @@ export function TemplateElegant({
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -37,7 +38,13 @@ export function TemplateElegant({
 
   const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
   const bgColor = userPickedBg ? background_color! : '#FAF9F6'
-  const textColor = secondary_color ?? '#1A1A1A'
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? '#1A1A1A',
+    body_color ?? secondary_color ?? '#1A1A1A',
+    bgColor,
+  )
+  const textColor = p.body
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -91,7 +98,7 @@ export function TemplateElegant({
                   lineHeight: 1.15,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color: '#1A1A1A',
+                  color: p.title,
                 }}
               >
                 {title}
@@ -121,7 +128,7 @@ export function TemplateElegant({
                 style={{
                   fontSize: '1.15rem',
                   lineHeight: 1.8,
-                  color: '#7A7A7A',
+                  color: p.muted,
                   fontWeight: 300,
                   letterSpacing: '0.01em',
                   fontStyle: 'italic',
@@ -156,7 +163,7 @@ export function TemplateElegant({
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 6,
-                        color: '#AAAAAA',
+                        color: p.meta,
                         fontSize: '0.72rem',
                         fontWeight: 400,
                         textDecoration: 'none',
@@ -207,7 +214,7 @@ export function TemplateElegant({
                   fontSize: '0.72rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.25em',
-                  color: '#BBBBBB',
+                  color: p.meta,
                   textAlign: 'center',
                   marginBottom: 60,
                 }}
@@ -268,7 +275,7 @@ export function TemplateElegant({
                                 fontSize: '4rem',
                                 fontWeight: 300,
                                 fontStyle: 'italic',
-                                color: '#C9C2B0',
+                                color: p.meta,
                                 letterSpacing: '0.05em',
                               }}
                             >
@@ -284,7 +291,7 @@ export function TemplateElegant({
                             fontWeight: 500,
                             fontStyle: 'italic',
                             fontSize: 'clamp(1.3rem, 2.5vw, 1.8rem)',
-                            color: '#1A1A1A',
+                            color: p.title,
                             lineHeight: 1.3,
                             letterSpacing: '0.01em',
                           }}
@@ -298,7 +305,7 @@ export function TemplateElegant({
                             style={{
                               fontSize: '0.88rem',
                               lineHeight: 1.85,
-                              color: '#7A7A7A',
+                              color: p.muted,
                               fontWeight: 300,
                               display: '-webkit-box',
                               WebkitLineClamp: 3,
@@ -321,14 +328,14 @@ export function TemplateElegant({
                                   fontWeight: 500,
                                   textTransform: 'uppercase',
                                   letterSpacing: '0.2em',
-                                  color: '#C0C0C0',
+                                  color: p.meta,
                                 }}
                               >
                                 {tag}
                               </span>
                             ))}
                             {project.tags.length > 5 && (
-                              <span style={{ fontSize: '0.62rem', color: '#C0C0C0', letterSpacing: '0.1em' }}>+{project.tags.length - 5}</span>
+                              <span style={{ fontSize: '0.62rem', color: p.meta, letterSpacing: '0.1em' }}>+{project.tags.length - 5}</span>
                             )}
                           </div>
                         ) : null}
@@ -358,7 +365,7 @@ export function TemplateElegant({
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
                     fontStyle: 'italic',
-                    color: '#BBBBBB',
+                    color: p.meta,
                     fontSize: '1.1rem',
                     paddingBottom: 60,
                   }}
@@ -382,7 +389,7 @@ export function TemplateElegant({
                   fontSize: '0.72rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.25em',
-                  color: '#BBBBBB',
+                  color: p.meta,
                   marginBottom: 28,
                 }}
               >
@@ -397,7 +404,7 @@ export function TemplateElegant({
                       fontSize: '0.95rem',
                       fontWeight: 400,
                       fontStyle: 'italic',
-                      color: '#7A7A7A',
+                      color: p.muted,
                       letterSpacing: '0.04em',
                     }}
                   >
@@ -448,7 +455,7 @@ export function TemplateElegant({
                   fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
                   letterSpacing: '0.06em',
                   textTransform: 'uppercase',
-                  color: '#1A1A1A',
+                  color: p.title,
                 }}
                 className="mb-4"
               >
@@ -459,7 +466,7 @@ export function TemplateElegant({
                   fontFamily: "'Cormorant Garamond', serif",
                   fontStyle: 'italic',
                   fontSize: '1rem',
-                  color: '#AAAAAA',
+                  color: p.meta,
                   letterSpacing: '0.02em',
                 }}
                 className="mb-8"
@@ -504,7 +511,7 @@ export function TemplateElegant({
                   fontSize: '0.72rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.25em',
-                  color: '#BBBBBB',
+                  color: p.meta,
                   marginBottom: 28,
                 }}
               >
@@ -566,7 +573,7 @@ export function TemplateElegant({
                       fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
-                      color: '#1A1A1A',
+                      color: p.title,
                       marginBottom: 8,
                     }}
                   >
@@ -578,7 +585,7 @@ export function TemplateElegant({
                     fontFamily: "'Cormorant Garamond', serif",
                     fontStyle: 'italic',
                     fontSize: '1rem',
-                    color: '#AAAAAA',
+                    color: p.meta,
                     letterSpacing: '0.02em',
                     marginBottom: 20,
                   }}>
@@ -587,7 +594,7 @@ export function TemplateElegant({
                 )}
                 {block.content && (
                   <div
-                    style={{ fontSize: '0.92rem', lineHeight: 1.85, color: '#7A7A7A', fontWeight: 300, textAlign: 'left' }}
+                    style={{ fontSize: '0.92rem', lineHeight: 1.85, color: p.muted, fontWeight: 300, textAlign: 'left' }}
                     className="mx-auto max-w-lg [&_h2]:text-xl [&_h2]:font-normal [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:tracking-wider [&_h2]:uppercase [&_h3]:text-lg [&_h3]:font-normal [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:italic [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-medium [&_i]:italic"
                     dangerouslySetInnerHTML={{ __html: block.content }}
                   />
@@ -645,7 +652,7 @@ export function TemplateElegant({
             fontFamily: "'Raleway', sans-serif",
             fontSize: '0.65rem',
             fontWeight: 400,
-            color: '#CCCCCC',
+            color: p.meta,
             textTransform: 'uppercase',
             letterSpacing: '0.2em',
           }}
@@ -662,7 +669,7 @@ export function TemplateElegant({
             style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: '0.85rem',
-              color: '#CCCCCC',
+              color: p.meta,
               letterSpacing: '0.1em',
               fontWeight: 300,
             }}

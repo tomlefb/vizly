@@ -134,6 +134,7 @@ export default async function DashboardPage({
                 photo_url: portfolio.photo_url ?? null,
                 primary_color: portfolio.primary_color || DEFAULT_PORTFOLIO_COLOR,
                 secondary_color: portfolio.secondary_color || '#1A1A1A',
+                body_color: portfolio.body_color || portfolio.secondary_color || '#1A1A1A',
                 background_color: portfolio.background_color || '#FFFFFF',
                 font: portfolio.font || 'DM Sans',
                 font_body: portfolio.font_body ?? portfolio.font ?? 'DM Sans',

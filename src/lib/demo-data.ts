@@ -10,6 +10,7 @@ export const DEMO_PORTFOLIO: TemplateProps = {
     photo_url: null,
     primary_color: DEFAULT_PORTFOLIO_COLOR,
     secondary_color: '#1A1A1A',
+    body_color: '#1A1A1A',
     background_color: '#FFFFFF',
     font: 'default',
     font_body: 'default',
@@ -166,6 +167,7 @@ export function getDemoPortfolio(templateName: string, isPremium = false): Templ
       ...DEMO_PORTFOLIO.portfolio,
       primary_color: colors.primary,
       secondary_color: colors.secondary,
+      body_color: colors.secondary,
       ...(override && {
         title: override.title,
         bio: override.bio,

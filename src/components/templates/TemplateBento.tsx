@@ -7,7 +7,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, getTemplatePalette } from './shared'
 import {
   Mail,
   ArrowUpRight,
@@ -26,28 +26,7 @@ function lightenHex(hex: string, amount: number): string {
 }
 
 const BG_SURFACE = '#F4F3EF'
-const CARD_BG = '#FFFFFF'
-const BORDER = '#E8E7E2'
 const TEXT_PRIMARY = '#1A1A1A'
-const TEXT_SECONDARY = '#6F6F6A'
-const TEXT_TERTIARY = '#A8A8A2'
-
-// Reusable card style helpers
-const CARD_BASE: React.CSSProperties = {
-  backgroundColor: CARD_BG,
-  borderRadius: 18,
-  border: `1px solid ${BORDER}`,
-  overflow: 'hidden',
-}
-
-const CARD_LABEL_STYLE: React.CSSProperties = {
-  fontFamily: "'Inter Tight', sans-serif",
-  fontWeight: 500,
-  fontSize: '0.68rem',
-  textTransform: 'uppercase',
-  letterSpacing: '0.1em',
-  color: TEXT_TERTIARY,
-}
 
 export function TemplateBento({
   portfolio,
@@ -66,6 +45,7 @@ export function TemplateBento({
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -81,7 +61,29 @@ export function TemplateBento({
   const accentLight = lightenHex(primary_color, 0.92)
   const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
   const pageBg = userPickedBg ? background_color! : BG_SURFACE
-  const primaryText = secondary_color ?? TEXT_PRIMARY
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? TEXT_PRIMARY,
+    body_color ?? secondary_color ?? TEXT_PRIMARY,
+    pageBg,
+  )
+  const primaryText = p.title
+
+  const CARD_BASE: React.CSSProperties = {
+    backgroundColor: p.surface,
+    borderRadius: 18,
+    border: `1px solid ${p.borderLight}`,
+    overflow: 'hidden',
+  }
+
+  const CARD_LABEL_STYLE: React.CSSProperties = {
+    fontFamily: "'Inter Tight', sans-serif",
+    fontWeight: 500,
+    fontSize: '0.68rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    color: p.meta,
+  }
 
   const socialEntries = getSocialEntries(social_links)
 
@@ -159,7 +161,7 @@ export function TemplateBento({
                     fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
                     lineHeight: 1.05,
                     letterSpacing: '-0.03em',
-                    color: TEXT_PRIMARY,
+                    color: p.title,
                   }}
                 >
                   {title}
@@ -260,7 +262,7 @@ export function TemplateBento({
                 marginTop: 10,
                 fontSize: '0.88rem',
                 lineHeight: 1.6,
-                color: TEXT_SECONDARY,
+                color: p.body,
                 fontWeight: 400,
               }}
             >
@@ -300,8 +302,8 @@ export function TemplateBento({
                       gap: 6,
                       padding: '6px 11px',
                       borderRadius: 999,
-                      backgroundColor: BG_SURFACE,
-                      color: TEXT_SECONDARY,
+                      backgroundColor: p.surfaceWarm,
+                      color: p.body,
                       fontSize: '0.74rem',
                       fontWeight: 500,
                       textDecoration: 'none',
@@ -359,8 +361,8 @@ export function TemplateBento({
                     fontFamily: "'Inter Tight', sans-serif",
                     fontSize: '0.74rem',
                     fontWeight: 500,
-                    color: TEXT_PRIMARY,
-                    backgroundColor: BG_SURFACE,
+                    color: p.title,
+                    backgroundColor: p.surfaceWarm,
                     padding: '5px 11px',
                     borderRadius: 999,
                   }}
@@ -385,7 +387,7 @@ export function TemplateBento({
                 textAlign: 'center',
               }}
             >
-              <p style={{ color: TEXT_TERTIARY, fontSize: '0.9rem' }}>
+              <p style={{ color: p.meta, fontSize: '0.9rem' }}>
                 Aucun projet pour le moment.
               </p>
             </div>
@@ -494,7 +496,7 @@ export function TemplateBento({
                         fontFamily: "'Inter Tight', sans-serif",
                         fontWeight: 600,
                         fontSize: '1rem',
-                        color: TEXT_PRIMARY,
+                        color: p.title,
                         lineHeight: 1.25,
                         letterSpacing: '-0.01em',
                         flex: 1,
@@ -506,7 +508,7 @@ export function TemplateBento({
                     <ArrowUpRight
                       size={16}
                       style={{
-                        color: TEXT_TERTIARY,
+                        color: p.meta,
                         flexShrink: 0,
                         marginTop: 2,
                       }}
@@ -519,7 +521,7 @@ export function TemplateBento({
                       style={{
                         fontSize: '0.82rem',
                         lineHeight: 1.55,
-                        color: TEXT_SECONDARY,
+                        color: p.body,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
@@ -539,8 +541,8 @@ export function TemplateBento({
                             fontFamily: "'Inter Tight', sans-serif",
                             fontSize: '0.68rem',
                             fontWeight: 500,
-                            color: TEXT_SECONDARY,
-                            backgroundColor: BG_SURFACE,
+                            color: p.body,
+                            backgroundColor: p.surfaceWarm,
                             padding: '3px 9px',
                             borderRadius: 6,
                           }}
@@ -552,7 +554,7 @@ export function TemplateBento({
                         <span
                           style={{
                             fontSize: '0.68rem',
-                            color: TEXT_TERTIARY,
+                            color: p.meta,
                             alignSelf: 'center',
                           }}
                         >
@@ -579,8 +581,8 @@ export function TemplateBento({
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
                 isPreview={isPreview}
-                textColor={TEXT_PRIMARY}
-                surfaceColor={CARD_BG}
+                textColor={p.title}
+                surfaceColor={p.surface}
                 variant="bento"
               />
             </div>
@@ -632,7 +634,7 @@ export function TemplateBento({
                 padding: '11px 20px',
                 borderRadius: 999,
                 backgroundColor: '#FFFFFF',
-                color: TEXT_PRIMARY,
+                color: p.title,
                 fontFamily: "'Inter Tight', sans-serif",
                 fontSize: '0.85rem',
                 fontWeight: 600,
@@ -705,7 +707,7 @@ export function TemplateBento({
                     fontFamily: "'Inter Tight', sans-serif",
                     fontWeight: 600,
                     fontSize: '1.1rem',
-                    color: TEXT_PRIMARY,
+                    color: p.title,
                     letterSpacing: '-0.01em',
                     marginBottom: 4,
                   }}
@@ -714,7 +716,7 @@ export function TemplateBento({
                 </h2>
               ) : null}
               {block.subtitle ? (
-                <p style={{ fontSize: '0.85rem', color: TEXT_TERTIARY, marginBottom: 12 }}>
+                <p style={{ fontSize: '0.85rem', color: p.meta, marginBottom: 12 }}>
                   {block.subtitle}
                 </p>
               ) : null}
@@ -723,7 +725,7 @@ export function TemplateBento({
                   style={{
                     fontSize: '0.9rem',
                     lineHeight: 1.65,
-                    color: TEXT_SECONDARY,
+                    color: p.body,
                   }}
                   className="[&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
                   dangerouslySetInnerHTML={{ __html: block.content }}
@@ -785,13 +787,13 @@ export function TemplateBento({
               fontFamily: "'Inter Tight', sans-serif",
               fontSize: '0.7rem',
               fontWeight: 500,
-              color: TEXT_TERTIARY,
+              color: p.meta,
             }}
             badgeStyle={{
               fontFamily: "'Inter Tight', sans-serif",
               fontSize: '0.7rem',
               fontWeight: 500,
-              color: TEXT_TERTIARY,
+              color: p.meta,
             }}
           >
             <p
@@ -799,7 +801,7 @@ export function TemplateBento({
                 fontFamily: "'Inter Tight', sans-serif",
                 fontSize: '0.7rem',
                 fontWeight: 500,
-                color: TEXT_TERTIARY,
+                color: p.meta,
               }}
             >
               © {new Date().getFullYear()} {title}

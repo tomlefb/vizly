@@ -112,6 +112,7 @@ export type Database = {
         Row: {
           background_color: string
           bio: string | null
+          body_color: string
           contact_email: string | null
           contact_form_description: string
           contact_form_enabled: boolean
@@ -145,6 +146,7 @@ export type Database = {
         Insert: {
           background_color?: string
           bio?: string | null
+          body_color?: string
           contact_email?: string | null
           contact_form_description?: string
           contact_form_enabled?: boolean
@@ -178,6 +180,7 @@ export type Database = {
         Update: {
           background_color?: string
           bio?: string | null
+          body_color?: string
           contact_email?: string | null
           contact_form_description?: string
           contact_form_enabled?: boolean

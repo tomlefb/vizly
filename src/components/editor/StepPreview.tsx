@@ -36,6 +36,7 @@ export function StepPreview({
         photo_url: data.photo_url || null,
         primary_color: data.primary_color,
         secondary_color: data.secondary_color,
+        body_color: data.body_color ?? data.secondary_color,
         background_color: data.background_color ?? '#FFFFFF',
         font: data.font,
         font_body: data.font_body ?? data.font,

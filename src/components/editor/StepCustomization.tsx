@@ -15,8 +15,9 @@ import type { TemplateName } from '@/types/templates'
 // Palettes de couleurs pour les portfolios des utilisateurs — ce sont
 // des choix pour LEUR site, pas l'UI Vizly. La couleur de marque Vizly
 // reste le lime et n'apparaît pas comme preset.
-// Chaque palette = 3 couleurs : accent (primary_color), texte (secondary_color),
-// fond (background_color).
+// Chaque palette fixe : accent (primary_color), fond (background_color), et
+// applique la couleur texte à heading + body (secondary + body_color).
+// L'utilisateur peut ensuite différencier titre / texte sous la section Typo.
 const COLOR_PALETTES = [
   { name: 'Terracotta', accent: DEFAULT_PORTFOLIO_COLOR, text: '#1A1A1A', background: '#FAF8F6' },
   { name: 'Océan', accent: '#2563EB', text: '#1E293B', background: '#EFF6FF' },
@@ -62,9 +63,26 @@ export function StepCustomization({
     [onChange]
   )
 
+  const handleBodyColorChange = useCallback(
+    (color: string) => {
+      onChange('body_color', color)
+    },
+    [onChange]
+  )
+
   const handleBackgroundColorChange = useCallback(
     (color: string) => {
       onChange('background_color', color)
+    },
+    [onChange]
+  )
+
+  const applyPalette = useCallback(
+    (accent: string, text: string, background: string) => {
+      onChange('primary_color', accent)
+      onChange('secondary_color', text)
+      onChange('body_color', text)
+      onChange('background_color', background)
     },
     [onChange]
   )
@@ -128,11 +146,7 @@ export function StepCustomization({
               <button
                 key={palette.name}
                 type="button"
-                onClick={() => {
-                  handlePrimaryColorChange(palette.accent)
-                  handleSecondaryColorChange(palette.text)
-                  handleBackgroundColorChange(palette.background)
-                }}
+                onClick={() => applyPalette(palette.accent, palette.text, palette.background)}
                 className={cn(
                   'relative flex items-center gap-2.5 rounded-[var(--radius-md)] border bg-surface px-3 py-2.5 transition-colors duration-200',
                   isActive
@@ -164,16 +178,11 @@ export function StepCustomization({
         </button>
 
         {showCustomColors && (
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <ColorPicker
               value={data.background_color ?? '#FFFFFF'}
               onChange={handleBackgroundColorChange}
               label="Fond"
-            />
-            <ColorPicker
-              value={data.secondary_color}
-              onChange={handleSecondaryColorChange}
-              label="Texte"
             />
             <ColorPicker
               value={data.primary_color}
@@ -182,6 +191,9 @@ export function StepCustomization({
             />
           </div>
         )}
+        <p className="text-xs text-muted-foreground">
+          Les couleurs de titre et de texte se règlent sous la section Typographie.
+        </p>
       </section>
 
       {/* Section: Typography */}
@@ -198,8 +210,12 @@ export function StepCustomization({
         <FontSelector
           value={data.font}
           valueBody={data.font_body ?? data.font}
+          titleColor={data.secondary_color}
+          bodyColor={data.body_color ?? data.secondary_color}
           onChange={handleFontChange}
           onChangeBody={handleFontBodyChange}
+          onChangeTitleColor={handleSecondaryColorChange}
+          onChangeBodyColor={handleBodyColorChange}
         />
       </section>
 

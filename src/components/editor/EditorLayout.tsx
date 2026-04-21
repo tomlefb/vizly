@@ -100,6 +100,7 @@ export function EditorLayout({
       photo_url: portfolioData.photo_url || null,
       primary_color: portfolioData.primary_color,
       secondary_color: portfolioData.secondary_color,
+      body_color: portfolioData.body_color ?? portfolioData.secondary_color,
       background_color: portfolioData.background_color ?? '#FFFFFF',
       font: portfolioData.font,
       font_body: portfolioData.font_body ?? portfolioData.font,

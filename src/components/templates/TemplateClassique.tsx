@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, getTemplatePalette } from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateClassique({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
@@ -16,6 +16,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -27,7 +28,13 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
 
   const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
   const bgColor = userPickedBg ? background_color! : '#F7F7F5'
-  const textColor = secondary_color ?? '#1A1A1A'
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? '#1A1A1A',
+    body_color ?? secondary_color ?? '#1A1A1A',
+    bgColor,
+  )
+  const textColor = p.body
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -73,7 +80,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 fontWeight: 900,
                 fontSize: '1.4rem',
                 lineHeight: 1.3,
-                color: '#1A1A1A',
+                color: p.title,
                 marginTop: 20,
               }}
             >
@@ -101,7 +108,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
               style={{
                 fontSize: '0.88rem',
                 lineHeight: 1.65,
-                color: '#666666',
+                color: p.muted,
                 marginTop: 16,
               }}
             >
@@ -122,7 +129,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 fontSize: '0.78rem',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
-                color: '#999999',
+                color: p.meta,
                 marginBottom: 12,
               }}
             >
@@ -146,7 +153,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                       alignItems: 'center',
                       gap: 8,
                       fontSize: '0.84rem',
-                      color: '#444444',
+                      color: p.body,
                       textDecoration: 'none',
                     }}
                   >
@@ -174,7 +181,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 fontSize: '0.78rem',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
-                color: '#999999',
+                color: p.meta,
                 marginBottom: 12,
               }}
             >
@@ -217,7 +224,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 fontSize: '0.78rem',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
-                color: '#999999',
+                color: p.meta,
                 marginBottom: 12,
               }}
             >
@@ -231,7 +238,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 alignItems: 'center',
                 gap: 8,
                 fontSize: '0.84rem',
-                color: '#444444',
+                color: p.body,
                 textDecoration: 'none',
                 marginBottom: 8,
                 wordBreak: 'break-all',
@@ -255,7 +262,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 fontSize: '0.78rem',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
-                color: '#999999',
+                color: p.meta,
                 marginBottom: 12,
               }}
             >
@@ -301,7 +308,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                     fontSize: '0.78rem',
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
-                    color: '#999999',
+                    color: p.meta,
                     marginBottom: 12,
                   }}
                 >
@@ -309,11 +316,11 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 </h2>
               )}
               {block.subtitle && (
-                <p style={{ fontSize: '0.82rem', color: '#999999', marginBottom: 8 }}>{block.subtitle}</p>
+                <p style={{ fontSize: '0.82rem', color: p.meta, marginBottom: 8 }}>{block.subtitle}</p>
               )}
               {block.content && (
                 <div
-                  style={{ fontSize: '0.84rem', lineHeight: 1.65, color: '#555555' }}
+                  style={{ fontSize: '0.84rem', lineHeight: 1.65, color: p.muted }}
                   className="[&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
                   dangerouslySetInnerHTML={{ __html: block.content }}
                 />
@@ -359,7 +366,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                   fontWeight: 900,
                   fontSize: '1.6rem',
                   lineHeight: 1.25,
-                  color: '#1A1A1A',
+                  color: p.title,
                 }}
               >
                 {title}
@@ -377,7 +384,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
               style={{
                 fontSize: '0.95rem',
                 lineHeight: 1.65,
-                color: '#666666',
+                color: p.muted,
                 maxWidth: 420,
                 margin: '12px auto 0',
                 textAlign: 'center',
@@ -409,7 +416,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                     alignItems: 'center',
                     gap: 5,
                     fontSize: '0.82rem',
-                    color: '#555555',
+                    color: p.muted,
                     textDecoration: 'none',
                   }}
                 >
@@ -483,7 +490,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 fontFamily: "'Merriweather', serif",
                 fontWeight: 700,
                 fontSize: '1rem',
-                color: '#1A1A1A',
+                color: p.title,
                 textAlign: 'center',
                 marginBottom: 12,
               }}
@@ -527,7 +534,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                     fontFamily: "'Merriweather', serif",
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: '#1A1A1A',
+                    color: p.title,
                     textAlign: 'center',
                     marginBottom: 8,
                   }}
@@ -536,11 +543,11 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                 </h2>
               )}
               {block.subtitle && (
-                <p style={{ fontSize: '0.88rem', color: '#999999', textAlign: 'center', marginBottom: 8 }}>{block.subtitle}</p>
+                <p style={{ fontSize: '0.88rem', color: p.meta, textAlign: 'center', marginBottom: 8 }}>{block.subtitle}</p>
               )}
               {block.content && (
                 <div
-                  style={{ fontSize: '0.88rem', lineHeight: 1.65, color: '#555555', maxWidth: 420, margin: '0 auto', textAlign: 'center' }}
+                  style={{ fontSize: '0.88rem', lineHeight: 1.65, color: p.muted, maxWidth: 420, margin: '0 auto', textAlign: 'center' }}
                   className="[&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ul]:text-left [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
                   dangerouslySetInnerHTML={{ __html: block.content }}
                 />
@@ -585,7 +592,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
           <header
             className="px-6 py-10"
             style={{
-              backgroundColor: '#FFFFFF',
+              backgroundColor: p.surface,
               borderBottom: `3px solid ${primary_color}`,
             }}
           >
@@ -601,7 +608,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
           <aside
             className="hidden lg:block lg:w-[300px] lg:shrink-0"
             style={{
-              backgroundColor: '#FFFFFF',
+              backgroundColor: p.surface,
               borderRight: `1px solid #E5E5E0`,
               alignSelf: 'stretch',
             }}
@@ -611,14 +618,14 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
 
               {/* Badge in sidebar */}
               {!isPremium ? (
-                <div style={{ marginTop: 40, paddingTop: 16, borderTop: '1px solid #EBEBEB' }}>
+                <div style={{ marginTop: 40, paddingTop: 16, borderTop: `1px solid ${p.borderLight}` }}>
                   <a
                     href="https://vizly.fr"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
                       fontSize: '0.72rem',
-                      color: '#AAAAAA',
+                      color: p.meta,
                       textDecoration: 'none',
                     }}
                   >
@@ -643,7 +650,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                     fontFamily: "'Merriweather', serif",
                     fontWeight: 700,
                     fontSize: '1.2rem',
-                    color: '#1A1A1A',
+                    color: p.title,
                     marginBottom: 32,
                     paddingBottom: 10,
                     borderBottom: `2px solid ${primary_color}`,
@@ -674,7 +681,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                               style={{
                                 aspectRatio: '16/8',
                                 borderRadius: 4,
-                                border: '1px solid #E8E8E3',
+                                border: `1px solid ${p.borderLight}`,
                               }}
                             >
                               <Image
@@ -698,7 +705,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                               fontFamily: "'Merriweather', serif",
                               fontWeight: 700,
                               fontSize: '1.1rem',
-                              color: '#1A1A1A',
+                              color: p.title,
                               lineHeight: 1.35,
                             }}
                           >
@@ -712,7 +719,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                               style={{
                                 fontSize: '0.92rem',
                                 lineHeight: 1.7,
-                                color: '#555555',
+                                color: p.muted,
                                 display: '-webkit-box',
                                 WebkitLineClamp: 3,
                                 WebkitBoxOrient: 'vertical',
@@ -745,7 +752,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                                 </span>
                               ))}
                               {project.tags.length > 5 && (
-                                <span style={{ fontSize: '0.73rem', color: '#999999' }}>+{project.tags.length - 5}</span>
+                                <span style={{ fontSize: '0.73rem', color: p.meta }}>+{project.tags.length - 5}</span>
                               )}
                             </div>
                           ) : null}
@@ -758,7 +765,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                     ))}
                   </div>
                 ) : (
-                  <p style={{ color: '#999999', fontSize: '0.92rem' }}>
+                  <p style={{ color: p.meta, fontSize: '0.92rem' }}>
                     Aucun projet pour le moment.
                   </p>
                 )}
@@ -789,11 +796,11 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
           isPremium={isPremium}
           primaryColor={primary_color}
           className="block px-6 py-6 text-center lg:hidden"
-          style={{ borderTop: '1px solid #E8E8E3' }}
+          style={{ borderTop: `1px solid ${p.borderLight}` }}
           containerClassName="flex items-center justify-center"
           badgeStyle={{
             fontSize: '0.75rem',
-            color: '#AAAAAA',
+            color: p.meta,
           }}
         >
           {/* No year text in mobile footer — badge only */}

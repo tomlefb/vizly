@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, getTemplatePalette } from './shared'
 import { Mail, Sparkles } from 'lucide-react'
 
 /**
@@ -33,6 +33,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
     photo_url,
     primary_color,
     secondary_color,
+    body_color,
     background_color,
     social_links,
     contact_email,
@@ -49,7 +50,13 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
   // user explicitly picked a non-default background, honor their choice.
   const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
   const bgColor = userPickedBg ? background_color! : lightenColor(primary_color, 0.93)
-  const textColor = secondary_color ?? '#1A1A1A'
+  const p = getTemplatePalette(
+    primary_color,
+    secondary_color ?? '#1A1A1A',
+    body_color ?? secondary_color ?? '#1A1A1A',
+    bgColor,
+  )
+  const textColor = p.body
   // Single, readable tag color — derived from primary
   const tagBg = lightenColor(primary_color, 0.85)
 
@@ -107,7 +114,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                     fontWeight: 700,
                     fontSize: 'clamp(1.8rem, 5vw, 2.8rem)',
                     lineHeight: 1.15,
-                    color: '#2A2A2A',
+                    color: p.title,
                     letterSpacing: '-0.01em',
                   }}
                 >
@@ -132,7 +139,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                 style={{
                   fontSize: '1.05rem',
                   lineHeight: 1.65,
-                  color: '#6B6B6B',
+                  color: p.muted,
                   fontWeight: 500,
                 }}
               >
@@ -168,7 +175,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                         borderRadius: 50,
                         backgroundColor: '#FFFFFF',
                         border: `2px solid ${primary_color}25`,
-                        color: '#4A4A4A',
+                        color: p.body,
                         fontWeight: 600,
                         fontSize: '0.82rem',
                         textDecoration: 'none',
@@ -219,7 +226,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   fontFamily: "'Fredoka', sans-serif",
                   fontWeight: 600,
                   fontSize: '1.4rem',
-                  color: '#2A2A2A',
+                  color: p.title,
                   textAlign: 'center',
                   marginBottom: 36,
                 }}
@@ -333,7 +340,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                               fontFamily: "'Fredoka', sans-serif",
                               fontWeight: 600,
                               fontSize: '1.1rem',
-                              color: '#2A2A2A',
+                              color: p.title,
                               lineHeight: 1.3,
                             }}
                           >
@@ -346,7 +353,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                               style={{
                                 fontSize: '0.88rem',
                                 lineHeight: 1.6,
-                                color: '#777777',
+                                color: p.muted,
                                 fontWeight: 500,
                                 display: '-webkit-box',
                                 WebkitLineClamp: 3,
@@ -382,7 +389,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                                 <span
                                   style={{
                                     fontSize: '0.74rem',
-                                    color: '#AAAAAA',
+                                    color: p.meta,
                                     fontFamily: "'Fredoka', sans-serif",
                                     fontWeight: 500,
                                     alignSelf: 'center',
@@ -417,7 +424,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   className="text-center"
                   style={{
                     fontFamily: "'Fredoka', sans-serif",
-                    color: '#AAAAAA',
+                    color: p.meta,
                     fontSize: '1rem',
                   }}
                 >
@@ -438,7 +445,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   fontFamily: "'Fredoka', sans-serif",
                   fontWeight: 600,
                   fontSize: '1.4rem',
-                  color: '#2A2A2A',
+                  color: p.title,
                   marginBottom: 24,
                 }}
               >
@@ -505,7 +512,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   fontFamily: "'Fredoka', sans-serif",
                   fontWeight: 600,
                   fontSize: '1.4rem',
-                  color: '#2A2A2A',
+                  color: p.title,
                 }}
                 className="mb-3"
               >
@@ -513,7 +520,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
               </h2>
               <p
                 style={{
-                  color: '#777777',
+                  color: p.muted,
                   fontSize: '0.95rem',
                   fontWeight: 500,
                 }}
@@ -557,7 +564,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   fontFamily: "'Fredoka', sans-serif",
                   fontWeight: 600,
                   fontSize: '1.4rem',
-                  color: '#2A2A2A',
+                  color: p.title,
                   marginBottom: 24,
                 }}
               >
@@ -612,7 +619,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                       fontFamily: "'Fredoka', sans-serif",
                       fontWeight: 600,
                       fontSize: '1.4rem',
-                      color: '#2A2A2A',
+                      color: p.title,
                       textAlign: 'center',
                       marginBottom: 8,
                     }}
@@ -632,11 +639,11 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   </h2>
                 )}
                 {block.subtitle && (
-                  <p style={{ fontSize: '0.95rem', color: '#AAAAAA', fontWeight: 500, textAlign: 'center', marginBottom: 16 }}>{block.subtitle}</p>
+                  <p style={{ fontSize: '0.95rem', color: p.meta, fontWeight: 500, textAlign: 'center', marginBottom: 16 }}>{block.subtitle}</p>
                 )}
                 {block.content && (
                   <div
-                    style={{ fontSize: '0.95rem', lineHeight: 1.7, color: '#5A5A5A', fontWeight: 500 }}
+                    style={{ fontSize: '0.95rem', lineHeight: 1.7, color: p.body, fontWeight: 500 }}
                     className="[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_p]:my-1 [&_b]:font-bold [&_i]:italic"
                     dangerouslySetInnerHTML={{ __html: block.content }}
                   />
@@ -667,7 +674,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
         style={{
           fontFamily: "'Nunito', sans-serif",
           backgroundColor: bgColor,
-          color: '#3D3D3D',
+          color: p.body,
           minHeight: '100vh',
           position: 'relative',
           overflow: 'hidden',
@@ -741,7 +748,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                 badgeStyle={{
                   fontFamily: "'Fredoka', sans-serif",
                   fontSize: '0.82rem',
-                  color: '#BBBBBB',
+                  color: p.meta,
                   fontWeight: 500,
                 }}
               >
@@ -749,13 +756,13 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                   style={{
                     fontFamily: "'Fredoka', sans-serif",
                     fontSize: '0.82rem',
-                    color: '#BBBBBB',
+                    color: p.meta,
                     fontWeight: 500,
                   }}
                 >
                   {new Date().getFullYear()}
                 </p>
-                {!isPremium ? <span style={{ color: '#DDDDDD' }}>|</span> : null}
+                {!isPremium ? <span style={{ color: p.borderLight }}>|</span> : null}
               </TemplateFooter>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ColorPicker } from './ColorPicker'
 
 const AVAILABLE_FONTS = [
   { name: 'DM Sans', family: '"DM Sans", sans-serif', style: 'Sans-serif' },
@@ -113,16 +114,24 @@ function FontDropdown({ label, value, onChange }: FontDropdownProps) {
 interface FontSelectorProps {
   value: string
   valueBody: string
+  titleColor: string
+  bodyColor: string
   onChange: (font: string) => void
   onChangeBody: (font: string) => void
+  onChangeTitleColor: (color: string) => void
+  onChangeBodyColor: (color: string) => void
   className?: string
 }
 
 export function FontSelector({
   value,
   valueBody,
+  titleColor,
+  bodyColor,
   onChange,
   onChangeBody,
+  onChangeTitleColor,
+  onChangeBodyColor,
   className,
 }: FontSelectorProps) {
   const titleFont = AVAILABLE_FONTS.find((f) => f.name === value)
@@ -130,29 +139,46 @@ export function FontSelector({
 
   return (
     <div
-      className={cn('space-y-4', className)}
+      className={cn('space-y-5', className)}
       data-testid="font-selector"
     >
-      <div className="space-y-2">
+      <div className="space-y-3">
         <FontDropdown
           label="Police de titre"
           value={value}
           onChange={onChange}
         />
-        {/* Mini preview */}
-        <p className="text-[15px] text-muted pl-1" style={{ fontFamily: titleFont?.family ?? 'inherit' }}>
+        {/* Mini preview of the title font in the picked title color */}
+        <p
+          className="text-[15px] pl-1"
+          style={{ fontFamily: titleFont?.family ?? 'inherit', color: titleColor }}
+        >
           Aa Bb Cc 123
         </p>
+        <ColorPicker
+          value={titleColor}
+          onChange={onChangeTitleColor}
+          label="Couleur titre"
+        />
       </div>
-      <div className="space-y-2">
+
+      <div className="space-y-3 border-t border-border-light pt-5">
         <FontDropdown
           label="Police de texte"
           value={valueBody}
           onChange={onChangeBody}
         />
-        <p className="text-[13px] text-muted pl-1" style={{ fontFamily: bodyFont?.family ?? 'inherit' }}>
+        <p
+          className="text-[13px] pl-1"
+          style={{ fontFamily: bodyFont?.family ?? 'inherit', color: bodyColor }}
+        >
           Aa Bb Cc 123
         </p>
+        <ColorPicker
+          value={bodyColor}
+          onChange={onChangeBodyColor}
+          label="Couleur texte"
+        />
       </div>
     </div>
   )
