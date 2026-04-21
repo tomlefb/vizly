@@ -8,6 +8,13 @@ import { PERSONA_LANDINGS } from '@/lib/persona-landings'
 // et `src/app/robots.ts`. Évite les doublons www/non-www dans l'index Google.
 const CANONICAL_URL = 'https://www.vizly.fr'
 
+// Regénère le sitemap au plus toutes les heures. Sans ça Next.js le fige au
+// build time et les portfolios publiés après le dernier deploy n'y
+// apparaissent jamais. 3600s = bon compromis : un nouveau portfolio est
+// découvrable par Google dans l'heure, et on ne tape pas la DB à chaque
+// crawl bot.
+export const revalidate = 3600
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = CANONICAL_URL
   const now = new Date()
