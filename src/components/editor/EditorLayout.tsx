@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   Maximize2,
@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Monitor,
   Smartphone,
-  Tablet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { VzBtn } from '@/components/ui/vizly'
@@ -81,7 +80,27 @@ export function EditorLayout({
 }: EditorLayoutProps) {
   const t = useTranslations('editor')
   const [previewOpen, setPreviewOpen] = useState(false)
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop')
+  const previewHostRef = useRef<HTMLDivElement | null>(null)
+  const [desktopScale, setDesktopScale] = useState(0.55)
+
+  useEffect(() => {
+    if (previewDevice !== 'desktop') return
+    const host = previewHostRef.current
+    if (!host) return
+    const update = () => {
+      // Keep the 1280px-wide desktop render filling the preview pane cleanly.
+      // We shrink it to fit the host width, with a small margin to avoid
+      // scrollbars hugging the edge.
+      const w = host.clientWidth
+      if (!w) return
+      setDesktopScale(Math.min(0.72, Math.max(0.35, (w - 8) / 1280)))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(host)
+    return () => ro.disconnect()
+  }, [previewDevice])
 
   useGoogleFont(portfolioData.font)
   useGoogleFont(portfolioData.font_body ?? portfolioData.font)
@@ -256,11 +275,6 @@ export function EditorLayout({
                       title={t('preview.desktop')} aria-label={t('preview.desktop')}>
                       <Monitor className="h-3.5 w-3.5" />
                     </button>
-                    <button type="button" onClick={() => setPreviewDevice('tablet')}
-                      className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'tablet' ? 'bg-surface-sunken text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-surface-sunken')}
-                      title={t('preview.tablet')} aria-label={t('preview.tablet')}>
-                      <Tablet className="h-3.5 w-3.5" />
-                    </button>
                     <button type="button" onClick={() => setPreviewDevice('mobile')}
                       className={cn('flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors', previewDevice === 'mobile' ? 'bg-surface-sunken text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-surface-sunken')}
                       title={t('preview.mobile')} aria-label={t('preview.mobile')}>
@@ -275,28 +289,58 @@ export function EditorLayout({
                   </div>
                 </div>
                 {/* Preview area */}
-                <div className="flex-1 overflow-hidden relative flex justify-center p-4" style={{ backgroundColor: previewBg }}>
+                <div
+                  ref={previewHostRef}
+                  className="flex-1 relative flex justify-center p-4 overflow-hidden"
+                  style={{ backgroundColor: previewBg }}
+                >
                   {TemplateComponent ? (
-                    <div className={cn(
-                      'overflow-y-auto rounded-[var(--radius-lg)] shadow-[var(--shadow-card-hover)] border border-border-light transition-all duration-300',
-                      previewDevice === 'mobile' ? 'w-[375px] h-full' : previewDevice === 'tablet' ? 'w-[768px] h-full' : 'absolute inset-4'
-                    )}>
-                      {portfolioData.font && (
-                        <style>{`
-                          .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
-                          .editor-preview-font p, .editor-preview-font span, .editor-preview-font li, .editor-preview-font a, .editor-preview-font td, .editor-preview-font input, .editor-preview-font textarea, .editor-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
-                        `}</style>
-                      )}
-                      <div className="origin-top-left editor-preview-font"
-                        style={{
-                          width: previewDevice === 'mobile' ? '375px' : previewDevice === 'tablet' ? '768px' : '1280px',
-                          minHeight: '200vh',
-                          transform: previewDevice === 'mobile' ? 'none' : previewDevice === 'tablet' ? 'scale(0.75)' : 'scale(0.55)',
-                          transformOrigin: 'top left',
-                        }}>
-                        <TemplateComponent {...templateProps} />
+                    previewDevice === 'mobile' ? (
+                      <div className="w-[375px] h-full overflow-y-auto overflow-x-hidden rounded-[var(--radius-lg)] shadow-[var(--shadow-card-hover)] border border-border-light transition-all duration-300">
+                        {portfolioData.font && (
+                          <style>{`
+                            .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
+                            .editor-preview-font p, .editor-preview-font span, .editor-preview-font li, .editor-preview-font a, .editor-preview-font td, .editor-preview-font input, .editor-preview-font textarea, .editor-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
+                          `}</style>
+                        )}
+                        <div className="editor-preview-font" style={{ width: '375px', minHeight: '100%' }}>
+                          <TemplateComponent {...templateProps} />
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      // Desktop preview — render at 1280px, scale to fit, clip overflow
+                      // so the template can never be dragged outside its frame.
+                      <div
+                        className="rounded-[var(--radius-lg)] shadow-[var(--shadow-card-hover)] border border-border-light overflow-hidden"
+                        style={{
+                          width: `${1280 * desktopScale}px`,
+                          height: '100%',
+                          maxWidth: '100%',
+                        }}
+                      >
+                        <div
+                          className="h-full overflow-y-auto overflow-x-hidden"
+                          style={{ width: `${1280 * desktopScale}px` }}
+                        >
+                          {portfolioData.font && (
+                            <style>{`
+                              .editor-preview-font h1, .editor-preview-font h2, .editor-preview-font h3, .editor-preview-font h4, .editor-preview-font h5, .editor-preview-font h6 { font-family: "${portfolioData.font}", system-ui, sans-serif !important; }
+                              .editor-preview-font p, .editor-preview-font span, .editor-preview-font li, .editor-preview-font a, .editor-preview-font td, .editor-preview-font input, .editor-preview-font textarea, .editor-preview-font label { font-family: "${portfolioData.font_body ?? portfolioData.font}", system-ui, sans-serif !important; }
+                            `}</style>
+                          )}
+                          <div
+                            className="origin-top-left editor-preview-font"
+                            style={{
+                              width: '1280px',
+                              transform: `scale(${desktopScale})`,
+                              transformOrigin: 'top left',
+                            }}
+                          >
+                            <TemplateComponent {...templateProps} />
+                          </div>
+                        </div>
+                      </div>
+                    )
                   ) : (
                     <div className="flex items-center justify-center h-full">
                       <p className="text-sm text-muted">{t('preview.noTemplate')}</p>
