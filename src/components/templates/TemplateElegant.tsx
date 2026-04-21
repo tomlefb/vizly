@@ -26,6 +26,7 @@ export function TemplateElegant({
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -33,6 +34,10 @@ export function TemplateElegant({
     contact_form_description,
     slug,
   } = portfolio
+
+  const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
+  const bgColor = userPickedBg ? background_color! : '#FAF9F6'
+  const textColor = secondary_color ?? '#1A1A1A'
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -423,9 +428,10 @@ export function TemplateElegant({
                   primaryColor={primary_color}
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
-                isPreview={isPreview}
-                  textColor="#1A1A1A"
-                  surfaceColor="#FFFFFF"
+                  isPreview={isPreview}
+                  textColor={textColor}
+                  surfaceColor={bgColor}
+                  variant="elegant"
                 />
               </div>
             </section>
@@ -619,8 +625,8 @@ export function TemplateElegant({
       <div
         style={{
           fontFamily: "'Raleway', sans-serif",
-          backgroundColor: '#FAF9F6',
-          color: '#3D3D3D',
+          backgroundColor: bgColor,
+          color: textColor,
           minHeight: '100vh',
         }}
       >

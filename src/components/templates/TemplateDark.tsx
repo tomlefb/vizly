@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, isLightColor } from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateDark({ portfolio, projects, skills, sections, customBlocks, kpis, layoutBlocks, isPremium, isPreview }: TemplateProps) {
@@ -16,6 +16,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -23,6 +24,17 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
     contact_form_description,
     slug,
   } = portfolio
+
+  // Dark template's identity is a dark theme. A light background_color would
+  // kill the neon glows and the whole visual premise — so we ignore light
+  // picks and keep the template dark. A user who truly wants a dark custom
+  // hue (navy, plum, etc.) still gets it.
+  const pickedBgIsDark = background_color && !isLightColor(background_color)
+  const bgColor = pickedBgIsDark ? background_color! : '#0A0A0F'
+  const textColor = secondary_color && !isLightColor(bgColor) && isLightColor(secondary_color)
+    ? secondary_color
+    : '#F0F0F5'
+  const surfaceColor = '#141420'
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -223,8 +235,19 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
 
               {sortedProjects.length > 0 ? (
                 <div className={`grid grid-cols-1 gap-5 ${sortedProjects.length === 1 ? 'max-w-2xl' : 'md:grid-cols-2'}`}>
-                  {sortedProjects.map((project, index) => (
-                    <ClickableProject key={project.id} project={project} primaryColor={primary_color} dark>
+                  {sortedProjects.map((project, index) => {
+                    const isLastOdd =
+                      sortedProjects.length > 1 &&
+                      sortedProjects.length % 2 === 1 &&
+                      index === sortedProjects.length - 1
+                    return (
+                    <ClickableProject
+                      key={project.id}
+                      project={project}
+                      primaryColor={primary_color}
+                      dark
+                      className={isLastOdd ? 'md:col-span-2' : undefined}
+                    >
                       <article
                         className="group overflow-hidden transition-all duration-300 h-full hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                         style={{
@@ -365,7 +388,8 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                         </div>
                       </article>
                     </ClickableProject>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <p
@@ -445,9 +469,10 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                   primaryColor={primary_color}
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
-                isPreview={isPreview}
-                  textColor="#F0F0F5"
-                  surfaceColor="#141420"
+                  isPreview={isPreview}
+                  textColor={textColor}
+                  surfaceColor={surfaceColor}
+                  variant="dark"
                 />
               </div>
             </section>
@@ -637,8 +662,8 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
       <div
         style={{
           fontFamily: "'IBM Plex Sans', sans-serif",
-          backgroundColor: '#0A0A0F',
-          color: '#C8C8D0',
+          backgroundColor: bgColor,
+          color: textColor,
           minHeight: '100vh',
         }}
       >

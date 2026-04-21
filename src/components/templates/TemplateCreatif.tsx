@@ -26,6 +26,7 @@ export function TemplateCreatif({
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -33,6 +34,10 @@ export function TemplateCreatif({
     contact_form_description,
     slug,
   } = portfolio
+
+  const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
+  const bgColor = userPickedBg ? background_color! : '#F8F7F4'
+  const textColor = secondary_color ?? '#1A1A1A'
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -304,7 +309,7 @@ export function TemplateCreatif({
                                   <div
                                     className="relative overflow-hidden"
                                     style={{
-                                      aspectRatio: index === 0 ? '16/9' : '3/2',
+                                      aspectRatio: '16/9',
                                       borderRadius: 6,
                                     }}
                                   >
@@ -336,7 +341,7 @@ export function TemplateCreatif({
                                 ) : (
                                   <div
                                     style={{
-                                      aspectRatio: '3/2',
+                                      aspectRatio: '16/9',
                                       backgroundColor: `${primary_color}08`,
                                       borderRadius: 6,
                                       display: 'flex',
@@ -462,9 +467,10 @@ export function TemplateCreatif({
                   primaryColor={primary_color}
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
-                isPreview={isPreview}
-                  textColor="#1A1A1A"
-                  surfaceColor="#FFFFFF"
+                  isPreview={isPreview}
+                  textColor={textColor}
+                  surfaceColor={bgColor}
+                  variant="creatif"
                 />
               </div>
             </section>
@@ -630,8 +636,8 @@ export function TemplateCreatif({
       <div
         style={{
           fontFamily: "'Work Sans', sans-serif",
-          backgroundColor: '#F8F7F4',
-          color: '#2B2B2B',
+          backgroundColor: bgColor,
+          color: textColor,
           minHeight: '100vh',
         }}
       >

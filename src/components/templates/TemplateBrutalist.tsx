@@ -6,7 +6,7 @@ import { KpiRenderer } from './KpiRenderer'
 import { LayoutBlockRenderer } from './LayoutBlockRenderer'
 import { TemplateFooter } from './TemplateFooter'
 import { ContactFormWidget } from './ContactFormWidget'
-import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries } from './shared'
+import { SOCIAL_ICONS, getVisibleSections, getSortedProjects, getSocialEntries, isLightColor } from './shared'
 import { Mail } from 'lucide-react'
 
 export function TemplateBrutalist({
@@ -26,6 +26,7 @@ export function TemplateBrutalist({
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -37,16 +38,14 @@ export function TemplateBrutalist({
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
 
-  // Determine if dark mode: secondary color luminance check
-  const secClean = secondary_color.replace('#', '')
-  const secR = parseInt(secClean.substring(0, 2), 16)
-  const secG = parseInt(secClean.substring(2, 4), 16)
-  const secB = parseInt(secClean.substring(4, 6), 16)
-  const secLum = (0.299 * secR + 0.587 * secG + 0.114 * secB) / 255
-  const isDark = secLum < 0.4
-
-  const bgColor = isDark ? '#0D0D0D' : '#FAFAFA'
-  const textColor = isDark ? '#F5F5F5' : '#0D0D0D'
+  // Respect the user's background choice. Fall back to the brutalist default
+  // (inferred from secondary_color) only when the DB default (#FFFFFF) is in effect.
+  const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
+  const bgColor = userPickedBg ? background_color! : (isLightColor(secondary_color) ? '#0D0D0D' : '#FAFAFA')
+  const isDark = !isLightColor(bgColor)
+  const textColor = secondary_color && secondary_color.toUpperCase() !== '#1A1A1A'
+    ? secondary_color
+    : (isDark ? '#F5F5F5' : '#0D0D0D')
   const mutedColor = isDark ? '#777777' : '#888888'
   const borderColor = isDark ? '#333333' : '#0D0D0D'
   const surfaceColor = isDark ? '#161616' : '#FFFFFF'
@@ -432,9 +431,10 @@ export function TemplateBrutalist({
                   primaryColor={primary_color}
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
-                isPreview={isPreview}
+                  isPreview={isPreview}
                   textColor={textColor}
-                  surfaceColor={isDark ? '#1a1a1a' : '#FFFFFF'}
+                  surfaceColor={surfaceColor}
+                  variant="brutalist"
                 />
               </div>
             </section>

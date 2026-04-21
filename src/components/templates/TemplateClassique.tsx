@@ -16,6 +16,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -23,6 +24,10 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
     contact_form_description,
     slug,
   } = portfolio
+
+  const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
+  const bgColor = userPickedBg ? background_color! : '#F7F7F5'
+  const textColor = secondary_color ?? '#1A1A1A'
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -199,22 +204,9 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         )
 
       case 'contact': {
-        const showForm = isPremium && !!slug
-        if (showForm) {
-          return (
-            <div key="contact" style={{ marginTop: 28 }}>
-              <ContactFormWidget
-                slug={slug as string}
-                primaryColor={primary_color}
-                title={contact_form_title ?? 'Me contacter'}
-                description={contact_form_description ?? ''}
-                isPreview={isPreview}
-                textColor="#1A1A1A"
-                surfaceColor="#FFFFFF"
-              />
-            </div>
-          )
-        }
+        // The full contact form renders at the bottom of the main column
+        // (see renderMainContactForm below) — too cramped inside the 300px
+        // sidebar. Here we only show the email summary.
         if (!contact_email) return null
         return (
           <div key="contact" style={{ marginTop: 28 }}>
@@ -458,8 +450,8 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
         )
 
       case 'contact': {
-        const showForm = isPremium && !!slug
-        if (showForm) return null
+        // Mobile header: hide the email if the full form renders below in main.
+        if (isPremium && !!slug && !!contact_form_enabled) return null
         if (!contact_email) return null
         return (
           <div key="contact" className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
@@ -563,6 +555,9 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
 
   // Check if projects section is visible
   const projectsVisible = visibleSections.some((s) => s.id === 'projects')
+  const contactVisible = visibleSections.some((s) => s.id === 'contact')
+  const showContactForm = contactVisible && isPremium && !!slug && !!contact_form_enabled
+  const mainVisible = projectsVisible || showContactForm
 
   return (
     <>
@@ -580,8 +575,8 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
       <div
         style={{
           fontFamily: "'Lato', sans-serif",
-          backgroundColor: '#F7F7F5',
-          color: '#333333',
+          backgroundColor: bgColor,
+          color: textColor,
           minHeight: '100vh',
         }}
       >
@@ -608,10 +603,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
             style={{
               backgroundColor: '#FFFFFF',
               borderRight: `1px solid #E5E5E0`,
-              position: 'sticky',
-              top: 0,
-              height: '100vh',
-              overflowY: 'auto',
+              alignSelf: 'stretch',
             }}
           >
             <div className="px-7 py-10">
@@ -641,9 +633,11 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
           </aside>
 
           {/* Main content */}
-          {projectsVisible ? (
+          {mainVisible ? (
             <main className="flex-1 px-6 py-10 lg:px-12 lg:py-14">
               <div className="mx-auto max-w-3xl">
+                {projectsVisible ? (
+                  <>
                 <h2
                   style={{
                     fontFamily: "'Merriweather', serif",
@@ -768,6 +762,23 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                     Aucun projet pour le moment.
                   </p>
                 )}
+                  </>
+                ) : null}
+
+                {showContactForm ? (
+                  <div style={{ marginTop: projectsVisible ? 56 : 0 }}>
+                    <ContactFormWidget
+                      slug={slug as string}
+                      primaryColor={primary_color}
+                      title={contact_form_title ?? 'Me contacter'}
+                      description={contact_form_description ?? ''}
+                      isPreview={isPreview}
+                      textColor="#1A1A1A"
+                      surfaceColor="#FFFFFF"
+                      variant="classique"
+                    />
+                  </div>
+                ) : null}
               </div>
             </main>
           ) : null}

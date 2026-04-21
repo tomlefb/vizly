@@ -16,6 +16,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -23,6 +24,9 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
     contact_form_description,
     slug,
   } = portfolio
+
+  const bgColor = background_color ?? '#FAFAFA'
+  const textColor = secondary_color ?? '#1A1A1A'
 
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
@@ -195,8 +199,9 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
                 isPreview={isPreview}
-                textColor="#1A1A1A"
+                textColor={textColor}
                 surfaceColor="#FFFFFF"
+                variant="minimal"
               />
             ) : (
               <div className="mx-auto max-w-4xl text-center">
@@ -295,7 +300,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
 
-      <div style={{ fontFamily: "'Source Sans 3', sans-serif", backgroundColor: '#FAFAFA', color: '#2D2D2D', minHeight: '100vh' }}>
+      <div style={{ fontFamily: "'Source Sans 3', sans-serif", backgroundColor: bgColor, color: textColor, minHeight: '100vh' }}>
         {visibleSections.map(renderSection)}
 
         <TemplateFooter isPremium={isPremium} primaryColor={primary_color} />

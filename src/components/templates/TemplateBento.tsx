@@ -66,6 +66,7 @@ export function TemplateBento({
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -78,6 +79,9 @@ export function TemplateBento({
   const visibleSections = getVisibleSections(sections)
 
   const accentLight = lightenHex(primary_color, 0.92)
+  const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
+  const pageBg = userPickedBg ? background_color! : BG_SURFACE
+  const primaryText = secondary_color ?? TEXT_PRIMARY
 
   const socialEntries = getSocialEntries(social_links)
 
@@ -242,10 +246,10 @@ export function TemplateBento({
         return (
           <div
             key="bio"
-            className="col-span-2 sm:col-span-2 md:col-span-2"
+            className="col-span-2 sm:col-span-4 md:col-span-4"
             style={{
               ...CARD_BASE,
-              padding: 'clamp(18px, 2.5vw, 24px)',
+              padding: 'clamp(20px, 2.8vw, 28px)',
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -271,7 +275,7 @@ export function TemplateBento({
         return (
           <div
             key="socials"
-            className="col-span-2 sm:col-span-2 md:col-span-2"
+            className="col-span-2 sm:col-span-4 md:col-span-4"
             style={{
               ...CARD_BASE,
               padding: 'clamp(18px, 2.5vw, 24px)',
@@ -340,7 +344,7 @@ export function TemplateBento({
         return (
           <div
             key="skills"
-            className="col-span-2 sm:col-span-2 md:col-span-2"
+            className="col-span-2 sm:col-span-4 md:col-span-4"
             style={{
               ...CARD_BASE,
               padding: 'clamp(18px, 2.5vw, 24px)',
@@ -388,10 +392,15 @@ export function TemplateBento({
           )
         }
 
-        return sortedProjects.map((project) => {
-          // All projects use the same compact card. Single project = full width.
+        return sortedProjects.map((project, index) => {
+          // Single project = full width. Otherwise 2 per row on sm+.
+          // On an odd count, the last project stretches to fill the trailing gap.
+          const isLastOdd =
+            sortedProjects.length > 1 &&
+            sortedProjects.length % 2 === 1 &&
+            index === sortedProjects.length - 1
           const colSpan =
-            sortedProjects.length === 1
+            sortedProjects.length === 1 || isLastOdd
               ? 'col-span-2 sm:col-span-4 md:col-span-4'
               : 'col-span-2 sm:col-span-2 md:col-span-2'
 
@@ -570,8 +579,9 @@ export function TemplateBento({
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
                 isPreview={isPreview}
-                textColor="#1A1A1A"
-                surfaceColor="#FFFFFF"
+                textColor={TEXT_PRIMARY}
+                surfaceColor={CARD_BG}
+                variant="bento"
               />
             </div>
           )
@@ -744,8 +754,8 @@ export function TemplateBento({
       <div
         style={{
           fontFamily: "'Inter Tight', sans-serif",
-          backgroundColor: BG_SURFACE,
-          color: TEXT_PRIMARY,
+          backgroundColor: pageBg,
+          color: primaryText,
           minHeight: '100vh',
         }}
       >
@@ -753,7 +763,6 @@ export function TemplateBento({
           {/* Bento grid: 2 cols on mobile, 4 cols from sm+ */}
           <div
             className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-3.5 md:gap-4"
-            style={{ gridAutoFlow: 'dense' }}
           >
             {visibleSections.map((section) => (
               <Fragment key={section.id}>

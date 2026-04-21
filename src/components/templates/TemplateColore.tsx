@@ -33,6 +33,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
     photo_url,
     primary_color,
     secondary_color,
+    background_color,
     social_links,
     contact_email,
     contact_form_enabled,
@@ -44,7 +45,11 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
   const sortedProjects = getSortedProjects(projects)
   const visibleSections = getVisibleSections(sections)
 
-  const bgColor = lightenColor(primary_color, 0.93)
+  // Colore's default behavior is a cream derived from the accent. But if the
+  // user explicitly picked a non-default background, honor their choice.
+  const userPickedBg = background_color && background_color.toUpperCase() !== '#FFFFFF'
+  const bgColor = userPickedBg ? background_color! : lightenColor(primary_color, 0.93)
+  const textColor = secondary_color ?? '#1A1A1A'
   // Single, readable tag color — derived from primary
   const tagBg = lightenColor(primary_color, 0.85)
 
@@ -241,11 +246,17 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                       : 'sm:grid-cols-2 md:gap-6'
                   }`}
                 >
-                  {sortedProjects.map((project) => (
+                  {sortedProjects.map((project, index) => {
+                    const isLastOdd =
+                      sortedProjects.length > 1 &&
+                      sortedProjects.length % 2 === 1 &&
+                      index === sortedProjects.length - 1
+                    return (
                     <ClickableProject
                       key={project.id}
                       project={project}
                       primaryColor={primary_color}
+                      className={isLastOdd ? 'sm:col-span-2' : undefined}
                     >
                       <article
                         className="group h-full flex flex-col overflow-hidden"
@@ -398,7 +409,8 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                         </div>
                       </article>
                     </ClickableProject>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <p
@@ -477,8 +489,9 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
                 isPreview={isPreview}
-                textColor="#2A2A2A"
+                textColor={textColor}
                 surfaceColor="#FFFFFF"
+                variant="colore"
               />
             </section>
           )
