@@ -204,6 +204,14 @@ export function BillingClient({
     setSuccessMessage(
       isImmediate ? t('successUpdateBody') : t('successUpdateBodyScheduled'),
     )
+    if (isImmediate) {
+      // Upgrade immédiat : le plan courant + les features débloquées (limites
+      // portfolios, templates premium, etc.) sont lus dans de multiples
+      // composants serveur (layout, sidebar, éditeur). Un simple router.refresh()
+      // ne suffit pas toujours à propager l'état — on force un reload complet.
+      window.location.reload()
+      return
+    }
     router.refresh()
   }, [changePlanTarget, plan, subscription, t, router])
 
@@ -527,11 +535,7 @@ export function BillingClient({
               })
             : t('cancelDialogDescriptionNoDate')
         }
-        confirmLabel={
-          loadingAction === 'cancel'
-            ? t('ctaLoading')
-            : t('cancelDialogConfirm')
-        }
+        confirmLabel={t('cancelDialogConfirm')}
         cancelLabel={t('cancelDialogCancel')}
         confirmVariant="destructive"
         error={dialogError}
@@ -559,11 +563,7 @@ export function BillingClient({
                 date: formatLongDate(subscription.current_period_end),
               })
         })()}
-        confirmLabel={
-          loadingAction === 'change-plan'
-            ? t('ctaLoading')
-            : t('changePlanDialogConfirm')
-        }
+        confirmLabel={t('changePlanDialogConfirm')}
         cancelLabel={t('cancelDialogCancel')}
         confirmVariant="primary"
         error={dialogError}
@@ -595,11 +595,7 @@ export function BillingClient({
               })
             : t('reactivateDialogDescriptionNoDate')
         }
-        confirmLabel={
-          loadingAction === 'reactivate'
-            ? t('ctaLoading')
-            : t('reactivateDialogConfirm')
-        }
+        confirmLabel={t('reactivateDialogConfirm')}
         cancelLabel={t('cancelDialogCancel')}
         confirmVariant="primary"
         error={dialogError}

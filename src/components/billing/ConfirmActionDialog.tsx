@@ -139,7 +139,7 @@ export function ConfirmActionDialog({
           onClick={handleBackdropClick}
         >
           <motion.div
-            className="relative w-full sm:my-8 sm:max-w-sm max-h-[100vh] sm:max-h-[90vh] overflow-y-auto border-t border-border-light bg-surface sm:rounded-[var(--radius-lg)] sm:border"
+            className="relative w-full sm:my-8 sm:max-w-md max-h-[100vh] sm:max-h-[90vh] overflow-y-auto border-t border-border-light bg-surface sm:rounded-[var(--radius-lg)] sm:border"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
