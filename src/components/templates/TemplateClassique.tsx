@@ -780,8 +780,9 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                       title={contact_form_title ?? 'Me contacter'}
                       description={contact_form_description ?? ''}
                       isPreview={isPreview}
-                      textColor="#1A1A1A"
-                      surfaceColor="#FFFFFF"
+                      textColor={p.body}
+                      headingColor={p.heading}
+                      surfaceColor={p.surface}
                       variant="classique"
                     />
                   </div>

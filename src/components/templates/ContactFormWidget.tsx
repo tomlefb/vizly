@@ -19,6 +19,8 @@ interface ContactFormWidgetProps {
   title: string
   description: string
   textColor?: string
+  /** Heading color — used for the form title & success headline. Falls back to textColor. */
+  headingColor?: string
   surfaceColor?: string
   isPreview?: boolean
   variant?: ContactFormVariant
@@ -46,6 +48,7 @@ function buildVariant(
   variant: ContactFormVariant,
   primary: string,
   text: string,
+  heading: string,
   surface: string,
 ): VariantStyles {
   const alpha = (hex: string, a: string) => `${hex}${a}`
@@ -75,7 +78,7 @@ function buildVariant(
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: '1.1rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
           marginBottom: 6,
           letterSpacing: '-0.01em',
         },
@@ -135,7 +138,7 @@ function buildVariant(
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: '1rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
           letterSpacing: '-0.01em',
         },
         successText: {
@@ -161,7 +164,7 @@ function buildVariant(
           fontFamily: "'Merriweather', serif",
           fontSize: '1.4rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
           marginBottom: 8,
           letterSpacing: '-0.01em',
         },
@@ -225,7 +228,7 @@ function buildVariant(
           fontFamily: "'Merriweather', serif",
           fontSize: '1.1rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
         },
         successText: {
           fontFamily: "'Lato', sans-serif",
@@ -251,7 +254,7 @@ function buildVariant(
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '1.45rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
           marginBottom: 6,
           letterSpacing: '-0.015em',
         },
@@ -306,7 +309,7 @@ function buildVariant(
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '1.15rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
         },
         successText: {
           fontFamily: "'DM Sans', sans-serif",
@@ -333,7 +336,7 @@ function buildVariant(
           fontFamily: "'Syne', sans-serif",
           fontSize: 'clamp(1.6rem, 3.2vw, 2.2rem)',
           fontWeight: 700,
-          color: text,
+          color: heading,
           marginBottom: 8,
           letterSpacing: '-0.02em',
           lineHeight: 1.1,
@@ -394,7 +397,7 @@ function buildVariant(
           fontFamily: "'Syne', sans-serif",
           fontSize: '1.35rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
           letterSpacing: '-0.01em',
         },
         successText: {
@@ -421,7 +424,7 @@ function buildVariant(
           fontFamily: "'Bebas Neue', sans-serif",
           fontSize: 'clamp(2rem, 5vw, 3rem)',
           fontWeight: 400,
-          color: text,
+          color: heading,
           marginBottom: 6,
           letterSpacing: '0.02em',
           textTransform: 'uppercase',
@@ -482,7 +485,7 @@ function buildVariant(
           fontFamily: "'Bebas Neue', sans-serif",
           fontSize: '1.6rem',
           fontWeight: 400,
-          color: text,
+          color: heading,
           textTransform: 'uppercase',
           letterSpacing: '0.04em',
         },
@@ -512,7 +515,7 @@ function buildVariant(
           fontFamily: "'Cormorant Garamond', serif",
           fontSize: 'clamp(1.8rem, 3.2vw, 2.4rem)',
           fontWeight: 400,
-          color: text,
+          color: heading,
           marginBottom: 10,
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
@@ -585,7 +588,7 @@ function buildVariant(
           fontFamily: "'Cormorant Garamond', serif",
           fontSize: '1.4rem',
           fontWeight: 400,
-          color: text,
+          color: heading,
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
         },
@@ -619,7 +622,7 @@ function buildVariant(
           fontFamily: "'Inter Tight', sans-serif",
           fontSize: '1.3rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
           marginBottom: 6,
           letterSpacing: '-0.02em',
         },
@@ -676,7 +679,7 @@ function buildVariant(
           fontFamily: "'Inter Tight', sans-serif",
           fontSize: '1.05rem',
           fontWeight: 600,
-          color: text,
+          color: heading,
           letterSpacing: '-0.01em',
         },
         successText: {
@@ -703,7 +706,7 @@ function buildVariant(
           fontFamily: "'Outfit', sans-serif",
           fontSize: '1.25rem',
           fontWeight: 700,
-          color: text,
+          color: heading,
           marginBottom: 6,
           letterSpacing: '-0.01em',
         },
@@ -757,7 +760,7 @@ function buildVariant(
           fontFamily: "'Outfit', sans-serif",
           fontSize: '1.05rem',
           fontWeight: 600,
-          color: text,
+          color: heading,
         },
         successText: {
           fontFamily: "'Outfit', sans-serif",
@@ -781,10 +784,12 @@ export function ContactFormWidget({
   title,
   description,
   textColor = '#1A1A1A',
+  headingColor,
   surfaceColor = '#FFFFFF',
   isPreview = false,
   variant = 'minimal',
 }: ContactFormWidgetProps) {
+  const resolvedHeading = headingColor ?? textColor
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -792,7 +797,7 @@ export function ContactFormWidget({
   const [errorMsg, setErrorMsg] = useState('')
   const [focusedId, setFocusedId] = useState<string | null>(null)
 
-  const v = buildVariant(variant, primaryColor, textColor, surfaceColor)
+  const v = buildVariant(variant, primaryColor, textColor, resolvedHeading, surfaceColor)
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

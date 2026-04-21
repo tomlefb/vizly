@@ -475,7 +475,8 @@ export function TemplateCreatif({
                   title={contact_form_title ?? 'Me contacter'}
                   description={contact_form_description ?? ''}
                   isPreview={isPreview}
-                  textColor={textColor}
+                  textColor={p.body}
+                  headingColor={p.heading}
                   surfaceColor={bgColor}
                   variant="creatif"
                 />

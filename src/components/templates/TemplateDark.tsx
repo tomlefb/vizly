@@ -475,6 +475,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                   description={contact_form_description ?? ''}
                   isPreview={isPreview}
                   textColor={p.body}
+                  headingColor={p.heading}
                   surfaceColor={surfaceColor}
                   variant="dark"
                 />

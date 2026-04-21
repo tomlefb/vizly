@@ -581,7 +581,8 @@ export function TemplateBento({
                 title={contact_form_title ?? 'Me contacter'}
                 description={contact_form_description ?? ''}
                 isPreview={isPreview}
-                textColor={p.title}
+                textColor={p.body}
+                headingColor={p.heading}
                 surfaceColor={p.surface}
                 variant="bento"
               />
