@@ -364,7 +364,7 @@ export function EditorLayout({
 
       {/* ── Fullscreen preview modal ── */}
       {previewOpen && (
-        <div className="fixed inset-0 z-50 bg-background">
+        <div className="fixed inset-0 z-[100] bg-background">
           <div className="flex flex-col h-full">
             {/* Minimal header */}
             <div className="shrink-0 flex items-center justify-between border-b border-border-light bg-surface px-6 h-12">
