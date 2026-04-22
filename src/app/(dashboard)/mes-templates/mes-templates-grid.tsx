@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import type { TemplateConfig } from '@/types/templates'
-import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
-import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
+import { getDemoPortfolio } from '@/lib/demo-data'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
 import { VzBadge, VzBtn } from '@/components/ui/vizly'
 import { TemplatePurchaseModal } from '@/components/billing/TemplatePurchaseModal'
@@ -127,19 +126,7 @@ function TemplateCard({
   onBuy,
   t,
 }: TemplateCardProps) {
-  const colors = DEMO_COLORS[template.name] ?? {
-    primary: DEFAULT_PORTFOLIO_COLOR,
-    secondary: '#1A1A1A',
-  }
-  const demoProps = {
-    ...DEMO_PORTFOLIO,
-    portfolio: {
-      ...DEMO_PORTFOLIO.portfolio,
-      primary_color: colors.primary,
-      secondary_color: colors.secondary,
-    },
-    isPremium: template.isPremium,
-  }
+  const demoProps = getDemoPortfolio(template.name, template.isPremium)
 
   const chrome = (
     <div className="overflow-hidden border-b border-border-light bg-surface-sunken">

@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 import { templateMap } from '@/components/templates'
-import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
-import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
+import { getDemoPortfolio } from '@/lib/demo-data'
 import type { TemplateName } from '@/types/templates'
 
 interface PageProps {
@@ -13,17 +12,6 @@ export default async function DevPreviewPage({ params }: PageProps) {
   const Component = templateMap[template as TemplateName]
   if (!Component) notFound()
 
-  const colors = DEMO_COLORS[template] ?? { primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#1A1A1A' }
-
-  const props = {
-    ...DEMO_PORTFOLIO,
-    portfolio: {
-      ...DEMO_PORTFOLIO.portfolio,
-      primary_color: colors.primary,
-      secondary_color: colors.secondary,
-    },
-    isPremium: true,
-  }
-
+  const props = getDemoPortfolio(template, true)
   return <Component {...props} />
 }

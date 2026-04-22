@@ -3,11 +3,10 @@
 import { useCallback, useMemo } from 'react'
 import { Check, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import type { TemplateName } from '@/types/templates'
 import { TemplatePreview } from '@/components/shared/TemplatePreview'
-import { DEMO_PORTFOLIO, DEMO_COLORS } from '@/lib/demo-data'
+import { getDemoPortfolio } from '@/lib/demo-data'
 
 interface TemplateSelectorProps {
   value: TemplateName
@@ -17,17 +16,7 @@ interface TemplateSelectorProps {
 }
 
 function useDemoProps(name: TemplateName) {
-  return useMemo(() => {
-    const colors = DEMO_COLORS[name] ?? { primary: DEFAULT_PORTFOLIO_COLOR, secondary: '#1A1A1A' }
-    return {
-      ...DEMO_PORTFOLIO,
-      portfolio: {
-        ...DEMO_PORTFOLIO.portfolio,
-        primary_color: colors.primary,
-        secondary_color: colors.secondary,
-      },
-    }
-  }, [name])
+  return useMemo(() => getDemoPortfolio(name), [name])
 }
 
 function FreeTemplateCard({ name, label, idealFor, isSelected, onSelect }: {
