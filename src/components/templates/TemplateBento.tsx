@@ -764,9 +764,12 @@ export function TemplateBento({
         }}
       >
         <div className="mx-auto max-w-5xl px-3 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10">
-          {/* Bento grid: 2 cols on mobile, 4 cols from sm+ */}
+          {/* Bento grid: 2 cols on mobile, 4 cols from sm+.
+              grid-flow-row-dense packs small cells into gaps — on mobile
+              it lets the Projets stats card sit next to the photo card
+              instead of leaving an empty slot before the full-width identity row. */}
           <div
-            className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-3.5 md:gap-4"
+            className="grid grid-flow-row-dense grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-3.5 md:gap-4"
           >
             {visibleSections.map((section) => (
               <Fragment key={section.id}>
