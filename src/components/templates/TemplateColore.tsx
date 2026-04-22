@@ -685,7 +685,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
         {/* Decorative blobs */}
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             top: -120,
             right: -80,
             width: 320,
@@ -699,7 +699,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
         />
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             bottom: -100,
             left: -60,
             width: 260,
@@ -713,7 +713,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
         />
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             top: '40%',
             left: '60%',
             width: 180,

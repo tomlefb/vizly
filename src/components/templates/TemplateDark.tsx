@@ -671,12 +671,14 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
           backgroundColor: bgColor,
           color: p.body,
           minHeight: '100vh',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         {/* Subtle grid background pattern */}
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             inset: 0,
             backgroundImage: `
               linear-gradient(${primary_color}06 1px, transparent 1px),
