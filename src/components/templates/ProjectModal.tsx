@@ -57,10 +57,34 @@ export function ProjectModal({ project, primaryColor, onClose, dark = false }: P
     touchStartX.current = null
   }, [nextImage, prevImage, hasMultipleImages])
 
-  // Prevent body scroll
+  // Prevent body scroll — technique position:fixed pour iOS/Android
+  // car overflow:hidden seul ne bloque pas le scroll sur mobile.
   useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    const scrollY = window.scrollY
+    const body = document.body
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    }
+    body.style.position = 'fixed'
+    body.style.top = `-${scrollY}px`
+    body.style.left = '0'
+    body.style.right = '0'
+    body.style.width = '100%'
+    body.style.overflow = 'hidden'
+    return () => {
+      body.style.position = prev.position
+      body.style.top = prev.top
+      body.style.left = prev.left
+      body.style.right = prev.right
+      body.style.width = prev.width
+      body.style.overflow = prev.overflow
+      window.scrollTo(0, scrollY)
+    }
   }, [])
 
   const bg = dark ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)'
@@ -71,7 +95,23 @@ export function ProjectModal({ project, primaryColor, onClose, dark = false }: P
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '100lvh',
+        minHeight: '100dvh',
+        zIndex: 9999,
+        backgroundColor: bg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        touchAction: 'none',
+        overscrollBehavior: 'contain',
+      }}
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}
       role="dialog"
       aria-modal="true"
