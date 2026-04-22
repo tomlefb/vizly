@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 
-export const size = { width: 48, height: 48 }
+export const size = { width: 64, height: 64 }
 export const contentType = 'image/png'
 
 export default function Icon() {
@@ -14,19 +14,15 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#1A1A1A',
-          borderRadius: 9,
+          borderRadius: 12,
         }}
       >
-        <svg width="36" height="36" viewBox="0 0 32 32">
+        <svg width="52" height="52" viewBox="-30 -880 1020 1020">
           <path
-            d="M8 9l8 15 8-15"
-            fill="none"
-            stroke="#FFFFFF"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            fill="#FFFFFF"
+            d="M454 0L287 0L10-740L183-740L323-366Q336-332 347-295Q358-258 370-210Q384-263 395.5-298Q407-333 419-366L557-740L726-740L454 0Z"
           />
-          <circle cx="16" cy="24" r="2.5" fill="#C2831A" />
+          <circle cx="850" cy="-100" r="100" fill="#C2831A" />
         </svg>
       </div>
     ),
