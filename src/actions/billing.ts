@@ -469,6 +469,15 @@ export async function cancelSubscriptionAction(): Promise<CancelSubscriptionResu
     const { error } = await cancelSubscriptionAtPeriodEnd({ subscriptionId })
     if (error) return { ok: false, error }
 
+    // Sync DB immédiat — sinon le webhook arrive après le refresh client et
+    // la bannière "Annuler l'annulation" ne s'affiche pas tant que la page
+    // n'est pas rechargée à la main. Même pattern que changeSubscriptionPlanAction.
+    const admin = createAdminClient()
+    await admin
+      .from('subscriptions')
+      .update({ cancel_at_period_end: true })
+      .eq('user_id', user.id)
+
     revalidatePath('/billing')
     return { ok: true }
   } catch (err) {
@@ -497,6 +506,14 @@ export async function reactivateSubscriptionAction(): Promise<CancelSubscription
 
     const { error } = await reactivateSubscription({ subscriptionId })
     if (error) return { ok: false, error }
+
+    // Sync DB immédiat (même logique que cancelSubscriptionAction) pour que
+    // la bannière disparaisse instantanément au lieu d'attendre le webhook.
+    const admin = createAdminClient()
+    await admin
+      .from('subscriptions')
+      .update({ cancel_at_period_end: false })
+      .eq('user_id', user.id)
 
     revalidatePath('/billing')
     return { ok: true }
