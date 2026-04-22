@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type ComponentType } from 'react'
+import { useState, useEffect, useRef, type ComponentType } from 'react'
 import type { TemplateName } from '@/types/templates'
 import type { TemplateProps } from '@/types'
 
@@ -9,6 +9,7 @@ interface TemplatePreviewProps {
   templateProps: TemplateProps
   scale?: number
   height?: string
+  designWidth?: number
 }
 
 export function TemplatePreview({
@@ -16,8 +17,11 @@ export function TemplatePreview({
   templateProps,
   scale = 0.35,
   height = '200px',
+  designWidth = 1280,
 }: TemplatePreviewProps) {
   const [Component, setComponent] = useState<ComponentType<TemplateProps> | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [computedScale, setComputedScale] = useState(scale)
 
   useEffect(() => {
     let cancelled = false
@@ -39,21 +43,40 @@ export function TemplatePreview({
     return () => { cancelled = true }
   }, [templateName])
 
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const update = () => {
+      const width = el.clientWidth
+      if (width <= 0) return
+      const next = Math.min(scale, width / designWidth)
+      setComputedScale(next)
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [scale, designWidth, Component])
+
   if (!Component) {
     return (
-      <div className="flex items-center justify-center bg-surface-warm/50" style={{ height }}>
+      <div
+        ref={containerRef}
+        className="flex items-center justify-center bg-surface-warm/50"
+        style={{ height }}
+      >
         <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
       </div>
     )
   }
 
   return (
-    <div className="relative overflow-hidden" style={{ height }}>
+    <div ref={containerRef} className="relative overflow-hidden" style={{ height }}>
       <div
         className="absolute top-0 left-0 origin-top-left pointer-events-none"
         style={{
-          width: '1280px',
-          transform: `scale(${scale})`,
+          width: `${designWidth}px`,
+          transform: `scale(${computedScale})`,
           transformOrigin: 'top left',
         }}
       >
