@@ -617,7 +617,7 @@ export function TemplateBrutalist({
         <div
           aria-hidden="true"
           style={{
-            position: 'fixed',
+            position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%) rotate(-8deg)',
