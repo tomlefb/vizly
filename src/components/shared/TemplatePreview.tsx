@@ -49,14 +49,13 @@ export function TemplatePreview({
     const update = () => {
       const width = el.clientWidth
       if (width <= 0) return
-      const next = Math.min(scale, width / designWidth)
-      setComputedScale(next)
+      setComputedScale(width / designWidth)
     }
     update()
     const ro = new ResizeObserver(update)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [scale, designWidth, Component])
+  }, [designWidth, Component])
 
   if (!Component) {
     return (
