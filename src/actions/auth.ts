@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/emails/send'
 import { getActionClientIdentifier, rateLimit } from '@/lib/rate-limit'
+import { stripe } from '@/lib/stripe/client'
 import { z } from 'zod'
 
 // ---------------------------------------------------------------------------
@@ -872,6 +873,36 @@ export async function deleteAccount(): Promise<{ error: string | null }> {
     }
 
     const admin = createAdminClient()
+
+    // 0. Annulation immédiate de l'abonnement Stripe AVANT le cleanup DB.
+    // Sans ça, on garde un stripe_subscription_id actif chez Stripe : le
+    // prochain billing cycle déclenche un prélèvement sur une carte liée à
+    // un user qui n'existe plus côté Vizly. On release aussi un schedule
+    // pending éventuel (downgrade programmé) pour éviter un ghost schedule.
+    // Best-effort : on ne bloque pas la suppression si Stripe renvoie une
+    // erreur (abo déjà annulé, id invalide, etc) — on log et on continue
+    // car l'utilisateur a le droit de partir.
+    const { data: subRow } = await admin
+      .from('subscriptions')
+      .select('stripe_subscription_id, stripe_schedule_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (subRow?.stripe_schedule_id) {
+      try {
+        await stripe.subscriptionSchedules.release(subRow.stripe_schedule_id)
+      } catch (err) {
+        console.error('[Auth] Failed to release schedule before account delete:', err)
+      }
+    }
+
+    if (subRow?.stripe_subscription_id) {
+      try {
+        await stripe.subscriptions.cancel(subRow.stripe_subscription_id)
+      } catch (err) {
+        console.error('[Auth] Failed to cancel Stripe subscription before account delete:', err)
+      }
+    }
 
     // 1. Get portfolio ID(s) to delete related projects
     const { data: portfolios } = await admin
