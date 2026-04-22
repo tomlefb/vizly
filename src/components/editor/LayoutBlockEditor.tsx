@@ -195,7 +195,7 @@ export function LayoutBlockEditor({ blocks, onChange, primaryColor }: LayoutBloc
                 </div>
 
                 {/* Column editors */}
-                <div className={cn('grid gap-4', editingBlock.columnCount === 1 ? 'grid-cols-1' : editingBlock.columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
+                <div className={cn('grid gap-4', editingBlock.columnCount === 1 ? 'grid-cols-1' : editingBlock.columnCount === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-3')}>
                   {editingBlock.columns.slice(0, editingBlock.columnCount).map((col, i) => (
                     <div key={i} className="space-y-3 rounded-[var(--radius-lg)] border border-border-light p-3">
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('columnLabel', { number: i + 1 })}</p>
