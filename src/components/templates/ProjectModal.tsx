@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { safeUrlOrEmpty } from '@/lib/sanitize'
@@ -42,6 +42,20 @@ export function ProjectModal({ project, primaryColor, onClose, dark = false }: P
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose, nextImage, prevImage, hasMultipleImages])
+
+  // Touch swipe support — seuil 40px pour distinguer swipe d'un tap accidentel.
+  const touchStartX = useRef<number | null>(null)
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null
+  }, [])
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || !hasMultipleImages) return
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current
+    const delta = endX - touchStartX.current
+    if (delta <= -40) nextImage()
+    else if (delta >= 40) prevImage()
+    touchStartX.current = null
+  }, [nextImage, prevImage, hasMultipleImages])
 
   // Prevent body scroll
   useEffect(() => {
@@ -95,7 +109,11 @@ export function ProjectModal({ project, primaryColor, onClose, dark = false }: P
 
         {/* Image carousel */}
         {hasImages && (
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '16/10', backgroundColor: dark ? '#111' : '#F5F5F5' }}>
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ position: 'relative', width: '100%', aspectRatio: '16/10', backgroundColor: dark ? '#111' : '#F5F5F5' }}
+          >
             <Image
               src={project.images[currentImage] ?? ''}
               alt={`${project.title} — image ${currentImage + 1}`}
@@ -116,7 +134,7 @@ export function ProjectModal({ project, primaryColor, onClose, dark = false }: P
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     border: 'none', cursor: 'pointer',
                   }}
-                  aria-label="Image precedente"
+                  aria-label="Image précédente"
                 >
                   <ChevronLeft size={18} />
                 </button>

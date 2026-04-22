@@ -388,7 +388,7 @@ export function TemplateDark({ portfolio, projects, skills, sections, customBloc
                           ) : null}
 
                           <p style={{ marginTop: 12, fontSize: '0.75rem', color: primary_color, fontWeight: 500, fontFamily: "'JetBrains Mono', monospace" }}>
-                            Voir le detail &rarr;
+                            Voir le détail &rarr;
                           </p>
                         </div>
                       </article>

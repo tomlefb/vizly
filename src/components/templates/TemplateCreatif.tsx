@@ -398,7 +398,7 @@ export function TemplateCreatif({
                             </div>
 
                             <p style={{ marginTop: 16, fontSize: '0.78rem', color: primary_color, fontWeight: 600, fontFamily: "'Syne', sans-serif", letterSpacing: '0.02em' }}>
-                              Voir le detail &rarr;
+                              Voir le détail &rarr;
                             </p>
                           </article>
                         </ClickableProject>

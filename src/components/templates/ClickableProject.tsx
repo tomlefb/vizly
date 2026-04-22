@@ -42,7 +42,7 @@ export function ClickableProject({
         }}
         className={className}
         style={{ ...style, cursor: 'pointer' }}
-        aria-label={`Voir le detail du projet ${project.title}`}
+        aria-label={`Voir le détail du projet ${project.title}`}
       >
         {children}
       </div>

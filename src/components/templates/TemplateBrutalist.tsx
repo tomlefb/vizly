@@ -309,7 +309,7 @@ export function TemplateBrutalist({
                               ) : null}
 
                               <p style={{ marginTop: 12, fontSize: '0.72rem', color: primary_color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                                Voir le detail &rarr;
+                                Voir le détail &rarr;
                               </p>
                             </div>
 

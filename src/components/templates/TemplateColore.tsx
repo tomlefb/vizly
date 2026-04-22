@@ -412,7 +412,7 @@ export function TemplateColore({ portfolio, projects, skills, sections, customBl
                               fontFamily: "'Fredoka', sans-serif",
                             }}
                           >
-                            Voir le detail &rarr;
+                            Voir le détail &rarr;
                           </p>
                         </div>
                       </article>

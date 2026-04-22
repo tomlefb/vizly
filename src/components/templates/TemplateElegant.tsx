@@ -342,7 +342,7 @@ export function TemplateElegant({
                         ) : null}
 
                         <p style={{ marginTop: 20, fontSize: '0.78rem', color: primary_color, fontWeight: 400, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.02em' }}>
-                          Voir le detail &rarr;
+                          Voir le détail &rarr;
                         </p>
 
                         {/* Thin separator */}

@@ -35,7 +35,7 @@ interface DemoEntry {
   bio: string
   contactEmail: string | null
   socialLinks: Record<string, string>
-  projects: Array<{ title: string; desc?: string; tags: string[]; imgId: number }>
+  projects: Array<{ title: string; desc?: string; tags: string[]; imgId: number; extraImgIds?: number[] }>
   skills: string[]
   kpis?: KpiItem[]
   layoutBlocks?: LayoutBlock[]
@@ -50,7 +50,7 @@ const DEMO_ENTRIES: Record<TemplateName, DemoEntry> = {
     contactEmail: 'thomas@example.com',
     socialLinks: { github: '#', linkedin: '#', website: '#' },
     projects: [
-      { title: 'App Bancaire', desc: 'Backend Go pour une néobanque, 2M de requêtes/jour. Architecture event-driven avec Kafka.', tags: ['Go', 'Kafka', 'gRPC'], imgId: 0 },
+      { title: 'App Bancaire', desc: 'Backend Go pour une néobanque, 2M de requêtes/jour. Architecture event-driven avec Kafka.', tags: ['Go', 'Kafka', 'gRPC'], imgId: 0, extraImgIds: [60, 180] },
       { title: 'Dashboard SaaS', desc: 'Plateforme data-viz B2B, backend temps réel et API GraphQL.', tags: ['TypeScript', 'GraphQL'], imgId: 60 },
       { title: 'API Platform', desc: 'API interne multi-tenant, 99.99% uptime sur 18 mois.', tags: ['Docker', 'Kubernetes'], imgId: 180 },
       { title: 'E-commerce', desc: 'Refonte du backend e-commerce, -60% sur le temps de réponse.', tags: ['Rust', 'PostgreSQL'], imgId: 366 },
@@ -305,7 +305,10 @@ export function getDemoPortfolio(templateName: string, isPremium = false): Templ
       id: `${tName}-p-${i}`,
       title: p.title,
       description: p.desc ?? null,
-      images: [`https://picsum.photos/id/${p.imgId}/800/600`],
+      images: [
+        `https://picsum.photos/id/${p.imgId}/800/600`,
+        ...(p.extraImgIds?.map((id) => `https://picsum.photos/id/${id}/800/600`) ?? []),
+      ],
       external_link: null,
       tags: p.tags,
       display_order: i,

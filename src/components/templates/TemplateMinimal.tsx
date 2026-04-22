@@ -188,7 +188,7 @@ export function TemplateMinimal({ portfolio, projects, skills, sections, customB
                             </div>
                           ) : null}
                           <p style={{ marginTop: 12, fontSize: '0.78rem', color: primary_color, fontWeight: 500 }}>
-                            Voir le detail &rarr;
+                            Voir le détail &rarr;
                           </p>
                         </div>
                       </article>

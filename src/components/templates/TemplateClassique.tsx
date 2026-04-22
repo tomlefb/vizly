@@ -759,7 +759,7 @@ export function TemplateClassique({ portfolio, projects, skills, sections, custo
                           ) : null}
 
                           <p style={{ marginTop: 12, fontSize: '0.78rem', color: primary_color, fontWeight: 600 }}>
-                            Voir le detail &rarr;
+                            Voir le détail &rarr;
                           </p>
                         </article>
                       </ClickableProject>
