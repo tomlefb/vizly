@@ -327,7 +327,7 @@ export function ContentBlocksEditor({
                       ))}
                     </div>
                   </div>
-                  <div className={cn('grid gap-4', editingLayout.columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
+                  <div className={cn('grid gap-4', editingLayout.columnCount === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-3')}>
                     {editingLayout.columns.map((col, colIdx) => (
                       <div key={colIdx} className="space-y-2 rounded-[var(--radius-md)] border border-border-light p-3">
                         <div className="flex items-center justify-between">
