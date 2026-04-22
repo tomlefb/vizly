@@ -296,7 +296,8 @@
       "mentions": "Mentions légales",
       "cgu": "CGU",
       "privacy": "Politique de confidentialité",
-      "contact": "Contact"
+      "contact": "Contact",
+      "report": "Signalement"
     }
   },
   "legal": {
@@ -432,12 +433,27 @@
         "title": "5. Partage des données",
         "body": "Vizly ne revend ni ne partage les données personnelles à des tiers à des fins commerciales. Les données sont partagées uniquement avec les sous-traitants nécessaires au fonctionnement du service (Supabase, Railway, Stripe, Resend)."
       },
+      "transferts": {
+        "title": "6. Transferts hors Union Européenne",
+        "body": "Certains sous-traitants sont établis en dehors de l'Union Européenne, principalement aux États-Unis (Railway, Stripe, Resend). Ces transferts sont encadrés par les Clauses Contractuelles Types (CCT) adoptées par la Commission européenne le 4 juin 2021, et lorsque cela s'applique par la certification au Data Privacy Framework (DPF). Stripe et Resend adhèrent au DPF. Supabase héberge quant à lui les données de la base et des images sur des serveurs situés dans l'Union Européenne."
+      },
+      "conservation": {
+        "title": "7. Durées de conservation",
+        "intro": "Les données sont conservées pendant les durées suivantes :",
+        "items": [
+          "Données de compte (profil, portfolios) : pendant toute la durée du compte, puis 30 jours après suppression pour permettre la récupération, avant effacement définitif",
+          "Données de facturation : 10 ans à compter de l'émission de la facture (obligation comptable, art. L123-22 Code de commerce)",
+          "Emails transactionnels : 12 mois dans les logs Resend",
+          "Logs techniques (accès serveur, erreurs) : 12 mois maximum",
+          "Données de contact et de signalement : 3 ans à compter du dernier échange"
+        ]
+      },
       "cookies": {
-        "title": "6. Cookies",
-        "body": "Vizly utilise uniquement des cookies fonctionnels nécessaires au fonctionnement du service (session d'authentification). Aucun cookie de tracking, publicitaire ou analytique tiers n'est utilisé."
+        "title": "8. Cookies",
+        "body": "Vizly utilise uniquement des cookies strictement nécessaires au fonctionnement du service : cookie de session d'authentification (Supabase) et préférence d'interface (état de la sidebar, choix d'acceptation de ce bandeau). Aucun cookie de mesure d'audience, publicitaire, ou de tracking tiers n'est déposé. Conformément à la recommandation de la CNIL, ces cookies essentiels ne requièrent pas de consentement préalable, mais un bandeau d'information est affiché à votre première visite."
       },
       "rgpd": {
-        "title": "7. Droits RGPD",
+        "title": "9. Droits RGPD",
         "intro": "Conformément au RGPD, vous disposez des droits suivants :",
         "rights": [
           { "label": "Accès", "description": "obtenir une copie de vos données personnelles" },
@@ -450,13 +466,17 @@
         "contactSuffix": "Nous répondrons sous 30 jours."
       },
       "contactSection": {
-        "title": "8. Contact",
+        "title": "10. Contact",
         "prompt": "Pour toute question relative à la protection de vos données :"
       }
     },
     "contact": {
       "title": "Contacte-nous",
       "subtitle": "Une question, un bug, une suggestion ? On répond sous 24 heures."
+    },
+    "signalement": {
+      "title": "Signaler un contenu",
+      "subtitle": "Un portfolio hébergé sur Vizly viole vos droits ou contient un contenu manifestement illicite ? Utilisez ce formulaire pour nous le signaler (art. 6 LCEN, règlement UE 2022/2065 DSA)."
     },
     "faq": {
       "title": "Questions fréquentes",
@@ -1340,7 +1360,49 @@
     "successBody": "On te répond au plus vite.",
     "successAgain": "Envoyer un autre message",
     "errorSending": "Erreur lors de l'envoi",
+    "errorNetwork": "Erreur réseau. Réessaie.",
+    "consentPrefix": "J'accepte que mes données soient traitées pour répondre à ma demande. Voir la",
+    "consentLink": "politique de confidentialité",
+    "consentRequired": "Tu dois accepter le traitement de tes données pour envoyer ton message."
+  },
+  "reportForm": {
+    "categoryLabel": "Catégorie du signalement",
+    "categoryPlaceholder": "Sélectionne une catégorie",
+    "categoryOptions": {
+      "copyright": "Violation de droits d'auteur ou de propriété intellectuelle",
+      "privacy": "Atteinte à la vie privée ou données personnelles",
+      "hate": "Discours haineux, harcèlement ou menaces",
+      "illegal": "Contenu manifestement illicite (escroquerie, contrefaçon)",
+      "impersonation": "Usurpation d'identité",
+      "other": "Autre"
+    },
+    "urlLabel": "URL du contenu signalé",
+    "urlPlaceholder": "https://pseudo.vizly.fr/...",
+    "urlHelper": "L'adresse exacte du portfolio ou de la page concernée.",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Ton nom",
+    "emailLabel": "Email",
+    "emailPlaceholder": "ton@email.com",
+    "messageLabel": "Description du signalement",
+    "messagePlaceholder": "Décris précisément le contenu en cause, les droits violés et tout élément justifiant ton signalement.",
+    "declarationLabel": "Je déclare de bonne foi que les informations fournies sont exactes. Je comprends qu'un signalement abusif peut engager ma responsabilité (art. 6-I-4 LCEN).",
+    "consentPrefix": "J'accepte que mes données soient traitées pour l'instruction de ce signalement. Voir la",
+    "consentLink": "politique de confidentialité",
+    "declarationRequired": "Tu dois certifier la bonne foi de ton signalement.",
+    "consentRequired": "Tu dois accepter le traitement de tes données.",
+    "send": "Envoyer le signalement",
+    "sending": "Envoi en cours...",
+    "successTitleStart": "Signalement",
+    "successTitleAccent": "reçu",
+    "successBody": "On traite ton signalement sous 48 heures et on te tient informé.",
+    "successAgain": "Envoyer un autre signalement",
+    "errorSending": "Erreur lors de l'envoi",
     "errorNetwork": "Erreur réseau. Réessaie."
+  },
+  "cookieBanner": {
+    "body": "Vizly utilise uniquement des cookies strictement nécessaires au fonctionnement du site (session de connexion, préférences d'interface). Aucun cookie de tracking ni d'audience.",
+    "learnMore": "En savoir plus",
+    "accept": "J'ai compris"
   },
   "emails": {
     "welcome": {

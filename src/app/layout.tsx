@@ -4,6 +4,7 @@ import { DM_Sans } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import NextTopLoader from 'nextjs-toploader'
+import { CookieBanner } from '@/components/shared/CookieBanner'
 import './globals.css'
 
 const satoshi = localFont({
@@ -179,6 +180,7 @@ export default async function RootLayout({
         />
         <NextIntlClientProvider messages={messages}>
           {children}
+          <CookieBanner />
         </NextIntlClientProvider>
       </body>
     </html>

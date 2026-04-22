@@ -15,6 +15,7 @@ export default async function ConfidentialitePage() {
 
   const collectedItems = t.raw('donneesCollectees.items') as string[]
   const finaliteItems = t.raw('finalite.items') as string[]
+  const conservationItems = t.raw('conservation.items') as string[]
   const rgpdRights = t.raw('rgpd.rights') as RgpdRight[]
 
   return (
@@ -65,6 +66,19 @@ export default async function ConfidentialitePage() {
 
       <Section title={t('partage.title')}>
         {t('partage.body')}
+      </Section>
+
+      <Section title={t('transferts.title')}>
+        {t('transferts.body')}
+      </Section>
+
+      <Section title={t('conservation.title')}>
+        {t('conservation.intro')}
+        <ul className="mt-2 list-disc list-inside space-y-1">
+          {conservationItems.map((item, i) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
       </Section>
 
       <Section title={t('cookies.title')}>

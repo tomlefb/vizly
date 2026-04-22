@@ -296,7 +296,8 @@
       "mentions": "Legal notices",
       "cgu": "Terms of Service",
       "privacy": "Privacy Policy",
-      "contact": "Contact"
+      "contact": "Contact",
+      "report": "Report content"
     }
   },
   "legal": {
@@ -432,12 +433,27 @@
         "title": "5. Data sharing",
         "body": "Vizly does not sell or share personal data with third parties for commercial purposes. Data is only shared with the subprocessors necessary for the service (Supabase, Railway, Stripe, Resend)."
       },
+      "transferts": {
+        "title": "6. Transfers outside the European Union",
+        "body": "Some subprocessors are based outside the European Union, primarily in the United States (Railway, Stripe, Resend). These transfers are governed by the Standard Contractual Clauses (SCCs) adopted by the European Commission on 4 June 2021, and where applicable by certification under the Data Privacy Framework (DPF). Stripe and Resend are DPF-certified. Supabase hosts the database and image storage on servers located within the European Union."
+      },
+      "conservation": {
+        "title": "7. Retention periods",
+        "intro": "Data is retained for the following periods:",
+        "items": [
+          "Account data (profile, portfolios): for the entire duration of the account, then 30 days after deletion to allow recovery, before permanent erasure",
+          "Billing data: 10 years from the date of invoice (accounting obligation, art. L123-22 French Commercial Code)",
+          "Transactional emails: 12 months in Resend logs",
+          "Technical logs (server access, errors): 12 months maximum",
+          "Contact and report data: 3 years from the last exchange"
+        ]
+      },
       "cookies": {
-        "title": "6. Cookies",
-        "body": "Vizly only uses functional cookies necessary for the service (authentication session). No tracking, advertising or third-party analytics cookies are used."
+        "title": "8. Cookies",
+        "body": "Vizly only uses strictly necessary cookies: authentication session (Supabase) and interface preferences (sidebar state, banner acknowledgement). No audience measurement, advertising, or third-party tracking cookies are set. In line with the CNIL guidelines, these essential cookies do not require prior consent, but an information banner is shown on your first visit."
       },
       "rgpd": {
-        "title": "7. GDPR rights",
+        "title": "9. GDPR rights",
         "intro": "In accordance with the GDPR, you have the following rights:",
         "rights": [
           { "label": "Access", "description": "obtain a copy of your personal data" },
@@ -450,13 +466,17 @@
         "contactSuffix": "We will respond within 30 days."
       },
       "contactSection": {
-        "title": "8. Contact",
+        "title": "10. Contact",
         "prompt": "For any question regarding the protection of your data:"
       }
     },
     "contact": {
       "title": "Contact us",
       "subtitle": "A question, a bug, a suggestion? We respond within 24 hours."
+    },
+    "signalement": {
+      "title": "Report content",
+      "subtitle": "A portfolio hosted on Vizly violates your rights or contains manifestly illegal content? Use this form to notify us (art. 6 French LCEN, EU regulation 2022/2065 DSA)."
     },
     "faq": {
       "title": "Frequently asked questions",
@@ -1340,7 +1360,49 @@
     "successBody": "We'll reply as soon as possible.",
     "successAgain": "Send another message",
     "errorSending": "Error while sending",
+    "errorNetwork": "Network error. Try again.",
+    "consentPrefix": "I agree that my data will be processed to respond to my request. See the",
+    "consentLink": "privacy policy",
+    "consentRequired": "You must agree to the processing of your data to send your message."
+  },
+  "reportForm": {
+    "categoryLabel": "Report category",
+    "categoryPlaceholder": "Select a category",
+    "categoryOptions": {
+      "copyright": "Copyright or intellectual property infringement",
+      "privacy": "Privacy or personal data violation",
+      "hate": "Hate speech, harassment or threats",
+      "illegal": "Manifestly illegal content (fraud, counterfeit)",
+      "impersonation": "Impersonation",
+      "other": "Other"
+    },
+    "urlLabel": "URL of the reported content",
+    "urlPlaceholder": "https://username.vizly.fr/...",
+    "urlHelper": "The exact address of the portfolio or page concerned.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@email.com",
+    "messageLabel": "Report description",
+    "messagePlaceholder": "Describe the content precisely, which rights are violated and any element justifying your report.",
+    "declarationLabel": "I declare in good faith that the information provided is accurate. I understand that an abusive report may engage my liability (art. 6-I-4 French LCEN).",
+    "consentPrefix": "I agree that my data will be processed to handle this report. See the",
+    "consentLink": "privacy policy",
+    "declarationRequired": "You must certify the good faith of your report.",
+    "consentRequired": "You must agree to the processing of your data.",
+    "send": "Submit report",
+    "sending": "Sending...",
+    "successTitleStart": "Report",
+    "successTitleAccent": "received",
+    "successBody": "We handle your report within 48 hours and will keep you informed.",
+    "successAgain": "Submit another report",
+    "errorSending": "Error while sending",
     "errorNetwork": "Network error. Try again."
+  },
+  "cookieBanner": {
+    "body": "Vizly only uses strictly necessary cookies for the site to work (login session, interface preferences). No tracking or analytics cookies.",
+    "learnMore": "Learn more",
+    "accept": "Got it"
   },
   "emails": {
     "welcome": {

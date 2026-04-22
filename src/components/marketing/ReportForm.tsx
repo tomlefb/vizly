@@ -7,11 +7,25 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { VzHighlight, vzBtnClasses } from '@/components/ui/vizly'
 
-export function ContactForm() {
-  const t = useTranslations('contactForm')
+const CATEGORIES = [
+  'copyright',
+  'privacy',
+  'hate',
+  'illegal',
+  'impersonation',
+  'other',
+] as const
+
+type Category = (typeof CATEGORIES)[number]
+
+export function ReportForm() {
+  const t = useTranslations('reportForm')
+  const [category, setCategory] = useState<Category | ''>('')
+  const [url, setUrl] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
+  const [declaration, setDeclaration] = useState(false)
   const [consent, setConsent] = useState(false)
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -19,7 +33,12 @@ export function ContactForm() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
-      if (!name.trim() || !email.trim() || !message.trim()) return
+      if (!category || !url.trim() || !name.trim() || !email.trim() || !message.trim()) return
+      if (!declaration) {
+        setStatus('error')
+        setErrorMsg(t('declarationRequired'))
+        return
+      }
       if (!consent) {
         setStatus('error')
         setErrorMsg(t('consentRequired'))
@@ -30,10 +49,10 @@ export function ContactForm() {
       setErrorMsg('')
 
       try {
-        const res = await fetch('/api/contact-page', {
+        const res = await fetch('/api/report', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, message }),
+          body: JSON.stringify({ category, url, name, email, message }),
         })
         const data = (await res.json()) as { error?: string }
 
@@ -44,16 +63,19 @@ export function ContactForm() {
         }
 
         setStatus('sent')
+        setCategory('')
+        setUrl('')
         setName('')
         setEmail('')
         setMessage('')
+        setDeclaration(false)
         setConsent(false)
       } catch {
         setStatus('error')
         setErrorMsg(t('errorNetwork'))
       }
     },
-    [name, email, message, consent, t]
+    [category, url, name, email, message, declaration, consent, t]
   )
 
   if (status === 'sent') {
@@ -83,16 +105,54 @@ export function ContactForm() {
     'w-full h-10 rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20'
 
   const textareaClasses =
-    'w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[120px] focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20'
+    'w-full rounded-[var(--radius-md)] border border-border-light bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors duration-150 resize-y min-h-[140px] focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-1.5">
-        <label htmlFor="contact-name" className="block text-sm font-medium text-foreground">
+        <label htmlFor="report-category" className="block text-sm font-medium text-foreground">
+          {t('categoryLabel')}
+        </label>
+        <select
+          id="report-category"
+          required
+          value={category}
+          onChange={(e) => setCategory(e.target.value as Category)}
+          className={inputClasses}
+        >
+          <option value="" disabled>
+            {t('categoryPlaceholder')}
+          </option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {t(`categoryOptions.${c}`)}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="space-y-1.5">
+        <label htmlFor="report-url" className="block text-sm font-medium text-foreground">
+          {t('urlLabel')}
+        </label>
+        <input
+          id="report-url"
+          type="url"
+          required
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder={t('urlPlaceholder')}
+          className={inputClasses}
+        />
+        <p className="mt-1 text-xs text-muted">{t('urlHelper')}</p>
+      </div>
+
+      <div className="space-y-1.5">
+        <label htmlFor="report-name" className="block text-sm font-medium text-foreground">
           {t('nameLabel')}
         </label>
         <input
-          id="contact-name"
+          id="report-name"
           type="text"
           required
           value={name}
@@ -103,11 +163,11 @@ export function ContactForm() {
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="contact-email" className="block text-sm font-medium text-foreground">
+        <label htmlFor="report-email" className="block text-sm font-medium text-foreground">
           {t('emailLabel')}
         </label>
         <input
-          id="contact-email"
+          id="report-email"
           type="email"
           required
           value={email}
@@ -118,13 +178,13 @@ export function ContactForm() {
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="contact-message" className="block text-sm font-medium text-foreground">
+        <label htmlFor="report-message" className="block text-sm font-medium text-foreground">
           {t('messageLabel')}
         </label>
         <textarea
-          id="contact-message"
+          id="report-message"
           required
-          rows={5}
+          rows={6}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={t('messagePlaceholder')}
@@ -132,9 +192,22 @@ export function ContactForm() {
         />
       </div>
 
-      <label htmlFor="contact-consent" className="flex items-start gap-2.5 cursor-pointer">
+      <label htmlFor="report-declaration" className="flex items-start gap-2.5 cursor-pointer">
         <input
-          id="contact-consent"
+          id="report-declaration"
+          type="checkbox"
+          checked={declaration}
+          onChange={(e) => setDeclaration(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-light accent-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+        />
+        <span className="text-xs text-muted leading-relaxed">
+          {t('declarationLabel')}
+        </span>
+      </label>
+
+      <label htmlFor="report-consent" className="flex items-start gap-2.5 cursor-pointer">
+        <input
+          id="report-consent"
           type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}

@@ -28,6 +28,7 @@ export async function Footer() {
         { labelKey: 'legal.cgu' as const, href: '/legal/cgu' },
         { labelKey: 'legal.privacy' as const, href: '/legal/confidentialite' },
         { labelKey: 'legal.contact' as const, href: '/legal/contact' },
+        { labelKey: 'legal.report' as const, href: '/legal/signalement' },
       ],
     },
   ]
