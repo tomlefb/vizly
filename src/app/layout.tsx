@@ -5,7 +5,7 @@ import { headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import NextTopLoader from 'nextjs-toploader'
-import { CookieBanner } from '@/components/shared/CookieBanner'
+// import { CookieBanner } from '@/components/shared/CookieBanner'
 import './globals.css'
 
 const satoshi = localFont({
@@ -198,7 +198,8 @@ export default async function RootLayout({
         />
         <NextIntlClientProvider messages={messages}>
           {children}
-          {!isPortfolioContext && <CookieBanner />}
+          {/* Bandeau cookies désactivé : on n'utilise que des cookies strictement nécessaires (auth, locale), pas de consentement requis. */}
+          {/* {!isPortfolioContext && <CookieBanner />} */}
         </NextIntlClientProvider>
       </body>
     </html>
