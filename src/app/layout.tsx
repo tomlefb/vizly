@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { DM_Sans } from 'next/font/google'
+import { headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import NextTopLoader from 'nextjs-toploader'
@@ -99,6 +100,23 @@ export default async function RootLayout({
   const locale = await getLocale()
   const messages = await getMessages()
 
+  // Les portfolios publics (slug.vizly.fr et custom domains) ne doivent pas
+  // afficher la bannière cookies Vizly : ils servent du contenu public du
+  // user final, pas l'app Vizly. On détecte via le host : tout subdomain
+  // (hors www) de vizly.fr et tout hôte qui n'est ni vizly.fr ni localhost
+  // ni Railway interne est considéré comme un portfolio public.
+  const hdrs = await headers()
+  const host = (hdrs.get('host') ?? '').toLowerCase().replace(/:\d+$/, '')
+  const rootDomain = (process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr').toLowerCase()
+  const isAppHost =
+    host === rootDomain ||
+    host === `www.${rootDomain}` ||
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host.endsWith('.railway.app') ||
+    host.endsWith('.up.railway.app')
+  const isPortfolioContext = host.length > 0 && !isAppHost
+
   // Graph JSON-LD global : Organization (identité entreprise pour Knowledge
   // Panel), WebSite (avec SearchAction pour sitelinks search box), et
   // SoftwareApplication (produit avec AggregateOffer). Les @id croisés
@@ -180,7 +198,7 @@ export default async function RootLayout({
         />
         <NextIntlClientProvider messages={messages}>
           {children}
-          <CookieBanner />
+          {!isPortfolioContext && <CookieBanner />}
         </NextIntlClientProvider>
       </body>
     </html>
