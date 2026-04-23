@@ -64,7 +64,7 @@ const PHOTOS = {
   dark: U('photo-1534528741775-53994a69daeb'), // woman dark moody portrait
   classique: U('photo-1438761681033-6461ffad8d80'), // student woman
   colore: U('photo-1500648767791-00dcc994a43e'), // man portrait
-  creatif: U('photo-1544005313-94ddf0286df2'), // woman studio portrait
+  creatif: U('photo-1524504388940-b1c1722653e1'), // woman profile hair portrait
   brutalist: U('photo-1536148935331-408321065b18'), // dark studio aesthetic
   elegant: U('photo-1573496359142-b8d87734a5a2'), // woman elegant
   bento: U('photo-1472099645785-5658abf4ff4e'), // man designer
@@ -74,74 +74,58 @@ const PHOTOS = {
 const IMGS = {
   minimal: [
     U('photo-1555421689-491a97ff2040', 1200), // dark code terminal
-    U('photo-1517694712202-14dd9538aa97', 1200), // code editor
+    U('photo-1517694712202-14dd9538aa97', 1200), // code editor green
     U('photo-1558494949-ef010cbdcc31', 1200), // server rack
-    U('photo-1460925895917-afdab827c52f', 1200), // dashboard analytics
-    U('photo-1504384308090-c894fdcc538d', 1200), // dashboard
     U('photo-1551288049-bebda4e38f71', 1200), // analytics screen
   ],
   dark: [
-    U('photo-1518770660439-4636190af475', 1200), // abstract tech
+    U('photo-1518770660439-4636190af475', 1200), // circuit tech abstract
     U('photo-1558655146-9f40138edfeb', 1200), // colorful abstract
-    U('photo-1633356122102-3fe601e05bd2', 1200), // neon abstract
-    U('photo-1567095761054-7a02e69e5c43', 1200), // 3D render
-    U('photo-1550745165-9bc0b252726f', 1200), // synth wave
+    U('photo-1550745165-9bc0b252726f', 1200), // synth wave moody
     U('photo-1526925539332-aa3b66e35444', 1200), // glitch art
   ],
   classique: [
-    U('photo-1554224155-6726b3ff858f', 1200), // business plan
+    U('photo-1554224155-6726b3ff858f', 1200), // business plan papers
     U('photo-1542744173-8e7e53415bb0', 1200), // business meeting
     U('photo-1611926653458-09294b3142bf', 1200), // phone + social
-    U('photo-1460925895917-afdab827c52f', 1200), // analytics
-    U('photo-1552664730-d307ca884978', 1200), // workspace desk
-    U('photo-1434030216411-0b793f4b4173', 1200), // graduation
+    U('photo-1460925895917-afdab827c52f', 1200), // analytics dashboard
   ],
   colore: [
-    U('photo-1611162617474-5b21e879e113', 1200), // instagram phone
-    U('photo-1611605698335-8b1569810432', 1200), // social content
-    U('photo-1552058544-f2b08422138a', 1200), // tiktok phone
+    U('photo-1611605698335-8b1569810432', 1200), // social content workstation
+    U('photo-1542744095-291d1f67b221', 1200), // content creation
     U('photo-1563986768609-322da13575f3', 1200), // email/newsletter
-    U('photo-1533750516457-a7f992034fec', 1200), // colorful desk
-    U('photo-1519744792095-2f2205e87b6f', 1200), // creative tools
+    U('photo-1611162616475-46b635cb6868', 1200), // TikTok phone
   ],
   creatif: [
-    U('photo-1544005313-94ddf0286df2', 1200), // portrait studio woman
-    U('photo-1529139574466-a303027c1d8b', 1200), // fashion editorial
-    U('photo-1515886657613-9f3515b0c78f', 1200), // fashion portrait
-    U('photo-1492707892479-7bc8d5a4ee93', 1200), // fashion magazine
-    U('photo-1513364776144-60967b0f800f', 1200), // art gallery
-    U('photo-1520262454473-a1a82276a574', 1200), // editorial fashion
+    U('photo-1503342217505-b0a15ec3261c', 1200), // woman red dress studio
+    U('photo-1502823403499-6ccfcf4fb453', 1200), // fashion outdoor
+    U('photo-1490481651871-ab68de25d43d', 1200), // studio fashion shoot
+    U('photo-1533158628620-7e35717d36e8', 1200), // art exhibition gallery
   ],
   brutalist: [
-    U('photo-1509021436665-8f07dbf5bf1d', 1200), // typography poster
-    U('photo-1589114333060-b3e1de2cef25', 1200), // bold type
-    U('photo-1626785774573-4b799315345d', 1200), // brand identity
-    U('photo-1578662996442-48f60103fc96', 1200), // editorial zine
-    U('photo-1554774853-aae0a22c8aa4', 1200), // type experiment
-    U('photo-1557683316-973673baf926', 1200), // black abstract
+    U('photo-1618004912476-29818d81ae2e', 1200), // bold typography
+    U('photo-1524634126442-357e0eac3c14', 1200), // layered print
+    U('photo-1526925539332-aa3b66e35444', 1200), // glitch art editorial
+    U('photo-1518770660439-4636190af475', 1200), // circuit abstract
   ],
   elegant: [
-    U('photo-1560448204-e02f11c3d0e2', 1200), // loft interior
     U('photo-1600596542815-ffad4c1539a9', 1200), // luxury villa
     U('photo-1567016526105-22da7c13161a', 1200), // modern interior
-    U('photo-1564078516393-cf04bd966897', 1200), // boutique hotel
     U('photo-1586023492125-27b2c045efd7', 1200), // architecture interior
     U('photo-1615529162924-f8605388461d', 1200), // modern bedroom
   ],
   bento: [
-    U('photo-1547658719-da2b51169166', 1200), // figma components
-    U('photo-1558655146-9f40138edfeb', 1200), // design abstract
-    U('photo-1512941937669-90a1b58e7e9c', 1200), // mobile app
-    U('photo-1460925895917-afdab827c52f', 1200), // data viz dashboard
-    U('photo-1558655146-9f40138edfeb', 1200), // abstract
-    U('photo-1561736778-92e52a7769ef', 1200), // product design
+    U('photo-1547658719-da2b51169166', 1200), // figma components wall
+    U('photo-1512941937669-90a1b58e7e9c', 1200), // mobile app design
+    U('photo-1551288049-bebda4e38f71', 1200), // dashboard data viz
+    U('photo-1507238691740-187a5b1d37b8', 1200), // mobile ux sketches
   ],
 }
 
 const ENTRIES = {
   minimal: {
     name: 'Thomas Lefèvre',
-    bio: 'Backend engineer, Go & Rust. Trois ans chez Doctolib, maintenant freelance sur des projets data-intensive.',
+    bio: "Backend engineer, huit ans d'XP sur des systèmes event-driven à forte charge. Spécialisé Go et Rust, avec un faible pour les architectures multi-tenant et les pipelines data temps réel.\n\nTrois ans chez Doctolib (équipe plateforme, migration Python → Go, gestion de 2M+ requêtes/jour), maintenant freelance sur des projets critiques : néobanques, SaaS B2B, infra scale-up. Je m'occupe de ce qui se passe sous le capot — archi, perf, observability, on-call — et je signe rarement pour autre chose que du long terme.\n\nDispo deux à trois jours par semaine à partir de juin. Si tu cherches quelqu'un pour reprendre une codebase qui commence à gratter ou construire un nouveau service from scratch, on peut en parler.",
     contactEmail: 'hello@thomaslefevre.dev',
     socialLinks: {
       github: 'https://github.com',
@@ -264,8 +248,8 @@ const ENTRIES = {
         id: 'creatif-layout-1',
         columnCount: 2,
         columns: [
-          { type: 'image', imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&q=80&auto=format&fit=crop', imageAlt: 'Portrait studio' },
-          { type: 'image', imageUrl: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=1200&q=80&auto=format&fit=crop', imageAlt: 'Mode éditorial' },
+          { type: 'image', imageUrl: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=1200&q=80&auto=format&fit=crop', imageAlt: 'Portrait studio' },
+          { type: 'image', imageUrl: 'https://images.unsplash.com/photo-1606166325683-e6deb697d301?w=1200&q=80&auto=format&fit=crop', imageAlt: 'Mode éditorial' },
         ],
       },
     ],

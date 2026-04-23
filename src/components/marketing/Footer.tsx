@@ -17,6 +17,7 @@ export async function Footer() {
     {
       titleKey: 'ressources.title' as const,
       links: [
+        { labelKey: 'ressources.examples' as const, href: '/exemples' },
         { labelKey: 'ressources.blog' as const, href: '/blog' },
         { labelKey: 'ressources.faq' as const, href: '/legal/faq' },
       ],

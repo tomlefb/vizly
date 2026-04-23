@@ -21,6 +21,7 @@ export function Header() {
     { label: t('features'), href: '/fonctionnalites' },
     { label: t('templates'), href: '/templates' },
     { label: t('pricing'), href: '/tarifs' },
+    { label: t('showcase'), href: '/exemples' },
     { label: t('blog'), href: '/blog' },
   ]
 
