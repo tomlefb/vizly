@@ -1,18 +1,23 @@
 'use server'
 
+import { headers, cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { portfolioSchema, slugSchema } from '@/lib/validations'
 import { PLANS, type PlanType } from '@/lib/constants'
 import { sendEmail } from '@/lib/emails/send'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
+import { extractClientContext } from '@/lib/analytics/meta-capi'
+import { fireMetaStartTrial } from '@/lib/analytics/meta-events'
 import type { PortfolioFormData } from '@/lib/validations'
 import type { Portfolio } from '@/types'
+import type { MetaTrackingEvent } from '@/actions/auth'
 
 const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
 
 interface PortfolioResult {
   data: Portfolio | null
   error: string | null
+  metaEvent?: MetaTrackingEvent
 }
 
 export async function getPortfolio(): Promise<PortfolioResult> {
@@ -175,12 +180,56 @@ export async function upsertPortfolio(
       return { data: null, error: error.message }
     }
 
-    return { data, error: null }
+    // Meta Ads tracking: fire StartTrial on first portfolio insert.
+    // Atomic claim makes this idempotent if the auto-save somehow
+    // triggers multiple inserts; only the first one fires the event.
+    const metaEvent = await tryFireStartTrial(user.id, user.email)
+
+    return { data, error: null, ...(metaEvent ? { metaEvent } : {}) }
   } catch {
     return {
       data: null,
       error: 'Erreur lors de la sauvegarde du portfolio',
     }
+  }
+}
+
+async function tryFireStartTrial(
+  userId: string,
+  email: string | undefined,
+): Promise<MetaTrackingEvent | undefined> {
+  try {
+    const hdrs = await headers()
+    const ck = await cookies()
+    const { ipAddress, userAgent, fbp, fbc } = extractClientContext(hdrs, {
+      get: (name) => {
+        const c = ck.get(name)
+        return c ? { value: c.value } : undefined
+      },
+    })
+    const forwardedHost = hdrs.get('x-forwarded-host') ?? hdrs.get('host') ?? APP_DOMAIN
+    const forwardedProto = hdrs.get('x-forwarded-proto') ?? 'https'
+    const eventSourceUrl = `${forwardedProto}://${forwardedHost}/editor`
+
+    const result = await fireMetaStartTrial({
+      userId,
+      email,
+      eventSourceUrl,
+      ipAddress,
+      userAgent,
+      fbp,
+      fbc,
+    })
+    if (!result.fired) return undefined
+    return {
+      name: 'StartTrial',
+      id: result.eventId,
+      params: result.params,
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'unknown'
+    console.error('[META_CAPI] fireStartTrial threw', { error: message })
+    return undefined
   }
 }
 

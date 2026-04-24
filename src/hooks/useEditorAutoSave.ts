@@ -5,6 +5,7 @@ import type { Dispatch, MutableRefObject, SetStateAction } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@/hooks/useDebounce'
 import { upsertPortfolio } from '@/actions/portfolio'
+import { maybeFirePixelFromResult } from '@/lib/analytics/meta-pixel'
 import type { PortfolioFormData } from '@/lib/validations'
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
@@ -108,6 +109,11 @@ export function useEditorAutoSave({
         router.replace(`/editor?id=${result.data.id}`)
       }
 
+      // Fire Meta Pixel StartTrial on first portfolio insert (no-op
+      // otherwise — result.metaEvent is only populated when the server
+      // atomically claimed the idempotency flag).
+      maybeFirePixelFromResult(result)
+
       if (!cancelled) {
         setSaveStatus('saved')
         setSaveError(null)
@@ -137,6 +143,7 @@ export function useEditorAutoSave({
     setSaveError(null)
     const currentId = portfolioIdRef.current
     const result = await upsertPortfolio(portfolioData, currentId ?? undefined)
+    maybeFirePixelFromResult(result)
     if (result.error) {
       setSaveStatus('error')
       setSaveError(result.error)

@@ -12,6 +12,7 @@ import {
   deleteProject,
 } from '@/actions/projects'
 import { getBillingStatus } from '@/actions/billing'
+import { maybeFirePixelFromResult } from '@/lib/analytics/meta-pixel'
 import { APP_DOMAIN, DEFAULT_PORTFOLIO_COLOR } from '@/lib/constants'
 import { TEMPLATE_CONFIGS } from '@/types/templates'
 import { parseSections, parseSkills } from '@/types/sections'
@@ -389,6 +390,7 @@ export function useEditorState({
           router.replace(`/editor?id=${result.data.id}`)
           await syncProjectsWithId(result.data.id)
         }
+        maybeFirePixelFromResult(result)
         setSaveStatus(result.error ? 'error' : 'saved')
         if (result.error) setSaveError(result.error)
       }
@@ -454,6 +456,7 @@ export function useEditorState({
           }
           await syncProjectsWithId(saveResult.data.id)
         }
+        maybeFirePixelFromResult(saveResult)
         setPurchaseModalTemplate(templateId)
       } catch {
         setSaveError('Erreur lors de la sauvegarde du portfolio')
@@ -526,6 +529,7 @@ export function useEditorState({
         await syncProjectsWithId(pId)
       }
 
+      maybeFirePixelFromResult(result)
       setIsPublishing(false)
       return { error: null }
     } catch {

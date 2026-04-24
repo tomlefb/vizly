@@ -5,6 +5,7 @@ import { headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import NextTopLoader from 'nextjs-toploader'
+import { MetaPixel } from '@/components/analytics/MetaPixel'
 // import { CookieBanner } from '@/components/shared/CookieBanner'
 import './globals.css'
 
@@ -196,6 +197,10 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Meta Pixel chargé uniquement sur l'app Vizly, pas sur les
+            portfolios publics (slug.vizly.fr, custom domains) — on ne
+            veut pas pixeliser les visiteurs des sites clients. */}
+        {!isPortfolioContext && <MetaPixel />}
         <NextIntlClientProvider messages={messages}>
           {children}
           {/* Bandeau cookies désactivé : on n'utilise que des cookies strictement nécessaires (auth, locale), pas de consentement requis. */}

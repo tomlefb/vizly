@@ -55,6 +55,7 @@ import {
   resolveUserIdForSubscription,
 } from '@/lib/stripe/webhook-helpers'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { fireMetaSubscribe } from '@/lib/analytics/meta-events'
 import type { Json } from '@/lib/supabase/types'
 import {
   sendCancellationEmail,
@@ -909,6 +910,26 @@ async function handleInvoicePaid(
           supabase,
         )
       }
+    }
+
+    // Meta Ads tracking: fire Subscribe on first paid invoice. Meta
+    // dedupe is idempotent by subscription.id (one Subscribe per
+    // subscription). Failure is swallowed by the helper. No client
+    // Pixel here — the user may not be on-site when the webhook fires.
+    const customerEmail = invoice.customer_email ?? undefined
+    const eventSourceHost = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
+    try {
+      await fireMetaSubscribe({
+        userId,
+        email: customerEmail,
+        value: invoice.amount_paid / 100,
+        currency: (invoice.currency ?? 'eur').toUpperCase(),
+        stripeSessionOrSubId: subscriptionId,
+        eventSourceUrl: `https://${eventSourceHost}/billing`,
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'unknown'
+      console.error('[META_CAPI] fireSubscribe threw', { error: message })
     }
   } else if (billingReason === 'subscription_cycle') {
     // Renewal — DB synced, no email in Phase 3 scope. See file header

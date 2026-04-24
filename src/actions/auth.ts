@@ -1,10 +1,13 @@
 'use server'
 
+import { headers, cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/emails/send'
 import { getActionClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { stripe } from '@/lib/stripe/client'
+import { extractClientContext } from '@/lib/analytics/meta-capi'
+import { fireMetaRegistration } from '@/lib/analytics/meta-events'
 import { z } from 'zod'
 
 // ---------------------------------------------------------------------------
@@ -144,8 +147,19 @@ export type VerifyOtpErrorCode =
   | 'rate_limited'
   | 'unknown'
 
+export interface MetaTrackingEvent {
+  name: 'CompleteRegistration' | 'StartTrial' | 'Subscribe'
+  id: string
+  params: {
+    value?: number
+    currency?: string
+    content_name?: string
+    content_category?: string
+  }
+}
+
 export type VerifyUserOtpResult =
-  | { ok: true; userId: string }
+  | { ok: true; userId: string; metaEvent?: MetaTrackingEvent }
   | { ok: false; error: string; code: VerifyOtpErrorCode }
 
 /**
@@ -234,11 +248,60 @@ export async function verifyUserOtp(
     // to exclude duplicates. Failure is logged, never throws.
     await maybeSendWelcome(data.user, supabase)
 
-    return { ok: true, userId: data.user.id }
+    // Meta Ads tracking: fire CompleteRegistration on first OTP verify.
+    // fireMetaRegistration uses an atomic claim, so double-submits or
+    // retries fire at most once per user. The returned event_id is
+    // relayed to the client so the Pixel fires with the same id and
+    // Meta dedupes server + client sides.
+    const metaEvent = await tryFireRegistration({
+      userId: data.user.id,
+      email: data.user.email ?? parsed.data.email,
+    })
+
+    return { ok: true, userId: data.user.id, ...(metaEvent ? { metaEvent } : {}) }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inattendue'
     console.error('[Auth OTP] Unexpected verifyOtp error:', message)
     return { ok: false, error: message, code: 'unknown' }
+  }
+}
+
+async function tryFireRegistration(args: {
+  userId: string
+  email?: string
+}): Promise<MetaTrackingEvent | undefined> {
+  try {
+    const hdrs = await headers()
+    const ck = await cookies()
+    const { ipAddress, userAgent, fbp, fbc } = extractClientContext(hdrs, {
+      get: (name) => {
+        const c = ck.get(name)
+        return c ? { value: c.value } : undefined
+      },
+    })
+    const forwardedHost = hdrs.get('x-forwarded-host') ?? hdrs.get('host') ?? 'vizly.fr'
+    const forwardedProto = hdrs.get('x-forwarded-proto') ?? 'https'
+    const eventSourceUrl = `${forwardedProto}://${forwardedHost}/register`
+
+    const result = await fireMetaRegistration({
+      userId: args.userId,
+      email: args.email,
+      eventSourceUrl,
+      ipAddress,
+      userAgent,
+      fbp,
+      fbc,
+    })
+    if (!result.fired) return undefined
+    return {
+      name: 'CompleteRegistration',
+      id: result.eventId,
+      params: result.params,
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'unknown'
+    console.error('[META_CAPI] fireRegistration threw', { error: message })
+    return undefined
   }
 }
 

@@ -140,6 +140,13 @@ function RegisterPageInner() {
         return
       }
 
+      // Fire the Meta Pixel with the event_id generated server-side
+      // so Meta dedupes the client + server events. Best-effort — the
+      // helper is a no-op if fbq is blocked or missing.
+      if (result.metaEvent && typeof window.vizlyTrack === 'function') {
+        window.vizlyTrack(result.metaEvent.name, result.metaEvent.params, result.metaEvent.id)
+      }
+
       // Swap to the redirecting screen first, then trigger the hard
       // reload on a microtask so React can paint the new screen before
       // the page unloads. Without this, the OTP step briefly flashes

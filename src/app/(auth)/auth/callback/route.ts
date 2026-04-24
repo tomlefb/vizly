@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { fireMetaRegistration } from '@/lib/analytics/meta-events'
+import { extractClientContext } from '@/lib/analytics/meta-capi'
 
 /**
  * OAuth Google return handler. Exchanges the provider code for a
@@ -36,9 +38,49 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      // Meta Ads tracking: fire CompleteRegistration for first-time
+      // OAuth signups. The atomic claim inside fireMetaRegistration
+      // guarantees it only fires once per user (idempotent on login
+      // after the initial signup). The returned event_id is relayed
+      // via a query param so the dashboard can fire the Pixel with
+      // the same id for dedup.
+      let metaRelay = ''
+      if (data.user) {
+        try {
+          const cookieJar: { get: (name: string) => { value: string } | undefined } = {
+            get: (name) => {
+              const match = request.headers.get('cookie')?.match(new RegExp(`(?:^|; )${name}=([^;]*)`))
+              return match ? { value: decodeURIComponent(match[1] ?? '') } : undefined
+            },
+          }
+          const { ipAddress, userAgent, fbp, fbc } = extractClientContext(
+            request.headers,
+            cookieJar,
+          )
+          const result = await fireMetaRegistration({
+            userId: data.user.id,
+            email: data.user.email,
+            eventSourceUrl: `${origin}/auth/callback`,
+            ipAddress,
+            userAgent,
+            fbp,
+            fbc,
+          })
+          if (result.fired) {
+            metaRelay = `?meta=CompleteRegistration:${result.eventId}`
+          }
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'unknown'
+          console.error('[META_CAPI] OAuth fire threw', { error: message })
+        }
+      }
+      const separator = metaRelay ? (next.includes('?') ? '&' : '?') : ''
+      const relayQs = metaRelay
+        ? `${separator}${metaRelay.slice(1)}`
+        : ''
+      return NextResponse.redirect(`${origin}${next}${relayQs}`)
     }
   }
 
