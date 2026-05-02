@@ -55,6 +55,14 @@ interface FireSubscribeInput {
   currency: string
   stripeSessionOrSubId: string
   eventSourceUrl: string
+  // Captured at checkout-creation time, replayed from Stripe metadata in
+  // the webhook so Meta can match the conversion to the original click.
+  // Optional because legacy subscriptions created before this propagation
+  // landed have no metadata to replay.
+  fbp?: string
+  fbc?: string
+  ipAddress?: string
+  userAgent?: string
 }
 
 /**
@@ -164,7 +172,12 @@ export async function fireMetaSubscribe(input: FireSubscribeInput): Promise<Fire
   await sendCapiEvent({
     eventName: 'Subscribe',
     eventId,
-    userData: buildUserData(input.userId, email, {}),
+    userData: buildUserData(input.userId, email, {
+      fbp: input.fbp,
+      fbc: input.fbc,
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+    }),
     customData: params,
     eventSourceUrl: input.eventSourceUrl,
     actionSource: 'system_generated',

@@ -146,7 +146,32 @@ export async function createSubscriptionWithPaymentIntent(params: {
   customerId: string
   priceId: string
   promotionCode?: string
+  /**
+   * Meta CAPI matching context, captured from the user's browser at the
+   * moment they hit the "Subscribe" CTA. Stored on the subscription's
+   * Stripe metadata so the asynchronous `invoice.paid` webhook can replay
+   * fbp/fbc/IP/UA to Meta and avoid the EMQ collapse that comes from
+   * sending Subscribe with email-only matching. All fields optional —
+   * Stripe metadata values must be strings, so empty values are dropped.
+   */
+  metaContext?: {
+    fbp?: string
+    fbc?: string
+    ipAddress?: string
+    userAgent?: string
+  }
 }): Promise<{ subscriptionId: string; clientSecret: string }> {
+  const metaMetadata: Record<string, string> = {}
+  if (params.metaContext?.fbp) metaMetadata.meta_fbp = params.metaContext.fbp
+  if (params.metaContext?.fbc) metaMetadata.meta_fbc = params.metaContext.fbc
+  if (params.metaContext?.ipAddress) metaMetadata.meta_ip = params.metaContext.ipAddress
+  if (params.metaContext?.userAgent) {
+    // Stripe metadata values cap at 500 chars. Modern UAs stay well under
+    // that but a couple of fingerprinting suffixes can push past — slice
+    // defensively rather than have Stripe reject the whole subscription.
+    metaMetadata.meta_ua = params.metaContext.userAgent.slice(0, 500)
+  }
+
   const subscription = await stripe.subscriptions.create({
     customer: params.customerId,
     items: [{ price: params.priceId }],
@@ -179,6 +204,7 @@ export async function createSubscriptionWithPaymentIntent(params: {
     metadata: {
       userId: params.userId,
       type: 'subscription',
+      ...metaMetadata,
     },
     automatic_tax: {
       // Tuyauterie Stripe Tax prête mais désactivée en franchise en base

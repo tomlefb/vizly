@@ -916,8 +916,17 @@ async function handleInvoicePaid(
     // dedupe is idempotent by subscription.id (one Subscribe per
     // subscription). Failure is swallowed by the helper. No client
     // Pixel here — the user may not be on-site when the webhook fires.
+    //
+    // fbp/fbc/ip/ua are captured at checkout-creation time and stored on
+    // the subscription metadata (see actions/billing.ts +
+    // lib/stripe/elements.ts). We replay them here to give Meta the
+    // strongest possible match signal — without them, Subscribe ships
+    // with email-only matching and EMQ collapses. Older subscriptions
+    // created before this propagation landed have empty metadata, which
+    // is fine: the helper just sends what's available.
     const customerEmail = invoice.customer_email ?? undefined
     const eventSourceHost = process.env.NEXT_PUBLIC_APP_DOMAIN ?? 'vizly.fr'
+    const subMetadata = subscription.metadata ?? {}
     try {
       await fireMetaSubscribe({
         userId,
@@ -926,6 +935,10 @@ async function handleInvoicePaid(
         currency: (invoice.currency ?? 'eur').toUpperCase(),
         stripeSessionOrSubId: subscriptionId,
         eventSourceUrl: `https://${eventSourceHost}/billing`,
+        fbp: subMetadata.meta_fbp || undefined,
+        fbc: subMetadata.meta_fbc || undefined,
+        ipAddress: subMetadata.meta_ip || undefined,
+        userAgent: subMetadata.meta_ua || undefined,
       })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'unknown'

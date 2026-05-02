@@ -1,6 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { cookies, headers } from 'next/headers'
+import { extractClientContext } from '@/lib/analytics/meta-capi'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe/client'
@@ -738,12 +740,27 @@ export async function createSubscriptionIntentAction({
       return { ok: false, error: 'price_not_configured' }
     }
 
+    // Capture Meta CAPI matching context NOW (the user is on-site, with
+    // their _fbp/_fbc cookies and a real client IP/UA in the headers) so
+    // the asynchronous invoice.paid webhook can replay them. Without this,
+    // Subscribe events ship with email-only matching and EMQ collapses
+    // to ~5/10. See meta-events.ts:fireMetaSubscribe.
+    const hdrs = await headers()
+    const ck = await cookies()
+    const { ipAddress, userAgent, fbp, fbc } = extractClientContext(hdrs, {
+      get: (name) => {
+        const c = ck.get(name)
+        return c ? { value: c.value } : undefined
+      },
+    })
+
     const { subscriptionId, clientSecret } =
       await createSubscriptionWithPaymentIntent({
         userId: user.id,
         customerId,
         priceId,
         promotionCode: promotionCodeId,
+        metaContext: { fbp, fbc, ipAddress, userAgent },
       })
 
     return { ok: true, clientSecret, subscriptionId }
