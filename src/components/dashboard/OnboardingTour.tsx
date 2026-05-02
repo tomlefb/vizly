@@ -29,6 +29,7 @@ const STEPS: Step[] = [
 const TOOLTIP_W = 340
 const WELCOME_W = 460
 const VIEWPORT_MARGIN = 16
+const LG_BREAKPOINT = 1024
 
 interface Rect {
   top: number
@@ -123,16 +124,29 @@ export function OnboardingTour() {
   const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(true)
   const [stepIndex, setStepIndex] = useState(0)
+  const [vw, setVw] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : LG_BREAKPOINT,
+  )
   const reduced = useReducedMotion()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const step = STEPS[stepIndex] ?? STEPS[0]
+  useEffect(() => {
+    const onResize = () => setVw(window.innerWidth)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // La sidebar est cachée hors écran (translateX) en dessous de lg → spotlight
+  // pointe vers le vide. On la sort du tour sur mobile/tablette.
+  const steps = vw < LG_BREAKPOINT ? STEPS.filter((s) => s.key !== 'sidebar') : STEPS
+  const safeStepIndex = Math.min(stepIndex, steps.length - 1)
+  const step = steps[safeStepIndex] ?? steps[0]
   const rect = useTargetRect(step?.selector ?? null)
 
-  const isLast = stepIndex === STEPS.length - 1
+  const isLast = safeStepIndex === steps.length - 1
 
   const finish = useCallback(async () => {
     setOpen(false)
@@ -163,7 +177,11 @@ export function OnboardingTour() {
   if (!mounted || !step) return null
 
   const isWelcome = step.key === 'welcome'
-  const cardW = isWelcome ? WELCOME_W : TOOLTIP_W
+  const baseCardW = isWelcome ? WELCOME_W : TOOLTIP_W
+  // On cap à viewport - marges des deux côtés pour éviter de calculer une
+  // position avec une largeur > viewport (ce qui sortait la card hors écran
+  // sur mobile alors que max-w-[calc(100vw-32px)] la ramenait visuellement).
+  const cardW = Math.min(baseCardW, vw - VIEWPORT_MARGIN * 2)
   const tooltipPos = getTooltipPosition(rect, step, cardW)
 
   const spotlightPadding = step.padding
@@ -247,7 +265,7 @@ export function OnboardingTour() {
           >
             <div className={cn('flex items-center justify-between', isWelcome ? 'mb-4' : 'mb-3')}>
               <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">
-                {t('step', { current: stepIndex + 1, total: STEPS.length })}
+                {t('step', { current: safeStepIndex + 1, total: steps.length })}
               </span>
               <button
                 type="button"
@@ -282,14 +300,14 @@ export function OnboardingTour() {
 
             {/* Dots */}
             <div className={cn('flex items-center justify-center gap-1.5', isWelcome ? 'mt-7' : 'mt-5')}>
-              {STEPS.map((s, i) => (
+              {steps.map((s, i) => (
                 <span
                   key={s.key}
                   className={cn(
                     'h-1.5 rounded-full transition-all duration-200',
-                    i === stepIndex
+                    i === safeStepIndex
                       ? 'w-5 bg-accent'
-                      : i < stepIndex
+                      : i < safeStepIndex
                         ? 'w-1.5 bg-accent/40'
                         : 'w-1.5 bg-border',
                   )}
@@ -298,7 +316,7 @@ export function OnboardingTour() {
             </div>
 
             <div className={cn('flex items-center justify-between gap-3', isWelcome ? 'mt-7' : 'mt-5')}>
-              {stepIndex > 0 ? (
+              {safeStepIndex > 0 ? (
                 <button
                   type="button"
                   onClick={back}
