@@ -67,6 +67,16 @@ export function trackPixelEvent(
   eventId?: string,
 ): void {
   if (typeof window === 'undefined') return
+  // Runtime guard: TS narrows eventName to MetaPixelEventName at the type
+  // boundary, but JS callers (window.vizlyTrack from third-party scripts,
+  // GTM tags, browser extensions) and any future caller that passes a
+  // server-shaped object can slip undefined / '' through. When that hits
+  // fbq('track', undefined, ...), Meta logs the call as `__missing_event`
+  // and blocks it — silently breaking conversion tracking.
+  if (typeof eventName !== 'string' || eventName.trim() === '') {
+    console.warn('[META_PIXEL] missing eventName, dropping call', { eventId })
+    return
+  }
   if (typeof window.fbq !== 'function') {
     console.info('[META_PIXEL] fbq unavailable, skipping', { eventName })
     return
