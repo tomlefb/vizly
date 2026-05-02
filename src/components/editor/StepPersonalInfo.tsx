@@ -169,7 +169,7 @@ export function StepPersonalInfo({
                   type="text"
                   value={data.title}
                   onChange={(e) => onChange('title', e.target.value)}
-                  placeholder="Tom Lefebvre"
+                  placeholder="Prénom Nom"
                   maxLength={100}
                   className={cn(inputBase, errors['title'] ? 'border-destructive' : 'border-border-light')}
                   aria-invalid={!!errors['title']}

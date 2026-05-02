@@ -103,8 +103,8 @@ export function Header() {
       <div
         id="mobile-menu"
         className={cn(
-          'md:hidden overflow-hidden border-b border-border-light bg-background transition-all duration-300 ease-out',
-          mobileOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          'md:hidden overflow-y-auto border-b border-border-light bg-background transition-all duration-300 ease-out',
+          mobileOpen ? 'max-h-[calc(100dvh-4rem)] opacity-100' : 'max-h-0 opacity-0'
         )}
         aria-hidden={!mobileOpen}
       >
